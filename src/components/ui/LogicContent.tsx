@@ -49,7 +49,7 @@ export default function LogicContent({ content }: LogicContentProps) {
             </h4>
           ),
           p: ({ children }) => (
-            <p className="my-4 leading-8 text-[15px] text-on-surface-variant">
+            <p className="my-4 text-base leading-8 text-on-surface-variant">
               {children}
             </p>
           ),
@@ -64,7 +64,7 @@ export default function LogicContent({ content }: LogicContentProps) {
             </ol>
           ),
           li: ({ children }) => (
-            <li className="pl-1 leading-7 text-on-surface-variant">
+            <li className="pl-1 text-base leading-8 text-on-surface-variant">
               {children}
             </li>
           ),

@@ -118,8 +118,8 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
       "When kernel methods may help capture non-linear structure without explicit feature engineering.",
     ],
     assumptions: [
-      "The displayed hard-margin constraints are an idealized case; practical SVMs usually use soft margins with regularization.",
-      "Kernel choice and the regularization parameter strongly affect both fit and generalization.",
+      "The displayed hard-margin constraints are an idealized case; practical SVMs usually use soft margins with regularisation.",
+      "Kernel choice and the regularisation parameter strongly affect both fit and generalisation.",
       "Linear SVMs are often more interpretable than kernel SVMs, whose boundaries are nonlinear in the original space.",
     ],
     references: [
@@ -213,10 +213,10 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
     whenToUse: [
       "When you need a highly competitive model for structured/tabular data.",
       "When additive stagewise models are a good fit for the problem and careful tuning is acceptable.",
-      "When you want to optimize a differentiable loss with weak learners such as shallow trees.",
+      "When you want to optimise a differentiable loss with weak learners such as shallow trees.",
     ],
     assumptions: [
-      "Gradient boosting performs stagewise additive modeling and can be viewed as functional gradient descent on the loss.",
+      "Gradient boosting performs stagewise additive modelling and can be viewed as functional gradient descent on the loss.",
       "For squared-error loss, negative gradients correspond to ordinary residuals; for other losses they are pseudo-residuals.",
       "Boosting stages are sequential, though some work within a stage can still be parallelized depending on the implementation.",
     ],
@@ -282,7 +282,7 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
       "When you already have a reasonable guess for the number of clusters.",
     ],
     assumptions: [
-      "K-means minimizes within-cluster squared distance to centroids, typically under Euclidean geometry.",
+      "K-means minimises within-cluster squared distance to centroids, typically under Euclidean geometry.",
       "Lloyd's algorithm monotonically decreases the objective and converges to a local optimum, not necessarily the global one.",
       "Results can vary substantially with initialization, scaling, and the choice of K.",
     ],
@@ -439,7 +439,7 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
 
   "recurrent-neural-networks": {
     whenToUse: [
-      "When sequential order matters and hidden state is a natural modeling choice.",
+      "When sequential order matters and hidden state is a natural modelling choice.",
       "When working with time series, streaming signals, or lightweight sequence models.",
       "When you want to understand the foundations behind gated sequence architectures such as LSTMs and GRUs.",
     ],

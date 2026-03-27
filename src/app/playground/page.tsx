@@ -89,7 +89,7 @@ export default function PlaygroundPage() {
                 step: "3",
                 title: "Configure & Train",
                 description:
-                  "Adjust hidden units (network width), learning rate, and regularization. Then hit Train and watch the decision boundary evolve in real time.",
+                  "Adjust hidden units (network width), learning rate, and regularisation. Then hit Train and watch the decision boundary evolve in real time.",
               },
               {
                 step: "4",
@@ -177,16 +177,16 @@ export default function PlaygroundPage() {
                 Gradients are computed via{" "}
                 <strong className="text-on-surface">backpropagation</strong> —
                 the chain rule applied through every layer. The weight update
-                includes L2 regularization (weight decay):
+                includes L2 regularisation (weight decay):
               </p>
               <div className="mt-3 rounded-lg bg-surface-container px-4 py-3 font-mono text-xs leading-6 text-on-surface-variant">
                 θ ← θ − η·(∇L + λ·θ)
               </div>
               <p className="mt-3 text-sm leading-7 text-on-surface-variant">
                 The <strong className="text-on-surface">‖W‖ metric</strong>{" "}
-                tracks total weight magnitude. Higher regularization (λ) keeps
+                tracks total weight magnitude. Higher regularisation (λ) keeps
                 this small, producing simpler, smoother decision boundaries that
-                generalize better.
+                generalise better.
               </p>
             </div>
 
@@ -226,7 +226,7 @@ export default function PlaygroundPage() {
 
             <div className="rounded-xl border border-outline-variant/50 bg-surface-container-high p-6">
               <h3 className="mb-3 text-base font-semibold text-on-surface">
-                Reading the Visualization
+                Reading the Visualisation
               </h3>
               <ul className="space-y-3 text-sm leading-7 text-on-surface-variant">
                 <li className="flex items-start gap-3">

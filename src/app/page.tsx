@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { motion, Variants } from "framer-motion";
 import AlgorithmCard from "@/components/ui/AlgorithmCard";
 import { algorithms } from "@/data/algorithms";
 import {
@@ -13,21 +16,24 @@ const featuredTracks = [
     description:
       "Start with regression, classification, trees, and ensemble methods.",
     href: "/algorithms/supervised",
-    accent: "primary",
+    accent: "primary" as const,
+    count: algorithms.filter((a) => a.category === "Supervised").length,
   },
   {
     title: "Unsupervised Learning",
     description:
       "Explore clustering, density estimation, and dimensionality reduction.",
     href: "/algorithms/unsupervised",
-    accent: "secondary",
+    accent: "secondary" as const,
+    count: algorithms.filter((a) => a.category === "Unsupervised").length,
   },
   {
     title: "Deep Learning",
     description:
       "Study multilayer networks, CNNs, RNNs, and representation learning.",
     href: "/algorithms/deep-learning",
-    accent: "tertiary",
+    accent: "tertiary" as const,
+    count: algorithms.filter((a) => a.category === "Deep Learning").length,
   },
 ] as const;
 
@@ -37,26 +43,65 @@ const heroStats = [
   { label: "Interactive Labs", value: "1" },
 ] as const;
 
-const accentClassMap = {
-  primary: "bg-primary/12 text-primary",
-  secondary: "bg-secondary/12 text-secondary",
-  tertiary: "bg-tertiary/12 text-tertiary",
+const accentBorderMap = {
+  primary: "border-l-primary hover:shadow-[0_2px_16px_-4px_rgba(173,198,255,0.12)]",
+  secondary: "border-l-secondary hover:shadow-[0_2px_16px_-4px_rgba(208,188,255,0.12)]",
+  tertiary: "border-l-tertiary hover:shadow-[0_2px_16px_-4px_rgba(123,208,255,0.12)]",
 } as const;
+
+const accentBadgeMap = {
+  primary: "bg-primary/10 text-primary",
+  secondary: "bg-secondary/10 text-secondary",
+  tertiary: "bg-tertiary/10 text-tertiary",
+} as const;
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.08,
+      duration: 0.5,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  }),
+};
+
+const stagger: Variants = {
+  visible: {
+    transition: {
+      staggerChildren: 0.06,
+    },
+  },
+};
 
 export default function Home() {
   return (
     <div className="min-h-screen">
-      <section className="relative px-6 py-14 sm:px-8 lg:px-12 lg:py-20">
+      {/* Hero section */}
+      <section className="relative overflow-hidden px-6 py-14 sm:px-8 lg:px-12 lg:py-20">
+        {/* Decorative gradient orbs */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="hero-gradient-orb hero-gradient-orb--primary" />
+          <div className="hero-gradient-orb hero-gradient-orb--secondary" />
+          <div className="hero-gradient-orb hero-gradient-orb--tertiary" />
+        </div>
+
         <div className="relative z-10 mr-auto grid max-w-[1400px] gap-10 xl:grid-cols-[minmax(0,1.08fr)_320px] xl:items-end">
-          <div>
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/12 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-primary">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/8 px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-primary">
               <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
-              Learn ML with real interactive demos
+              Interactive ML curriculum
             </div>
 
             <h1 className="max-w-4xl font-headline text-4xl font-bold leading-[1.05] tracking-tight text-on-surface sm:text-5xl lg:text-6xl xl:text-7xl">
               Understand AI,{" "}
-              <span className="text-primary">
+              <span className="bg-gradient-to-r from-primary via-tertiary to-secondary bg-clip-text text-transparent">
                 Mathematically
               </span>{" "}
               & Intuitively
@@ -72,34 +117,39 @@ export default function Home() {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/algorithms/supervised"
-                className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-on-primary transition-colors hover:bg-primary/85 sm:px-8 sm:text-base"
+                className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-on-primary transition-all duration-200 hover:brightness-110 hover:shadow-lg hover:shadow-primary/20 sm:px-8 sm:text-base"
               >
                 Start Learning
               </Link>
 
               <Link
                 href="/algorithms/deep-learning"
-                className="inline-flex items-center justify-center rounded-xl bg-surface-container-high px-6 py-3.5 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-highest sm:px-8 sm:text-base"
+                className="inline-flex items-center justify-center rounded-xl border border-outline-variant/50 bg-surface-container-high px-6 py-3.5 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-highest sm:px-8 sm:text-base"
               >
                 Explore Curriculum
               </Link>
 
               <Link
                 href="/playground"
-                className="inline-flex items-center justify-center rounded-xl border border-outline-variant px-6 py-3.5 text-sm font-semibold text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface sm:px-8 sm:text-base"
+                className="inline-flex items-center justify-center rounded-xl border border-tertiary/30 bg-tertiary/8 px-6 py-3.5 text-sm font-semibold text-tertiary transition-colors hover:bg-tertiary/12 sm:px-8 sm:text-base"
               >
                 Open Playground
               </Link>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 xl:grid-cols-1">
+          <motion.div
+            className="grid grid-cols-1 gap-3 sm:grid-cols-3 xl:grid-cols-1"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
             {heroStats.map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-xl bg-surface-container-high p-4"
+                className="rounded-xl border border-outline-variant/30 bg-surface-container-high/80 p-4 backdrop-blur-sm"
               >
-                <div className="text-xs font-medium uppercase tracking-wider text-on-surface-variant">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant/60">
                   {stat.label}
                 </div>
                 <div className="mt-2 text-2xl font-bold tracking-tight text-on-surface">
@@ -107,14 +157,18 @@ export default function Home() {
                 </div>
               </div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
+      {/* Learning tracks */}
       <section className="px-6 pb-16 sm:px-8 lg:px-12 lg:pb-20">
         <div className="mr-auto max-w-[1400px]">
           <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/60">
+                Curriculum
+              </p>
               <h2 className="font-headline text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
                 Structured learning tracks
               </h2>
@@ -133,39 +187,50 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            {featuredTracks.map((track) => (
-              <Link
-                key={track.title}
-                href={track.href}
-                className="group rounded-xl border border-outline-variant/50 bg-surface-container-high p-5 transition-colors hover:bg-surface-container-highest"
-              >
-                <div
-                  className={`inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${
-                    accentClassMap[track.accent]
-                  }`}
+          <motion.div
+            className="grid grid-cols-1 gap-4 lg:grid-cols-3"
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+          >
+            {featuredTracks.map((track, i) => (
+              <motion.div key={track.title} variants={fadeUp} custom={i}>
+                <Link
+                  href={track.href}
+                  className={`group flex h-full flex-col rounded-xl border-l-[3px] border border-outline-variant/30 bg-surface-container-high p-5 transition-all duration-300 hover:bg-surface-container-highest hover:-translate-y-0.5 ${accentBorderMap[track.accent]}`}
                 >
-                  {track.title}
-                </div>
-                <h3 className="mt-4 font-headline text-xl font-semibold tracking-tight text-on-surface">
-                  {track.title}
-                </h3>
-                <p className="mt-2 text-sm leading-7 text-on-surface-variant">
-                  {track.description}
-                </p>
-                <div className="mt-5 text-sm font-semibold text-on-surface-variant transition-colors group-hover:text-primary">
-                  Open track →
-                </div>
-              </Link>
+                  <div className="flex items-center justify-between gap-3">
+                    <div
+                      className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${accentBadgeMap[track.accent]}`}
+                    >
+                      {track.title}
+                    </div>
+                    <span className="text-xs font-medium text-on-surface-variant/50">
+                      {track.count} topics
+                    </span>
+                  </div>
+                  <p className="mt-4 flex-1 text-sm leading-7 text-on-surface-variant">
+                    {track.description}
+                  </p>
+                  <div className="mt-5 text-sm font-semibold text-on-surface-variant transition-colors group-hover:text-primary">
+                    Open track →
+                  </div>
+                </Link>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
+      {/* All algorithms grid */}
       <section className="px-6 pb-20 sm:px-8 lg:px-12 lg:pb-24">
         <div className="mr-auto max-w-[1400px]">
           <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-secondary/60">
+                Foundations
+              </p>
               <h2 className="font-headline text-3xl font-bold tracking-tight text-on-surface">
                 Core Foundations
               </h2>
@@ -175,59 +240,69 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="hidden rounded-full bg-surface-container-high px-4 py-2 text-sm font-medium text-on-surface-variant md:inline-flex">
+            <div className="hidden rounded-full border border-outline-variant/30 bg-surface-container-high/80 px-4 py-2 text-sm font-medium text-on-surface-variant md:inline-flex">
               {algorithms.length} topics available
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-            {algorithms.map((algorithm) => (
-              <AlgorithmCard
-                key={algorithm.id}
-                title={algorithm.title}
-                description={algorithm.shortDescription}
-                formula={getFormulaPreview(algorithm.mathematics)}
-                icon={getAlgorithmIcon(algorithm.id)}
-                slug={algorithm.id}
-                color={getCategoryColor(algorithm.category)}
-              />
+          <motion.div
+            className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+          >
+            {algorithms.map((algorithm, i) => (
+              <motion.div key={algorithm.id} variants={fadeUp} custom={i}>
+                <AlgorithmCard
+                  title={algorithm.title}
+                  description={algorithm.shortDescription}
+                  formula={getFormulaPreview(algorithm.mathematics)}
+                  icon={getAlgorithmIcon(algorithm.id)}
+                  slug={algorithm.id}
+                  color={getCategoryColor(algorithm.category)}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Playground CTA */}
       <section className="px-6 pb-24 sm:px-8 lg:px-12 lg:pb-32">
         <div className="mr-auto max-w-[1400px]">
-          <div className="rounded-2xl border border-outline-variant/50 bg-surface-container p-8 sm:p-10 lg:p-12">
-            <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-              <div className="max-w-2xl">
-                <div className="mb-4 inline-flex items-center rounded-full bg-tertiary/12 px-3 py-1 text-xs font-bold uppercase tracking-wider text-tertiary">
-                  Interactive Lab
+          <div className="shimmer-border rounded-2xl">
+            <div className="rounded-2xl bg-surface-container p-8 sm:p-10 lg:p-12">
+              <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+                <div className="max-w-2xl">
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-tertiary/20 bg-tertiary/8 px-3 py-1 text-xs font-bold uppercase tracking-wider text-tertiary">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-tertiary" />
+                    Interactive Lab
+                  </div>
+                  <h2 className="font-headline text-3xl font-bold tracking-tight text-on-surface sm:text-4xl">
+                    Neural Network Playground
+                  </h2>
+                  <p className="mt-4 text-base leading-8 text-on-surface-variant">
+                    Build classification datasets, tune model settings, and watch
+                    a real neural network learn a decision boundary in your
+                    browser. Full backpropagation, no shortcuts.
+                  </p>
                 </div>
-                <h2 className="font-headline text-3xl font-bold tracking-tight text-on-surface sm:text-4xl">
-                  Neural Network Playground
-                </h2>
-                <p className="mt-4 text-base leading-8 text-on-surface-variant">
-                  Build classification datasets, tune model settings, and watch
-                  a real neural network learn a decision boundary in your
-                  browser. Full backpropagation, no shortcuts.
-                </p>
-              </div>
 
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  href="/playground"
-                  className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-on-primary transition-colors hover:bg-primary/85"
-                >
-                  Open Playground
-                </Link>
-                <Link
-                  href="/algorithms/neural-networks"
-                  className="inline-flex items-center justify-center rounded-xl bg-surface-container-high px-6 py-3.5 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-highest"
-                >
-                  Neural Networks Lesson
-                </Link>
+                <div className="flex flex-wrap gap-3">
+                  <Link
+                    href="/playground"
+                    className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-on-primary transition-all duration-200 hover:brightness-110 hover:shadow-lg hover:shadow-primary/20"
+                  >
+                    Open Playground
+                  </Link>
+                  <Link
+                    href="/algorithms/neural-networks"
+                    className="inline-flex items-center justify-center rounded-xl border border-outline-variant/50 bg-surface-container-high px-6 py-3.5 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-highest"
+                  >
+                    Neural Networks Lesson
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

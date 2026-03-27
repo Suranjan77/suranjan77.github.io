@@ -16,43 +16,30 @@ const categoryColors: Record<
     badge: string;
     badgeText: string;
     statLabel: string;
+    orbClass: string;
   }
 > = {
   Supervised: {
     accent: "primary",
-    badge: "bg-primary/12",
+    badge: "bg-primary/10",
     badgeText: "text-primary",
-    statLabel: "Labeled data",
+    statLabel: "Labelled data",
+    orbClass: "hero-gradient-orb--primary",
   },
   Unsupervised: {
     accent: "secondary",
-    badge: "bg-secondary/12",
+    badge: "bg-secondary/10",
     badgeText: "text-secondary",
     statLabel: "Hidden structure",
+    orbClass: "hero-gradient-orb--secondary",
   },
   "Deep Learning": {
     accent: "tertiary",
-    badge: "bg-tertiary/12",
+    badge: "bg-tertiary/10",
     badgeText: "text-tertiary",
     statLabel: "Representation learning",
+    orbClass: "hero-gradient-orb--tertiary",
   },
-};
-
-const iconMap: Record<string, string> = {
-  "linear-regression": "show_chart",
-  "logistic-regression": "leaderboard",
-  "k-nearest-neighbors": "group",
-  "support-vector-machines": "shield",
-  "decision-trees": "account_tree",
-  "random-forests": "forest",
-  "gradient-boosting-machines": "trending_up",
-  "naive-bayes": "percent",
-  "k-means": "bubble_chart",
-  dbscan: "grain",
-  "principal-component-analysis": "scatter_plot",
-  "neural-networks": "hub",
-  "convolutional-neural-networks": "image",
-  "recurrent-neural-networks": "timeline",
 };
 
 function getFormulaPreview(math: string): string {
@@ -64,27 +51,27 @@ function getCategoryStats(category: AlgorithmCategory, count: number) {
   switch (category) {
     case "Supervised":
       return [
-        { label: "Track size", value: `${count} algorithms` },
-        { label: "Best for", value: "Prediction & classification" },
-        { label: "Signal", value: "Inputs paired with labels" },
+        { label: "Track size", value: `${count} algorithms`, icon: "📊" },
+        { label: "Best for", value: "Prediction & classification", icon: "🎯" },
+        { label: "Signal", value: "Inputs paired with labels", icon: "🏷️" },
       ];
     case "Unsupervised":
       return [
-        { label: "Track size", value: `${count} algorithms` },
-        { label: "Best for", value: "Clustering & compression" },
-        { label: "Signal", value: "Patterns without labels" },
+        { label: "Track size", value: `${count} algorithms`, icon: "📊" },
+        { label: "Best for", value: "Clustering & compression", icon: "🔬" },
+        { label: "Signal", value: "Patterns without labels", icon: "🧩" },
       ];
     case "Deep Learning":
       return [
-        { label: "Track size", value: `${count} algorithms` },
-        { label: "Best for", value: "Vision, language, sequence tasks" },
-        { label: "Signal", value: "Layered feature learning" },
+        { label: "Track size", value: `${count} algorithms`, icon: "📊" },
+        { label: "Best for", value: "Vision, language, sequence tasks", icon: "🧠" },
+        { label: "Signal", value: "Layered feature learning", icon: "⚡" },
       ];
     default:
       return [
-        { label: "Track size", value: `${count} algorithms` },
-        { label: "Best for", value: "Core ML concepts" },
-        { label: "Signal", value: "Model intuition" },
+        { label: "Track size", value: `${count} algorithms`, icon: "📊" },
+        { label: "Best for", value: "Core ML concepts", icon: "🎯" },
+        { label: "Signal", value: "Model intuition", icon: "💡" },
       ];
   }
 }
@@ -101,14 +88,19 @@ export default function AlgorithmCategoryPage({
 
   return (
     <div className="relative min-h-screen px-6 py-10 sm:px-8 lg:px-12">
-      <section className="relative z-10 mx-auto mb-12 max-w-6xl">
+      {/* Decorative gradient orb */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className={`hero-gradient-orb ${theme.orbClass}`} />
+      </div>
+
+      <section className="relative z-10 mx-auto mb-12 max-w-5xl">
         <div className="mb-6 flex flex-wrap items-center gap-3">
           <div
-            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${theme.badge} ${theme.badgeText}`}
+            className={`inline-flex items-center rounded-full border border-current/15 px-3 py-1 text-xs font-bold uppercase tracking-wider ${theme.badge} ${theme.badgeText}`}
           >
             {eyebrow}
           </div>
-          <div className="inline-flex items-center rounded-full bg-surface-container-high px-3 py-1 text-xs font-medium text-on-surface-variant">
+          <div className="inline-flex items-center rounded-full bg-surface-container-high/80 px-3 py-1 text-xs font-medium text-on-surface-variant/70">
             {theme.statLabel}
           </div>
         </div>
@@ -127,10 +119,13 @@ export default function AlgorithmCategoryPage({
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-xl bg-surface-container-high p-4"
+                className="rounded-xl border border-outline-variant/30 bg-surface-container-high/80 p-4 backdrop-blur-sm"
               >
-                <div className="text-xs font-medium uppercase tracking-wider text-on-surface-variant">
-                  {stat.label}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">{stat.icon}</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant/60">
+                    {stat.label}
+                  </span>
                 </div>
                 <div className="mt-2 text-sm font-semibold leading-6 text-on-surface">
                   {stat.value}
@@ -141,19 +136,18 @@ export default function AlgorithmCategoryPage({
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto max-w-6xl">
+      <section className="relative z-10 mx-auto max-w-5xl">
         <div className="mb-6 flex items-center justify-between gap-4">
           <div>
-            <h2 className="font-headline text-2xl font-semibold text-on-surface sm:text-3xl">
-              Algorithms in this track
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-on-surface-variant sm:text-base">
-              Start with the concepts you need most, then drill into intuition,
-              math, code, strengths, and limitations for each algorithm.
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-on-surface-variant/40">
+              In this track
             </p>
+            <h2 className="font-headline text-2xl font-semibold text-on-surface sm:text-3xl">
+              Algorithms
+            </h2>
           </div>
 
-          <div className="hidden rounded-full bg-surface-container-high px-4 py-2 text-sm font-medium text-on-surface-variant md:inline-flex">
+          <div className="hidden rounded-full border border-outline-variant/30 bg-surface-container-high/80 px-4 py-2 text-sm font-medium text-on-surface-variant md:inline-flex">
             {algorithms.length} topics
           </div>
         </div>
@@ -165,7 +159,7 @@ export default function AlgorithmCategoryPage({
               title={algorithm.title}
               description={algorithm.shortDescription}
               formula={getFormulaPreview(algorithm.mathematics)}
-              icon={iconMap[algorithm.id] ?? "data_object"}
+              icon={"data_object"}
               slug={algorithm.id}
               color={theme.accent}
             />

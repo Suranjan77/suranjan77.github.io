@@ -75,19 +75,19 @@ function AxisLabels() {
   return (
     <>
       <text
-        x="20"
+        x="24"
         y="22"
         fill="#64748b"
-        fontSize="10"
+        fontSize="11"
         fontFamily="var(--font-mono)"
       >
         y
       </text>
       <text
-        x="294"
-        y="198"
+        x="296"
+        y="208"
         fill="#64748b"
-        fontSize="10"
+        fontSize="11"
         fontFamily="var(--font-mono)"
       >
         x
@@ -105,7 +105,7 @@ function ScatterAxes() {
         x2="40"
         y2="190"
         stroke="rgba(255,255,255,0.18)"
-        strokeWidth="1.5"
+        strokeWidth="1"
       />
       <line
         x1="40"
@@ -113,7 +113,7 @@ function ScatterAxes() {
         x2="296"
         y2="190"
         stroke="rgba(255,255,255,0.18)"
-        strokeWidth="1.5"
+        strokeWidth="1"
       />
       {[72, 104, 136, 168, 200, 232, 264].map((x) => (
         <line
@@ -123,7 +123,7 @@ function ScatterAxes() {
           x2={x}
           y2="190"
           stroke="rgba(255,255,255,0.06)"
-          strokeWidth="1"
+          strokeWidth="0.5"
         />
       ))}
       {[58, 92, 126, 160].map((y) => (
@@ -134,7 +134,7 @@ function ScatterAxes() {
           x2="296"
           y2={y}
           stroke="rgba(255,255,255,0.06)"
-          strokeWidth="1"
+          strokeWidth="0.5"
         />
       ))}
       <AxisLabels />
@@ -176,7 +176,7 @@ function LinearRegressionVisualization() {
           x2="286"
           y2={predictY(286)}
           stroke="var(--color-primary)"
-          strokeWidth="4"
+          strokeWidth="2.5"
           strokeLinecap="round"
         />
 
@@ -207,7 +207,7 @@ function LinearRegressionVisualization() {
               <circle
                 cx={point.x}
                 cy={point.y}
-                r="5"
+                r="4.5"
                 fill="var(--color-tertiary)"
                 stroke="rgba(255,255,255,0.35)"
                 strokeWidth="1"
@@ -217,17 +217,17 @@ function LinearRegressionVisualization() {
         })}
 
         <rect
-          x="196"
-          y="36"
-          width="88"
-          height="36"
-          rx="10"
+          x="56"
+          y="32"
+          width="128"
+          height="34"
+          rx="6"
           fill="rgba(11,19,38,0.86)"
           stroke="rgba(255,255,255,0.08)"
         />
         <text
-          x="208"
-          y="52"
+          x="66"
+          y="46"
           fill="#cbd5e1"
           fontSize="11"
           fontFamily="var(--font-mono)"
@@ -235,10 +235,10 @@ function LinearRegressionVisualization() {
           y = mx + b
         </text>
         <text
-          x="208"
-          y="67"
+          x="66"
+          y="58"
           fill="#64748b"
-          fontSize="10"
+          fontSize="8.5"
           fontFamily="var(--font-mono)"
         >
           slope + intercept
@@ -309,8 +309,8 @@ function LogisticRegressionVisualization() {
             d="M150 190 C 162 160, 172 135, 184 108 C 194 86, 206 56, 218 24"
             fill="none"
             stroke="rgba(255,255,255,0.9)"
-            strokeWidth="3"
-            strokeDasharray="6 6"
+            strokeWidth="2"
+            strokeDasharray="5 5"
           />
 
           {groupA.map(([x, y], index) => (
@@ -371,7 +371,7 @@ function LogisticRegressionVisualization() {
             d="M36 170 C 70 170, 80 155, 98 122 C 112 94, 124 54, 184 42"
             fill="none"
             stroke="var(--color-primary)"
-            strokeWidth="4"
+            strokeWidth="2.5"
             strokeLinecap="round"
           />
           <line
@@ -564,7 +564,7 @@ function SvmVisualization() {
           y2="44"
           stroke="rgba(255,255,255,0.3)"
           strokeDasharray="8 8"
-          strokeWidth="2"
+          strokeWidth="1.5"
         />
         <line
           x1="136"
@@ -572,7 +572,7 @@ function SvmVisualization() {
           x2="252"
           y2="56"
           stroke="rgba(255,255,255,0.9)"
-          strokeWidth="4"
+          strokeWidth="2.5"
           strokeLinecap="round"
         />
         <line
@@ -582,7 +582,7 @@ function SvmVisualization() {
           y2="68"
           stroke="rgba(255,255,255,0.3)"
           strokeDasharray="8 8"
-          strokeWidth="2"
+          strokeWidth="1.5"
         />
 
         {left.map(([x, y], index) => (
@@ -622,17 +622,17 @@ function SvmVisualization() {
         ))}
 
         <rect
-          x="196"
-          y="24"
-          width="92"
+          x="56"
+          y="32"
+          width="144"
           height="38"
-          rx="10"
+          rx="8"
           fill="rgba(11,19,38,0.86)"
           stroke="rgba(255,255,255,0.08)"
         />
         <text
-          x="208"
-          y="41"
+          x="66"
+          y="48"
           fill="#cbd5e1"
           fontSize="11"
           fontFamily="var(--font-mono)"
@@ -640,10 +640,10 @@ function SvmVisualization() {
           maximize margin
         </text>
         <text
-          x="208"
-          y="56"
+          x="66"
+          y="61"
           fill="#64748b"
-          fontSize="10"
+          fontSize="9"
           fontFamily="var(--font-mono)"
         >
           support vectors define it
@@ -671,7 +671,7 @@ function DecisionTreeVisualization() {
           x2="102"
           y2="92"
           stroke="rgba(255,255,255,0.18)"
-          strokeWidth="2"
+          strokeWidth="1.5"
         />
         <line
           x1="160"
@@ -679,7 +679,7 @@ function DecisionTreeVisualization() {
           x2="218"
           y2="92"
           stroke="rgba(255,255,255,0.18)"
-          strokeWidth="2"
+          strokeWidth="1.5"
         />
         <line
           x1="102"
@@ -687,7 +687,7 @@ function DecisionTreeVisualization() {
           x2="74"
           y2="154"
           stroke="rgba(255,255,255,0.14)"
-          strokeWidth="2"
+          strokeWidth="1.5"
         />
         <line
           x1="102"
@@ -695,7 +695,7 @@ function DecisionTreeVisualization() {
           x2="130"
           y2="154"
           stroke="rgba(255,255,255,0.14)"
-          strokeWidth="2"
+          strokeWidth="1.5"
         />
         <line
           x1="218"
@@ -703,7 +703,7 @@ function DecisionTreeVisualization() {
           x2="190"
           y2="154"
           stroke="rgba(255,255,255,0.14)"
-          strokeWidth="2"
+          strokeWidth="1.5"
         />
         <line
           x1="218"
@@ -711,7 +711,7 @@ function DecisionTreeVisualization() {
           x2="246"
           y2="154"
           stroke="rgba(255,255,255,0.14)"
-          strokeWidth="2"
+          strokeWidth="1.5"
         />
 
         {[
@@ -911,9 +911,9 @@ function RandomForestVisualization() {
         />
 
         <rect
-          x="112"
+          x="90"
           y="196"
-          width="96"
+          width="140"
           height="18"
           rx="9"
           fill="rgba(123,208,255,0.14)"
@@ -1019,7 +1019,7 @@ function GradientBoostingVisualization() {
           x2="122"
           y2="100"
           stroke="rgba(255,255,255,0.18)"
-          strokeWidth="2"
+          strokeWidth="1.5"
         />
         <line
           x1="200"
@@ -1027,7 +1027,7 @@ function GradientBoostingVisualization() {
           x2="218"
           y2="100"
           stroke="rgba(255,255,255,0.18)"
-          strokeWidth="2"
+          strokeWidth="1.5"
         />
         <text
           x="108"
@@ -1049,9 +1049,9 @@ function GradientBoostingVisualization() {
         </text>
 
         <rect
-          x="84"
+          x="78"
           y="184"
-          width="152"
+          width="164"
           height="22"
           rx="11"
           fill="rgba(123,208,255,0.14)"
@@ -1101,7 +1101,7 @@ function NaiveBayesVisualization() {
           x2="158"
           y2="164"
           stroke="rgba(255,255,255,0.18)"
-          strokeWidth="1.5"
+          strokeWidth="1"
         />
         <line
           x1="30"
@@ -1109,21 +1109,21 @@ function NaiveBayesVisualization() {
           x2="30"
           y2="164"
           stroke="rgba(255,255,255,0.18)"
-          strokeWidth="1.5"
+          strokeWidth="1"
         />
 
         <path
           d="M34 164 C 56 164, 62 112, 90 96 C 110 86, 128 102, 152 164"
           fill="none"
           stroke="var(--color-primary)"
-          strokeWidth="3.5"
+          strokeWidth="2.5"
           strokeLinecap="round"
         />
         <path
           d="M34 164 C 60 164, 88 148, 108 118 C 126 92, 142 90, 152 164"
           fill="none"
           stroke="var(--color-tertiary)"
-          strokeWidth="3.5"
+          strokeWidth="2.5"
           strokeLinecap="round"
         />
 
@@ -1310,7 +1310,7 @@ function KMeansVisualization() {
                 key={pointIndex}
                 cx={x}
                 cy={y}
-                r="5"
+                r="4.5"
                 fill={
                   index === 0
                     ? "var(--color-primary)"
@@ -1486,7 +1486,7 @@ function PcaVisualization() {
           transform="rotate(-28 168 110)"
           fill="rgba(123,208,255,0.10)"
           stroke="rgba(123,208,255,0.22)"
-          strokeWidth="2"
+          strokeWidth="1.5"
         />
 
         {[
@@ -1516,7 +1516,7 @@ function PcaVisualization() {
           x2="254"
           y2="58"
           stroke="var(--color-primary)"
-          strokeWidth="4"
+          strokeWidth="2.5"
           strokeLinecap="round"
         />
         <line
@@ -1525,7 +1525,7 @@ function PcaVisualization() {
           x2="196"
           y2="172"
           stroke="var(--color-secondary)"
-          strokeWidth="3"
+          strokeWidth="2"
           strokeLinecap="round"
         />
 
@@ -1583,7 +1583,7 @@ function NeuralNetworkVisualization() {
                     x2={layers[layerIndex + 1].x}
                     y2={nextY}
                     stroke="rgba(173,198,255,0.12)"
-                    strokeWidth="1.2"
+                    strokeWidth="1"
                   />
                 ))
               : null,
@@ -1597,7 +1597,7 @@ function NeuralNetworkVisualization() {
                 key={index}
                 cx={layer.x}
                 cy={y}
-                r="9"
+                r="7.5"
                 fill={layer.color}
                 fillOpacity={
                   layerIndex === 0
@@ -1663,7 +1663,7 @@ function NeuralNetworkVisualization() {
           d="M40 192 C 78 170, 102 206, 132 190 C 160 174, 178 142, 214 158 C 244 172, 258 130, 282 120"
           fill="none"
           stroke="var(--color-tertiary)"
-          strokeWidth="3"
+          strokeWidth="2.5"
           strokeLinecap="round"
         />
       </svg>
@@ -1719,7 +1719,7 @@ function CnnVisualization() {
           rx="4"
           fill="transparent"
           stroke="#f8fafc"
-          strokeWidth="1.5"
+          strokeWidth="1"
         />
 
         <line
@@ -1728,7 +1728,7 @@ function CnnVisualization() {
           x2="130"
           y2="92"
           stroke="rgba(255,255,255,0.2)"
-          strokeWidth="2"
+          strokeWidth="1.5"
         />
         <line
           x1="98"
@@ -1736,7 +1736,7 @@ function CnnVisualization() {
           x2="130"
           y2="110"
           stroke="rgba(255,255,255,0.2)"
-          strokeWidth="2"
+          strokeWidth="1.5"
         />
 
         {[0, 1, 2].map((index) => (
@@ -1771,7 +1771,7 @@ function CnnVisualization() {
           x2="264"
           y2="100"
           stroke="rgba(255,255,255,0.2)"
-          strokeWidth="2"
+          strokeWidth="1.5"
         />
 
         {[
@@ -1791,37 +1791,41 @@ function CnnVisualization() {
         ))}
 
         <text
-          x="24"
+          x="56"
           y="146"
+          textAnchor="middle"
           fill="#94a3b8"
-          fontSize="10"
+          fontSize="9"
           fontFamily="var(--font-mono)"
         >
           image
         </text>
         <text
-          x="134"
-          y="146"
+          x="166"
+          y="156"
+          textAnchor="middle"
           fill="#94a3b8"
-          fontSize="10"
+          fontSize="9"
           fontFamily="var(--font-mono)"
         >
           conv filters
         </text>
         <text
-          x="198"
-          y="146"
+          x="222"
+          y="138"
+          textAnchor="middle"
           fill="#94a3b8"
-          fontSize="10"
+          fontSize="9"
           fontFamily="var(--font-mono)"
         >
           pooled maps
         </text>
         <text
-          x="254"
+          x="276"
           y="146"
+          textAnchor="middle"
           fill="#94a3b8"
-          fontSize="10"
+          fontSize="9"
           fontFamily="var(--font-mono)"
         >
           logits
@@ -1928,7 +1932,7 @@ function RnnVisualization() {
               x2={step.x}
               y2="148"
               stroke="rgba(255,255,255,0.2)"
-              strokeWidth="1.8"
+              strokeWidth="1.5"
             />
             <line
               x1={step.x}
@@ -1936,7 +1940,7 @@ function RnnVisualization() {
               x2={step.x}
               y2="52"
               stroke="rgba(255,255,255,0.2)"
-              strokeWidth="1.8"
+              strokeWidth="1.5"
             />
 
             {index < 3 ? (
@@ -1947,7 +1951,7 @@ function RnnVisualization() {
                   x2={step.x + 52}
                   y2="100"
                   stroke="rgba(255,255,255,0.22)"
-                  strokeWidth="2"
+                  strokeWidth="1.5"
                 />
                 <polygon
                   points={`${step.x + 52},100 ${step.x + 44},96 ${step.x + 44},104`}

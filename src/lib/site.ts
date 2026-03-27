@@ -2,9 +2,9 @@ export const siteConfig = {
   name: "ML Learn",
   title: "ML Learn | The Digital Observatory",
   description:
-    "Understand AI through interactive machine learning visualizations, mathematical intuition, and production-ready learning experiences.",
+    "Understand AI through interactive machine learning visualisations, mathematical intuition, and production-ready learning experiences.",
   shortDescription: "Understand AI, Mathematically & Intuitively",
-  locale: "en_US",
+  locale: "en_GB",
   keywords: [
     "machine learning",
     "deep learning",
@@ -12,7 +12,7 @@ export const siteConfig = {
     "artificial intelligence",
     "data science",
     "interactive learning",
-    "algorithm visualizations",
+    "algorithm visualisations",
     "ML education",
   ],
 } as const;

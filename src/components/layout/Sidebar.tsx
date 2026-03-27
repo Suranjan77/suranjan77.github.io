@@ -4,13 +4,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
 import { algorithms } from "@/data/algorithms";
+import {
+  House,
+  Brain,
+  Layers,
+  Cpu,
+  FlaskConical,
+} from "lucide-react";
 
 const navigation = [
   {
     name: "Home",
     href: "/",
     match: (pathname: string) => pathname === "/",
-    meta: "Dashboard",
+    icon: House,
   },
   {
     name: "Supervised",
@@ -18,7 +25,7 @@ const navigation = [
     match: (pathname: string) =>
       pathname === "/algorithms/supervised" ||
       getAlgorithmCategoryPath(pathname) === "/algorithms/supervised",
-    meta: "Algorithm Track",
+    icon: Brain,
   },
   {
     name: "Unsupervised",
@@ -26,7 +33,7 @@ const navigation = [
     match: (pathname: string) =>
       pathname === "/algorithms/unsupervised" ||
       getAlgorithmCategoryPath(pathname) === "/algorithms/unsupervised",
-    meta: "Algorithm Track",
+    icon: Layers,
   },
   {
     name: "Deep Learning",
@@ -34,13 +41,13 @@ const navigation = [
     match: (pathname: string) =>
       pathname === "/algorithms/deep-learning" ||
       getAlgorithmCategoryPath(pathname) === "/algorithms/deep-learning",
-    meta: "Algorithm Track",
+    icon: Cpu,
   },
   {
     name: "Playground",
     href: "/playground",
     match: (pathname: string) => pathname === "/playground",
-    meta: "Interactive Lab",
+    icon: FlaskConical,
   },
 ] as const;
 
@@ -77,32 +84,35 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:w-64 lg:flex-col lg:border-r lg:border-outline-variant/50 lg:bg-surface-container">
-      <div className="border-b border-outline-variant/50 px-6 py-7">
+    <aside className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:w-[220px] lg:flex-col lg:border-r lg:border-outline-variant/30 lg:bg-surface-container">
+      {/* Compact branding */}
+      <div className="px-5 py-6">
         <Link href="/" className="block">
-          <p className="font-headline text-2xl font-bold tracking-tight text-on-surface">
-            ML Learn
-          </p>
-          <p className="mt-1 text-xs font-medium uppercase tracking-[0.22em] text-on-surface-variant">
-            Digital Observatory
-          </p>
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15">
+              <span className="text-sm font-bold text-primary">ML</span>
+            </div>
+            <div>
+              <p className="font-headline text-[15px] font-bold tracking-tight text-on-surface">
+                ML Learn
+              </p>
+              <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-on-surface-variant">
+                Observatory
+              </p>
+            </div>
+          </div>
         </Link>
       </div>
 
-      <div className="px-4 py-5">
-        <div className="mb-4 rounded-xl bg-surface-container-high p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
-            Learning Tracks
-          </p>
-          <p className="mt-2 text-sm leading-6 text-on-surface-variant">
-            Move through the curriculum by category, then open each algorithm
-            for intuition, math, code, and trade-offs.
-          </p>
-        </div>
-
+      {/* Navigation */}
+      <div className="flex-1 px-3 py-2">
+        <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant/60">
+          Navigate
+        </p>
         <nav className="space-y-1">
           {navigation.map((item) => {
             const isActive = item.match(pathname);
+            const Icon = item.icon;
 
             return (
               <Link
@@ -110,65 +120,48 @@ export default function Sidebar() {
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
                 className={clsx(
-                  "group flex items-center gap-3 rounded-xl px-4 py-3 transition-colors",
+                  "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                   isActive
                     ? "bg-primary/12 text-primary"
                     : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface",
                 )}
               >
-                <span
+                {/* Active indicator bar */}
+                {isActive && (
+                  <span className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full bg-primary" />
+                )}
+
+                <Icon
+                  size={18}
+                  strokeWidth={isActive ? 2.2 : 1.8}
                   className={clsx(
-                    "h-2 w-2 rounded-full transition-colors",
+                    "shrink-0 transition-colors",
                     isActive
-                      ? "bg-primary"
-                      : "bg-outline group-hover:bg-on-surface-variant",
+                      ? "text-primary"
+                      : "text-on-surface-variant/70 group-hover:text-on-surface-variant",
                   )}
                 />
 
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold">
-                    {item.name}
-                  </div>
-                  <p
-                    className={clsx(
-                      "mt-0.5 text-xs tracking-wide",
-                      isActive ? "text-primary/70" : "text-on-surface-variant",
-                    )}
-                  >
-                    {item.meta}
-                  </p>
-                </div>
-
-                {isActive ? (
-                  <span className="h-2 w-2 rounded-full bg-primary" />
-                ) : null}
+                <span className="truncate">{item.name}</span>
               </Link>
             );
           })}
         </nav>
       </div>
 
-      <div className="mt-auto border-t border-outline-variant/50 p-5">
-        <div className="rounded-xl bg-surface-container-high p-4">
-          <p className="text-sm font-semibold text-on-surface">
-            Guided Learning
-          </p>
-          <p className="mt-1 text-xs text-on-surface-variant">
-            Interactive • Visual • Mathematical
-          </p>
-
-          <div className="mt-4 space-y-1.5 text-xs text-on-surface-variant">
-            <div className="flex items-center justify-between rounded-lg bg-surface-container px-3 py-2">
-              <span>Categories</span>
-              <span className="font-semibold text-on-surface">3</span>
-            </div>
-            <div className="flex items-center justify-between rounded-lg bg-surface-container px-3 py-2">
-              <span>Algorithms</span>
-              <span className="font-semibold text-on-surface">
-                {algorithms.length}
-              </span>
-            </div>
-          </div>
+      {/* Compact stats footer */}
+      <div className="border-t border-outline-variant/30 px-5 py-4">
+        <div className="flex items-center justify-between text-xs text-on-surface-variant">
+          <span>
+            <span className="font-semibold text-on-surface">3</span> tracks
+          </span>
+          <span className="text-outline-variant">•</span>
+          <span>
+            <span className="font-semibold text-on-surface">
+              {algorithms.length}
+            </span>{" "}
+            algorithms
+          </span>
         </div>
       </div>
     </aside>

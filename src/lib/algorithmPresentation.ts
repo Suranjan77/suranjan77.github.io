@@ -16,7 +16,7 @@ const categoryConfig: Record<
     route: "/algorithms/supervised",
     label: "Supervised Learning",
     description:
-      "Learn from labeled examples to predict outcomes such as classes, prices, or probabilities.",
+      "Learn from labelled examples to predict outcomes such as classes, prices, or probabilities.",
   },
   Unsupervised: {
     color: "secondary",

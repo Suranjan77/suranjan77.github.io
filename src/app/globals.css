@@ -98,6 +98,34 @@
     }
 }
 
+/* Glass panel with backdrop blur */
+@utility glass-panel {
+    background: rgba(25, 28, 34, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+/* Category-colored left accent border */
+@utility accent-left-primary {
+    border-left: 3px solid var(--color-primary);
+}
+
+@utility accent-left-secondary {
+    border-left: 3px solid var(--color-secondary);
+}
+
+@utility accent-left-tertiary {
+    border-left: 3px solid var(--color-tertiary);
+}
+
+@utility accent-left-error {
+    border-left: 3px solid var(--color-error);
+}
+
+@utility accent-left-success {
+    border-left: 3px solid #4ade80;
+}
+
 :root {
     color-scheme: dark;
     scroll-behavior: smooth;
@@ -193,7 +221,7 @@ code {
 }
 
 .logic-markdown .katex {
-    font-size: 1.02em;
+    font-size: 1.15em;
 }
 
 .logic-markdown a {
@@ -260,4 +288,86 @@ code {
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
     }
+}
+
+/* Decorative gradient orb */
+.hero-gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    animation: float 8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.hero-gradient-orb--primary {
+    background: var(--color-primary);
+    width: 400px;
+    height: 400px;
+    top: -80px;
+    left: -60px;
+}
+
+.hero-gradient-orb--secondary {
+    background: var(--color-secondary);
+    width: 300px;
+    height: 300px;
+    bottom: -40px;
+    right: 10%;
+    animation-delay: -4s;
+}
+
+.hero-gradient-orb--tertiary {
+    background: var(--color-tertiary);
+    width: 250px;
+    height: 250px;
+    top: 20%;
+    right: -40px;
+    animation-delay: -2s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-20px) scale(1.05);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.shimmer-border {
+    position: relative;
+    overflow: hidden;
+}
+
+.shimmer-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--color-primary) 25%,
+        var(--color-tertiary) 50%,
+        var(--color-secondary) 75%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 4s linear infinite;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    pointer-events: none;
 }

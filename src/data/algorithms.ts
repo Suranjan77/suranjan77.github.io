@@ -40,7 +40,7 @@ Where:
 
 ### Loss Function
 
-The most common fitting criterion is **Ordinary Least Squares (OLS)**, which minimizes the **Mean Squared Error**:
+The most common fitting criterion is **Ordinary Least Squares (OLS)**, which minimises the **Mean Squared Error**:
 
 $$ \\mathcal{L}(w, b) = \\frac{1}{n} \\sum_{i=1}^{n} (y_i - \\hat{y}_i)^2 $$
 
@@ -52,7 +52,7 @@ $$ \\hat{w} = (X^T X)^{-1} X^T y $$
 
 This is valid whenever $X^T X$ is invertible (i.e., the features are not perfectly collinear).
 
-### Gradient for Iterative Optimization
+### Gradient for Iterative Optimisation
 
 When a closed-form solve is impractical (e.g., very large $p$), one can use **gradient descent**. The gradient of the MSE with respect to $w$ is:
 
@@ -60,7 +60,7 @@ $$ \\nabla_w \\mathcal{L} = -\\frac{2}{n} X^T (y - Xw) $$
 
 ### Ridge Regularization
 
-To stabilize coefficients when features are correlated, **Ridge regression** adds an L2 penalty:
+To stabilise coefficients when features are correlated, **Ridge regression** adds an L2 penalty:
 
 $$ \\mathcal{L}_{\\text{ridge}} = \\frac{1}{n} \\sum_{i=1}^{n} (y_i - \\hat{y}_i)^2 + \\lambda \\|w\\|^2 $$
 
@@ -72,7 +72,7 @@ The penalty $\\lambda > 0$ shrinks coefficients toward zero, trading a small inc
     pros: [
       "Simple to implement and interpret.",
       "Fast to train and predict.",
-      "Less prone to overfitting with regularization (Lasso/Ridge).",
+      "Less prone to overfitting with regularisation (Lasso/Ridge).",
       "Serves as an excellent baseline model.",
     ],
     cons: [
@@ -139,7 +139,7 @@ Adding an L2 penalty to prevent overfitting, the gradient-descent parameter upda
 
 $$ w \\leftarrow w - \\eta \\left( \\frac{1}{n} X^T (\\hat{y} - y) + \\lambda w \\right) $$
 
-where $\\eta$ is the learning rate and $\\lambda$ controls the strength of regularization.`,
+where $\\eta$ is the learning rate and $\\lambda$ controls the strength of regularisation.`,
     pros: [
       "Often produces reasonably calibrated probabilities, especially when the model is well specified.",
       "Highly efficient and requires low computational resources.",
@@ -171,11 +171,11 @@ print(f"Probability of Passing: {prob[0][1]:.2%}")`,
     title: "K-Nearest Neighbors",
     category: "Supervised",
     shortDescription:
-      "Classifies data points based on the labels of their nearest neighbors.",
+      "Classifies data points based on the labels of their nearest neighbours.",
     fullDescription:
-      'K-Nearest Neighbors (KNN) is a non-parametric, lazy learning algorithm. It doesn\'t learn a discriminative function from the training data but "memorizes" the dataset instead. Classification is performed by a majority vote of its neighbors.',
+      'K-Nearest Neighbors (KNN) is a non-parametric, lazy learning algorithm. It doesn\'t learn a discriminative function from the training data but "memorizes" the dataset instead. Classification is performed by a majority vote of its neighbours.',
     intuition:
-      '"Tell me who your neighbors are, and I\'ll tell you who you are." To classify a new point, KNN looks at the $K$ closest points in the training set. If most of them are "Red", the new point is classified as "Red".',
+      '"Tell me who your neighbours are, and I\'ll tell you who you are." To classify a new point, KNN looks at the $K$ closest points in the training set. If most of them are "Red", the new point is classified as "Red".',
     mathematics: `### Distance Metrics
 
 The choice of distance metric is fundamental to KNN. The **Minkowski distance** family unifies several common metrics:
@@ -189,7 +189,7 @@ Special cases:
 
 ### Classification Rule
 
-For KNN classification, the prediction for a query point $x$ is the majority class among its nearest neighbors:
+For KNN classification, the prediction for a query point $x$ is the majority class among its nearest neighbours:
 
 $$ \\hat{y} = \\operatorname{mode}(\\{y_i : i \\in N_k(x)\\}) $$
 
@@ -197,7 +197,7 @@ Where $N_k(x)$ is the set of the $k$ training points closest to $x$.
 
 ### Weighted KNN
 
-A common refinement is **distance-weighted voting**, where closer neighbors contribute more:
+A common refinement is **distance-weighted voting**, where closer neighbours contribute more:
 
 $$ \\hat{y} = \\operatorname{argmax}_{c} \\sum_{i \\in N_k(x)} w_i \\cdot \\mathbf{1}[y_i = c], \\quad w_i = \\frac{1}{d(x, x_i)^2} $$
 
@@ -236,7 +236,7 @@ print(f"Classification: {'Fruit' if result[0]==0 else 'Protein'}")`,
     title: "Support Vector Machines",
     category: "Supervised",
     shortDescription:
-      "Finds the optimal hyperplane that maximizes the margin between different classes.",
+      "Finds the optimal hyperplane that maximises the margin between different classes.",
     fullDescription:
       'Support Vector Machines (SVMs) are maximum-margin classifiers that seek a separating boundary with the largest possible margin between classes. In linear SVMs this boundary is a hyperplane; with kernels, the decision boundary can be non-linear in the original input space. Points that lie on or inside the margin are called "support vectors".',
     intuition:
@@ -251,7 +251,7 @@ This is equivalent to minimizing $\\frac{1}{2}\\|w\\|^2$ subject to the same con
 
 ### Soft-Margin SVM
 
-In practice, most SVMs use a **soft margin**, introducing slack variables $\\xi_i \\ge 0$ and a regularization parameter $C$:
+In practice, most SVMs use a **soft margin**, introducing slack variables $\\xi_i \\ge 0$ and a regularisation parameter $C$:
 
 $$ \\min_{w, b, \\xi} \\; \\frac{1}{2} \\|w\\|^2 + C \\sum_{i=1}^{n} \\xi_i $$
 
@@ -289,7 +289,7 @@ The RBF kernel implicitly maps to an infinite-dimensional feature space.`,
     cons: [
       "Long training time for large datasets.",
       "Does not provide probability estimates directly.",
-      "Sensitive to the choice of Kernel and regularization parameters.",
+      "Sensitive to the choice of Kernel and regularisation parameters.",
       "Difficult to interpret the final model weights.",
     ],
     codeSnippet: `from sklearn import svm
@@ -335,17 +335,17 @@ A split on feature $f$ at threshold $t$ divides node $D$ into left child $D_L$ a
 
 $$ IG(D, f, t) = H(D) - \\frac{|D_L|}{|D|} H(D_L) - \\frac{|D_R|}{|D|} H(D_R) $$
 
-The algorithm greedily selects the split $(f, t)$ that maximizes $IG$.
+The algorithm greedily selects the split $(f, t)$ that maximises $IG$.
 
 ### Gini Decrease
 
-Similarly, with the Gini index the best split maximizes:
+Similarly, with the Gini index the best split maximises:
 
 $$ \\Delta \\text{Gini}(D, f, t) = \\text{Gini}(D) - \\frac{|D_L|}{|D|} \\text{Gini}(D_L) - \\frac{|D_R|}{|D|} \\text{Gini}(D_R) $$
 
 ### Regression Trees
 
-For regression, splits typically minimize the **variance** (or equivalently MSE) within each child node:
+For regression, splits typically minimise the **variance** (or equivalently MSE) within each child node:
 
 $$ \\text{MSE}(D) = \\frac{1}{|D|} \\sum_{i \\in D} (y_i - \\bar{y}_D)^2 $$
 
@@ -454,10 +454,10 @@ print("Top feature importance:", round(rf.feature_importances_.max(), 4))`,
     shortDescription:
       "Builds trees sequentially, with each new tree correcting errors made by previous ones.",
     fullDescription:
-      "Gradient Boosting is an ensemble technique where models are added sequentially. Each new model is fit to the negative gradient of the loss with respect to the current ensemble prediction, making the method a form of stagewise additive modeling and functional gradient descent.",
+      "Gradient Boosting is an ensemble technique where models are added sequentially. Each new model is fit to the negative gradient of the loss with respect to the current ensemble prediction, making the method a form of stagewise additive modelling and functional gradient descent.",
     intuition:
       'Imagine an archer. The first arrow hits near the bullseye but is slightly off to the left. The second arrow is aimed specifically to correct that "left-leaning" error. The third arrow corrects what remains. Together, they zero in on the target.',
-    mathematics: `Gradient boosting minimizes a loss function $L(y, f(x))$ by adding weak learners stage by stage:
+    mathematics: `Gradient boosting minimises a loss function $L(y, f(x))$ by adding weak learners stage by stage:
 
 $$ f_m(x) = f_{m-1}(x) + \\nu \\, h_m(x) $$
 
@@ -488,12 +488,12 @@ $$ r_{im} = y_i - \\sigma(f_{m-1}(x_i)) $$
 ### Regularization
 
 Several mechanisms control overfitting:
-- **Shrinkage** $\\nu \\in (0, 1]$: smaller values require more stages but generalize better
+- **Shrinkage** $\\nu \\in (0, 1]$: smaller values require more stages but generalise better
 - **Subsampling**: use a random fraction of the data per stage (stochastic gradient boosting)
 - **Tree depth**: shallow trees ($d = 3{-}6$) act as weak learners with low variance`,
     pros: [
       "Often provides highly competitive accuracy on structured tabular data.",
-      "Highly flexible: can optimize various loss functions.",
+      "Highly flexible: can optimise various loss functions.",
       "Can support robust handling of missing values in some implementations, though this is library-dependent.",
       "Powerful feature importance insights.",
     ],
@@ -546,7 +546,7 @@ $$ P(x_1, \\ldots, x_n | C) = \\prod_{i=1}^{n} P(x_i | C) $$
 
 ### Classification Rule
 
-The classifier selects the class $C$ that maximizes the posterior probability:
+The classifier selects the class $C$ that maximises the posterior probability:
 
 $$ \\hat{y} = \\operatorname{argmax}_{c} \\; P(C=c) \\prod_{i=1}^{n} P(x_i | C=c) $$
 
@@ -602,12 +602,12 @@ text_model = MultinomialNB()`,
     shortDescription:
       "Partitions data into K distinct clusters based on feature similarity.",
     fullDescription:
-      "K-Means is an iterative algorithm that partitions a dataset into $K$ pre-defined non-overlapping subgroups (clusters). It assigns points to clusters such that the sum of squared distances to the cluster centroid is minimized.",
+      "K-Means is an iterative algorithm that partitions a dataset into $K$ pre-defined non-overlapping subgroups (clusters). It assigns points to clusters such that the sum of squared distances to the cluster centroid is minimised.",
     intuition:
       'Imagine you have a crowd of people. You pick 3 random people to be "leaders". Everyone else joins the leader closest to them. Then, the leaders move to the center of their new group. Repeat until the groups stop changing!',
     mathematics: `### Objective
 
-The algorithm minimizes the **Within-Cluster Sum of Squares (WCSS)**:
+The algorithm minimises the **Within-Cluster Sum of Squares (WCSS)**:
 
 $$ J = \\sum_{j=1}^{k} \\sum_{i \\in C_j} \\|x_i - \\mu_j\\|^2 $$
 
@@ -678,7 +678,7 @@ print("Centroids:", centroids)`,
     fullDescription:
       "DBSCAN (Density-Based Spatial Clustering of Applications with Noise) groups together points that are close to each other based on a distance measurement and a minimum number of points.",
     intuition:
-      'Imagine finding dense "islands" of points in a sea of data. If a point has enough neighbors, it\'s part of a cluster. If a point is in a lonely area, it\'s labeled as "Noise" (outlier). It doesn\'t force every point into a cluster!',
+      'Imagine finding dense "islands" of points in a sea of data. If a point has enough neighbours, it\'s part of a cluster. If a point is in a lonely area, it\'s labelled as "Noise" (outlier). It doesn\'t force every point into a cluster!',
     mathematics: `### Parameters
 
 DBSCAN is defined by two parameters:
@@ -791,7 +791,7 @@ $$ z = V_k^T \\, x_c \\in \\mathbb{R}^k $$`,
     pros: [
       "Can reduce redundancy and sometimes improve downstream model performance.",
       "Saves computational time and memory.",
-      "Allows for visualization of high-dimensional data (e.g., in 2D or 3D).",
+      "Allows for visualisation of high-dimensional data (e.g., in 2D or 3D).",
       "Produces orthogonal components, which can mitigate multicollinearity when used as inputs.",
     ],
     cons: [
@@ -882,7 +882,7 @@ Hidden layers allow the network to learn intermediate representations, which is 
       "Learns hierarchical feature representations automatically.",
     ],
     cons: [
-      "Often needs careful regularization and enough data to generalize well.",
+      "Often needs careful regularisation and enough data to generalise well.",
       "Large networks can be computationally expensive, though smaller MLPs often train well on CPU.",
       "Hyperparameters (layers, nodes, learning rate) are difficult to tune.",
       'Hard to interpret (The "Black Box" problem).',

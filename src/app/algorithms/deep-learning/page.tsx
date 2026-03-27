@@ -10,7 +10,7 @@ export default function DeepLearningPage() {
     <AlgorithmCategoryPage
       title="Deep Learning"
       eyebrow="Category"
-      description="Deep learning studies neural architectures that learn layered representations from data. Instead of relying on hand-crafted features, these models transform raw inputs through multiple stages, making them powerful for vision, language, speech, and sequence modeling tasks."
+      description="Deep learning studies neural architectures that learn layered representations from data. Instead of relying on hand-crafted features, these models transform raw inputs through multiple stages, making them powerful for vision, language, speech, and sequence modelling tasks."
       category="Deep Learning"
       algorithms={filteredAlgorithms}
     />
