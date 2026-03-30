@@ -6,9 +6,7 @@ import { clsx } from "clsx";
 
 const navItems = [
   { label: "Home", href: "/" },
-  { label: "Supervised", href: "/algorithms/supervised" },
-  { label: "Unsupervised", href: "/algorithms/unsupervised" },
-  { label: "Deep Learning", href: "/algorithms/deep-learning" },
+  { label: "Curriculum", href: "/algorithms/maximum-likelihood" },
   { label: "Playground", href: "/playground", accent: true },
 ];
 
@@ -74,14 +72,6 @@ export default function Header() {
             );
           })}
         </nav>
-
-        {/* Quick action */}
-        <Link
-          href="/algorithms/neural-networks"
-          className="hidden shrink-0 items-center gap-2 rounded-lg bg-surface-container-high px-3 py-2 text-xs font-semibold text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface md:inline-flex"
-        >
-          Neural Networks →
-        </Link>
       </div>
     </header>
   );

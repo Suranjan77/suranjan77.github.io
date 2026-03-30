@@ -10,36 +10,11 @@ import {
   getFormulaPreview,
 } from "@/lib/algorithmPresentation";
 
-const featuredTracks = [
-  {
-    title: "Supervised Learning",
-    description:
-      "Start with regression, classification, trees, and ensemble methods.",
-    href: "/algorithms/supervised",
-    accent: "primary" as const,
-    count: algorithms.filter((a) => a.category === "Supervised").length,
-  },
-  {
-    title: "Unsupervised Learning",
-    description:
-      "Explore clustering, density estimation, and dimensionality reduction.",
-    href: "/algorithms/unsupervised",
-    accent: "secondary" as const,
-    count: algorithms.filter((a) => a.category === "Unsupervised").length,
-  },
-  {
-    title: "Deep Learning",
-    description:
-      "Study multilayer networks, CNNs, RNNs, and representation learning.",
-    href: "/algorithms/deep-learning",
-    accent: "tertiary" as const,
-    count: algorithms.filter((a) => a.category === "Deep Learning").length,
-  },
-] as const;
+// Curriculum is now fully continuous over the 10 core algorithm domains
 
 const heroStats = [
-  { label: "Tracks", value: "3" },
-  { label: "Algorithms", value: `${algorithms.length}` },
+  { label: "Core Topics", value: "13" },
+  { label: "Curriculum Modules", value: `${algorithms.length}` },
   { label: "Interactive Labs", value: "1" },
 ] as const;
 
@@ -123,7 +98,7 @@ export default function Home() {
               </Link>
 
               <Link
-                href="/algorithms/deep-learning"
+                href="/algorithms/maximum-likelihood"
                 className="inline-flex items-center justify-center rounded-xl border border-outline-variant/50 bg-surface-container-high px-6 py-3.5 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-highest sm:px-8 sm:text-base"
               >
                 Explore Curriculum
@@ -161,82 +136,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Learning tracks */}
-      <section className="px-6 pb-16 sm:px-8 lg:px-12 lg:pb-20">
-        <div className="mr-auto max-w-[1400px]">
-          <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary/60">
-                Curriculum
-              </p>
-              <h2 className="font-headline text-2xl font-bold tracking-tight text-on-surface sm:text-3xl">
-                Structured learning tracks
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-7 text-on-surface-variant sm:text-base">
-                Move through the curriculum by category, then drill into each
-                algorithm for intuition, logic, code, strengths, and
-                limitations.
-              </p>
-            </div>
-
-            <Link
-              href="/algorithms/supervised"
-              className="inline-flex w-fit items-center justify-center rounded-full bg-surface-container-high px-4 py-2 text-sm font-semibold text-on-surface-variant transition-colors hover:bg-surface-container-highest hover:text-on-surface"
-            >
-              View all topics
-            </Link>
-          </div>
-
-          <motion.div
-            className="grid grid-cols-1 gap-4 lg:grid-cols-3"
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-60px" }}
-          >
-            {featuredTracks.map((track, i) => (
-              <motion.div key={track.title} variants={fadeUp} custom={i}>
-                <Link
-                  href={track.href}
-                  className={`group flex h-full flex-col rounded-xl border-l-[3px] border border-outline-variant/30 bg-surface-container-high p-5 transition-all duration-300 hover:bg-surface-container-highest hover:-translate-y-0.5 ${accentBorderMap[track.accent]}`}
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div
-                      className={`inline-flex rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${accentBadgeMap[track.accent]}`}
-                    >
-                      {track.title}
-                    </div>
-                    <span className="text-xs font-medium text-on-surface-variant/50">
-                      {track.count} topics
-                    </span>
-                  </div>
-                  <p className="mt-4 flex-1 text-sm leading-7 text-on-surface-variant">
-                    {track.description}
-                  </p>
-                  <div className="mt-5 text-sm font-semibold text-on-surface-variant transition-colors group-hover:text-primary">
-                    Open track →
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* All algorithms grid */}
-      <section className="px-6 pb-20 sm:px-8 lg:px-12 lg:pb-24">
+      {/* Main Complete Curriculum Grid */}
+      <section className="px-6 pb-20 pt-10 sm:px-8 lg:px-12 lg:pb-24 lg:pt-12">
         <div className="mr-auto max-w-[1400px]">
           <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-secondary/60">
-                Foundations
+                Curriculum
               </p>
               <h2 className="font-headline text-3xl font-bold tracking-tight text-on-surface">
-                Core Foundations
+                Complete Sequence
               </h2>
               <p className="mt-2 max-w-2xl text-sm leading-7 text-on-surface-variant sm:text-base">
-                Master the algorithms that shape modern machine learning
-                systems, from classical models to deep learning architectures.
+                Master the full mathematical foundations sequentially across all {algorithms.length} distinct rigorous learning modules.
               </p>
             </div>
 
@@ -268,46 +180,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Playground CTA */}
-      <section className="px-6 pb-24 sm:px-8 lg:px-12 lg:pb-32">
-        <div className="mr-auto max-w-[1400px]">
-          <div className="shimmer-border rounded-2xl">
-            <div className="rounded-2xl bg-surface-container p-8 sm:p-10 lg:p-12">
-              <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-                <div className="max-w-2xl">
-                  <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-tertiary/20 bg-tertiary/8 px-3 py-1 text-xs font-bold uppercase tracking-wider text-tertiary">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-tertiary" />
-                    Interactive Lab
-                  </div>
-                  <h2 className="font-headline text-3xl font-bold tracking-tight text-on-surface sm:text-4xl">
-                    Neural Network Playground
-                  </h2>
-                  <p className="mt-4 text-base leading-8 text-on-surface-variant">
-                    Build classification datasets, tune model settings, and watch
-                    a real neural network learn a decision boundary in your
-                    browser. Full backpropagation, no shortcuts.
-                  </p>
-                </div>
 
-                <div className="flex flex-wrap gap-3">
-                  <Link
-                    href="/playground"
-                    className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-on-primary transition-all duration-200 hover:brightness-110 hover:shadow-lg hover:shadow-primary/20"
-                  >
-                    Open Playground
-                  </Link>
-                  <Link
-                    href="/algorithms/neural-networks"
-                    className="inline-flex items-center justify-center rounded-xl border border-outline-variant/50 bg-surface-container-high px-6 py-3.5 text-sm font-semibold text-on-surface transition-colors hover:bg-surface-container-highest"
-                  >
-                    Neural Networks Lesson
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

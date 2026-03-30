@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import Image from "next/image";
 
 import { algorithms } from "@/data/algorithms";
 import { algorithmSupplemental } from "@/data/algorithmSupplemental";
@@ -14,6 +15,7 @@ import {
   getCategoryLabel,
   getCategoryRoute,
 } from "@/lib/algorithmPresentation";
+import FoundationView from "./FoundationView";
 
 function inferCodeLabel(code: string, title: string) {
   const normalized = code.toLowerCase();
@@ -94,6 +96,11 @@ export default async function AlgorithmPage({ params }: PageProps) {
   const codeLabel = inferCodeLabel(algorithm.codeSnippet, algorithm.title);
   const supportSections = getSupportSections(algorithm.id);
 
+  const isFoundation = ["Calculus", "Linear Algebra", "Probability Theory"].includes(algorithm.category);
+  if (isFoundation) {
+    return <FoundationView algorithm={algorithm} supportSections={supportSections} />;
+  }
+
   return (
     <div className="relative px-6 py-10 sm:px-8 lg:px-12">
       <section className="relative z-10 mx-auto max-w-5xl">
@@ -131,9 +138,9 @@ export default async function AlgorithmPage({ params }: PageProps) {
           <h1 className="mb-5 font-headline text-4xl font-bold tracking-tight text-on-surface sm:text-5xl lg:text-6xl">
             {algorithm.title}
           </h1>
-          <p className="max-w-3xl text-base leading-8 text-on-surface-variant sm:text-lg">
-            {algorithm.fullDescription}
-          </p>
+          <div className="max-w-max sm:text-lg">
+            <LogicContent content={algorithm.fullDescription} />
+          </div>
         </div>
 
         {/* Quick summary cards */}
@@ -165,7 +172,7 @@ export default async function AlgorithmPage({ params }: PageProps) {
           <div className="border-b border-outline-variant/30 px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary/12 text-lg">
-                💡
+                <Image src="/think.png" alt="think" width={30} height={30} className="filter invert" />
               </div>
               <div>
                 <h2 className="font-headline text-xl font-semibold text-on-surface sm:text-2xl">
@@ -282,8 +289,8 @@ export default async function AlgorithmPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Assumptions & References — side by side */}
-        <div className="grid gap-6 lg:grid-cols-2">
+        {/* Assumptions & References — stacked in rows*/}
+        <div className="flex flex-col gap-6">
           <div className="overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-high">
             <div className="border-b border-outline-variant/30 px-6 py-5 sm:px-8">
               <div className="mb-2 flex items-center gap-3">
@@ -344,12 +351,8 @@ export default async function AlgorithmPage({ params }: PageProps) {
                     key={index}
                     className="rounded-xl border border-outline-variant/20 bg-surface-container p-4"
                   >
-                    <p className="font-semibold leading-7 text-on-surface">
-                      {reference.title}
-                    </p>
-                    <p className="mt-1 text-sm leading-6 text-on-surface-variant/70">
-                      {reference.authors}
-                      {reference.year ? ` (${reference.year})` : ""}
+                    <p className="mt-1 text-sm leading-6 text-on-surface-variant/90">
+                      {reference.source}
                     </p>
                     {reference.url ? (
                       <a

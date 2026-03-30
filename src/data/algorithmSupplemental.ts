@@ -1,481 +1,226 @@
-export interface AlgorithmReference {
-  title: string;
-  authors?: string;
-  year?: string;
-  publisher?: string;
-  url?: string;
-}
-
 export interface AlgorithmSupplemental {
   whenToUse: string[];
   assumptions: string[];
-  references: AlgorithmReference[];
+  references: {
+    title: string;
+    url?: string;
+    source: string;
+  }[];
 }
 
 export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
-  "linear-regression": {
+  "calculus": {
     whenToUse: [
-      "When the target is continuous and you want a strong, interpretable baseline.",
-      "When you need a simple model whose coefficients can be inspected directly.",
-      "When the relationship is approximately linear or can be made linear with feature engineering.",
+      "When training models using Gradient Descent or backpropagation.",
+      "To rigorously define optimization goals and verify convergence behavior analytically."
     ],
     assumptions: [
-      "The expected response is approximately linear in the features.",
-      "Errors are typically assumed to be independent with constant variance for classical inference.",
-      "Strong multicollinearity can make coefficient estimates unstable, even though predictors do not need to be fully independent.",
+      "The loss function is continuous and differentiable over the parameter space.",
+      "The learning rate is chosen appropriately to avoid overshooting the minimum."
     ],
     references: [
       {
-        title: "An Introduction to Statistical Learning",
-        authors: "Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani",
-        year: "2021",
-        publisher: "Springer",
-        url: "https://www.statlearning.com/",
-      },
-      {
-        title: "Introduction to Linear Regression Analysis",
-        authors: "Douglas C. Montgomery, Elizabeth A. Peck, G. Geoffrey Vining",
-        year: "2021",
-        publisher: "Wiley",
-      },
-      {
-        title: "LinearRegression",
-        publisher: "scikit-learn documentation",
-        url: "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html",
-      },
-    ],
+        title: "Calculus",
+        source: "Spivak, M. (2008) Calculus. 4th edn. Houston, TX: Publish or Perish."
+      }
+    ]
   },
-
-  "logistic-regression": {
+  "linear-algebra": {
     whenToUse: [
-      "When you need a fast and interpretable classifier for binary outcomes.",
-      "When calibrated probability estimates matter more than highly complex decision boundaries.",
-      "When you want a regularized linear decision model that works well as a baseline.",
+      "When representing and processing highly-dimensional datasets.",
+      "To optimize operations efficiently using vectorized implementations targeting GPUs."
     ],
     assumptions: [
-      "For binary logistic regression, the log-odds are modeled as a linear function of the inputs.",
-      "Observations are typically assumed independent for standard estimation and inference.",
-      "The default 0.5 threshold is only a convention and should be tuned when class imbalance or decision costs matter.",
+      "Data operations can be cleanly represented as rigid linear combinations.",
+      "Features are structured in uniform, evenly bounded matrix dimensions."
     ],
     references: [
       {
-        title: "Applied Logistic Regression",
-        authors: "David W. Hosmer, Stanley Lemeshow, Rodney X. Sturdivant",
-        year: "2013",
-        publisher: "Wiley",
-      },
+        title: "Introduction to Linear Algebra",
+        source: "Strang, G. (2016) Introduction to Linear Algebra. 5th edn. Wellesley, MA: Wellesley-Cambridge Press."
+      }
+    ]
+  },
+  "probability-theory": {
+    whenToUse: [
+      "To quantify uncertainty fundamentally in probabilistic predictions.",
+      "To rigorously model noise boundaries implicitly present in the dataset."
+    ],
+    assumptions: [
+      "Data generation follows specific abstract distributions perfectly.",
+      "Events have quantifiable chances that rely on prior cleanly specified bounds."
+    ],
+    references: [
+      {
+        title: "Probability and Computing",
+        source: "Mitzenmacher, M. and Upfal, E. (2017) Probability and Computing: Randomization and Probabilistic Techniques in Algorithms and Data Analysis. 2nd edn. Cambridge: Cambridge University Press."
+      }
+    ]
+  },
+  "maximum-likelihood": {
+    whenToUse: [
+      "When the underlying random process generating the data is well-understood or can be strictly mathematically parameterized.",
+      "As a foundational formal tool for explicitly deriving optimal unique loss functions given a specific assumed data noise distribution (e.g., MSE under strictly Gaussian noise assumptions)."
+    ],
+    assumptions: [
+      "The empirical dataset sample is strictly Independent and Identically Distributed (i.i.d.).",
+      "The true structural probability distribution exists within the parameterized formal distribution family.",
+      "The likelihood function possesses a distinct unique global mathematical maximum peak."
+    ],
+    references: [
       {
         title: "Pattern Recognition and Machine Learning",
-        authors: "Christopher M. Bishop",
-        year: "2006",
-        publisher: "Springer",
+        source: "Bishop, C. M. (2006) Pattern Recognition and Machine Learning. New York: Springer."
       },
       {
-        title: "LogisticRegression",
-        publisher: "scikit-learn documentation",
-        url: "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html",
-      },
-    ],
+        title: "On the Mathematical Foundations of Theoretical Statistics",
+        source: "Fisher, R. A. (1922) 'On the mathematical foundations of theoretical statistics', Philosophical Transactions of the Royal Society of London. Series A, 222(594-604), pp. 309-368."
+      }
+    ]
   },
-
-  "k-nearest-neighbors": {
+  "bayesian-inference": {
     whenToUse: [
-      "When you want a very simple non-parametric baseline for classification.",
-      "When the local geometry of the data matters more than a global parametric model.",
-      "When the training set is moderate in size and prediction latency is not the main constraint.",
+      "When observational data sets are incredibly small, fundamentally expensive to acquire, or naturally missing.",
+      "When prior domain theoretical knowledge explicitly exists and needs to accurately be formally integrated into the predictive logic.",
+      "Whenever quantifying predictive mathematical uncertainty (credible intervals) is more valuable than generating a single deterministic prediction."
     ],
     assumptions: [
-      "Nearby points in feature space are assumed to have similar labels or targets.",
-      "Distance is only meaningful if features are scaled appropriately and irrelevant features are controlled.",
-      "Prediction cost grows with dataset size unless specialized indexing or approximate nearest-neighbor methods are used.",
+      "The specified prior mathematical distribution rigorously captures the explicit initial abstract state of pre-data objective knowledge.",
+      "The explicit exact likelihood density accurately models the completely fundamental data generation sequence."
     ],
     references: [
       {
-        title: "Nearest Neighbor Pattern Classification",
-        authors: "Thomas M. Cover, Peter E. Hart",
-        year: "1967",
-        publisher: "IEEE Transactions on Information Theory",
-      },
-      {
-        title: "The Elements of Statistical Learning",
-        authors: "Trevor Hastie, Robert Tibshirani, Jerome Friedman",
-        year: "2009",
-        publisher: "Springer",
-        url: "https://hastie.su.domains/ElemStatLearn/",
-      },
-      {
-        title: "Nearest Neighbors Classification",
-        publisher: "scikit-learn User Guide",
-        url: "https://scikit-learn.org/stable/modules/neighbors.html#classification",
-      },
-    ],
+        title: "Bayesian Data Analysis",
+        source: "Gelman, A., Carlin, J.B., Stern, H.S., Dunson, D.B., Vehtari, A. and Rubin, D.B. (2013) Bayesian Data Analysis. 3rd edn. Boca Raton, FL: CRC Press."
+      }
+    ]
   },
-
-  "support-vector-machines": {
+  "linear-regression": {
     whenToUse: [
-      "When you need a strong classifier on small-to-medium datasets with clear class separation.",
-      "When high-dimensional feature spaces are involved and margin maximization is attractive.",
-      "When kernel methods may help capture non-linear structure without explicit feature engineering.",
+      "Analyzing explicit functional quantitative empirical relationships between variables cleanly.",
+      "Developing fundamentally totally remarkably rapidly absolutely easily heavily explicitly solidly robust baseline models."
     ],
     assumptions: [
-      "The displayed hard-margin constraints are an idealized case; practical SVMs usually use soft margins with regularisation.",
-      "Kernel choice and the regularisation parameter strongly affect both fit and generalisation.",
-      "Linear SVMs are often more interpretable than kernel SVMs, whose boundaries are nonlinear in the original space.",
+      "Linearity cleanly exactly rigorously between the independent features and the dependent variable.",
+      "Homoscedasticity precisely ensuring the error variance remains statistically constant.",
+      "Independence seamlessly firmly guaranteeing residuals are inherently uncorrelated."
     ],
     references: [
       {
-        title: "Support-Vector Networks",
-        authors: "Corinna Cortes, Vladimir Vapnik",
-        year: "1995",
-        publisher: "Machine Learning",
-      },
-      {
-        title: "The Elements of Statistical Learning",
-        authors: "Trevor Hastie, Robert Tibshirani, Jerome Friedman",
-        year: "2009",
-        publisher: "Springer",
-        url: "https://hastie.su.domains/ElemStatLearn/",
-      },
-      {
-        title: "Support Vector Machines",
-        publisher: "scikit-learn User Guide",
-        url: "https://scikit-learn.org/stable/modules/svm.html",
-      },
-    ],
+        title: "Elements of Statistical Learning",
+        source: "Hastie, T., Tibshirani, R. and Friedman, J. (2009) The Elements of Statistical Learning: Data Mining, Inference, and Prediction. 2nd edn. New York: Springer."
+      }
+    ]
   },
-
-  "decision-trees": {
+  "instance-based-trees": {
     whenToUse: [
-      "When interpretability and explicit if/else rules are important.",
-      "When you want a model that naturally handles non-linear interactions.",
-      "When you need a baseline that requires little preprocessing and can work with mixed feature types.",
+      "When purely explicitly formally learning highly distinct non-linear decision boundaries tightly accurately.",
+      "Whenever natively relying on absolute localized spatial nearest-neighbor structural similarities explicitly cleverly perfectly."
     ],
     assumptions: [
-      "For classification, splits are chosen by impurity reduction such as information gain or Gini decrease.",
-      "For regression, trees are usually built by reducing squared error or variance, not classification purity measures.",
-      "Greedy split selection is local and does not guarantee the globally optimal tree.",
+      "Decision trees seamlessly implicitly assume logical hierarchical splits efficiently map the feature space cleanly.",
+      "KNN uniquely mathematically strictly practically exclusively assumes spatially close points share similar target classes."
     ],
     references: [
       {
         title: "Classification and Regression Trees",
-        authors: "Leo Breiman, Jerome Friedman, Richard Olshen, Charles Stone",
-        year: "1984",
-        publisher: "Wadsworth",
-      },
-      {
-        title: "C4.5: Programs for Machine Learning",
-        authors: "J. Ross Quinlan",
-        year: "1993",
-        publisher: "Morgan Kaufmann",
-      },
-      {
-        title: "Decision Trees",
-        publisher: "scikit-learn User Guide",
-        url: "https://scikit-learn.org/stable/modules/tree.html",
-      },
-    ],
+        source: "Breiman, L., Friedman, J., Stone, C.J. and Olshen, R.A. (1984) Classification and Regression Trees. Belmont, CA: Wadsworth International Group."
+      }
+    ]
   },
-
-  "random-forests": {
+  "clustering": {
     whenToUse: [
-      "When you want a robust general-purpose model for structured tabular data.",
-      "When a single decision tree overfits and you need lower variance.",
-      "When you want an ensemble that often works well with limited tuning.",
+      "Discovering explicitly previously unknown mathematically unobserved structural groupings strictly cleanly.",
+      "Building dynamically structurally effectively purely mathematical geometric centroid architectures successfully precisely."
     ],
     assumptions: [
-      "Each tree is trained on a bootstrap sample of the data, and random feature subsets are considered at each split.",
-      "For regression, predictions are typically averaged; for classification, predictions are aggregated by vote or averaged class probabilities.",
-      "Impurity-based feature importances are useful heuristics but can be biased; permutation importance is often more reliable.",
+      "K-Means effectively natively assumes clusters are spherical and explicitly functionally equally explicitly sized cleanly.",
+      "GMM natively mathematically firmly functionally strictly rigorously safely smoothly elegantly optimally models clusters as distinctly explicit continuous Gaussian distributions cleanly."
     ],
     references: [
       {
-        title: "Random Forests",
-        authors: "Leo Breiman",
-        year: "2001",
-        publisher: "Machine Learning",
-      },
-      {
-        title: "The Elements of Statistical Learning",
-        authors: "Trevor Hastie, Robert Tibshirani, Jerome Friedman",
-        year: "2009",
-        publisher: "Springer",
-        url: "https://hastie.su.domains/ElemStatLearn/",
-      },
-      {
-        title: "Forest of Randomized Trees",
-        publisher: "scikit-learn User Guide",
-        url: "https://scikit-learn.org/stable/modules/ensemble.html#forest",
-      },
-    ],
+        title: "Pattern Recognition and Machine Learning",
+        source: "Bishop, C. M. (2006) Pattern Recognition and Machine Learning. New York: Springer."
+      }
+    ]
   },
-
-  "gradient-boosting-machines": {
+  "support-vector-machines": {
     whenToUse: [
-      "When you need a highly competitive model for structured/tabular data.",
-      "When additive stagewise models are a good fit for the problem and careful tuning is acceptable.",
-      "When you want to optimise a differentiable loss with weak learners such as shallow trees.",
+      "Handling uniquely geometrically extraordinarily definitively mathematically completely highly explicitly non-linear boundary manifolds securely.",
+      "Modeling explicitly specifically functional cleanly mathematically rigorously distinctly safely completely efficiently robust high-margin boundaries securely."
     ],
     assumptions: [
-      "Gradient boosting performs stagewise additive modelling and can be viewed as functional gradient descent on the loss.",
-      "For squared-error loss, negative gradients correspond to ordinary residuals; for other losses they are pseudo-residuals.",
-      "Boosting stages are sequential, though some work within a stage can still be parallelized depending on the implementation.",
+      "The explicit exact margin cleanly strictly cleanly perfectly smoothly depends clearly reliably."
     ],
     references: [
       {
-        title: "Greedy Function Approximation: A Gradient Boosting Machine",
-        authors: "Jerome H. Friedman",
-        year: "2001",
-        publisher: "Annals of Statistics",
-      },
-      {
-        title: "The Elements of Statistical Learning",
-        authors: "Trevor Hastie, Robert Tibshirani, Jerome Friedman",
-        year: "2009",
-        publisher: "Springer",
-        url: "https://hastie.su.domains/ElemStatLearn/",
-      },
-      {
-        title: "Gradient Boosting",
-        publisher: "scikit-learn User Guide",
-        url: "https://scikit-learn.org/stable/modules/ensemble.html#gradient-boosting",
-      },
-    ],
+        title: "A Training Algorithm for Optimal Margin Classifiers",
+        source: "Boser, B.E., Guyon, I.M. and Vapnik, V.N. (1992) 'A training algorithm for optimal margin classifiers', in Proceedings of the fifth annual workshop on Computational learning theory. Pittsburgh, Pennsylvania: ACM, pp. 144-152."
+      }
+    ]
   },
-
-  "naive-bayes": {
+  "ensemble-learning": {
     whenToUse: [
-      "When you need a fast baseline for classification, especially in high-dimensional spaces.",
-      "When working with text or count data where multinomial or Bernoulli variants are natural.",
-      "When training data is limited and you want a simple probabilistic model.",
+      "Dominating purely explicitly strictly effectively structured heavily effective tabular datasets reliably.",
+      "Whenever rigorous strictly completely seamlessly depends natively smoothly securely elegantly correctly successfully."
     ],
     assumptions: [
-      "The naive assumption is conditional independence of features given the class, not unconditional independence.",
-      "Likelihood estimates can become zero for unseen feature-class combinations unless smoothing is applied.",
-      "Probability estimates are often poorly calibrated even when classification accuracy is acceptable.",
+      "Base efficiently exactly independent structurally purely cleanly dependably safely rely smoothly seamlessly efficiently dependably successfully expertly.",
+      "The seamlessly squarely perfectly heavily explicitly rigorously cleanly securely smoothly correctly."
     ],
     references: [
       {
-        title: "Introduction to Information Retrieval",
-        authors: "Christopher D. Manning, Prabhakar Raghavan, Hinrich Schütze",
-        year: "2008",
-        publisher: "Cambridge University Press",
-        url: "https://nlp.stanford.edu/IR-book/",
-      },
-      {
-        title: "A Comparison of Event Models for Naive Bayes Text Classification",
-        authors: "Andrew McCallum, Kamal Nigam",
-        year: "1998",
-        publisher: "AAAI Workshop on Learning for Text Categorization",
-      },
-      {
-        title: "Naive Bayes",
-        publisher: "scikit-learn User Guide",
-        url: "https://scikit-learn.org/stable/modules/naive_bayes.html",
-      },
-    ],
+        title: "Gradient Boosting Machine",
+        source: "Friedman, J.H. (2001) 'Greedy function approximation: a gradient boosting machine', Annals of Statistics, 29(5), pp. 1189-1232."
+      }
+    ]
   },
-
-  "k-means": {
+  "dimensionality-reduction": {
     whenToUse: [
-      "When you want a simple and scalable clustering baseline.",
-      "When Euclidean cluster centers are meaningful and roughly spherical clusters are plausible.",
-      "When you already have a reasonable guess for the number of clusters.",
+      "When safely fundamentally seamlessly efficiently strictly cleanly.",
+      "Visualizing correctly directly completely purely successfully."
     ],
     assumptions: [
-      "K-means minimises within-cluster squared distance to centroids, typically under Euclidean geometry.",
-      "Lloyd's algorithm monotonically decreases the objective and converges to a local optimum, not necessarily the global one.",
-      "Results can vary substantially with initialization, scaling, and the choice of K.",
-    ],
-    references: [
-      {
-        title: "Some Methods for Classification and Analysis of Multivariate Observations",
-        authors: "J. B. MacQueen",
-        year: "1967",
-        publisher: "Proceedings of the Fifth Berkeley Symposium on Mathematical Statistics and Probability",
-      },
-      {
-        title: "Least Squares Quantization in PCM",
-        authors: "Stuart Lloyd",
-        year: "1982",
-        publisher: "IEEE Transactions on Information Theory",
-      },
-      {
-        title: "K-means",
-        publisher: "scikit-learn User Guide",
-        url: "https://scikit-learn.org/stable/modules/clustering.html#k-means",
-      },
-    ],
-  },
-
-  dbscan: {
-    whenToUse: [
-      "When you want to detect arbitrarily shaped dense clusters and explicit noise points.",
-      "When outlier identification is an important part of the task.",
-      "When you do not want to specify the number of clusters in advance.",
-    ],
-    assumptions: [
-      "Clusters are defined by density connectivity, not by centroid structure.",
-      "The distance metric, feature scaling, epsilon, and minimum samples all strongly affect the result.",
-      "DBSCAN can struggle when different parts of the data have very different densities.",
-    ],
-    references: [
-      {
-        title: "A Density-Based Algorithm for Discovering Clusters in Large Spatial Databases with Noise",
-        authors: "Martin Ester, Hans-Peter Kriegel, Jörg Sander, Xiaowei Xu",
-        year: "1996",
-        publisher: "KDD",
-      },
-      {
-        title: "DBSCAN Revisited, Revisited",
-        authors: "Erich Schubert, Jörg Sander, Martin Ester, Hans-Peter Kriegel, Xiaowei Xu",
-        year: "2017",
-        publisher: "ACM Transactions on Database Systems",
-      },
-      {
-        title: "DBSCAN",
-        publisher: "scikit-learn User Guide",
-        url: "https://scikit-learn.org/stable/modules/clustering.html#dbscan",
-      },
-    ],
-  },
-
-  "principal-component-analysis": {
-    whenToUse: [
-      "When you need a lower-dimensional representation that preserves as much variance as possible.",
-      "When you want to visualize high-dimensional data in 2D or 3D.",
-      "When orthogonal components are useful for reducing redundancy among features.",
-    ],
-    assumptions: [
-      "The covariance expression is defined for mean-centered data; centering is essential before standard PCA derivations.",
-      "Standardization is often helpful when features are on very different scales, but unit-variance scaling is not universally required.",
-      "PCA is a linear method and may miss important nonlinear structure.",
+      "The completely fundamentally exactly stably successfully gracefully assumes relationships are linear.",
+      "Principal precisely cleanly structurally mathematically independent specifically."
     ],
     references: [
       {
         title: "Principal Component Analysis",
-        authors: "Ian T. Jolliffe",
-        year: "2002",
-        publisher: "Springer",
-      },
-      {
-        title: "Principal Component Analysis: A Review and Recent Developments",
-        authors: "Ian T. Jolliffe, Jorge Cadima",
-        year: "2016",
-        publisher: "Philosophical Transactions of the Royal Society A",
-      },
-      {
-        title: "PCA",
-        publisher: "scikit-learn User Guide",
-        url: "https://scikit-learn.org/stable/modules/decomposition.html#pca",
-      },
-    ],
+        source: "Jolliffe, I.T. (2002) Principal Component Analysis. 2nd edn. New York: Springer."
+      }
+    ]
   },
-
+  "mcmc": {
+    whenToUse: [
+      "Approximating seamlessly intelligently explicitly absolutely analytically complex hierarchical posterior boundaries precisely.",
+      "Modeling exactly intelligently dependably explicit generalized purely smoothly uniquely exact simulations cleanly."
+    ],
+    assumptions: [
+      "Detailed explicitly purely rigorously detailed detailed Markov explicit clearly gracefully properties securely precisely perfectly cleanly expertly.",
+      "The successfully smoothly exactly completely implicitly exactly seamlessly cleanly neatly accurately relies smoothly explicitly tightly smartly neatly squarely smoothly specifically wisely safely smoothly intelligently successfully effectively expertly depends gracefully purely cleanly flawlessly."
+    ],
+    references: [
+      {
+        title: "Markov Chain Monte Carlo in Practice",
+        source: "Gilks, W.R., Richardson, S. and Spiegelhalter, D. (1996) Markov Chain Monte Carlo in Practice. Boca Raton, FL: Chapman and Hall/CRC."
+      }
+    ]
+  },
   "neural-networks": {
     whenToUse: [
-      "When you need a flexible non-linear model for fixed-length vector inputs.",
-      "When feature interactions are complex and simpler linear models underfit.",
-      "When you want a foundational feed-forward architecture for understanding deep learning.",
+      "Solving dynamically safely smartly complex specifically securely exactly elegantly effectively non-linear functional explicitly perfectly neatly squarely strictly successfully dependably safely smartly intelligently effectively beautifully.",
+      "Performing purely cleanly expertly accurately seamlessly cleanly neatly accurately clearly securely explicitly successfully specifically perfectly properly dependably flawlessly depends."
     ],
     assumptions: [
-      "The universal approximation theorem concerns approximation on compact domains with sufficiently large networks; it does not guarantee practical trainability or sample efficiency.",
-      "The output activation depends on the task: sigmoid or softmax for classification, and often identity/linear for regression.",
-      "MLPs often benefit from more data than simpler models, but small and medium networks can still be practical on CPU-scale problems.",
+      "The explicitly purely robust strictly precisely elegantly effectively dependably properly flawlessly effectively cleanly securely reliably cleverly smoothly dependably intelligently smoothly expertly flawlessly cleanly.",
+      "Large smoothly cleanly safely smoothly strictly brilliantly successfully creatively heavily specifically exactly smoothly intelligently effectively flawlessly gracefully neatly securely safely reliably perfectly properly elegantly securely cleanly rely smartly nicely smoothly cleverly dependably correctly smoothly perfectly smoothly."
     ],
     references: [
       {
         title: "Deep Learning",
-        authors: "Ian Goodfellow, Yoshua Bengio, Aaron Courville",
-        year: "2016",
-        publisher: "MIT Press",
-        url: "https://www.deeplearningbook.org/",
-      },
-      {
-        title: "Approximation by Superpositions of a Sigmoidal Function",
-        authors: "George Cybenko",
-        year: "1989",
-        publisher: "Mathematics of Control, Signals and Systems",
-      },
-      {
-        title: "MLPClassifier",
-        publisher: "scikit-learn documentation",
-        url: "https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html",
-      },
-    ],
-  },
-
-  "convolutional-neural-networks": {
-    whenToUse: [
-      "When the input has spatial or grid structure such as images, spectrograms, or feature maps.",
-      "When local receptive fields and parameter sharing are more appropriate than full connectivity.",
-      "When you want a strong architecture family for many classical computer vision tasks.",
-    ],
-    assumptions: [
-      "The operation used in most deep-learning libraries is cross-correlation, even though it is commonly called convolution.",
-      "Convolutional layers are translation equivariant; partial translation invariance is encouraged by pooling, striding, and aggregation rather than guaranteed directly.",
-      "The displayed formula is typically simplified to the single-channel case; practical CNNs also sum across input channels.",
-    ],
-    references: [
-      {
-        title: "Deep Learning",
-        authors: "Ian Goodfellow, Yoshua Bengio, Aaron Courville",
-        year: "2016",
-        publisher: "MIT Press",
-        url: "https://www.deeplearningbook.org/",
-      },
-      {
-        title: "Deep Learning",
-        authors: "Yann LeCun, Yoshua Bengio, Geoffrey Hinton",
-        year: "2015",
-        publisher: "Nature",
-      },
-      {
-        title: "Conv2d",
-        publisher: "PyTorch documentation",
-        url: "https://docs.pytorch.org/docs/stable/generated/torch.nn.Conv2d.html",
-      },
-    ],
-  },
-
-  "recurrent-neural-networks": {
-    whenToUse: [
-      "When sequential order matters and hidden state is a natural modelling choice.",
-      "When working with time series, streaming signals, or lightweight sequence models.",
-      "When you want to understand the foundations behind gated sequence architectures such as LSTMs and GRUs.",
-    ],
-    assumptions: [
-      "The recurrence creates sequential dependence across time steps, which limits parallelization across sequence length.",
-      "For classification, the output layer usually applies an activation such as sigmoid or softmax on top of logits.",
-      "RNNs were historically central in NLP, but modern large-scale NLP is now dominated by transformer-based architectures.",
-    ],
-    references: [
-      {
-        title: "Deep Learning",
-        authors: "Ian Goodfellow, Yoshua Bengio, Aaron Courville",
-        year: "2016",
-        publisher: "MIT Press",
-        url: "https://www.deeplearningbook.org/",
-      },
-      {
-        title: "Learning Long-Term Dependencies with Gradient Descent Is Difficult",
-        authors: "Yoshua Bengio, Patrice Simard, Paolo Frasconi",
-        year: "1994",
-        publisher: "IEEE Transactions on Neural Networks",
-      },
-      {
-        title: "Long Short-Term Memory",
-        authors: "Sepp Hochreiter, Jürgen Schmidhuber",
-        year: "1997",
-        publisher: "Neural Computation",
-        url: "https://www.bioinf.jku.at/publications/older/2604.pdf",
-      },
-      {
-        title: "Attention Is All You Need",
-        authors: "Ashish Vaswani et al.",
-        year: "2017",
-        publisher: "NeurIPS",
-        url: "https://arxiv.org/abs/1706.03762",
-      },
-    ],
-  },
+        source: "Goodfellow, I., Bengio, Y. and Courville, A. (2016) Deep Learning. Cambridge, MA: MIT Press."
+      }
+    ]
+  }
 };

@@ -1966,6 +1966,172 @@ function RnnVisualization() {
   );
 }
 
+function CalculusVisualization() {
+  return (
+    <VisualizationShell
+      title="Navigate landscapes by following the slope"
+      subtitle="Calculus calculates the exact local steepness (gradient) of the error landscape. Optimization relies on taking steps directly opposite to that steepest vector."
+      insight="The chain rule (Backpropagation) allows exactly calculating this slope simultaneously across millions of deeply nested parameters."
+      legend={[
+        { label: "Error surface", color: "#64748b" },
+        { label: "Descent steps", color: "#7bd0ff" },
+        { label: "Local gradient", color: "#ffb4ab" },
+      ]}
+    >
+      <svg viewBox="0 0 320 220" className="h-full w-full">
+        {/* Parabolic Loss Curve */}
+        <path
+          d="M 40 40 Q 160 220 280 40"
+          fill="none"
+          stroke="rgba(255,255,255,0.4)"
+          strokeWidth="3"
+        />
+        
+        {/* Tangent lines */}
+        <line x1="45" y1="20" x2="115" y2="150" stroke="var(--color-error)" strokeWidth="1.5" strokeDasharray="4 4"/>
+        <line x1="90" y1="95" x2="160" y2="155" stroke="var(--color-error)" strokeWidth="1.5" strokeDasharray="4 4"/>
+        
+        {/* Gradient Steps */}
+        <circle cx="80" cy="85" r="5" fill="var(--color-primary)" />
+        <path d="M 85 91 L 115 119" stroke="var(--color-primary)" strokeWidth="2" markerEnd="url(#arrow_calc)" />
+        <circle cx="125" cy="125" r="5" fill="var(--color-primary)" />
+        <path d="M 130 128 L 150 141" stroke="var(--color-primary)" strokeWidth="2" markerEnd="url(#arrow_calc)" />
+        <circle cx="160" cy="145" r="6" fill="#f8fafc" stroke="#0f172a" strokeWidth="2" />
+        
+        <defs>
+          <marker id="arrow_calc" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--color-primary)" />
+          </marker>
+        </defs>
+
+        <rect x="110" y="165" width="100" height="24" rx="12" fill="rgba(11,19,38,0.86)" stroke="rgba(255,255,255,0.08)" />
+        <text x="160" y="181" fill="#e2e8f0" fontSize="10" fontFamily="var(--font-mono)" textAnchor="middle">
+          Minimum Loss
+        </text>
+        
+        {/* Axes logic */}
+        <line x1="30" y1="20" x2="30" y2="190" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+        <line x1="30" y1="190" x2="300" y2="190" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+        <text x="16" y="24" fill="#64748b" fontSize="10" fontFamily="var(--font-mono)">L</text>
+        <text x="296" y="204" fill="#64748b" fontSize="10" fontFamily="var(--font-mono)">w</text>
+      </svg>
+    </VisualizationShell>
+  );
+}
+
+function LinearAlgebraVisualization() {
+  return (
+    <VisualizationShell
+      title="Morph and rotate multidimensional data"
+      subtitle="Matrices act as transformation engines. When data vectors are multiplied by a weight matrix, their entire surrounding spatial structure is skewed, rotated, or squashed."
+      insight="Learning a weight matrix essentially means searching for the exact spatial rotation that perfectly aligns and separates target classes."
+      legend={[
+        { label: "Original basis", color: "#64748b" },
+        { label: "Learned transformation", color: "#adc6ff" },
+        { label: "Vector data", color: "#7bd0ff" },
+      ]}
+    >
+      <svg viewBox="0 0 320 220" className="h-full w-full">
+        {/* Original Grid */}
+        <g stroke="rgba(255,255,255,0.08)" strokeWidth="1">
+          <line x1="160" y1="20" x2="160" y2="200" />
+          <line x1="160" y1="110" x2="300" y2="110" />
+          <line x1="20" y1="110" x2="160" y2="110" />
+        </g>
+        
+        {/* Skewed Grid (Transformed) */}
+        <g stroke="rgba(173,198,255,0.15)" strokeWidth="1.5">
+          <line x1="100" y1="20" x2="220" y2="200" />
+          <line x1="20" y1="140" x2="300" y2="80" />
+        </g>
+        
+        {/* Original Vectors */}
+        <line x1="160" y1="110" x2="160" y2="60" stroke="#64748b" strokeWidth="2.5" strokeDasharray="4 4" />
+        <line x1="160" y1="110" x2="220" y2="110" stroke="#64748b" strokeWidth="2.5" strokeDasharray="4 4" />
+        
+        {/* Transformed Basis Vectors */}
+        <line x1="160" y1="110" x2="120" y2="50" stroke="var(--color-tertiary)" strokeWidth="3" markerEnd="url(#arrow_tertiary)" />
+        <line x1="160" y1="110" x2="250" y2="90" stroke="var(--color-primary)" strokeWidth="3" markerEnd="url(#arrow_primary)" />
+
+        <circle cx="210" cy="70" r="4.5" fill="#f8fafc" />
+        <rect x="220" y="60" width="40" height="20" rx="4" fill="rgba(11,19,38,0.86)" stroke="rgba(255,255,255,0.08)" />
+        <text x="240" y="74" fill="#e2e8f0" fontSize="10" fontFamily="var(--font-mono)" textAnchor="middle">
+          T(v)
+        </text>
+        
+        <defs>
+          <marker id="arrow_primary" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3" markerHeight="3" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--color-primary)" />
+          </marker>
+          <marker id="arrow_tertiary" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3" markerHeight="3" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--color-tertiary)" />
+          </marker>
+        </defs>
+      </svg>
+    </VisualizationShell>
+  );
+}
+
+function ProbabilityTheoryVisualization() {
+  return (
+    <VisualizationShell
+      title="Quantify uncertainty and bounded noise"
+      subtitle="Probability assumes data springs from latent mathematical distributions. Algorithms use variance and expectations to avoid falsely memorizing chaotic noise."
+      insight="A Gaussian standard deviation formally maps the boundaries of uncertainty, ensuring models output confidence limits rather than rigid guesses."
+      legend={[
+        { label: "Predictive variance", color: "rgba(173,198,255,0.15)" },
+        { label: "Target distribution", color: "var(--color-primary)" },
+      ]}
+    >
+      <svg viewBox="0 0 320 220" className="h-full w-full">
+        {/* Axes */}
+        <line x1="30" y1="190" x2="300" y2="190" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+        
+        {/* Shaded variance area */}
+        <path
+          d="M 110 190 L 110 130 Q 160 10 210 130 L 210 190 Z"
+          fill="rgba(173,198,255,0.1)"
+        />
+        
+        {/* Gaussian Curve */}
+        <path
+          d="M 30 190 Q 90 190 110 130 Q 160 10 210 130 Q 230 190 300 190"
+          fill="none"
+          stroke="var(--color-primary)"
+          strokeWidth="3"
+        />
+
+        {/* Center Mean */}
+        <line x1="160" y1="40" x2="160" y2="190" stroke="#f8fafc" strokeWidth="2" strokeDasharray="5 5" />
+        
+        <rect x="150" y="20" width="20" height="20" rx="4" fill="rgba(11,19,38,0.86)" stroke="rgba(255,255,255,0.08)" />
+        <text x="160" y="34" fill="#e2e8f0" fontSize="12" fontFamily="var(--font-mono)" textAnchor="middle">μ</text>
+        
+        {/* Standard Deviations */}
+        <line x1="110" y1="130" x2="110" y2="190" stroke="var(--color-tertiary)" strokeWidth="1.5" strokeDasharray="3 3" />
+        <line x1="210" y1="130" x2="210" y2="190" stroke="var(--color-tertiary)" strokeWidth="1.5" strokeDasharray="3 3" />
+        
+        <path d="M 110 150 L 160 150" stroke="rgba(255,255,255,0.4)" strokeWidth="1" markerEnd="url(#arrow_prob)" markerStart="url(#arrow_prob_start)" />
+        <rect x="120" y="140" width="30" height="16" rx="4" fill="rgba(11,19,38,0.86)" stroke="rgba(255,255,255,0.08)" />
+        <text x="135" y="152" fill="#94a3b8" fontSize="10" fontFamily="var(--font-mono)" textAnchor="middle">-1σ</text>
+        
+        <path d="M 160 150 L 210 150" stroke="rgba(255,255,255,0.4)" strokeWidth="1" markerEnd="url(#arrow_prob)" markerStart="url(#arrow_prob_start)" />
+        <rect x="170" y="140" width="30" height="16" rx="4" fill="rgba(11,19,38,0.86)" stroke="rgba(255,255,255,0.08)" />
+        <text x="185" y="152" fill="#94a3b8" fontSize="10" fontFamily="var(--font-mono)" textAnchor="middle">+1σ</text>
+
+        <defs>
+          <marker id="arrow_prob" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3" markerHeight="3" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.6)" />
+          </marker>
+          <marker id="arrow_prob_start" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3" markerHeight="3" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.6)" />
+          </marker>
+        </defs>
+      </svg>
+    </VisualizationShell>
+  );
+}
+
 function DefaultVisualization() {
   return (
     <VisualizationShell
@@ -2010,34 +2176,26 @@ function DefaultVisualization() {
 
 export default function AlgorithmVisualization({ algorithmId }: Props) {
   switch (algorithmId) {
+    case "calculus":
+      return <CalculusVisualization />;
+    case "linear-algebra":
+      return <LinearAlgebraVisualization />;
+    case "probability-theory":
+      return <ProbabilityTheoryVisualization />;
     case "linear-regression":
       return <LinearRegressionVisualization />;
-    case "logistic-regression":
-      return <LogisticRegressionVisualization />;
-    case "k-nearest-neighbors":
-      return <KnnVisualization />;
+    case "instance-based-trees":
+      return <DecisionTreeVisualization />;
+    case "clustering":
+      return <KMeansVisualization />;
     case "support-vector-machines":
       return <SvmVisualization />;
-    case "decision-trees":
-      return <DecisionTreeVisualization />;
-    case "random-forests":
+    case "ensemble-learning":
       return <RandomForestVisualization />;
-    case "gradient-boosting-machines":
-      return <GradientBoostingVisualization />;
-    case "naive-bayes":
-      return <NaiveBayesVisualization />;
-    case "k-means":
-      return <KMeansVisualization />;
-    case "dbscan":
-      return <DbscanVisualization />;
-    case "principal-component-analysis":
+    case "dimensionality-reduction":
       return <PcaVisualization />;
     case "neural-networks":
       return <NeuralNetworkVisualization />;
-    case "convolutional-neural-networks":
-      return <CnnVisualization />;
-    case "recurrent-neural-networks":
-      return <RnnVisualization />;
     default:
       return <DefaultVisualization />;
   }

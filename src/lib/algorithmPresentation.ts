@@ -11,44 +11,100 @@ const categoryConfig: Record<
     description: string;
   }
 > = {
-  Supervised: {
+  "Calculus": {
     color: "primary",
-    route: "/algorithms/supervised",
-    label: "Supervised Learning",
-    description:
-      "Learn from labelled examples to predict outcomes such as classes, prices, or probabilities.",
+    route: "/algorithms/calculus",
+    label: "Calculus",
+    description: "The mathematical study of continuous change, providing the foundation for optimization algorithms.",
   },
-  Unsupervised: {
+  "Linear Algebra": {
     color: "secondary",
-    route: "/algorithms/unsupervised",
-    label: "Unsupervised Learning",
-    description:
-      "Discover hidden structure in unlabeled data through clustering, dimensionality reduction, and density estimation.",
+    route: "/algorithms/linear-algebra",
+    label: "Linear Algebra",
+    description: "The mathematics of vectors and matrices, essential for managing multi-dimensional data.",
   },
-  "Deep Learning": {
+  "Probability Theory": {
     color: "tertiary",
-    route: "/algorithms/deep-learning",
-    label: "Deep Learning",
-    description:
-      "Study neural architectures that learn rich hierarchical representations from large and complex datasets.",
+    route: "/algorithms/probability-theory",
+    label: "Probability Theory",
+    description: "The framework for modeling uncertainty, noise, and likelihood in data.",
+  },
+  "Maximum Likelihood": {
+    color: "primary",
+    route: "/algorithms/maximum-likelihood",
+    label: "Maximum Likelihood",
+    description: "Learn foundational parameter estimation by directly mathematically maximizing the empirical observed likelihood structure.",
+  },
+  "Bayesian Inference": {
+    color: "secondary",
+    route: "/algorithms/bayesian-inference",
+    label: "Bayesian Inference",
+    description: "Formally update probabilistic beliefs continuously as empirical new evidence logically becomes statistically available.",
+  },
+  "Linear Regression": {
+    color: "tertiary",
+    route: "/algorithms/linear-regression",
+    label: "Linear Regression",
+    description: "Predict continuous specific values or distinct probabilities reliably using exact distinct linear explicit feature combinations.",
+  },
+  "Instance-based Learning & Decision Trees": {
+    color: "primary",
+    route: "/algorithms/instance-and-trees",
+    label: "Instance-based & Trees",
+    description: "Effectively predict precise targets smoothly using robust spatial proximity logic or deeply nested conditional deterministic rules.",
+  },
+  "Clustering": {
+    color: "secondary",
+    route: "/algorithms/clustering",
+    label: "Clustering Methods",
+    description: "Discover deep distinct abstract geometric hidden groups structurally directly residing totally inside dense raw unlabeled datatypes.",
+  },
+  "Support Vector Machines": {
+    color: "tertiary",
+    route: "/algorithms/support-vector-machines",
+    label: "Support Vector Machines",
+    description: "Find the absolutely most robustly mathematically optimal wide margin geometrical classification separator effectively using robust explicit structural kernels.",
+  },
+  "Ensemble Learning": {
+    color: "primary",
+    route: "/algorithms/ensemble-learning",
+    label: "Ensemble Learning",
+    description: "Combine thousands of rapidly generated weak learning algorithms into one completely unified state-of-the-art predictive model.",
+  },
+  "Dimensionality Reduction": {
+    color: "secondary",
+    route: "/algorithms/dimensionality-reduction",
+    label: "Dimensionality Reduction",
+    description: "Dynamically compress overwhelmingly massive dense feature spaces completely whilst mathematically preserving extreme structural distinct geometric variances.",
+  },
+  "Markov Chain Monte Carlo": {
+    color: "tertiary",
+    route: "/algorithms/mcmc",
+    label: "Markov Chain Monte Carlo",
+    description: "Approximate mathematically analytically intractable profound continuous probability distribution integrals totally successfully completely using structured deeply stochastic advanced random walks.",
+  },
+  "Neural Networks / Deep Learning": {
+    color: "primary",
+    route: "/algorithms/neural-networks",
+    label: "Deep Learning Architectures",
+    description: "Build incredibly highly parameterized incredibly adaptive computational exact logical algorithmic dynamic deep graphs explicitly highly capable of massive multi-layered representation learning.",
   },
 };
 
 const algorithmIcons: Record<string, string> = {
+  "calculus": "show_chart",
+  "linear-algebra": "grid_on",
+  "probability-theory": "casino",
+  "maximum-likelihood": "functions",
+  "bayesian-inference": "schema",
   "linear-regression": "show_chart",
-  "logistic-regression": "leaderboard",
-  "k-nearest-neighbors": "my_location",
+  "instance-based-trees": "account_tree",
+  "clustering": "bubble_chart",
   "support-vector-machines": "shield",
-  "decision-trees": "account_tree",
-  "random-forests": "forest",
-  "gradient-boosting-machines": "trending_up",
-  "naive-bayes": "percent",
-  "k-means": "bubble_chart",
-  dbscan: "grain",
-  "principal-component-analysis": "scatter_plot",
+  "ensemble-learning": "forest",
+  "dimensionality-reduction": "scatter_plot",
+  "mcmc": "sync",
   "neural-networks": "hub",
-  "convolutional-neural-networks": "image",
-  "recurrent-neural-networks": "timeline",
 };
 
 export function getAlgorithmBySlug(slug: string): Algorithm | undefined {
