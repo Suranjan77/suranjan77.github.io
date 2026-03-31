@@ -4,29 +4,56 @@ export const dimensionalityReduction: Algorithm = {
   id: "dimensionality-reduction",
   title: "Dimensionality Reduction",
   category: "Dimensionality Reduction",
-  shortDescription: "Techniques for heavily compressing features while retaining essential mathematical variance.",
-  fullDescription: "Dimensionality reduction encompasses algorithms that map high-dimensional data down into a lower-dimensional space. The most prominent technique, Principal Component Analysis (PCA), mathematically orthogonalizes the dataset by identifying axes (components) of maximum variance and projecting the data onto them. This effectively compresses noise and isolates the most important structural signals in the dataset.\n\n### Real-World Applications\nUsed for exploratory data visualization (compressing 1000s of features onto a 2D plot), powerful data compression pipelines, mitigating the geometric curse of dimensionality in downstream machine learning tasks, and high-speed facial recognition systems (Eigenfaces).",
-  intuition: "Imagine taking a 3D photograph of an airplane. A bad angle (from the front) creates a 2D shadow that looks like a basic cross, hiding the details. A perfect statistical angle (from the top) projects a 2D shadow that perfectly reveals the wings, tail, and body. PCA mathematically searches for that exact perfect angle that captures the object's defining shape.",
-  mathematics: "### The Covariance Matrix\n\nGiven an $n \\times d$ precisely centered data matrix $X$, the empirical $d \\times d$ symmetric covariance matrix is rigorously defined simply as:\n\n$$ \\Sigma = \\frac{1}{n-1} X^T X $$\n\n### Spectral Eigenvalue Decomposition\n\nPCA decomposes this specific $\\Sigma$ directly into rigorously structural independent eigenvectors ($v_i$) and eigenvalues ($\\lambda_i$):\n\n$$ \\Sigma v_i = \\lambda_i v_i $$\n\nEach exactly structural analytically valid eigenvector acts as a principal component axis.",
+  shortDescription: "Methodologies for the substantial mathematical compression of features whilst rigorously retaining essential structural variance.",
+
+  fullDescription: `
+Dimensionality reduction encompasses advanced algorithms fundamentally designed to map highly dimensional data configurations into lower-dimensional representational spaces. The most prominent analytical technique, Principal Component Analysis (PCA), mathematically orthogonalises the original dataset by successfully isolating the fundamental axes (principal components) exhibiting the maximum continuous geometric variance, subsequently projecting the raw data onto them. This effectively compresses extraneous statistical noise and definitively insulates the most salient structural signals intrinsic to the dataset.
+
+### Empirical Applications
+Dimensionality reduction is frequently leveraged for exploratory data visualisation protocols (effectively compressing thousands of empirical variables onto a discernible 2D or 3D coordinate plane), robust computational data compression pipelines, mitigating the geometric 'Curse of Dimensionality' in downstream machine learning tasks, and propelling high-speed facial recognition mechanisms (e.g., the Eigenfaces biometric system).
+  `,
+
+  intuition: `
+Consider the analytical challenge of evaluating a complex three-dimensional object, such as an aircraft, via a static two-dimensional photograph. A suboptimal vantage point directly obscures structural details, projecting a shadow completely devoid of nuance. Alternatively, an optimal statistical projection (e.g., a superior orthogonal view) explicitly reveals the comprehensive proportions, explicitly capturing the wingspan, fuselage, and tail structure. 
+
+PCA mathematically computes this precise, optimal 'viewing angle', systematically capturing the greatest measure of explicitly defining shape configuration and geometric variance inherent to high-dimensional empirical matrices.
+  `,
+
+  mathematics: `
+### 1. The Covariance Matrix
+Given a precisely mean-centred $n \\times d$ dataset matrix $X$, the empirical $d \\times d$ symmetric statistical covariance matrix is rigorously formulated as:
+
+$$ \\Sigma = \\frac{1}{n-1} X^T X $$
+
+### 2. Spectral Eigenvalue Decomposition
+PCA systematically decomposes this specific covariance matrix $\\Sigma$ directly into rigorously independent structural eigenvectors ($v_i$) and equivalent corresponding eigenvalues ($\\lambda_i$):
+
+$$ \\Sigma v_i = \\lambda_i v_i $$
+
+Each exactly derived, analytically valid eigenvector structurally operates as an orthogonal principal component defining an axis of variance. The corresponding eigenvalue mathematically quantifies the precise absolute magnitude of the variance rigorously isolated along that specific eigenvector's dimension.
+  `,
+
   pros: [
-    "Perfect for removing correlated features.",
-    "Specifically structurally isolates pure geometric variance to maximize computational efficiency."
+    "Mathematically flawless methodology for isolating and definitively eliminating severely correlated (collinear) variables within complex datasets.",
+    "Specifically and structurally isolates pure geometric variance to analytically maximise computational downstream efficiency."
   ],
+
   cons: [
-    "Strictly assumes the latent relationships are fundamentally linear.",
-    "Analytically precisely removes structural interpretability, transforming real features into abstract numbers."
+    "Strictly presupposes that the underlying latent parametric relationships governing the data are fundamentally perfectly linear.",
+    "Analytically and precisely removes absolute structural interpretability, effectively transforming explicit real-world features into functionally abstract mathematical composite vectors."
   ],
+
   codeSnippet: `import numpy as np
 from sklearn.decomposition import PCA
 
-# Data: 100 samples with 5 correlating features
+# Matrix definition: 100 random continuous samples with 5 correlating features
 X = np.random.randn(100, 5)
 
-# Initialize PCA to keep components explaining 95% variance
+# Initialise PCA strictly retaining components explaining 95% of aggregate variance
 pca = PCA(n_components=0.95)
 X_reduced = pca.fit_transform(X)
 
-print(f"Original shape: {X.shape}")
-print(f"Reduced shape: {X_reduced.shape}")
-print(f"Explained Variance Ratio: {pca.explained_variance_ratio_}")`
+print(f"Original array shape dimensionality: {X.shape}")
+print(f"Reduced array shape dimensionality: {X_reduced.shape}")
+print(f"Explicit Explained Statistical Variance Factor Ratio: {pca.explained_variance_ratio_}")`
 };

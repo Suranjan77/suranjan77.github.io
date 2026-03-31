@@ -22,7 +22,7 @@ export default function PlaygroundPage() {
               ← Back
             </Link>
             <div className="inline-flex items-center border-2 border-outline-dark bg-tertiary px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#000] shadow-[2px_2px_0px_0px_#000]">
-              Interactive Lab
+              Interactive Laboratory
             </div>
           </div>
 
@@ -30,10 +30,10 @@ export default function PlaygroundPage() {
             Neural Network Playground
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-on-surface-variant sm:text-lg">
-            Build a tiny classification dataset, tune model settings, and watch
-            a small neural network learn a decision boundary directly in your
-            browser. This simulator runs a real forward pass and backpropagation
-            loop — no shortcuts.
+            Construct a bespoke classification dataset, adjust model hyperparameters, and observe
+            a neural network deduce a decision boundary dynamically in your
+            browser. This simulation executes a complete forward pass and backpropagation
+            cycle without approximations.
           </p>
         </section>
 
@@ -54,7 +54,7 @@ export default function PlaygroundPage() {
                   href="/algorithms/neural-networks"
                   className="border-2 border-outline bg-surface-container px-4 py-2 font-mono text-xs font-bold uppercase tracking-widest text-on-surface transition-transform hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-2px_2px_0px_0px_var(--color-outline)]"
                 >
-                  Read Theory →
+                  Read the Theory →
                 </Link>
               </div>
             </div>
@@ -68,34 +68,34 @@ export default function PlaygroundPage() {
         {/* How to use guide */}
         <section className="mb-16">
           <h2 className="mb-6 font-headline text-3xl font-black uppercase tracking-tight text-on-surface">
-            How to Use
+            Usage Guidelines
           </h2>
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 step: "1",
-                title: "Place Data Points",
+                title: "Establish Data Points",
                 description:
-                  "Click on the canvas to place samples. Use the class selector to toggle between Class A (blue) and Class B (orange). Aim for at least 3–4 points per class.",
+                  "Interact with the canvas to plot samples. Utilise the class selector to alternate between Class A and Class B. A minimum of 3–4 coordinates per class is recommended.",
               },
               {
                 step: "2",
-                title: "Pick a Preset",
+                title: "Select a Preset",
                 description:
-                  'Or choose a preset dataset — Linear (separable), XOR (needs nonlinearity), or Rings (concentric circles) — to see how the network handles different geometries.',
+                  'Alternatively, load a predefined dataset—Linear (separable), XOR (requires non-linearity), or Rings (concentric structures)—to evaluate the network\'s generalisation across topologies.',
               },
               {
                 step: "3",
-                title: "Configure & Train",
+                title: "Configure and Train",
                 description:
-                  "Adjust hidden units (network width), learning rate, and regularisation. Then hit Train and watch the decision boundary evolve in real time.",
+                  "Modify the hidden unit count (network width), learning rate, and regularisation parameters. Initiate the training sequence to observe the decision boundary iterate dynamically.",
               },
               {
                 step: "4",
-                title: "Read the Output",
+                title: "Analyse the Output",
                 description:
-                  "The heatmap shows predicted class probability. The white contour is the decision boundary (ŷ ≈ 0.5). Watch loss decrease and accuracy increase in the metrics panel.",
+                  "The heatmap illustrates predicted class probabilities. The white contour demarcates the decision boundary (ŷ ≈ 0.5). Monitor the reduction in loss and increase in accuracy within the metrics interface.",
               },
             ].map((item) => (
               <div
@@ -119,7 +119,7 @@ export default function PlaygroundPage() {
         {/* Technical Deep Dive */}
         <section className="mb-16">
           <h2 className="mb-6 font-headline text-3xl font-black uppercase tracking-tight text-on-surface">
-            Under the Hood
+            Theoretical Foundations
           </h2>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -137,7 +137,7 @@ export default function PlaygroundPage() {
                   2 → H → 1
                 </code>{" "}
                 where H is the number of hidden units you configure. The two
-                inputs are the (x, y) canvas coordinates normalized to [−1, 1].
+                inputs are the (x, y) canvas coordinates normalised to [−1, 1].
               </p>
               <div className="mt-4 space-y-2 border-2 border-outline-dark bg-[#000] px-4 py-3 font-mono text-sm leading-6 text-on-surface shadow-[4px_4px_0px_0px_var(--color-outline-dark)]">
                 <div>
@@ -192,7 +192,7 @@ export default function PlaygroundPage() {
 
             <div className="border-4 border-outline bg-surface-container p-6 shadow-[4px_4px_0px_0px_var(--color-outline)]">
               <h3 className="mb-3 font-headline text-lg font-bold uppercase text-on-surface">
-                Why Different Datasets Matter
+                Dataset Complexity Analysis
               </h3>
               <ul className="space-y-4 font-mono text-sm leading-7 text-on-surface-variant">
                 <li className="flex items-start gap-4">
@@ -224,7 +224,7 @@ export default function PlaygroundPage() {
 
             <div className="border-4 border-outline bg-surface-container p-6 shadow-[4px_4px_0px_0px_var(--color-outline)]">
               <h3 className="mb-3 font-headline text-lg font-bold uppercase text-on-surface">
-                Reading the Visualisation
+                Interpreting the Visualisation
               </h3>
               <ul className="space-y-4 font-mono text-sm leading-7 text-on-surface-variant">
                 <li className="flex items-start gap-4">
@@ -261,19 +261,19 @@ export default function PlaygroundPage() {
         {/* Navigation footer */}
         <footer className="flex flex-col gap-4 border-t border-outline-variant/50 pt-8 text-sm text-on-surface-variant sm:flex-row sm:items-center sm:justify-between">
           <p>
-            Want to learn the theory?{" "}
+            Require theoretical context?{" "}
             <Link
               href="/algorithms/neural-networks"
               className="font-semibold text-primary transition-colors hover:text-primary/80"
             >
-              Open the Neural Networks lesson →
+              Consult the Neural Networks module →
             </Link>
           </p>
           <Link
             href="/"
             className="transition-colors hover:text-on-surface"
           >
-            Back to Home
+            Return to Curriculum
           </Link>
         </footer>
       </div>

@@ -661,9 +661,9 @@ export default function AlgorithmSimulator() {
           onClick={() => applyPreset("xor")}
           className="border-4 border-outline bg-surface-container p-4 text-left transition-all hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-4px_4px_0px_var(--color-outline)]"
         >
-          <div className="font-mono text-sm font-bold uppercase tracking-wider text-primary">Load XOR</div>
+          <div className="font-mono text-sm font-bold uppercase tracking-wider text-primary">Load XOR dataset</div>
           <div className="mt-2 text-xs font-medium leading-5 text-on-surface-variant">
-            Non-linear pattern that requires a hidden layer.
+            Non‑linear pattern requiring a hidden layer.
           </div>
         </button>
 
@@ -672,9 +672,9 @@ export default function AlgorithmSimulator() {
           onClick={() => applyPreset("linear")}
           className="border-4 border-outline bg-surface-container p-4 text-left transition-all hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-4px_4px_0px_var(--color-outline)]"
         >
-          <div className="font-mono text-sm font-bold uppercase tracking-wider text-secondary">Load Linear</div>
+          <div className="font-mono text-sm font-bold uppercase tracking-wider text-secondary">Load Linear dataset</div>
           <div className="mt-2 text-xs font-medium leading-5 text-on-surface-variant">
-            Easy split for sanity-checking the model.
+            Simple linear separation for model verification.
           </div>
         </button>
 
@@ -683,9 +683,9 @@ export default function AlgorithmSimulator() {
           onClick={() => applyPreset("rings")}
           className="border-4 border-outline bg-surface-container p-4 text-left transition-all hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-4px_4px_0px_var(--color-outline)]"
         >
-          <div className="font-mono text-sm font-bold uppercase tracking-wider text-tertiary">Load Rings</div>
+          <div className="font-mono text-sm font-bold uppercase tracking-wider text-tertiary">Load Rings dataset</div>
           <div className="mt-2 text-xs font-medium leading-5 text-on-surface-variant">
-            Curved boundary to test hidden-unit capacity.
+            Concentric boundary to assess hidden‑unit capacity.
           </div>
         </button>
 
@@ -694,9 +694,9 @@ export default function AlgorithmSimulator() {
           onClick={clearPoints}
           className="border-4 border-outline bg-surface-highest p-4 text-left transition-all hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-4px_4px_0px_var(--color-outline)]"
         >
-          <div className="font-mono text-sm font-bold uppercase tracking-wider text-on-surface">Clear Canvas</div>
+          <div className="font-mono text-sm font-bold uppercase tracking-wider text-on-surface">Clear canvas</div>
           <div className="mt-2 text-xs font-medium leading-5 text-on-surface-variant">
-            Remove all samples and build a custom dataset.
+            Remove all samples and construct a custom dataset.
           </div>
         </button>
       </div>
@@ -725,7 +725,7 @@ export default function AlgorithmSimulator() {
 
         {/* Informative Overlays (Brutalist style) */}
         <div className="absolute left-4 top-4 border-2 border-outline bg-surface px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface shadow-[4px_4px_0px_0px_var(--color-outline)]">
-          Neural Playground: Click to add data
+          Neural Playground: Click to add data points
         </div>
 
         <div className="absolute right-4 top-4 border-2 border-outline bg-surface px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface shadow-[4px_4px_0px_0px_var(--color-outline)]">

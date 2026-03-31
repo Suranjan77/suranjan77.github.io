@@ -4,18 +4,41 @@ export const svm: Algorithm = {
   id: "support-vector-machines",
   title: "Support Vector Machines",
   category: "Support Vector Machines",
-  shortDescription: "Finds an optimal geometric hyperplane maximizing the precise margin, leveraging kernel transformations for non-linear data.",
-  fullDescription: "Support Vector Machines (SVMs) are remarkably robust statistical linear and non-linear classifiers. They seek the optimal hyperplane that not only strictly separates the defined target classes, but actively mathematically guarantees the absolute maximum possible margin between the closest observed data points of both classes. Points residing geometrically firmly on these extreme boundary edges are mathematically named Support Vectors.\n\n### Real-World Applications\nCategorizing complex high-dimensional text strings, analyzing dense biological protein sequences seamlessly, and providing an exceptionally strong foundational classifier for clean small-data scenarios securely immune to minor outliers.",
-  intuition: "Instead of just drawing any line that separates apples from oranges, an SVM draws the widest possible road separating them. The road is determined entirely by the specific apples and oranges placed exactly on the immediate edge of the curb. Moving any other point further back has zero effect on the road's trajectory.",
-  mathematics: "### Hard-Margin Logic\n\nFor a fully linearly separable dataset, the strict fundamental objective is completely mathematically effectively equivalent to minimizing $\\frac{1}{2} \\|w\\|^2$ subject strictly to exactly for all $i$:\n\n$$ y_i (w^T x_i + b) \\ge 1 \\quad \\forall i $$\n\n### The Kernel Trick\n\nWhen structural data is heavily non-linear, we mathematically map points into an incredibly high-dimensional abstract space cleanly using purely a kernel function exactly defined as $K(x_i, x_j) = \\phi(x_i)^T \\phi(x_j)$. The highly robust popular Radial Basis Function (RBF) explicitly operates analytically as:\n\n$$ K(x_i, x_j) = \\exp(-\\gamma \\|x_i - x_j\\|^2) $$",
+  shortDescription: "Derives an optimal geometric hyperplane that maximises the precise mathematical margin, deploying kernel transformations for profound non-linear separability.",
+
+  fullDescription: `
+Support Vector Machines (SVMs) represent exceptionally robust parametric algorithms operating as both linear and non-linear classifiers. They systematically seek the optimal multidimensional hyperplane that not only strictly partitions the defined categorical target classes, but actively and analytically guarantees the absolute maximum possible margin separating the most proximal observed empirical data points of both classes. Observations residing geometrically upon these extreme functional boundary edges are formally designated as Support Vectors.
+
+### Empirical Applications
+SVMs hold pronounced effectiveness in structurally categorising complex high-dimensional text matrices, analysing dense biological protein arrays seamlessly, and providing an extraordinarily resilient foundational framework for structurally clean small-data scenarios securely immunised against stochastic minor outliers.
+  `,
+
+  intuition: `
+Rather than determining an arbitrary discriminatory vector capable of separating bipartite classes, an SVM structurally establishes the widest discernible spatial boundary dividing them. This exclusionary zone is delineated entirely by the specific empirical observations situated exactly upon the immediate mathematical edge of the margin. Modifying the spatial position of any secondary observation located further interior to the respective class cluster exerts strictly zero mathematical effect upon the model's derived trajectory.
+  `,
+
+  mathematics: `
+### 1. Hard-Margin Objective Logic
+For a perfectly linearly separable multidimensional dataset, the foundational mathematical objective is functionally equivalent to minimising $\\frac{1}{2} \\|w\\|^2$, subject stringently to the strict inequality for all observations $i$:
+
+$$ y_i (w^T x_i + b) \\ge 1 \\quad \\forall i $$
+
+### 2. The Kernel Trick Methodology
+When the structural topology of the empirical data exhibits profound non-linearity, SVMs mathematically project observations into an extraordinarily high-dimensional abstract feature space natively utilising a kernel function, rigorously defined as $K(x_i, x_j) = \\phi(x_i)^T \\phi(x_j)$. The highly ubiquitous and robust Radial Basis Function (RBF) explicitly operates analytically as:
+
+$$ K(x_i, x_j) = \\exp(-\\gamma \\|x_i - x_j\\|^2) $$
+  `,
+
   pros: [
-    "Mathematically elegant guaranteed global optimum resulting globally safely in uniquely robust boundaries.",
-    "The Kernel Trick handles wildly complex continuous explicit severe non-linear geometry robustly strictly."
+    "Provides a mathematically elegant, guaranteed global optimum, yielding universally secure and distinctly robust decision boundaries.",
+    "The Kernel Trick securely accommodates wildly complex, continuous, and explicit severe geometric non-linearity with rigorous structural integrity."
   ],
+
   cons: [
-    "Computationally exceptionally extremely slow for vast datasets as training complexity intrinsically scales at $O(n^3)$.",
-    "Severely highly susceptible to poorly chosen hyperparameters $C$ and $\\gamma$."
+    "Computationally exceptionally burdensome for vast empirical datasets, as systemic training complexity intrinsically scales at $O(n^3)$.",
+    "Exhibits severe mathematical susceptibility to the suboptimal selection of regularisation hyperparameters $C$ and $\\gamma$."
   ],
+
   codeSnippet: `import numpy as np
 from sklearn.svm import SVC
 
@@ -25,5 +48,5 @@ y = np.array([0, 0, 0, 1, 1, 1])
 clf = SVC(kernel='rbf', C=1.0)
 clf.fit(X, y)
 
-print(f"Number of Support Vectors: {clf.n_support_}")`
+print(f"Number of Computed Support Vectors: {clf.n_support_}")`
 };

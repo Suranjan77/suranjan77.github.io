@@ -4,18 +4,60 @@ export const linearRegression: Algorithm = {
   id: "linear-regression",
   title: "Linear & Logistic Regression",
   category: "Linear Regression",
-  shortDescription: "A parametric class of models predicting continuous values (Linear) or class probabilities (Logistic) using strictly linear feature combinations.",
-  fullDescription: "Linear regression mathematically models the fundamental relationship between a continuous target variable and input features by fitting an $n$-dimensional hyperplane. Logistic regression extends this concept by passing the linear output directly through the logistic (sigmoid) function. This maps the raw unbounded output to a probabilistic value bounded strictly between 0 and 1, facilitating robust binary classification.\n\n### Real-World Applications\nLinear Regression is ideal for straightforward pricing models (e.g., predicting exact housing prices based on quantifiable total square footage), robust long-term forecasting, or measuring feature impact. Logistic regression is used in institutional credit scoring, critical biomedical research (mapping precise disease probability), and targeted direct marketing.",
-  intuition: "Linear Regression algorithmically draws a straight 'line of best fit' directly through scattered data points, minimizing vertical distance. Logistic Regression similarly draws a linear boundary to sharply split two distinct classes, but it outputs an 'S-shaped' probability curve.",
-  mathematics: "### Ordinary Least Squares (OLS) Linear Regression\n\nFor a specific input vector $x \\in \\mathbb{R}^p$, the parametric model relies on a weights vector $w$:\n\n$$ \\hat{y} = w^T x + b $$\n\nUnder Maximum Likelihood estimation, the objective is equivalent to minimizing the Mean Squared Error (MSE):\n\n$$ \\mathcal{L}(w) = \\frac{1}{n} \\|y - Xw\\|^2 $$\n\nThe analytical closed-form solution (Normal Equation) is:\n\n$$ \\hat{w} = (X^T X)^{-1} X^T y $$\n\n### Logistic Regression Classification\n\nFor binary classification $y \\in \\{0, 1\\}$, we pass the linear combination through the sigmoid function $\\sigma(z) = \\frac{1}{1 + e^{-z}}$:\n\n$$ P(y=1|x) = \\sigma(w^T x + b) $$\n\n### Binary Cross-Entropy Analytical Loss\n\nThe optimal weights are iteratively estimated by maximizing mathematical likelihood, which is structurally equivalent to minimizing the Binary Cross-Entropy (BCE). It relies on sums of logarithms:\n\n$$ \\mathcal{L}(w) = -\\frac{1}{n} \\sum_{i=1}^{n} \\left[ y_i \\log(\\hat{y}_i) + (1-y_i) \\log(1-\\hat{y}_i) \\right] $$\n\nThe exact calculus gradient derivation for optimizing is mathematically simple:\n\n$$ \\nabla_w \\mathcal{L} = \\frac{1}{n} X^T (\\hat{y} - y) $$",
+  shortDescription: "A fundamental parametric class of models predicting continuous values (Linear) or class probabilities (Logistic) via globally linear feature combinations.",
+
+  fullDescription: `
+Linear regression mathematically models the fundamental relationship between a targeted continuous dependent variable and one or more independent input features by fitting an $n$-dimensional hyperplane. Logistic regression formally extends this concept for classification tasks by passing the linear output directly through the logistic (sigmoid) function. This transformation maps the raw unbounded output to a probabilistic value strictly bounded between 0 and 1, thereby facilitating robust binary classification modelling.
+
+### Empirical Applications
+Linear regression is optimally suited for straightforward continuous modelling (e.g., predicting exact pharmacological dosages based on quantifiable physiological metrics), robust long-term econometric forecasting, or isolating causal feature impact. Logistic regression is extensively utilised in institutional credit scoring applications, critical biomedical research (e.g., mapping precise disease incidence probabilities), and analytical targeted marketing.
+  `,
+
+  intuition: `
+Linear regression algorithms systematically derive a 'line of best fit' through scattered multidimensional data points by mathematically minimising the aggregate squared vertical distances between the empirical observations and the model hyperplane. 
+
+Logistic regression similarly constructs a linear decision boundary to distinctly partition two distinct classifications; however, rather than outputting a continuous raw value, it projects the distance from this boundary onto a continuous 'S-shaped' probability curve, quantifying the statistical likelihood of class membership.
+  `,
+
+  mathematics: `
+### 1. Ordinary Least Squares (OLS) Linear Regression
+For a specific input feature vector $x \\in \\mathbb{R}^p$, the parametric model relies on a precisely calibrated weights vector $w$:
+
+$$ \\hat{y} = w^T x + b $$
+
+Under the assumptions of Maximum Likelihood Estimation with Gaussian noise, the objective function is mathematically equivalent to minimising the Mean Squared Error (MSE):
+
+$$ \\mathcal{L}(w) = \\frac{1}{n} \\|y - Xw\\|^2 $$
+
+The analytical closed-form solution (the Normal Equation) is derived algebraically as:
+
+$$ \\hat{w} = (X^T X)^{-1} X^T y $$
+
+### 2. Logistic Regression Classification
+For binary classification outcomes $y \\in \\{0, 1\\}$, the linear combination is processed through the sigmoid activation function $\\sigma(z) = \\frac{1}{1 + e^{-z}}$:
+
+$$ P(y=1|x) = \\sigma(w^T x + b) $$
+
+### 3. Binary Cross-Entropy Analytical Loss
+The optimal parametric weights are iteratively estimated by maximising mathematical likelihood, which is structurally equivalent to minimising Binary Cross-Entropy (BCE). This formulation relies structurally upon sums of logarithmic probabilities:
+
+$$ \\mathcal{L}(w) = -\\frac{1}{n} \\sum_{i=1}^{n} \\left[ y_i \\log(\\hat{y}_i) + (1-y_i) \\log(1-\\hat{y}_i) \\right] $$
+
+The exact calculus gradient derivation required for computational optimisation is mathematically elegant:
+
+$$ \\nabla_w \\mathcal{L} = \\frac{1}{n} X^T (\\hat{y} - y) $$
+  `,
+
   pros: [
-    "Extraordinarily interpretative mathematically: feature mathematical coefficients directly explain the model's exact logic.",
-    "Remarkably efficient and blazing fast to train, repeatedly providing a strong baseline parametric starting point."
+    "Extraordinarily interpretable mathematically: analytical feature coefficients directly explicate the model's exact inferential logic.",
+    "Remarkably computationally efficient to train, frequently providing a robust baseline parametric starting point for complex analyses."
   ],
+
   cons: [
-    "Cannot capture fully non-linear functional relationships without rigorous feature engineering.",
-    "Severely sensitive to strong mathematical outliers and explicit severe multicollinearity."
+    "Inherently incapable of capturing fully non-linear functional relationships without rigorous, manual feature engineering (e.g., polynomial basis expansion).",
+    "Exhibits severe mathematical sensitivity to extreme statistical outliers and explicit severe multicollinearity amongst input features."
   ],
+
   codeSnippet: `import numpy as np
 from sklearn.linear_model import LogisticRegression
 
