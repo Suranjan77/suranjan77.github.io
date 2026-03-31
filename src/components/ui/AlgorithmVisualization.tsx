@@ -154,7 +154,7 @@ function LinearRegressionVisualization() {
             </g>
           );
         })}
-        <rect x="56" y="32" width="130" height="34" fill="#000" border="2" stroke={COLORS.border} strokeWidth="2" />
+        <rect x="56" y="32" width="130" height="34" fill="#000" stroke={COLORS.border} strokeWidth="2" />
         <text x="66" y="54" fill={COLORS.pink} fontSize="14" fontFamily="monospace" fontWeight="bold">Y = mx + b</text>
       </svg>
     </VisualizationShell>
