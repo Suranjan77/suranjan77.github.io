@@ -5,6 +5,8 @@ import rehypeKatex from "rehype-katex";
 
 interface LogicContentProps {
   content: string;
+  className?: string;
+  size?: "sm" | "base";
 }
 
 function formatLogicContent(content: string) {
@@ -19,52 +21,53 @@ function formatLogicContent(content: string) {
     .trim();
 }
 
-export default function LogicContent({ content }: LogicContentProps) {
+export default function LogicContent({ content, className, size = "base" }: LogicContentProps) {
   const formatted = formatLogicContent(content);
+  const isSm = size === "sm";
 
   return (
-    <div className="logic-markdown text-on-surface-variant">
+    <div className={`logic-markdown ${className || (isSm ? "text-on-surface" : "text-on-surface-variant")}`}>
       <ReactMarkdown
         remarkPlugins={[remarkMath]}
         rehypePlugins={[rehypeKatex]}
         components={{
           h1: ({ children }) => (
-            <h1 className="mt-8 mb-4 font-headline text-3xl font-bold tracking-tight text-on-surface first:mt-0">
+            <h1 className={isSm ? "mt-4 mb-2 font-headline text-lg font-bold tracking-tight text-on-surface first:mt-0" : "mt-8 mb-4 font-headline text-3xl font-bold tracking-tight text-on-surface first:mt-0"}>
               {children}
             </h1>
           ),
           h2: ({ children }) => (
-            <h2 className="mt-7 mb-3 font-headline text-2xl font-semibold tracking-tight text-on-surface first:mt-0">
+            <h2 className={isSm ? "mt-3 mb-1.5 font-headline text-base font-semibold tracking-tight text-on-surface first:mt-0" : "mt-7 mb-3 font-headline text-2xl font-semibold tracking-tight text-on-surface first:mt-0"}>
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="mt-6 mb-3 font-headline text-xl font-semibold tracking-tight text-on-surface first:mt-0">
+            <h3 className={isSm ? "mt-2 mb-1 font-headline text-sm font-semibold tracking-tight text-on-surface first:mt-0" : "mt-6 mb-3 font-headline text-xl font-semibold tracking-tight text-on-surface first:mt-0"}>
               {children}
             </h3>
           ),
           h4: ({ children }) => (
-            <h4 className="mt-5 mb-2 font-headline text-lg font-semibold text-on-surface first:mt-0">
+            <h4 className={isSm ? "mt-1.5 mb-1 font-headline text-xs font-semibold text-on-surface first:mt-0" : "mt-5 mb-2 font-headline text-lg font-semibold text-on-surface first:mt-0"}>
               {children}
             </h4>
           ),
           p: ({ children }) => (
-            <p className="my-4 text-base leading-8 text-on-surface-variant">
+            <p className={isSm ? "my-1 text-sm leading-7 text-on-surface first:mt-0 last:mb-0" : "my-4 text-base leading-8 text-on-surface-variant first:mt-0 last:mb-0"}>
               {children}
             </p>
           ),
           ul: ({ children }) => (
-            <ul className="my-4 ml-5 list-disc space-y-2 marker:text-primary">
+            <ul className={isSm ? "my-1 ml-4 list-disc space-y-1 marker:text-primary" : "my-4 ml-5 list-disc space-y-2 marker:text-primary"}>
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="my-4 ml-5 list-decimal space-y-2 marker:text-primary">
+            <ol className={isSm ? "my-1 ml-4 list-decimal space-y-1 marker:text-primary" : "my-4 ml-5 list-decimal space-y-2 marker:text-primary"}>
               {children}
             </ol>
           ),
           li: ({ children }) => (
-            <li className="pl-1 text-base leading-8 text-on-surface-variant">
+            <li className={isSm ? "pl-0.5 text-sm leading-7 text-on-surface" : "pl-1 text-base leading-8 text-on-surface-variant"}>
               {children}
             </li>
           ),
@@ -74,9 +77,9 @@ export default function LogicContent({ content }: LogicContentProps) {
           em: ({ children }) => (
             <em className="italic text-on-surface">{children}</em>
           ),
-          hr: () => <hr className="my-8 border-white/10" />,
+          hr: () => <hr className="my-4 border-white/10" />,
           blockquote: ({ children }) => (
-            <blockquote className="my-6 border border-outline border-l-primary bg-surface px-4 py-3 text-on-surface">
+            <blockquote className={isSm ? "my-2 border border-outline border-l-primary bg-surface px-3 py-1.5 text-sm text-on-surface" : "my-6 border border-outline border-l-primary bg-surface px-4 py-3 text-on-surface"}>
               {children}
             </blockquote>
           ),

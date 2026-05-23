@@ -651,6 +651,43 @@ export default function AlgorithmSimulator() {
         context.lineTo(width, y);
         context.stroke();
       }
+
+      // Draw observations / data points directly on canvas
+      points.forEach((point) => {
+        const px = (point.x / 100) * width;
+        const py = height - (point.y / 100) * height;
+
+        // Class A: Sage Green (#556B4A)
+        // Class B: Terracotta (#8D5149)
+        const dotColor = point.label === 0 ? "#556B4A" : "#8D5149";
+
+        // Outer glow
+        context.shadowBlur = 6;
+        context.shadowColor = dotColor;
+        context.shadowOffsetX = 0;
+        context.shadowOffsetY = 1.5;
+
+        // Draw outer ring / halo
+        context.beginPath();
+        context.arc(px, py, 6, 0, Math.PI * 2);
+        context.fillStyle = dotColor;
+        context.fill();
+
+        // Reset shadow for inner parts
+        context.shadowBlur = 0;
+        context.shadowColor = "transparent";
+
+        // Draw crisp border / outline
+        context.strokeStyle = "#FAF8F2"; // Cream white outline
+        context.lineWidth = 1.5;
+        context.stroke();
+
+        // Draw high-precision observatory reticle center dot
+        context.beginPath();
+        context.arc(px, py, 1.2, 0, Math.PI * 2);
+        context.fillStyle = "#FAF8F2";
+        context.fill();
+      });
     };
 
     draw();
@@ -722,20 +759,6 @@ export default function AlgorithmSimulator() {
       >
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
 
-        <div className="pointer-events-none absolute inset-0">
-          {points.map((point, index) => (
-            <div
-              key={`${point.x}-${point.y}-${point.label}-${index}`}
-              className={`absolute h-3.5 w-3.5 -translate-x-1/2 translate-y-1/2 border border-white ${
-                point.label === 0
-                  ? "bg-primary"
-                  : "bg-secondary"
-              }`}
-              style={{ left: `${point.x}%`, bottom: `${point.y}%` }}
-            />
-          ))}
-        </div>
-
         {/* Informative Overlays (Brutalist style) */}
         <div className="absolute left-4 top-4 border border-outline bg-surface-container-low/90 px-3 py-2 font-mono text-[10px] font-semibold tracking-wide text-on-surface">
           Neural Playground: Click to add data points
@@ -752,7 +775,7 @@ export default function AlgorithmSimulator() {
             Class A
           </span>
           <span className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 bg-secondary" />
+            <span className="h-2.5 w-2.5 bg-error" />
             Class B
           </span>
           <span className="hidden text-outline-variant sm:inline">|</span>
@@ -808,8 +831,8 @@ export default function AlgorithmSimulator() {
               onClick={() => setActiveLabel(1)}
               className={`rounded border px-5 py-3 text-sm font-semibold transition ${
                 activeLabel === 1
-                  ? "border-secondary/40 bg-secondary text-on-secondary"
-                  : "border-outline bg-surface-container text-secondary hover:border-secondary/45"
+                  ? "border-error/40 bg-error text-on-error"
+                  : "border-outline bg-surface-container text-error hover:border-error/45"
               }`}
             >
               Draw Class B
@@ -837,11 +860,11 @@ export default function AlgorithmSimulator() {
                 {datasetSummary.classA}
               </div>
             </div>
-            <div className="rounded border border-outline bg-surface-container p-4 accent-left-secondary">
+            <div className="rounded border border-outline bg-surface-container p-4 accent-left-error">
               <div className="font-mono text-[10px] font-bold tracking-wide text-on-surface-variant">
                 Class B
               </div>
-              <div className="mt-2 font-headline text-3xl font-semibold text-secondary">
+              <div className="mt-2 font-headline text-3xl font-semibold text-error">
                 {datasetSummary.classB}
               </div>
             </div>

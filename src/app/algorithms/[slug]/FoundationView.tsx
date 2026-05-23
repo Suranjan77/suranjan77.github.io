@@ -30,10 +30,7 @@ export default function FoundationView({
       <section className="relative z-10 mx-auto max-w-6xl">
         {/* Breadcrumb navigation */}
         <nav className="mb-8 flex flex-wrap items-center gap-2 text-sm text-on-surface-variant/70">
-          <Link
-            href="/"
-            className="transition-colors hover:text-primary"
-          >
+          <Link href="/" className="transition-colors hover:text-primary">
             Home
           </Link>
           <span className="text-outline-variant">›</span>
@@ -62,7 +59,7 @@ export default function FoundationView({
           <h1 className="mb-5 max-w-4xl text-balance font-headline text-4xl font-semibold tracking-normal text-on-surface sm:text-5xl lg:text-6xl">
             {algorithm.title}
           </h1>
-          <div className="max-w-3xl sm:text-lg">
+          <div className="max-w-auto sm:text-lg">
             <LogicContent content={algorithm.fullDescription} />
           </div>
         </div>
@@ -140,9 +137,9 @@ export default function FoundationView({
                     key={index}
                     className="flex items-start gap-3 bg-surface-container px-4 py-3 accent-left-primary"
                   >
-                    <span className="leading-7 text-on-surface-variant">
-                      {pro}
-                    </span>
+                    <div className="w-full text-sm leading-7 text-on-surface-variant">
+                      <LogicContent content={pro} size="sm" />
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -166,9 +163,9 @@ export default function FoundationView({
                     key={index}
                     className="flex items-start gap-3 bg-surface-container px-4 py-3 accent-left-error"
                   >
-                    <span className="leading-7 text-on-surface-variant">
-                      {con}
-                    </span>
+                    <div className="w-full text-sm leading-7 text-on-surface-variant">
+                      <LogicContent content={con} size="sm" />
+                    </div>
                   </li>
                 ))}
               </ul>

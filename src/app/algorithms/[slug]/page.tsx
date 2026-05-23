@@ -110,10 +110,7 @@ export default async function AlgorithmPage({ params }: PageProps) {
     <div className="relative px-5 py-8 sm:px-8 lg:px-12">
       <section className="relative z-10 mx-auto max-w-6xl">
         <nav className="mb-8 flex flex-wrap items-center gap-2 text-sm text-on-surface-variant/70">
-          <Link
-            href="/"
-            className="transition-colors hover:text-primary"
-          >
+          <Link href="/" className="transition-colors hover:text-primary">
             Home
           </Link>
           <span className="text-outline-variant">›</span>
@@ -141,7 +138,7 @@ export default async function AlgorithmPage({ params }: PageProps) {
           <h1 className="mb-5 max-w-4xl text-balance font-headline text-4xl font-semibold tracking-normal text-on-surface sm:text-5xl lg:text-6xl">
             {algorithm.title}
           </h1>
-          <div className="max-w-3xl sm:text-lg">
+          <div className="max-w-auto sm:text-lg">
             <LogicContent content={algorithm.fullDescription} />
           </div>
         </div>
@@ -151,18 +148,18 @@ export default async function AlgorithmPage({ params }: PageProps) {
             <div className="text-[11px] font-medium tracking-wide text-on-surface-variant/90">
               Best use
             </div>
-            <p className="mt-3 text-sm leading-7 text-on-surface">
-              {summary.bestUse}
-            </p>
+            <div className="mt-3">
+              <LogicContent content={summary.bestUse} size="sm" />
+            </div>
           </div>
 
           <div className="rounded-lg border border-outline bg-surface-container accent-left-error p-5">
             <div className="text-[11px] font-medium tracking-wide text-on-surface-variant/90">
               Watch out for
             </div>
-            <p className="mt-3 text-sm leading-7 text-on-surface">
-              {summary.watchOut}
-            </p>
+            <div className="mt-3">
+              <LogicContent content={summary.watchOut} size="sm" />
+            </div>
           </div>
         </div>
       </section>
@@ -252,9 +249,9 @@ export default async function AlgorithmPage({ params }: PageProps) {
                     key={index}
                     className="flex items-start gap-3 bg-surface-container px-4 py-3 accent-left-primary"
                   >
-                    <span className="leading-7 text-on-surface-variant">
-                      {pro}
-                    </span>
+                    <div className="w-full text-sm leading-7 text-on-surface-variant">
+                      <LogicContent content={pro} size="sm" />
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -278,9 +275,9 @@ export default async function AlgorithmPage({ params }: PageProps) {
                     key={index}
                     className="flex items-start gap-3 bg-surface-container px-4 py-3 accent-left-error"
                   >
-                    <span className="leading-7 text-on-surface-variant">
-                      {con}
-                    </span>
+                    <div className="w-full text-sm leading-7 text-on-surface-variant">
+                      <LogicContent content={con} size="sm" />
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -317,9 +314,9 @@ export default async function AlgorithmPage({ params }: PageProps) {
                     <span className="mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center bg-surface-container-highest text-[10px] font-bold text-on-surface-variant">
                       {index + 1}
                     </span>
-                    <span className="leading-7 text-on-surface-variant">
-                      {assumption}
-                    </span>
+                    <div className="w-full text-sm leading-7 text-on-surface-variant">
+                      <LogicContent content={assumption} size="sm" />
+                    </div>
                   </li>
                 ))}
               </ul>
