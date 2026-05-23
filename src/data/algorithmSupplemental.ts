@@ -318,5 +318,85 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
         source: "Brown, T. B. et al. (2020) 'Language models are few-shot learners', in Advances in Neural Information Processing Systems (NeurIPS)."
       }
     ]
+  },
+  "reinforcement-learning": {
+    whenToUse: [
+      "When an agent must learn optimal sequences of actions in dynamic environments without labeled training datasets.",
+      "In navigation, control theory, robotics, and game-playing applications."
+    ],
+    assumptions: [
+      "The environment states satisfy the Markov property (the next state depends only on the current state and action).",
+      "Rewards are defined appropriately to incentivize the target final behavior without encouraging exploit loops."
+    ],
+    references: [
+      {
+        title: "Reinforcement Learning: An Introduction",
+        source: "Sutton, R. S. and Barto, A. G. (2018) Reinforcement Learning: An Introduction. 2nd edn. Cambridge, MA: MIT Press."
+      }
+    ]
+  },
+  "bias-variance": {
+    whenToUse: [
+      "When debugging model prediction performance (diagnosing high train error vs high validation error).",
+      "Selecting the appropriate feature dimensions or model capacity for a dataset."
+    ],
+    assumptions: [
+      "The training and test sets are sampled from the identical underlying probability distribution.",
+      "The irreducible noise floor is stationary and independent of model parameters."
+    ],
+    references: [
+      {
+        title: "The Elements of Statistical Learning",
+        source: "Hastie, T., Tibshirani, R. and Friedman, J. (2009) The Elements of Statistical Learning. 2nd edn. New York: Springer."
+      }
+    ]
+  },
+  "generative-models": {
+    whenToUse: [
+      "When you need to generate high-fidelity synthetic images, audio, or textures.",
+      "In data augmentation, super-resolution translation, and style transfer applications."
+    ],
+    assumptions: [
+      "The training dataset contains sufficient samples to represent the underlying manifold geometry.",
+      "The Nash Equilibrium between the generator and discriminator can be reached using standard gradient optimization."
+    ],
+    references: [
+      {
+        title: "Generative Adversarial Nets",
+        source: "Goodfellow, I. et al. (2014) 'Generative adversarial nets', in Advances in Neural Information Processing Systems (NeurIPS), pp. 2672-2680."
+      }
+    ]
+  },
+  "regularization": {
+    whenToUse: [
+      "When training models on high-dimensional data where the number of features exceeds the sample size.",
+      "To improve generalization bounds and reduce variance in regression/classification."
+    ],
+    assumptions: [
+      "Features are normalized or scaled before fitting to ensure regularizers penalize parameters equally.",
+      "In L1 Lasso, the underlying true model is sparse (most weights are zero)."
+    ],
+    references: [
+      {
+        title: "Regression Shrinkage and Selection via the Lasso",
+        source: "Tibshirani, R. (1996) 'Regression shrinkage and selection via the lasso', Journal of the Royal Statistical Society: Series B (Methodological), 58(1), pp. 267-288."
+      }
+    ]
+  },
+  "evaluation-metrics": {
+    whenToUse: [
+      "When assessing binary classification models on heavily imbalanced datasets.",
+      "When comparing the performance of classifiers independently of specific decision thresholds."
+    ],
+    assumptions: [
+      "Validation samples are representative of target testing population categories.",
+      "Threshold choices are uniform across testing environments."
+    ],
+    references: [
+      {
+        title: "Introduction to ROC Analysis",
+        source: "Fawcett, T. (2006) 'An introduction to ROC analysis', Pattern Recognition Letters, 27(8), pp. 861-874."
+      }
+    ]
   }
 };

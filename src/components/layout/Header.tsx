@@ -30,7 +30,7 @@ export default function Header() {
               ML Learn
             </p>
             <p className="mt-1 font-mono text-[10px] font-normal uppercase tracking-[0.32em] text-on-surface-variant">
-              The Digital Observatory
+              Learning AI & ML
             </p>
           </span>
         </Link>

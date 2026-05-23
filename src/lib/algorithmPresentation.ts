@@ -125,6 +125,36 @@ const categoryConfig: Record<
     label: "Large Language Models",
     description: "Scale autoregressive transformers on massive web data to emerge with coding and logic abilities.",
   },
+  "Reinforcement Learning": {
+    color: "secondary",
+    route: "/algorithms/reinforcement-learning",
+    label: "Reinforcement Learning",
+    description: "Train autonomous agents to make sequences of decisions to maximize cumulative rewards in dynamic environments.",
+  },
+  "Model Complexity & Bias-Variance": {
+    color: "tertiary",
+    route: "/algorithms/bias-variance",
+    label: "Bias-Variance Tradeoff",
+    description: "Navigate model capacity boundaries to balance training fitting precision against generalization validity.",
+  },
+  "Generative Models": {
+    color: "primary",
+    route: "/algorithms/generative-models",
+    label: "Generative Models",
+    description: "Train models to create realistic, high-dimensional data samples by learning underlying probability distributions.",
+  },
+  "Regularization": {
+    color: "secondary",
+    route: "/algorithms/regularization",
+    label: "L1 & L2 Regularization",
+    description: "Enforce geometric constraints on parameter space to prevent overfitting and encourage sparse features.",
+  },
+  "Evaluation Metrics": {
+    color: "tertiary",
+    route: "/algorithms/evaluation-metrics",
+    label: "Evaluation Metrics",
+    description: "Use classification diagnostics like confusion matrices, precision-recall, and ROC/AUC curves to assess predictive performance.",
+  },
 };
 
 const algorithmIcons: Record<string, string> = {
@@ -147,6 +177,11 @@ const algorithmIcons: Record<string, string> = {
   "autoencoders": "compress",
   "transformers": "psychology",
   "llms": "forum",
+  "reinforcement-learning": "smart_toy",
+  "bias-variance": "query_stats",
+  "generative-models": "auto_awesome",
+  "regularization": "align_horizontal_center",
+  "evaluation-metrics": "fact_check",
 };
 
 export function getAlgorithmBySlug(slug: string): Algorithm | undefined {

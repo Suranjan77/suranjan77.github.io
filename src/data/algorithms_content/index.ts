@@ -18,6 +18,11 @@ import { nlp } from "./13_nlp";
 import { autoencoders } from "./14_autoencoders";
 import { transformers } from "./15_transformers";
 import { llms } from "./16_llms";
+import { reinforcementLearning } from "./17_reinforcement_learning";
+import { biasVariance } from "./18_bias_variance";
+import { generativeModels } from "./19_generative_models";
+import { regularization } from "./20_regularization";
+import { evaluationMetrics } from "./21_evaluation_metrics";
 
 export const algorithmsList = [
   calculus,
@@ -39,4 +44,9 @@ export const algorithmsList = [
   autoencoders,
   transformers,
   llms,
+  reinforcementLearning,
+  biasVariance,
+  generativeModels,
+  regularization,
+  evaluationMetrics,
 ];

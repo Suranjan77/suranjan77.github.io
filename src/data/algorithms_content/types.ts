@@ -17,7 +17,12 @@ export type AlgorithmCategory =
   | "Natural Language Processing"
   | "Autoencoders"
   | "Transformers"
-  | "Large Language Models";
+  | "Large Language Models"
+  | "Reinforcement Learning"
+  | "Model Complexity & Bias-Variance"
+  | "Generative Models"
+  | "Regularization"
+  | "Evaluation Metrics";
 
 export interface Algorithm {
   id: string;

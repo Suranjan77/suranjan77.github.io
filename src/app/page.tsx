@@ -71,7 +71,9 @@ function HeroLossSurface() {
           cx={cx}
           cy={cy}
           r={r}
-          fill={index === 4 ? "var(--color-background)" : "var(--color-primary)"}
+          fill={
+            index === 4 ? "var(--color-background)" : "var(--color-primary)"
+          }
           stroke="var(--color-primary)"
           strokeWidth="1.3"
         />
@@ -79,7 +81,11 @@ function HeroLossSurface() {
       <text x="230" y="124" className="fill-primary font-mono text-[9px]">
         min
       </text>
-      <text x="262" y="226" className="fill-on-surface-variant font-mono text-[9px] tracking-[0.18em]">
+      <text
+        x="262"
+        y="226"
+        className="fill-on-surface-variant font-mono text-[9px] tracking-[0.18em]"
+      >
         gradient descent
       </text>
       <text x="326" y="204" className="fill-outline-dark font-mono text-[9px]">
@@ -91,30 +97,47 @@ function HeroLossSurface() {
 
 function NetworkDiagram() {
   const layers = [
-    [[80, 85], [80, 205]],
-    [[205, 85], [205, 145], [205, 205]],
-    [[330, 85], [330, 145], [330, 205]],
+    [
+      [80, 85],
+      [80, 205],
+    ],
+    [
+      [205, 85],
+      [205, 145],
+      [205, 205],
+    ],
+    [
+      [330, 85],
+      [330, 145],
+      [330, 205],
+    ],
     [[455, 145]],
   ];
 
   return (
-    <svg viewBox="0 0 540 290" className="h-full min-h-[290px] w-full" aria-hidden="true">
-      {layers.slice(0, -1).flatMap((layer, layerIndex) =>
-        layer.flatMap(([x1, y1]) =>
-          layers[layerIndex + 1].map(([x2, y2], index) => (
-            <line
-              key={`${layerIndex}-${x1}-${y1}-${index}`}
-              x1={x1}
-              y1={y1}
-              x2={x2}
-              y2={y2}
-              stroke="var(--color-primary)"
-              strokeOpacity={index % 2 === 0 ? 0.42 : 0.16}
-              strokeWidth="1"
-            />
-          )),
-        ),
-      )}
+    <svg
+      viewBox="0 0 540 290"
+      className="h-full min-h-[290px] w-full"
+      aria-hidden="true"
+    >
+      {layers
+        .slice(0, -1)
+        .flatMap((layer, layerIndex) =>
+          layer.flatMap(([x1, y1]) =>
+            layers[layerIndex + 1].map(([x2, y2], index) => (
+              <line
+                key={`${layerIndex}-${x1}-${y1}-${index}`}
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                stroke="var(--color-primary)"
+                strokeOpacity={index % 2 === 0 ? 0.42 : 0.16}
+                strokeWidth="1"
+              />
+            )),
+          ),
+        )}
       {layers.flatMap((layer, layerIndex) =>
         layer.map(([cx, cy], index) => (
           <circle
@@ -123,7 +146,11 @@ function NetworkDiagram() {
             cy={cy}
             r={layerIndex === 3 ? 10 : 8}
             fill="var(--color-background)"
-            stroke={layerIndex === 3 ? "var(--color-primary)" : "var(--color-outline-dark)"}
+            stroke={
+              layerIndex === 3
+                ? "var(--color-primary)"
+                : "var(--color-outline-dark)"
+            }
             strokeWidth="1.5"
           />
         )),
@@ -162,10 +189,13 @@ export default function Home() {
               ))}
             </div>
             <h1 className="w-full max-w-full text-balance font-headline text-[2.75rem] font-medium leading-[1.04] tracking-normal text-on-surface sm:max-w-[520px] sm:text-[4.05rem] lg:text-[4rem] xl:text-[4.35rem]">
-              Understand AI, Mathematically <span className="text-on-surface-variant">& Intuitively.</span>
+              Understand AI, Mathematically{" "}
+              <span className="text-on-surface-variant">& Intuitively.</span>
             </h1>
             <p className="mt-8 w-full max-w-full text-base font-medium leading-8 text-on-surface-variant sm:max-w-2xl sm:text-[17px]">
-              A structured curriculum that teaches machine learning through mathematical foundations, visual intuition, and code-oriented thinking from calculus through modern models.
+              A structured curriculum that teaches machine learning through
+              mathematical foundations, visual intuition, and code-oriented
+              thinking from calculus through modern models.
             </p>
             <div className="mt-9 flex flex-col gap-4 sm:flex-row">
               <Link
@@ -189,11 +219,17 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="philosophy" className="border-b border-outline bg-surface-dim px-5 py-14 sm:px-8 sm:py-16 lg:px-12">
+      <section
+        id="philosophy"
+        className="border-b border-outline bg-surface-dim px-5 py-14 sm:px-8 sm:py-16 lg:px-12"
+      >
         <div className="mx-auto max-w-[1360px] border border-outline bg-border">
           <div className="grid gap-px md:grid-cols-3">
             {pillars.map((pillar) => (
-              <article key={pillar.title} className="bg-surface px-7 py-9 sm:px-9 sm:py-10">
+              <article
+                key={pillar.title}
+                className="bg-surface px-7 py-9 sm:px-9 sm:py-10"
+              >
                 <div className="mb-7 font-headline text-3xl text-outline-dark">
                   {pillar.glyph}
                 </div>
@@ -209,7 +245,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="curriculum" className="border-b border-outline px-5 py-14 sm:px-8 sm:py-16 lg:px-12">
+      <section
+        id="curriculum"
+        className="border-b border-outline px-5 py-14 sm:px-8 sm:py-16 lg:px-12"
+      >
         <div className="mx-auto max-w-[1360px]">
           <div className="mb-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
             <div>
@@ -221,7 +260,8 @@ export default function Home() {
               </h2>
             </div>
             <p className="pt-8 text-sm font-medium leading-7 text-on-surface-variant lg:text-right">
-              A structured progression from mathematical foundations to modern generative models. Select any module to preview.
+              A structured progression from mathematical foundations to modern
+              generative models. Select any module to preview.
             </p>
           </div>
 
@@ -240,7 +280,9 @@ export default function Home() {
               Neural Network Playground
             </h2>
             <p className="mt-8 text-base font-medium leading-8 text-on-surface-variant">
-              Draw a dataset, configure a network architecture, and train it in-browser. Watch decision boundaries form in real time as loss converges.
+              Draw a dataset, configure a network architecture, and train it
+              in-browser. Watch decision boundaries form in real time as loss
+              converges.
             </p>
             <ul className="mt-9 space-y-4 text-sm font-medium leading-6 text-on-surface-variant">
               {[
@@ -270,11 +312,16 @@ export default function Home() {
                 ["Neurons", "4 / layer"],
                 ["Activation", "tanh"],
               ].map(([label, value]) => (
-                <div key={label} className="border-r border-outline px-4 py-5 last:border-r-0">
+                <div
+                  key={label}
+                  className="border-r border-outline px-4 py-5 last:border-r-0"
+                >
                   <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">
                     {label}
                   </p>
-                  <p className="mt-2 font-mono text-sm text-on-surface">{value}</p>
+                  <p className="mt-2 font-mono text-sm text-on-surface">
+                    {value}
+                  </p>
                 </div>
               ))}
             </div>
@@ -284,7 +331,7 @@ export default function Home() {
 
       <footer className="border-t border-outline px-5 py-8 sm:px-8 lg:px-12">
         <div className="mx-auto flex max-w-[1360px] flex-col gap-4 font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant sm:flex-row sm:items-center sm:justify-between">
-          <p>ML Learn · The Digital Observatory</p>
+          <p>ML Learn · Learning AI & ML</p>
           <p>© 2026 Suranjan Poudel</p>
         </div>
       </footer>

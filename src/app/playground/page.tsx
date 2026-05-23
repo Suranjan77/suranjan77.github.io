@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import AlgorithmSimulator from "@/components/ui/AlgorithmSimulator";
+import LogicContent from "@/components/ui/LogicContent";
 
 export const metadata: Metadata = {
   title: "Neural Network Playground",
@@ -106,9 +107,8 @@ export default function PlaygroundPage() {
             <p className="mt-4 text-sm font-medium leading-7 text-on-surface-variant">
               The simulator runs a single-hidden-layer perceptron. Inputs are normalized canvas coordinates, hidden units use tanh, and the output sigmoid represents the probability of Class B.
             </p>
-            <div className="crop-marks relative mt-6 border border-outline bg-surface-container-lowest px-4 py-4 font-mono text-sm leading-7 text-on-surface">
-              <div>Hidden: z = W1·x + b1, a = tanh(z)</div>
-              <div>Output: y_hat = sigmoid(w2^T·a + b2)</div>
+            <div className="crop-marks relative mt-6 border border-outline bg-surface-container-lowest px-4 py-4">
+              <LogicContent content="$$ \\text{Hidden: } \\mathbf{z} = \\mathbf{W}_1\\mathbf{x} + \\mathbf{b}_1, \\quad \\mathbf{a} = \\tanh(\\mathbf{z}) $$ $$ \\text{Output: } \\hat{y} = \\sigma(\\mathbf{w}_2^T\\mathbf{a} + b_2) $$" size="sm" />
             </div>
           </article>
 
@@ -117,8 +117,8 @@ export default function PlaygroundPage() {
             <p className="mt-4 text-sm font-medium leading-7 text-on-surface-variant">
               Each training step performs full-batch gradient descent against binary cross-entropy and adds L2 regularisation to discourage unnecessarily large weights.
             </p>
-            <div className="crop-marks relative mt-6 border border-outline bg-surface-container-lowest px-4 py-4 font-mono text-sm leading-7 text-primary">
-              L = -(1/n) sum [y log(y_hat) + (1-y) log(1-y_hat)]
+            <div className="crop-marks relative mt-6 border border-outline bg-surface-container-lowest px-4 py-4">
+              <LogicContent content="$$ \\mathcal{L} = -\\frac{1}{n} \\sum_{i=1}^n \\left[ y_i \\log(\\hat{y}_i) + (1 - y_i) \\log(1 - \\hat{y}_i) \\right] + \\frac{\\lambda}{2n} \\|\\mathbf{w}\\|_2^2 $$" size="sm" />
             </div>
           </article>
         </div>

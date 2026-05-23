@@ -1,6 +1,6 @@
 export const siteConfig = {
   name: "ML Learn",
-  title: "ML Learn | The Digital Observatory",
+  title: "ML Learn | Learning AI & ML",
   description:
     "Understand AI through interactive machine learning visualisations, mathematical intuition, and production-ready learning experiences.",
   shortDescription: "Understand AI, Mathematically & Intuitively",

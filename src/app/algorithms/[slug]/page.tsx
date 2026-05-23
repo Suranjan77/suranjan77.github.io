@@ -369,7 +369,7 @@ export default async function AlgorithmPage({ params }: PageProps) {
       </section>
 
       <footer className="relative z-10 mx-auto mt-16 flex max-w-6xl flex-col gap-4 border-t border-outline pt-8 text-sm text-on-surface-variant/70 sm:flex-row sm:items-center sm:justify-between">
-        <p>© 2026 The Digital Observatory</p>
+        <p>© 2026 Learning AI & ML</p>
         <div className="flex flex-wrap gap-4 sm:gap-6">
           <Link
             href={categoryRoute}

@@ -35,9 +35,9 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   applicationName: siteConfig.name,
   keywords: [...siteConfig.keywords],
-  authors: [{ name: "The Digital Observatory" }],
-  creator: "The Digital Observatory",
-  publisher: "The Digital Observatory",
+  authors: [{ name: "Learning AI & ML" }],
+  creator: "Suranjan Poudel",
+  publisher: "Suranjan Poudel",
   category: "education",
   alternates: {
     canonical: "/",

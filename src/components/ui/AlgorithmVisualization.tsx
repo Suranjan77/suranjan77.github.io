@@ -31,6 +31,11 @@ import NlpVisualization from "./visualizations/Nlp";
 import AutoencodersVisualization from "./visualizations/Autoencoders";
 import TransformersVisualization from "./visualizations/Transformers";
 import LlmsVisualization from "./visualizations/Llms";
+import ReinforcementLearningVisualization from "./visualizations/ReinforcementLearning";
+import BiasVarianceVisualization from "./visualizations/BiasVariance";
+import GenerativeModelsVisualization from "./visualizations/GenerativeModels";
+import RegularizationVisualization from "./visualizations/Regularization";
+import EvaluationMetricsVisualization from "./visualizations/EvaluationMetrics";
 
 interface Props {
   algorithmId: string;
@@ -99,6 +104,16 @@ export default function AlgorithmVisualization({ algorithmId }: Props) {
       return <TransformersVisualization />;
     case "llms":
       return <LlmsVisualization />;
+    case "reinforcement-learning":
+      return <ReinforcementLearningVisualization />;
+    case "bias-variance":
+      return <BiasVarianceVisualization />;
+    case "generative-models":
+      return <GenerativeModelsVisualization />;
+    case "regularization":
+      return <RegularizationVisualization />;
+    case "evaluation-metrics":
+      return <EvaluationMetricsVisualization />;
     default:
       return <DefaultVisualization />;
   }

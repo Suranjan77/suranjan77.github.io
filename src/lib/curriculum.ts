@@ -31,6 +31,9 @@ export const curriculumTracks: CurriculumTrack[] = [
       "ensemble-learning",
       "dimensionality-reduction",
       "mcmc",
+      "bias-variance",
+      "regularization",
+      "evaluation-metrics",
     ],
   },
   {
@@ -43,6 +46,8 @@ export const curriculumTracks: CurriculumTrack[] = [
       "autoencoders",
       "transformers",
       "llms",
+      "reinforcement-learning",
+      "generative-models",
     ],
   },
 ];
@@ -61,6 +66,8 @@ const deepLearningCategories: AlgorithmCategory[] = [
   "Autoencoders",
   "Transformers",
   "Large Language Models",
+  "Reinforcement Learning",
+  "Generative Models",
 ];
 
 export function filterAlgorithms(
