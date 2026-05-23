@@ -12,6 +12,12 @@ import { ensembleLearning } from "./7_ensemble";
 import { dimensionalityReduction } from "./8_dimensionality";
 import { mcmc } from "./9_mcmc";
 import { neuralNetworks } from "./10_neural_networks";
+import { cnn } from "./11_cnn";
+import { computerVision } from "./12_computer_vision";
+import { nlp } from "./13_nlp";
+import { autoencoders } from "./14_autoencoders";
+import { transformers } from "./15_transformers";
+import { llms } from "./16_llms";
 
 export const algorithmsList = [
   calculus,
@@ -27,4 +33,10 @@ export const algorithmsList = [
   dimensionalityReduction,
   mcmc,
   neuralNetworks,
+  cnn,
+  computerVision,
+  nlp,
+  autoencoders,
+  transformers,
+  llms,
 ];

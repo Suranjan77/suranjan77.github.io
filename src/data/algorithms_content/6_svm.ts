@@ -4,31 +4,31 @@ export const svm: Algorithm = {
   id: "support-vector-machines",
   title: "Support Vector Machines",
   category: "Support Vector Machines",
-  shortDescription: "An algorithm that finds the widest possible 'street' to separate different categories of data, using mathematical tricks to handle complex curves.",
+  shortDescription: "A margin-based classifier that chooses the separating boundary with the largest distance to the nearest training points.",
 
   fullDescription: `
-Support Vector Machines (SVMs) are powerful algorithms used mostly for classification. Imagine you have a bunch of red dots and blue dots on a piece of paper, and you need to draw a line to separate them. You could draw hundreds of different lines that work. 
+Support Vector Machines (SVMs) are margin-based classifiers. If many separating lines classify the training data correctly, an SVM chooses the one with the largest margin: the greatest distance to the closest training examples.
 
-An SVM doesn't just draw *any* line. It mathematically calculates the absolute best line—the one that sits exactly in the middle of the two groups, creating the widest possible "street" or "margin" between them. The data points that sit right on the edge of this street are called the "Support Vectors," because they literally support the entire structure of the model.
+Those closest examples are the support vectors. They matter because moving them changes the boundary, while points far from the margin often have no effect on the fitted classifier.
 
 ### Where is it used?
-SVMs are fantastic when you have complex data but not a massive amount of it. They are historically famous for text classification (like deciding if an email is spam or not), recognizing handwritten digits, and analyzing complex biological data like proteins and genes.
+SVMs are useful when the dataset is medium-sized and the feature representation is strong. They are historically common in text classification, handwritten digit recognition, and biological classification tasks.
   `,
 
   intuition: `
-Imagine you're trying to build a fence between a flock of sheep and a pack of wolves. You don't want to build the fence right up against the sheep, because a wolf might reach through. You want to build the fence exactly in the middle of the empty space between the two groups, maximizing your safety margin.
+The intuition is geometric. A boundary that barely separates the training data is fragile: a small measurement error can flip the prediction. A wider margin is more stable because new points can move slightly without crossing the boundary.
 
-But what if the wolves have surrounded the sheep in a circle? You can't draw a straight line to separate them. This is where SVMs use their secret weapon: the "Kernel Trick." The algorithm mathematically throws all the animals up into the air (into a 3D space). Suddenly, because the sheep are clustered in the middle and the wolves are on the outside, you can easily slide a flat sheet of metal between them while they are in mid-air. When they land back on the 2D ground, that flat sheet looks like a perfect circle separating the groups.
+When a straight boundary is not enough, kernels let the SVM compute dot products in a richer feature space without explicitly constructing every transformed feature. In the original input space, that can produce curved decision boundaries.
   `,
 
   mathematics: `
 ### 1. The Margin
-For a dataset that can be perfectly separated by a straight line, the SVM tries to find a line (defined by weights $w$ and a bias $b$) that maximizes the distance to the closest points. Mathematically, maximizing this margin is the exact same thing as minimizing $\\frac{1}{2} \\|w\\|^2$, with the strict rule that every single data point must be on the correct side of the street:
+For separable data, the hard-margin SVM solves:
 
 $$ y_i (w^T x_i + b) \\ge 1 \\quad \\forall i $$
 
 ### 2. The Kernel Trick
-When data cannot be separated by a straight line, SVMs use a "Kernel function" to calculate what the data would look like if it were projected into a massive, multi-dimensional space, *without actually having to do the heavy math of moving the data there*. 
+Real data is rarely perfectly separable, so practical SVMs use slack variables and a penalty parameter $C$ to trade off margin width against classification mistakes. Kernels replace inner products $x_i^T x_j$ with a function $K(x_i, x_j)$:
 
 The most popular kernel is the Radial Basis Function (RBF), which measures the distance between two points $x_i$ and $x_j$ and creates smooth, curved boundaries:
 
@@ -36,15 +36,15 @@ $$ K(x_i, x_j) = \\exp(-\\gamma \\|x_i - x_j\\|^2) $$
   `,
 
   pros: [
-    "It is mathematically guaranteed to find the absolute best separation line, unlike neural networks which can get stuck on 'good enough' solutions.",
-    "The Kernel Trick is practically magic. It allows the algorithm to draw incredibly complex, curvy boundaries with very little math.",
+    "The convex training objective has a global optimum, which makes the optimization behavior easier to reason about than many neural models.",
+    "Kernels allow nonlinear decision boundaries while keeping the optimization problem in terms of pairwise similarities.",
     "It is highly effective even when you have more features (columns) than actual data points (rows)."
   ],
 
   cons: [
-    "It is incredibly slow to train if you have hundreds of thousands of data points.",
-    "It doesn't naturally give you a percentage probability (like 'I am 80% sure this is a cat'). It just gives you a hard Yes or No.",
-    "It is very sensitive to its settings. If you choose the wrong Kernel or the wrong 'C' value, the model will fail completely."
+    "Kernel SVMs can be slow and memory-heavy on very large datasets because they depend on many pairwise similarities.",
+    "They do not naturally produce calibrated probabilities without an additional calibration step.",
+    "Performance is sensitive to kernel choice, feature scaling, and hyperparameters such as C and gamma."
   ],
 
   codeSnippet: `import numpy as np

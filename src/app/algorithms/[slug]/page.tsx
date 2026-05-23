@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Image from "next/image";
 
 import { algorithms } from "@/data/algorithms";
 import { algorithmSupplemental } from "@/data/algorithmSupplemental";
@@ -108,20 +107,19 @@ export default async function AlgorithmPage({ params }: PageProps) {
   }
 
   return (
-    <div className="relative px-6 py-10 sm:px-8 lg:px-12">
-      <section className="relative z-10 mx-auto max-w-5xl">
-        {/* Breadcrumb navigation */}
-        <nav className="mb-8 flex items-center gap-2 text-sm text-on-surface-variant/60">
+    <div className="relative px-5 py-8 sm:px-8 lg:px-12">
+      <section className="relative z-10 mx-auto max-w-6xl">
+        <nav className="mb-8 flex flex-wrap items-center gap-2 text-sm text-on-surface-variant/70">
           <Link
             href="/"
-            className="transition-colors hover:text-on-surface-variant"
+            className="transition-colors hover:text-primary"
           >
             Home
           </Link>
           <span className="text-outline-variant">›</span>
           <Link
             href={categoryRoute}
-            className="transition-colors hover:text-on-surface-variant"
+            className="transition-colors hover:text-primary"
           >
             {categoryLabel}
           </Link>
@@ -131,28 +129,26 @@ export default async function AlgorithmPage({ params }: PageProps) {
           </span>
         </nav>
 
-        {/* Page header */}
-        <div className="mb-10">
+        <div className="mb-10 border border-outline bg-surface-container-low p-6 sm:p-8 lg:p-10">
           <div className="mb-4 flex flex-wrap items-center gap-3">
             <div
-              className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wider ${accent.badge}`}
+              className={`inline-flex items-center px-4 py-1.5 text-xs font-medium tracking-wide ${accent.badge}`}
             >
               {categoryLabel}
             </div>
           </div>
 
-          <h1 className="mb-5 font-headline text-4xl font-bold tracking-tight text-on-surface sm:text-5xl lg:text-6xl">
+          <h1 className="mb-5 max-w-4xl text-balance font-headline text-4xl font-semibold tracking-normal text-on-surface sm:text-5xl lg:text-6xl">
             {algorithm.title}
           </h1>
-          <div className="max-w-max sm:text-lg">
+          <div className="max-w-3xl sm:text-lg">
             <LogicContent content={algorithm.fullDescription} />
           </div>
         </div>
 
-        {/* Quick summary cards */}
         <div className="mb-10 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-xl border border-outline-variant/30 bg-surface-container-high accent-left-success p-5">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant/60">
+          <div className="rounded-lg border border-outline bg-surface-container accent-left-success p-5">
+            <div className="text-[11px] font-medium tracking-wide text-on-surface-variant/90">
               Best use
             </div>
             <p className="mt-3 text-sm leading-7 text-on-surface">
@@ -160,8 +156,8 @@ export default async function AlgorithmPage({ params }: PageProps) {
             </p>
           </div>
 
-          <div className="rounded-xl border border-outline-variant/30 bg-surface-container-high accent-left-error p-5">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant/60">
+          <div className="rounded-lg border border-outline bg-surface-container accent-left-error p-5">
+            <div className="text-[11px] font-medium tracking-wide text-on-surface-variant/90">
               Watch out for
             </div>
             <p className="mt-3 text-sm leading-7 text-on-surface">
@@ -171,26 +167,18 @@ export default async function AlgorithmPage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* Full-width stacked content sections */}
-      <section className="relative z-10 mx-auto max-w-5xl space-y-8">
-        {/* Intuition + Visualization — full width */}
-        <div className="overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-high">
-          <div className="border-b border-outline-variant/30 px-6 py-5 sm:px-8">
+      <section className="relative z-10 mx-auto max-w-6xl space-y-8">
+        <div className="overflow-hidden border border-outline bg-surface-container-low">
+          <div className="border-b border-outline px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-tertiary/12 text-lg">
-                <Image
-                  src="/think.png"
-                  alt="think"
-                  width={30}
-                  height={30}
-                  className="filter invert"
-                />
+              <div className="flex h-10 w-10 items-center justify-center border border-tertiary/30 bg-tertiary/12 text-lg font-semibold text-tertiary">
+                i
               </div>
               <div>
-                <h2 className="font-headline text-xl font-semibold text-on-surface sm:text-2xl">
-                  Real-World Intuition
+                <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
+                  Intuition
                 </h2>
-                <p className="text-xs text-on-surface-variant/60">
+                <p className="text-xs text-on-surface-variant/70">
                   How to think about this algorithm
                 </p>
               </div>
@@ -200,25 +188,24 @@ export default async function AlgorithmPage({ params }: PageProps) {
             </div>
           </div>
 
-          <div className="p-4 sm:p-6">
+          <div className="p-3 sm:p-6">
             <div className="min-h-[380px]">
               <AlgorithmVisualization algorithmId={algorithm.id} />
             </div>
           </div>
         </div>
 
-        {/* The Logic — full width */}
-        <div className="overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-high">
-          <div className="border-b border-outline-variant/30 px-6 py-5 sm:px-8">
+        <div className="overflow-hidden border border-outline bg-surface-container-low">
+          <div className="border-b border-outline px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/12 text-lg">
+              <div className="flex h-10 w-10 items-center justify-center border border-primary/30 bg-primary/12 text-lg text-primary">
                 ∑
               </div>
               <div>
-                <h2 className="font-headline text-xl font-semibold text-on-surface sm:text-2xl">
+                <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
                   The Logic
                 </h2>
-                <p className="text-xs text-on-surface-variant/60">
+                <p className="text-xs text-on-surface-variant/70">
                   Mathematical core for {algorithm.title.toLowerCase()}
                 </p>
               </div>
@@ -230,11 +217,10 @@ export default async function AlgorithmPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Code example — full width */}
-        <div className="overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-lowest">
-          <div className="flex flex-col gap-3 border-b border-outline-variant/30 bg-surface-container-low px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+        <div className="overflow-hidden border border-outline bg-surface-container-lowest">
+          <div className="flex flex-col gap-3 border-b border-outline bg-surface-container-low px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant/60">
+              <p className="text-[11px] font-medium tracking-wide text-on-surface-variant/80">
                 Code Example
               </p>
               <p className="mt-1 text-sm text-on-surface-variant">
@@ -248,12 +234,11 @@ export default async function AlgorithmPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Strengths & Limitations — side by side */}
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-high">
+          <div className="overflow-hidden border border-outline bg-surface-container-low">
             <div className="px-6 py-6 sm:px-8">
               <div className="mb-6 flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/12 text-sm font-bold text-primary">
+                <div className="flex h-9 w-9 items-center justify-center border border-primary/30 bg-primary/12 text-sm font-bold text-primary">
                   ✓
                 </div>
                 <h2 className="font-headline text-xl font-bold text-on-surface">
@@ -265,7 +250,7 @@ export default async function AlgorithmPage({ params }: PageProps) {
                 {algorithm.pros.map((pro, index) => (
                   <li
                     key={index}
-                    className="flex items-start gap-3 rounded-lg bg-surface-container/50 px-4 py-3 accent-left-primary"
+                    className="flex items-start gap-3 bg-surface-container px-4 py-3 accent-left-primary"
                   >
                     <span className="leading-7 text-on-surface-variant">
                       {pro}
@@ -276,10 +261,10 @@ export default async function AlgorithmPage({ params }: PageProps) {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-high">
+          <div className="overflow-hidden border border-outline bg-surface-container-low">
             <div className="px-6 py-6 sm:px-8">
               <div className="mb-6 flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-error/12 text-sm font-bold text-error">
+                <div className="flex h-9 w-9 items-center justify-center border border-error/30 bg-error/12 text-sm font-bold text-error">
                   !
                 </div>
                 <h2 className="font-headline text-xl font-bold text-on-surface">
@@ -291,7 +276,7 @@ export default async function AlgorithmPage({ params }: PageProps) {
                 {algorithm.cons.map((con, index) => (
                   <li
                     key={index}
-                    className="flex items-start gap-3 rounded-lg bg-surface-container/50 px-4 py-3 accent-left-error"
+                    className="flex items-start gap-3 bg-surface-container px-4 py-3 accent-left-error"
                   >
                     <span className="leading-7 text-on-surface-variant">
                       {con}
@@ -305,17 +290,17 @@ export default async function AlgorithmPage({ params }: PageProps) {
 
         {/* Assumptions & References — stacked in rows*/}
         <div className="flex flex-col gap-6">
-          <div className="overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-high">
-            <div className="border-b border-outline-variant/30 px-6 py-5 sm:px-8">
+          <div className="overflow-hidden border border-outline bg-surface-container-low">
+            <div className="border-b border-outline px-6 py-5 sm:px-8">
               <div className="mb-2 flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-surface-container-highest text-sm font-bold text-on-surface">
+                <div className="flex h-9 w-9 items-center justify-center border border-outline bg-surface-container-highest text-sm font-bold text-on-surface">
                   A
                 </div>
                 <div>
                   <h2 className="font-headline text-xl font-semibold text-on-surface">
                     Key Assumptions
                   </h2>
-                  <p className="text-xs text-on-surface-variant/60">
+                  <p className="text-xs text-on-surface-variant/70">
                     Scope conditions and interpretation notes
                   </p>
                 </div>
@@ -327,9 +312,9 @@ export default async function AlgorithmPage({ params }: PageProps) {
                 {supportSections.assumptions.map((assumption, index) => (
                   <li
                     key={index}
-                    className="flex items-start gap-3 rounded-lg bg-surface-container/50 px-4 py-3"
+                    className="flex items-start gap-3 bg-surface-container px-4 py-3"
                   >
-                    <span className="mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-container-highest text-[10px] font-bold text-on-surface-variant">
+                    <span className="mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center bg-surface-container-highest text-[10px] font-bold text-on-surface-variant">
                       {index + 1}
                     </span>
                     <span className="leading-7 text-on-surface-variant">
@@ -341,17 +326,17 @@ export default async function AlgorithmPage({ params }: PageProps) {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-high">
-            <div className="border-b border-outline-variant/30 px-6 py-5 sm:px-8">
+          <div className="overflow-hidden border border-outline bg-surface-container-low">
+            <div className="border-b border-outline px-6 py-5 sm:px-8">
               <div className="mb-2 flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-surface-container-highest text-sm font-bold text-on-surface">
+                <div className="flex h-9 w-9 items-center justify-center border border-outline bg-surface-container-highest text-sm font-bold text-on-surface">
                   R
                 </div>
                 <div>
                   <h2 className="font-headline text-xl font-semibold text-on-surface">
                     References
                   </h2>
-                  <p className="text-xs text-on-surface-variant/60">
+                  <p className="text-xs text-on-surface-variant/70">
                     Books and papers for deeper study
                   </p>
                 </div>
@@ -363,7 +348,7 @@ export default async function AlgorithmPage({ params }: PageProps) {
                 {supportSections.references.map((reference, index) => (
                   <li
                     key={index}
-                    className="rounded-xl border border-outline-variant/20 bg-surface-container p-4"
+                    className="rounded-lg border border-outline bg-surface-container p-4"
                   >
                     <p className="mt-1 text-sm leading-6 text-on-surface-variant/90">
                       {reference.source}
@@ -375,7 +360,7 @@ export default async function AlgorithmPage({ params }: PageProps) {
                         rel="noreferrer"
                         className="mt-3 inline-flex text-sm font-medium text-primary transition-colors hover:text-primary/80"
                       >
-                        Open reference →
+                        Open reference
                       </a>
                     ) : null}
                   </li>
@@ -386,7 +371,7 @@ export default async function AlgorithmPage({ params }: PageProps) {
         </div>
       </section>
 
-      <footer className="relative z-10 mx-auto mt-16 flex max-w-5xl flex-col gap-4 border-t border-outline-variant/30 pt-8 text-sm text-on-surface-variant/60 sm:flex-row sm:items-center sm:justify-between">
+      <footer className="relative z-10 mx-auto mt-16 flex max-w-6xl flex-col gap-4 border-t border-outline pt-8 text-sm text-on-surface-variant/70 sm:flex-row sm:items-center sm:justify-between">
         <p>© 2026 The Digital Observatory</p>
         <div className="flex flex-wrap gap-4 sm:gap-6">
           <Link

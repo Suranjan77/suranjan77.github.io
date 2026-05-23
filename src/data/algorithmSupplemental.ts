@@ -209,17 +209,113 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
   },
   "neural-networks": {
     whenToUse: [
-      "Solving dynamically safely smartly complex specifically securely exactly elegantly effectively non-linear functional explicitly perfectly neatly squarely strictly successfully dependably safely smartly intelligently effectively beautifully.",
-      "Performing purely cleanly expertly accurately seamlessly cleanly neatly accurately clearly securely explicitly successfully specifically perfectly properly dependably flawlessly depends."
+      "Solving complex non-linear classification and regression tasks.",
+      "Building highly parameterized representation learning models on raw data."
     ],
     assumptions: [
-      "The explicitly purely robust strictly precisely elegantly effectively dependably properly flawlessly effectively cleanly securely reliably cleverly smoothly dependably intelligently smoothly expertly flawlessly cleanly.",
-      "Large smoothly cleanly safely smoothly strictly brilliantly successfully creatively heavily specifically exactly smoothly intelligently effectively flawlessly gracefully neatly securely safely reliably perfectly properly elegantly securely cleanly rely smartly nicely smoothly cleverly dependably correctly smoothly perfectly smoothly."
+      "A sufficiently large, representative training dataset is available to avoid overfitting.",
+      "Optimization via gradient descent converges to a satisfactory local minimum."
     ],
     references: [
       {
         title: "Deep Learning",
         source: "Goodfellow, I., Bengio, Y. and Courville, A. (2016) Deep Learning. Cambridge, MA: MIT Press."
+      }
+    ]
+  },
+  "cnn": {
+    whenToUse: [
+      "Processing spatial grid data like images, medical scans, or video frames.",
+      "Detecting local spatial patterns and features regardless of location."
+    ],
+    assumptions: [
+      "The input dataset has local spatial relationships (neighboring pixels are related).",
+      "Features are translation invariant across the grid space."
+    ],
+    references: [
+      {
+        title: "Gradient-Based Learning Applied to Document Recognition",
+        source: "LeCun, Y., Bottou, L., Bengio, Y. and Haffner, P. (1998) 'Gradient-based learning applied to document recognition', Proceedings of the IEEE, 86(11), pp. 2278-2324."
+      }
+    ]
+  },
+  "computer-vision": {
+    whenToUse: [
+      "Detecting, locating, and drawing bounding boxes around objects in images.",
+      "Segmenting visual scenes down to individual pixel labels."
+    ],
+    assumptions: [
+      "Camera resolutions and inputs remain within training domain distributions.",
+      "Bounding box labels accurately bound semantic targets."
+    ],
+    references: [
+      {
+        title: "You Only Look Once: Unified, Real-Time Object Detection",
+        source: "Redmon, J., Divvala, S., Girshick, R. and Farhadi, A. (2016) 'You only look once: Unified, real-time object detection', in IEEE Conference on Computer Vision and Pattern Recognition (CVPR)."
+      }
+    ]
+  },
+  "nlp": {
+    whenToUse: [
+      "Analyzing semantic similarity or sentiment of texts, comments, or documents.",
+      "Translating, summarizing, or parsing natural language passages."
+    ],
+    assumptions: [
+      "Text can be tokenized into discrete lexical units.",
+      "Semantic similarity correlates with proximity in a continuous vector space."
+    ],
+    references: [
+      {
+        title: "Speech and Language Processing",
+        source: "Jurafsky, D. and Martin, J. H. (2023) Speech and Language Processing. 3rd edn. Draft available online."
+      }
+    ]
+  },
+  "autoencoders": {
+    whenToUse: [
+      "Compressing complex data vectors into compact representations.",
+      "Denoising signals or detecting anomalies in data."
+    ],
+    assumptions: [
+      "The input data resides on a lower-dimensional manifold in high-dimensional space.",
+      "A bottleneck capacity restricts the network from copying inputs."
+    ],
+    references: [
+      {
+        title: "Reducing the Dimensionality of Data with Neural Networks",
+        source: "Hinton, G. E. and Salakhutdinov, R. R. (2006) 'Reducing the dimensionality of data with neural networks', Science, 313(5786), pp. 504-507."
+      }
+    ]
+  },
+  "transformers": {
+    whenToUse: [
+      "Processing long sequences with dynamic, context-dependent relationships.",
+      "Training large language models or sequence encoders in parallel."
+    ],
+    assumptions: [
+      "Contextual relationships can be represented as scaled dot-product attention weights.",
+      "Sequence token order is encoded via positional variables."
+    ],
+    references: [
+      {
+        title: "Attention Is All You Need",
+        source: "Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.N., Kaiser, L. and Polosukhin, I. (2017) 'Attention is all you need', in Advances in Neural Information Processing Systems (NeurIPS), pp. 5998-6008."
+      }
+    ]
+  },
+  "llms": {
+    whenToUse: [
+      "Generating fluent human-like text, explanations, or code fragments.",
+      "Few-shot or zero-shot solving of complex language problems."
+    ],
+    assumptions: [
+      "Autoregressive next-token prediction simulates coherent thinking trajectories.",
+      "Temperature settings properly scale token logits to prevent repetitive loops."
+    ],
+    references: [
+      {
+        title: "Language Models are Few-Shot Learners",
+        source: "Brown, T. B. et al. (2020) 'Language models are few-shot learners', in Advances in Neural Information Processing Systems (NeurIPS)."
       }
     ]
   }

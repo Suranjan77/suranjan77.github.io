@@ -4,50 +4,74 @@ export const linearRegression: Algorithm = {
   id: "linear-regression",
   title: "Linear & Logistic Regression",
   category: "Linear Regression",
-  shortDescription: "The classic algorithms for drawing a line through data to predict numbers (Linear) or sort things into categories (Logistic).",
+  shortDescription: "Two baseline models that turn a weighted sum of features into either a number or a calibrated probability.",
 
   fullDescription: `
-Linear regression is one of the oldest and most fundamental algorithms in machine learning. It tries to find the simplest possible relationship between your inputs and your target by drawing a straight line (or a flat plane) through your data points. 
+Linear and logistic regression are often the first models worth fitting because they expose the entire machine-learning workflow without hiding it behind many layers. You choose a simple model family, measure its mistakes with a loss function, and solve for parameters that make that loss small.
 
-Logistic regression is its close cousin, but instead of predicting a continuous number (like the price of a house), it predicts a probability between 0 and 1 (like the chance a house will sell this month). It does this by taking the straight line from linear regression and bending it into an "S" shape.
+Linear regression predicts a continuous value such as price, demand, temperature, or risk score. Logistic regression predicts the probability of a class such as churn/no churn, fraud/not fraud, pass/fail, or disease/no disease. The important shared idea is the linear score:
+
+$$ z = w^T x + b $$
+
+Linear regression uses that score directly as the prediction. Logistic regression passes it through a sigmoid so the output is constrained to the interval $[0, 1]$.
 
 ### Where is it used?
-Linear regression is perfect when you need a simple, understandable prediction, like forecasting next month's sales based on advertising spend, or predicting a patient's blood pressure based on their weight. Logistic regression is the industry standard for binary classification: credit card fraud detection (fraud or not fraud?), medical diagnosis (sick or healthy?), and email filtering (spam or inbox?).
+Use linear regression when the target is numeric and roughly changes in a straight-line way with the features. Use logistic regression when the target is categorical but you still want interpretable coefficients and probabilities. In practice, both are strong baselines: if a complex model only barely beats them, the extra complexity may not be buying much.
   `,
 
   intuition: `
-Imagine you scatter a handful of points on a graph. Linear regression grabs a ruler and tries to draw a single straight line that gets as close to all the points as possible. It does this by measuring the vertical distance from every point to the line, squaring those distances (to make negative errors positive and punish big mistakes), and twisting the line until that total error is as small as possible.
+In the interactive lab, linear regression is the ruler problem. Each point has a vertical residual: the gap between the observed value and the line's prediction. Squaring those gaps makes large misses expensive, so one outlier can visibly pull the fitted line. That is not a UI trick; it is exactly what the squared-error objective asks the model to do.
 
-Logistic regression does something similar, but instead of trying to draw a line *through* the points, it tries to draw a line that *separates* the points into two distinct groups. It then measures how far away a point is from that boundary line to calculate the percentage chance that the point belongs to group A or group B.
+Logistic regression is the boundary problem. A linear score says which side of a boundary a point sits on. The sigmoid converts distance from that boundary into confidence: far on one side means probability near 1, far on the other side means probability near 0, and the boundary itself is the uncertain region around 0.5.
+
+The useful mental model is this: regression is not "drawing a line"; it is choosing parameters that minimize a specific loss under a specific assumption about the shape of the relationship.
   `,
 
   mathematics: `
-### 1. Ordinary Least Squares (Linear Regression)
-For a set of input features $x$, the model makes a prediction $\\hat{y}$ by multiplying each feature by a specific weight $w$ and adding a baseline number $b$:
+### 1. Linear regression model
+For a row of features $x_i$, the model predicts:
 
-$$ \\hat{y} = w^T x + b $$
+$$ \\hat{y}_i = w^T x_i + b $$
 
-The goal is to find the weights that minimize the Mean Squared Error (MSE), which is the average of all the squared mistakes:
+The residual is the signed error:
 
-$$ \\mathcal{L}(w) = \\frac{1}{n} \\|y - Xw\\|^2 $$
+$$ r_i = y_i - \\hat{y}_i $$
 
-Because this is a simple linear equation, we don't even need to use complex optimization algorithms to find the answer. We can solve it perfectly using a direct algebra formula (the Normal Equation):
+Ordinary least squares chooses parameters that minimize mean squared error:
 
-$$ \\hat{w} = (X^T X)^{-1} X^T y $$
+$$ \\mathcal{L}(w,b) = \\frac{1}{n}\\sum_{i=1}^n (y_i - (w^T x_i + b))^2 $$
 
-### 2. Logistic Regression
-For classification (where the answer $y$ is either 0 or 1), we take that same linear equation and pass it through a Sigmoid function $\\sigma(z) = \\frac{1}{1 + e^{-z}}$. This squashes any number into a probability between 0 and 1:
+With a full-rank design matrix, the closed-form solution is:
 
-$$ P(y=1|x) = \\sigma(w^T x + b) $$
+$$ \\hat{w} = (X^T X)^{-1}X^T y $$
 
-### 3. Binary Cross-Entropy Loss
-To train a logistic regression model, we can't use Mean Squared Error. Instead, we use Binary Cross-Entropy (BCE), which uses logarithms to heavily penalize the model if it is highly confident but completely wrong:
+### 2. Logistic regression model
+For binary labels $y_i \\in \\{0,1\\}$, logistic regression starts with the same linear score:
 
-$$ \\mathcal{L}(w) = -\\frac{1}{n} \\sum_{i=1}^{n} \\left[ y_i \\log(\\hat{y}_i) + (1-y_i) \\log(1-\\hat{y}_i) \\right] $$
+$$ z_i = w^T x_i + b $$
 
-The calculus derivative used to update the weights during training is surprisingly simple and elegant:
+Then it maps the score to a probability:
 
-$$ \\nabla_w \\mathcal{L} = \\frac{1}{n} X^T (\\hat{y} - y) $$
+$$ \\hat{p}_i = P(y_i=1|x_i) = \\sigma(z_i) = \\frac{1}{1 + e^{-z_i}} $$
+
+The decision boundary at threshold $t$ is where:
+
+$$ \\sigma(w^T x + b) = t $$
+
+For the common threshold $t=0.5$, this simplifies to:
+
+$$ w^T x + b = 0 $$
+
+### 3. Cross-entropy loss
+Squared error is not the right objective for class probabilities. Logistic regression uses binary cross-entropy:
+
+$$ \\mathcal{L}(w,b) = -\\frac{1}{n}\\sum_{i=1}^{n}\\left[y_i\\log(\\hat{p}_i) + (1-y_i)\\log(1-\\hat{p}_i)\\right] $$
+
+Its gradient has a compact form:
+
+$$ \\nabla_w \\mathcal{L} = \\frac{1}{n}X^T(\\hat{p} - y) $$
+
+This is why the algorithm is so useful pedagogically: the update direction is literally driven by predicted probability minus observed label.
   `,
 
   pros: [
@@ -62,20 +86,42 @@ $$ \\nabla_w \\mathcal{L} = \\frac{1}{n} X^T (\\hat{y} - y) $$
   ],
 
   codeSnippet: `import numpy as np
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.metrics import mean_squared_error, log_loss
 
-# Features: [Total Hours studied, Number of Past tests failed]
-X = np.array([[2, 0], [4, 0], [1, 2], [3, 1], [5, 0], [1.5, 3]])
+# Linear regression: predict a numeric score from one feature.
+hours = np.array([[1.1], [2.1], [3.0], [4.0], [5.2], [6.1], [7.0], [8.4]])
+score = np.array([2.2, 2.8, 4.1, 4.6, 5.9, 6.7, 7.6, 8.7])
 
-# Absolute Labels: Pass Exam [1] or Fail Exam [0]
-y = np.array([1, 1, 0, 1, 1, 0])
+lin = LinearRegression()
+lin.fit(hours, score)
+score_hat = lin.predict(hours)
 
-clf = LogisticRegression(penalty='l2', C=1.0)
+print("Linear slope:", lin.coef_[0])
+print("Linear intercept:", lin.intercept_)
+print("MSE:", mean_squared_error(score, score_hat))
+
+# Logistic regression: predict probability of passing from two features.
+# Features: [hours studied, practice-test average]
+X = np.array([
+    [1.2, 2.0],
+    [2.0, 3.2],
+    [2.8, 2.4],
+    [3.6, 4.0],
+    [5.2, 5.1],
+    [6.4, 5.8],
+    [7.1, 7.4],
+    [8.2, 6.8],
+    [8.8, 8.5],
+])
+y = np.array([0, 0, 0, 0, 1, 1, 1, 1, 1])
+
+clf = LogisticRegression()
 clf.fit(X, y)
+prob = clf.predict_proba(X)[:, 1]
 
-print("Mathematical Weights (Studied, Failed):", clf.coef_[0])
-print("Base Intercept log-odds:", clf.intercept_)
-
-predict_prob = clf.predict_proba([[2.5, 1]])
-print(f"Computed Pass Probability: {predict_prob[0][1]:.2%}")`
+print("Logistic weights:", clf.coef_[0])
+print("Logistic intercept:", clf.intercept_[0])
+print("Cross-entropy:", log_loss(y, prob))
+print("New example pass probability:", clf.predict_proba([[5.5, 6.0]])[0, 1])`
 };

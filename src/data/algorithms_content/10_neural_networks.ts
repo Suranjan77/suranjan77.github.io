@@ -4,25 +4,25 @@ export const neuralNetworks: Algorithm = {
   id: "neural-networks",
   title: "Neural Networks & Deep Learning",
   category: "Neural Networks / Deep Learning",
-  shortDescription: "Massive, interconnected layers of simple math equations that can learn to recognize incredibly complex patterns on their own.",
+  shortDescription: "Layered differentiable models that learn feature representations by optimizing weights with gradient descent.",
 
   fullDescription: `
-Neural Networks are the engine behind the modern AI revolution. They are built using layers of interconnected "neurons" (which are really just simple math equations). Instead of a human programmer having to explicitly write rules (like "if it has fur and pointy ears, it's a cat"), you just feed the network thousands of pictures of cats, and it figures out the rules by itself.
+Neural networks are layered differentiable functions. Each layer applies a linear transformation followed by a non-linear activation, and training adjusts the weights so the final output minimizes a loss function.
 
-"Deep Learning" simply refers to Neural Networks that have many, many layers stacked on top of each other. This deep structure gives them a massive amount of computational power, allowing them to approximate almost any complex relationship in the universe, provided you give them enough data and computing power.
+Deep learning means using many such layers. Depth lets the model build representations hierarchically: early layers learn simple signals, middle layers combine them, and later layers specialize them for the target task.
 
 ### Where is it used?
-Everywhere. They are the undisputed champions of modern AI. They power Large Language Models (like ChatGPT), self-driving cars, facial recognition on your phone, real-time language translation, and advanced medical imaging systems that can detect cancer better than human doctors.
+They are used in language models, recommender systems, image recognition, speech recognition, translation, scientific modeling, and medical imaging. They are strongest when you have enough data, compute, and evaluation discipline to justify their flexibility.
   `,
 
   intuition: `
-Imagine a factory assembly line trying to identify if a photo contains a car. 
+Imagine a model trying to identify whether a photo contains a car.
 
 The workers at the very start of the line (the first layer) only look at tiny, zoomed-in pixels. They can only recognize basic things like straight edges or simple curves. They pass their findings to the next group of workers.
 
 The second layer of workers looks at those edges and curves and combines them. They might say, "Ah, these curves make a circle!" or "These edges make a rectangle!" They pass this up the chain.
 
-The deep layers combine those shapes into concepts: "I see two circles and a rectangle... that looks like wheels and a chassis!" Finally, the boss at the very end of the line (the output layer) looks at the high-level concepts and confidently shouts, "It's a car!"
+The deeper layers combine those shapes into task-level evidence: wheels, windows, chassis-like structure, and background context. The output layer converts that evidence into class scores or probabilities.
   `,
 
   mathematics: `
@@ -34,23 +34,23 @@ $$ a^{(1)} = f(z^{(1)}) $$
 $$ \\hat{y} = W^{(2)}a^{(1)} + b^{(2)} $$
 
 ### 2. Backpropagation (How it learns)
-When the network makes a guess, it calculates how wrong it was (the Loss, $\\mathcal{L}$). To learn, it needs to figure out exactly which weights caused the mistake. It uses a calculus technique called the Chain Rule to trace the error backwards through the network, from the final answer all the way back to the first layer:
+When the network makes a prediction, the loss $\\mathcal{L}$ measures the error. Backpropagation applies the chain rule to compute gradients of that loss with respect to every trainable weight:
 
 $$ \\frac{\\partial \\mathcal{L}}{\\partial W^{(1)}} = \\frac{\\partial \\mathcal{L}}{\\partial a^{(1)}} \\frac{\\partial a^{(1)}}{\\partial z^{(1)}} \\frac{\\partial z^{(1)}}{\\partial W^{(1)}} $$
 
-Once it knows exactly how much each weight contributed to the error, it tweaks them all slightly in the correct direction. It repeats this process millions of times until the error is as close to zero as possible.
+An optimizer such as stochastic gradient descent or Adam then updates the weights in a direction that tends to reduce the loss on future batches.
   `,
 
   pros: [
-    "They are incredibly powerful. Given enough data and layers, they can learn to solve almost any pattern-recognition problem.",
-    "They do the hard work for you. You don't need to manually figure out what features are important; the network learns them automatically.",
-    "They scale incredibly well. You can train them on massive supercomputers using specialized hardware (GPUs)."
+    "They can learn useful feature representations directly from data instead of relying only on hand-engineered features.",
+    "They scale well with data and compute, especially on GPUs and other accelerator hardware.",
+    "They support many architectures: dense networks, CNNs, RNNs, transformers, autoencoders, and graph neural networks."
   ],
 
   cons: [
-    "They are the ultimate 'Black Box'. It is notoriously difficult to look inside a trained neural network and understand *why* it made a specific decision.",
-    "They require a massive amount of data to work well. If you only have a few hundred examples, a Random Forest will usually beat a Neural Network.",
-    "They are incredibly expensive and slow to train, requiring specialized, power-hungry hardware."
+    "They can be difficult to interpret, especially when many layers and millions of parameters interact.",
+    "They often need more data and tuning than simpler models. On small tabular datasets, tree ensembles are frequently stronger baselines.",
+    "Training and serving large networks can be expensive and requires careful monitoring for overfitting, drift, and failure modes."
   ],
 
   codeSnippet: `import torch
@@ -81,12 +81,12 @@ optimizer = optim.Adam(model.parameters(), lr=0.01) # How we update weights
 x_batch = torch.randn(8, 10)
 y_batch = torch.empty(8, 1).random_(2)
 
-# The Learning Loop!
-optimizer.zero_grad()                 # Clear old math
-predictions = model(x_batch)          # 1. Make a guess (Forward pass)
-loss = criterion(predictions, y_batch)# 2. Calculate the mistake
-loss.backward()                       # 3. Figure out who to blame (Backpropagation)
-optimizer.step()                      # 4. Tweak the weights to do better next time!
+# One training step
+optimizer.zero_grad()                 # Clear previous gradients
+predictions = model(x_batch)          # 1. Forward pass
+loss = criterion(predictions, y_batch)# 2. Compute loss
+loss.backward()                       # 3. Backpropagate gradients
+optimizer.step()                      # 4. Update weights
 
 print(f"Current Error (Loss): {loss.item():.4f}")`
 };

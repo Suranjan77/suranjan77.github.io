@@ -1,26 +1,28 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { DM_Mono, Outfit, Shippori_Mincho } from "next/font/google";
 import "./globals.css";
 import "katex/dist/katex.min.css";
 import Sidebar from "@/components/layout/Sidebar";
 import Header from "@/components/layout/Header";
 import { getAbsoluteUrl, siteConfig } from "@/lib/site";
 
-const inter = Inter({
+const shippori = Shippori_Mincho({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-shippori",
   display: "swap",
 });
 
-const spaceGrotesk = Space_Grotesk({
+const outfit = Outfit({
   subsets: ["latin"],
-  variable: "--font-space-grotesk",
+  variable: "--font-outfit",
   display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const dmMono = DM_Mono({
   subsets: ["latin"],
-  variable: "--font-jetbrains-mono",
+  weight: ["300", "400", "500"],
+  variable: "--font-dm-mono",
   display: "swap",
 });
 
@@ -61,8 +63,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f1318",
-  colorScheme: "dark",
+  themeColor: "#F5F2EC",
+  colorScheme: "light",
 };
 
 export default function RootLayout({
@@ -71,14 +73,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark scroll-smooth">
+    <html lang="en" className="light scroll-smooth">
       <body
-        className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} min-h-screen bg-background font-body text-on-surface antialiased`}
+        className={`${shippori.variable} ${outfit.variable} ${dmMono.variable} min-h-screen bg-background font-body text-on-surface antialiased`}
       >
         <div className="min-h-screen lg:flex">
           <Sidebar />
-          <div className="flex min-h-screen min-w-0 flex-1 flex-col lg:ml-[220px]">
-            <div className="mx-auto flex min-h-screen w-full max-w-[1440px] min-w-0 flex-1 flex-col">
+          <div className="flex min-h-screen min-w-0 flex-1 flex-col lg:ml-[278px]">
+            <div className="mx-auto flex min-h-screen w-full max-w-[1500px] min-w-0 flex-1 flex-col border-x border-outline bg-background">
               <Header />
               <main className="min-w-0 flex-1">{children}</main>
             </div>

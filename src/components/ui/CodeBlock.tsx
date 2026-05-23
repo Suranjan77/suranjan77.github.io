@@ -1,11 +1,12 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
-const brutalistTheme: any = {
+const codeTheme: Record<string, CSSProperties> = {
   'code[class*="language-"]': {
-    color: '#FFFFFF',
+    color: '#4A4540',
     fontFamily: 'var(--font-mono), monospace',
     direction: 'ltr',
     textAlign: 'left',
@@ -22,7 +23,7 @@ const brutalistTheme: any = {
     hyphens: 'none',
   },
   'pre[class*="language-"]': {
-    color: '#FFFFFF',
+    color: '#4A4540',
     fontFamily: 'var(--font-mono), monospace',
     direction: 'ltr',
     textAlign: 'left',
@@ -42,38 +43,38 @@ const brutalistTheme: any = {
     overflow: 'auto',
     background: 'transparent',
   },
-  'comment': { color: '#888888', fontStyle: 'italic' },
-  'prolog': { color: '#888888' },
-  'doctype': { color: '#888888' },
-  'cdata': { color: '#888888' },
-  'punctuation': { color: '#FFFFFF' },
+  'comment': { color: '#9E978F', fontStyle: 'italic' },
+  'prolog': { color: '#9E978F' },
+  'doctype': { color: '#9E978F' },
+  'cdata': { color: '#9E978F' },
+  'punctuation': { color: '#8A8580' },
   'namespace': { opacity: '.7' },
-  'property': { color: '#FF3366' },
-  'keyword': { color: '#FF3366', fontWeight: 'bold' },
-  'tag': { color: '#FF3366' },
-  'class-name': { color: '#00FFFF', textDecoration: 'underline' },
-  'boolean': { color: '#00FFFF', fontWeight: 'bold' },
-  'constant': { color: '#00FFFF' },
-  'symbol': { color: '#FF3366' },
-  'deleted': { color: '#FF3366' },
-  'number': { color: '#FFEA00' },
-  'selector': { color: '#00E676' },
-  'attr-name': { color: '#00E676' },
-  'string': { color: '#00E676' },
-  'char': { color: '#00E676' },
-  'builtin': { color: '#00FFFF' },
-  'inserted': { color: '#00E676' },
-  'variable': { color: '#FFFFFF' },
-  'operator': { color: '#FFFFFF' },
-  'entity': { color: '#FFEA00', cursor: 'help' },
-  'url': { color: '#00FFFF' },
-  '.language-css .token.string': { color: '#00FFFF' },
-  '.style .token.string': { color: '#00FFFF' },
-  'atrule': { color: '#00FFFF' },
-  'attr-value': { color: '#00FFFF' },
-  'function': { color: '#00FFFF', fontWeight: 'bold' },
-  'regex': { color: '#00FFFF' },
-  'important': { color: '#FF3366', fontWeight: 'bold' },
+  'property': { color: '#556B4A' },
+  'keyword': { color: '#BA6A62', fontWeight: 'bold' },
+  'tag': { color: '#556B4A' },
+  'class-name': { color: '#68805F', fontWeight: 'bold' },
+  'boolean': { color: '#CFA05F', fontWeight: 'bold' },
+  'constant': { color: '#CFA05F' },
+  'symbol': { color: '#BA6A62' },
+  'deleted': { color: '#BA6A62' },
+  'number': { color: '#CFA05F' },
+  'selector': { color: '#68805F' },
+  'attr-name': { color: '#556B4A' },
+  'string': { color: '#68805F' },
+  'char': { color: '#68805F' },
+  'builtin': { color: '#556B4A' },
+  'inserted': { color: '#68805F' },
+  'variable': { color: '#4A4540' },
+  'operator': { color: '#8A8580' },
+  'entity': { color: '#CFA05F', cursor: 'help' },
+  'url': { color: '#556B4A' },
+  '.language-css .token.string': { color: '#68805F' },
+  '.style .token.string': { color: '#68805F' },
+  'atrule': { color: '#BA6A62' },
+  'attr-value': { color: '#68805F' },
+  'function': { color: '#556B4A', fontWeight: 'bold' },
+  'regex': { color: '#CFA05F' },
+  'important': { color: '#BA6A62', fontWeight: 'bold' },
   'bold': { fontWeight: 'bold' },
   'italic': { fontStyle: 'italic' },
 };
@@ -169,13 +170,13 @@ export default function CodeBlock({
   const buttonLabel = copyState === "copied" ? "COPIED!" : copyState === "error" ? "FAILED" : "COPY CODE";
 
   return (
-    <div className="overflow-hidden border-2 border-outline bg-[#0D0D0D] shadow-[4px_4px_0px_0px_var(--color-outline)] mb-6">
-      <div className="flex flex-col gap-3 border-b-2 border-outline bg-[#1E1E1E] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+    <div className="mb-6 overflow-hidden border border-outline bg-surface-container-lowest">
+      <div className="flex flex-col gap-3 border-b border-outline bg-surface-container-low px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="min-w-0 flex items-center gap-3">
-          <div className="bg-white text-black px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] border border-black shadow-[2px_2px_0px_0px_#FF3366]">
+          <div className="border border-outline bg-surface-container-high px-2.5 py-1 font-mono text-[10px] font-normal uppercase tracking-[0.16em] text-primary">
             {detectedLanguage}
           </div>
-          <div className="truncate text-sm font-bold font-mono text-white">
+          <div className="truncate font-mono text-sm font-medium text-on-surface">
             {displayFileName}
           </div>
         </div>
@@ -184,12 +185,12 @@ export default function CodeBlock({
           type="button"
           onClick={handleCopy}
           aria-live="polite"
-          className={`inline-flex items-center justify-center border-2 border-outline px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-transform active:translate-y-1 ${
+          className={`inline-flex items-center justify-center border px-3 py-1.5 font-mono text-[10px] font-normal uppercase tracking-[0.16em] transition-colors ${
             copyState === "copied"
-              ? "bg-[#00E676] text-black border-black"
+              ? "border-secondary/40 bg-secondary/15 text-secondary"
               : copyState === "error"
-                ? "bg-[#FF3366] text-black border-black"
-                : "bg-black text-white hover:bg-white hover:text-black"
+                ? "border-error/40 bg-error/15 text-error"
+                : "border-outline bg-surface-container text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
           }`}
         >
           {buttonLabel}
@@ -199,9 +200,9 @@ export default function CodeBlock({
       <div className="overflow-x-auto px-4 py-5 sm:px-6 relative">
         <SyntaxHighlighter
           language={detectedLanguage.toLowerCase()}
-          style={brutalistTheme}
+          style={codeTheme}
           showLineNumbers={true}
-          lineNumberStyle={{ minWidth: "3em", paddingRight: "1em", color: "#555", textAlign: "right" }}
+          lineNumberStyle={{ minWidth: "3em", paddingRight: "1em", color: "#BEB6A5", textAlign: "right" }}
           customStyle={{
             background: "transparent",
             padding: 0,

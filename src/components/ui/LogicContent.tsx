@@ -76,12 +76,12 @@ export default function LogicContent({ content }: LogicContentProps) {
           ),
           hr: () => <hr className="my-8 border-white/10" />,
           blockquote: ({ children }) => (
-            <blockquote className="my-6 rounded-r-xl border-l-4 border-primary/50 bg-primary/5 px-4 py-3 text-on-surface">
+            <blockquote className="my-6 border border-outline border-l-primary bg-surface px-4 py-3 text-on-surface">
               {children}
             </blockquote>
           ),
           code: ({ children }) => (
-            <code className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-[0.92em] text-primary">
+            <code className="border border-outline bg-surface-container-high px-1.5 py-0.5 font-mono text-[0.92em] text-primary">
               {children}
             </code>
           ),

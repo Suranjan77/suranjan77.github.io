@@ -4,23 +4,21 @@ export const mcmc: Algorithm = {
   id: "mcmc",
   title: "Markov Chain Monte Carlo",
   category: "Markov Chain Monte Carlo",
-  shortDescription: "A clever way to map out incredibly complex probabilities by taking a randomized, guided 'walk' through the data.",
+  shortDescription: "A family of sampling algorithms that approximate hard probability distributions by constructing a Markov chain.",
 
   fullDescription: `
-Markov Chain Monte Carlo (MCMC) is a family of algorithms used to solve some of the hardest problems in statistics. In advanced Bayesian statistics, you often end up with a math equation for a probability distribution that is so complex, it is literally impossible to solve directly. 
+Markov Chain Monte Carlo (MCMC) is used when a probability distribution is known up to proportionality, but direct integration or exact sampling is too difficult. This is common in Bayesian inference, where the posterior may be high-dimensional and analytically intractable.
 
-Instead of trying to solve the impossible math, MCMC algorithms use a clever trick: they build a simulation. They create a "Markov Chain"—a sequence of random steps—that wanders through the mathematical space. By carefully setting the rules for how this random walk behaves, the algorithm will naturally spend more time in areas of high probability and less time in areas of low probability. By just keeping track of where the algorithm walked, you get a perfect map of the complex math equation you couldn't solve!
+MCMC builds a Markov chain whose stationary distribution is the target distribution. After warm-up, the visited states behave like dependent samples from that target. Histograms, expectations, credible intervals, and posterior summaries can then be estimated from those samples.
 
 ### Where is it used?
-MCMC is the heavy artillery of statistics. It is used when standard approximations fail. It's heavily used in complex physics simulations, advanced medical research (like modeling how a disease spreads through different levels of a population), and high-end financial risk analysis.
+MCMC is used in Bayesian modeling, physics simulation, hierarchical medical models, ecological inference, and risk analysis when closed-form calculations are not available.
   `,
 
   intuition: `
-Imagine you are blindfolded and dropped onto a massive, complex mountain range, and your goal is to draw a topographical map of the whole area. You can't see, but you have an altimeter that tells you your current height.
+Imagine a landscape where height represents probability density. The sampler proposes nearby moves. Moves to higher-density regions are usually accepted, but some lower-density moves are accepted too.
 
-Here is your strategy: You take a random step in any direction. If that step takes you *uphill*, you always take it. If that step takes you *downhill*, you roll a pair of dice. If you roll high, you take the step; if you roll low, you stay where you are. 
-
-If you do this for a million steps and drop a GPS pin at every location you visit, you will spend most of your time near the mountain peaks, and very little time in the deep valleys. If someone looks at your million GPS pins, they will see a perfect 3D map of the mountain range, even though you were blindfolded the whole time!
+That occasional willingness to move downhill matters. It keeps the chain from getting trapped at one local peak and lets it explore the distribution. The result is not a perfect map, but an approximation that improves with better proposals, diagnostics, and enough effective samples.
   `,
 
   mathematics: `
@@ -29,17 +27,17 @@ To map out a target probability distribution $P(x)$, the algorithm is currently 
 
 $$ \\alpha = \\min\\left(1, \\frac{P(x')}{P(x)}\\right) $$
 
-This ratio simply asks: "Is the new spot more probable than my current spot?" 
+This ratio asks whether the proposed state is more probable than the current state.
 If $P(x')$ is greater than $P(x)$, the ratio is 1, and the algorithm *always* moves to the new spot. 
-If the new spot is worse, it calculates the fraction (e.g., 0.4). It then generates a random number $u$ between 0 and 1. If $u \\le 0.4$, it accepts the bad move anyway! Otherwise, it stays at $x$.
+If the proposed state is less probable, the algorithm may still accept it with probability $\\alpha$. Otherwise, it stays at $x$ and records the current state again.
 
 ### 2. Why it works
-Allowing the algorithm to occasionally make "bad" moves (going downhill) is crucial. It prevents the algorithm from getting permanently stuck on a small, fake peak (a local maximum) and allows it to explore the entire mathematical landscape. Given enough time, the places it visits will perfectly match the true target distribution.
+Allowing occasional lower-density moves is crucial because it improves exploration. In practice, you still need convergence diagnostics, warm-up removal, and effective sample size checks before trusting the estimates.
   `,
 
   pros: [
-    "It can solve incredibly complex statistical problems that are mathematically impossible to solve any other way.",
-    "It doesn't rely on assuming your data looks like a standard Bell Curve. It can map out weird, lopsided, and multi-peaked distributions perfectly."
+    "It can estimate posterior quantities for models where direct integration is not feasible.",
+    "It does not require a Gaussian posterior and can represent skewed, correlated, or multi-modal distributions if the chain mixes well."
   ],
 
   cons: [

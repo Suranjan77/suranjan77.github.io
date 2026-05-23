@@ -87,7 +87,43 @@ const categoryConfig: Record<
     color: "primary",
     route: "/algorithms/neural-networks",
     label: "Deep Learning Architectures",
-    description: "Build incredibly highly parameterized incredibly adaptive computational exact logical algorithmic dynamic deep graphs explicitly highly capable of massive multi-layered representation learning.",
+    description: "Build adaptive computational deep graphs capable of multi-layered hierarchical representation learning.",
+  },
+  "Convolutional Neural Networks": {
+    color: "secondary",
+    route: "/algorithms/cnn",
+    label: "Convolutional Networks (CNN)",
+    description: "Build translation-invariant, feature-extracting convolutional grid pipelines for visual applications.",
+  },
+  "Computer Vision": {
+    color: "tertiary",
+    route: "/algorithms/computer-vision",
+    label: "Computer Vision",
+    description: "Detect, localize, segment, and understand physical shapes and visual scenes from raw pixel matrices.",
+  },
+  "Natural Language Processing": {
+    color: "primary",
+    route: "/algorithms/nlp",
+    label: "Natural Language Processing",
+    description: "Encode human text into dense vector spaces to translate, analyze, and generate languages.",
+  },
+  "Autoencoders": {
+    color: "secondary",
+    route: "/algorithms/autoencoders",
+    label: "Autoencoders",
+    description: "Self-supervised reconstruction networks designed to compress data and capture low-dimensional feature manifolds.",
+  },
+  "Transformers": {
+    color: "tertiary",
+    route: "/algorithms/transformers",
+    label: "Transformers",
+    description: "Harness self-attention mechanisms to dynamically capture context and parallelize deep sequence processing.",
+  },
+  "Large Language Models": {
+    color: "primary",
+    route: "/algorithms/llms",
+    label: "Large Language Models",
+    description: "Scale autoregressive transformers on massive web data to emerge with coding and logic abilities.",
   },
 };
 
@@ -105,6 +141,12 @@ const algorithmIcons: Record<string, string> = {
   "dimensionality-reduction": "scatter_plot",
   "mcmc": "sync",
   "neural-networks": "hub",
+  "cnn": "layers",
+  "computer-vision": "visibility",
+  "nlp": "translate",
+  "autoencoders": "compress",
+  "transformers": "psychology",
+  "llms": "forum",
 };
 
 export function getAlgorithmBySlug(slug: string): Algorithm | undefined {
@@ -166,9 +208,9 @@ export function formatLogicContent(content: string): string {
 export function getAccentClasses(color: AccentColor) {
   if (color === "secondary") {
     return {
-      badge: "bg-secondary/10 border-secondary/20 text-secondary",
+      badge: "border border-secondary/30 bg-secondary/10 text-secondary",
       glow: "bg-secondary/5",
-      surface: "from-secondary/20 to-surface-container",
+      surface: "bg-surface-container",
       icon: "bg-secondary/15 text-secondary border-secondary/20",
       subtleText: "text-secondary/80",
       border: "border-secondary/20",
@@ -177,9 +219,9 @@ export function getAccentClasses(color: AccentColor) {
 
   if (color === "tertiary") {
     return {
-      badge: "bg-tertiary/10 border-tertiary/20 text-tertiary",
+      badge: "border border-tertiary/40 bg-tertiary/10 text-on-surface",
       glow: "bg-tertiary/5",
-      surface: "from-tertiary/20 to-surface-container",
+      surface: "bg-surface-container",
       icon: "bg-tertiary/15 text-tertiary border-tertiary/20",
       subtleText: "text-tertiary/80",
       border: "border-tertiary/20",
@@ -187,9 +229,9 @@ export function getAccentClasses(color: AccentColor) {
   }
 
   return {
-    badge: "bg-primary/10 border-primary/20 text-primary",
+    badge: "border border-primary/30 bg-primary/10 text-primary",
     glow: "bg-primary/5",
-    surface: "from-primary/20 to-surface-container",
+    surface: "bg-surface-container",
     icon: "bg-primary/15 text-primary border-primary/20",
     subtleText: "text-primary/80",
     border: "border-primary/20",

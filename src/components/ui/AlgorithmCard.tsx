@@ -1,137 +1,69 @@
-import Link from "next/link";
+"use client";
+
 import { clsx } from "clsx";
-import katex from "katex";
 
 interface AlgorithmCardProps {
   title: string;
   description: string;
-  formula: string;
-  icon: string;
-  slug: string;
-  color: "primary" | "secondary" | "tertiary";
+  category: string;
+  index?: number;
+  difficulty?: 1 | 2 | 3;
+  active?: boolean;
+  onClick?: () => void;
 }
-
-const colorMap = {
-  primary: {
-    topBorder: "bg-primary",
-    formulaBg: "bg-primary/20",
-    formulaBorder: "border-primary",
-    formulaText: "text-primary",
-    glow: "group-hover:shadow-[-8px_8px_0px_0px_var(--color-primary)]",
-    arrow: "text-primary group-hover:translate-x-1",
-    dot: "bg-primary",
-  },
-  secondary: {
-    topBorder: "bg-secondary",
-    formulaBg: "bg-secondary/20",
-    formulaBorder: "border-secondary",
-    formulaText: "text-secondary",
-    glow: "group-hover:shadow-[-8px_8px_0px_0px_var(--color-secondary)]",
-    arrow: "text-secondary group-hover:translate-x-1",
-    dot: "bg-secondary",
-  },
-  tertiary: {
-    topBorder: "bg-tertiary",
-    formulaBg: "bg-tertiary/20",
-    formulaBorder: "border-tertiary",
-    formulaText: "text-tertiary",
-    glow: "group-hover:shadow-[-8px_8px_0px_0px_var(--color-tertiary)]",
-    arrow: "text-tertiary group-hover:translate-x-1",
-    dot: "bg-tertiary",
-  },
-} as const;
 
 export default function AlgorithmCard({
   title,
   description,
-  formula,
-  slug,
-  color,
+  category,
+  index,
+  difficulty = 1,
+  active = false,
+  onClick,
 }: AlgorithmCardProps) {
-  const colors = colorMap[color];
-
   return (
-    <Link
-      href={`/algorithms/${slug}`}
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
       className={clsx(
-        "group relative flex h-full min-h-[270px] flex-col overflow-hidden border-4 border-outline bg-surface transition-all duration-200",
-        "shadow-[-4px_4px_0px_0px_var(--color-outline)] hover:-translate-y-1 hover:translate-x-1",
-        "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-        colors.glow,
+        "group flex h-full min-h-[206px] w-full flex-col border border-outline bg-surface px-5 py-5 text-left transition-colors hover:border-primary focus-visible:outline-primary sm:min-h-[220px] sm:px-6 sm:py-6",
+        active && "border-primary bg-surface-container-low",
       )}
     >
-      {/* Category accent top border */}
-      <div className={clsx("h-2 w-full", colors.topBorder)} />
+      <div className="flex items-start justify-between gap-5">
+        <span className="font-mono text-[10px] text-on-surface-variant">
+          {String((index ?? 0) + 1).padStart(2, "0")}
+        </span>
+        <span className="max-w-[52%] border border-outline bg-surface-container-high px-2 py-1 text-center font-mono text-[8px] uppercase tracking-[0.16em] text-on-surface sm:max-w-[60%]">
+          {category}
+        </span>
+      </div>
 
-      <div className="flex h-full flex-col p-6">
-        {/* Header with formula chip */}
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span
-              className={clsx("h-1.5 w-1.5 shrink-0 rounded-full", colors.dot)}
-            />
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-on-surface-variant/60">
-              Algorithm
-            </p>
-          </div>
+      <div className="flex flex-1 flex-col pt-7">
+        <h3 className="font-headline text-lg font-medium leading-snug text-on-surface group-hover:text-primary sm:text-xl">
+          {title}
+        </h3>
 
-          <div
-            className={clsx(
-              "max-w-[65%] truncate rounded-full border px-2.5 py-0.5 text-[10px] tracking-wide [&_.katex]:text-[10px]",
-              colors.formulaBg,
-              colors.formulaBorder,
-              colors.formulaText,
-            )}
-            title={formula}
-            dangerouslySetInnerHTML={{
-              __html: katex.renderToString(formula, {
-                throwOnError: false,
-                output: "html",
-              }),
-            }}
-          />
-        </div>
+        <p className="mt-3 line-clamp-3 max-w-[34rem] text-sm font-medium leading-6 text-on-surface-variant">
+          {description}
+        </p>
 
-        {/* Content */}
-        <div className="min-h-0 flex-1">
-          <h3 className="mb-3 text-balance font-headline text-[22px] font-bold leading-tight tracking-tight text-on-surface">
-            {title}
-          </h3>
-
-          <p className="text-sm leading-7 text-on-surface-variant/80 sm:text-[15px]">
-            {description}
-          </p>
-        </div>
-
-        {/* Footer CTA */}
-        <div className="mt-6 flex items-center justify-between border-t border-outline-variant/30 pt-4">
-          <p className="text-xs text-on-surface-variant/60">Intuition · Math</p>
-
-          <span
-            className={clsx(
-              "inline-flex items-center gap-1 text-sm font-semibold transition-transform duration-200",
-              colors.arrow,
-            )}
-          >
-            Explore
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 16 16"
-              fill="none"
-              className="transition-transform duration-200 group-hover:translate-x-0.5"
-            >
-              <path
-                d="M6 3L11 8L6 13"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+        <div className="mt-auto pt-6">
+          <div className="mb-3 h-px bg-outline" />
+          <div className="flex gap-1.5" aria-label={`Difficulty ${difficulty} of 3`}>
+            {[1, 2, 3].map((dot) => (
+              <span
+                key={dot}
+                className={clsx(
+                  "h-1.5 w-1.5",
+                  dot <= difficulty ? "bg-on-surface-variant" : "bg-outline",
+                )}
               />
-            </svg>
-          </span>
+            ))}
+          </div>
         </div>
       </div>
-    </Link>
+    </button>
   );
 }

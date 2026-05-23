@@ -1,240 +1,293 @@
 "use client";
 
 import Link from "next/link";
-import { motion, Variants } from "framer-motion";
-import AlgorithmCard from "@/components/ui/AlgorithmCard";
+import CurriculumExplorer from "@/components/ui/CurriculumExplorer";
 import { algorithms } from "@/data/algorithms";
-import {
-  getCategoryColor,
-  getAlgorithmIcon,
-  getFormulaPreview,
-} from "@/lib/algorithmPresentation";
-
-// Curriculum is now fully continuous over the 10 core algorithm domains
 
 const heroStats = [
-  { label: "Core Topics", value: "13" },
-  { label: "Curriculum Modules", value: `${algorithms.length}` },
-  { label: "Interactive Labs", value: "1" },
+  { label: "Modules", value: "13" },
+  { label: "Interactive Lab", value: "1" },
 ] as const;
 
-const accentBorderMap = {
-  primary:
-    "border-l-primary hover:shadow-[0_2px_16px_-4px_rgba(173,198,255,0.12)]",
-  secondary:
-    "border-l-secondary hover:shadow-[0_2px_16px_-4px_rgba(208,188,255,0.12)]",
-  tertiary:
-    "border-l-tertiary hover:shadow-[0_2px_16px_-4px_rgba(123,208,255,0.12)]",
-} as const;
-
-const accentBadgeMap = {
-  primary: "bg-primary/10 text-primary",
-  secondary: "bg-secondary/10 text-secondary",
-  tertiary: "bg-tertiary/10 text-tertiary",
-} as const;
-
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.08,
-      duration: 0.5,
-      ease: [0.22, 1, 0.36, 1],
-    },
-  }),
-};
-
-const stagger: Variants = {
-  visible: {
-    transition: {
-      staggerChildren: 0.06,
-    },
+const pillars = [
+  {
+    glyph: "∂",
+    title: "Mathematical Rigor",
+    text: "Every concept grounded in formal theory. Proofs, derivations, and precise notation throughout.",
   },
-};
+  {
+    glyph: "◎",
+    title: "Visual Intuition",
+    text: "Abstract ideas rendered geometrically. Diagrams, animations, and spatial reasoning before algebra.",
+  },
+  {
+    glyph: "⌗",
+    title: "Code-Oriented Thinking",
+    text: "Algorithms expressed as executable logic. From pseudocode to working implementations.",
+  },
+] as const;
+
+function HeroLossSurface() {
+  return (
+    <svg
+      viewBox="0 0 420 260"
+      role="img"
+      aria-label="Contour diagram showing a gradient descent path"
+      className="h-auto w-full"
+    >
+      <text x="50" y="46" className="fill-outline-dark font-mono text-[10px]">
+        L(theta)
+      </text>
+      <g transform="translate(218 130) rotate(-3)">
+        {[124, 100, 78, 58, 40, 24].map((rx) => (
+          <ellipse
+            key={rx}
+            cx="0"
+            cy="0"
+            rx={rx}
+            ry={rx * 0.42}
+            fill="none"
+            stroke="var(--color-outline)"
+            strokeWidth="1"
+          />
+        ))}
+      </g>
+      <path
+        d="M318 72 L286 98 L260 113 L236 126 L218 132"
+        fill="none"
+        stroke="var(--color-primary)"
+        strokeWidth="1.4"
+        strokeDasharray="6 7"
+      />
+      {[
+        [318, 72, 4.5],
+        [286, 98, 3],
+        [260, 113, 3],
+        [236, 126, 2.8],
+        [218, 132, 4.5],
+      ].map(([cx, cy, r], index) => (
+        <circle
+          key={`${cx}-${cy}`}
+          cx={cx}
+          cy={cy}
+          r={r}
+          fill={index === 4 ? "var(--color-background)" : "var(--color-primary)"}
+          stroke="var(--color-primary)"
+          strokeWidth="1.3"
+        />
+      ))}
+      <text x="230" y="124" className="fill-primary font-mono text-[9px]">
+        min
+      </text>
+      <text x="262" y="226" className="fill-on-surface-variant font-mono text-[9px] tracking-[0.18em]">
+        gradient descent
+      </text>
+      <text x="326" y="204" className="fill-outline-dark font-mono text-[9px]">
+        theta
+      </text>
+    </svg>
+  );
+}
+
+function NetworkDiagram() {
+  const layers = [
+    [[80, 85], [80, 205]],
+    [[205, 85], [205, 145], [205, 205]],
+    [[330, 85], [330, 145], [330, 205]],
+    [[455, 145]],
+  ];
+
+  return (
+    <svg viewBox="0 0 540 290" className="h-full min-h-[290px] w-full" aria-hidden="true">
+      {layers.slice(0, -1).flatMap((layer, layerIndex) =>
+        layer.flatMap(([x1, y1]) =>
+          layers[layerIndex + 1].map(([x2, y2], index) => (
+            <line
+              key={`${layerIndex}-${x1}-${y1}-${index}`}
+              x1={x1}
+              y1={y1}
+              x2={x2}
+              y2={y2}
+              stroke="var(--color-primary)"
+              strokeOpacity={index % 2 === 0 ? 0.42 : 0.16}
+              strokeWidth="1"
+            />
+          )),
+        ),
+      )}
+      {layers.flatMap((layer, layerIndex) =>
+        layer.map(([cx, cy], index) => (
+          <circle
+            key={`${layerIndex}-${index}`}
+            cx={cx}
+            cy={cy}
+            r={layerIndex === 3 ? 10 : 8}
+            fill="var(--color-background)"
+            stroke={layerIndex === 3 ? "var(--color-primary)" : "var(--color-outline-dark)"}
+            strokeWidth="1.5"
+          />
+        )),
+      )}
+      {["input", "hidden", "hidden", "output"].map((label, index) => (
+        <text
+          key={label + index}
+          x={layers[index][0][0]}
+          y="245"
+          textAnchor="middle"
+          className="fill-on-surface-variant font-mono text-[9px]"
+        >
+          {label}
+        </text>
+      ))}
+    </svg>
+  );
+}
 
 export default function Home() {
+  const filteredAlgorithms = algorithms.filter(
+    (a) => !a.id.includes("reinforcement") && !a.id.includes("generative"),
+  );
+
   return (
     <div className="min-h-screen">
-      {/* Hero section */}
-      <section className="relative overflow-visible px-6 py-14 sm:px-8 lg:px-12 lg:py-24">
-        <div className="relative z-10 mx-auto grid max-w-[1400px] gap-16 lg:grid-cols-[1fr_360px] lg:items-center">
-          {/* Left Column (Hero Content) */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="relative z-20 flex flex-col gap-6"
-          >
-            {/* Main Headline */}
-            <div className="flex flex-col items-start gap-4">
-              <h1 className="font-headline text-5xl font-black uppercase leading-none tracking-tight text-on-surface sm:text-6xl lg:text-7xl xl:text-8xl">
-                Understand AI,
-              </h1>
-              <div className="border-4 border-outline bg-primary px-4 py-2 shadow-[-8px_8px_0px_0px_var(--color-outline)]">
-                <span className="font-headline text-4xl font-black uppercase tracking-tight text-outline-dark sm:text-5xl lg:text-6xl">
-                  Mathematically
+      <section className="border-b border-outline px-5 py-14 sm:px-8 lg:px-12 lg:py-20">
+        <div className="mx-auto grid max-w-[1360px] gap-10 lg:grid-cols-[minmax(0,520px)_360px] xl:grid-cols-[minmax(0,560px)_400px] lg:items-center lg:justify-between">
+          <div className="flex flex-col items-start">
+            <div className="mb-7 flex items-center gap-4 font-mono text-[10px] uppercase tracking-[0.22em] text-on-surface-variant sm:text-[11px]">
+              <span className="h-px w-8 bg-outline-dark" />
+              {heroStats.map((stat) => (
+                <span key={stat.label}>
+                  {stat.value} {stat.label}
                 </span>
-              </div>
-              <div className="border-4 border-outline bg-tertiary px-4 py-2 shadow-[-8px_8px_0px_0px_var(--color-outline)]">
-                <span className="font-headline text-4xl font-black uppercase tracking-tight text-on-surface sm:text-5xl lg:text-6xl">
-                  & Intuitively
-                </span>
-              </div>
+              ))}
             </div>
-
-            <p className="mt-4 max-w-2xl font-mono text-base font-medium leading-relaxed text-[#D4D4D4] sm:text-lg">
-              Explore machine learning algorithms through concise explanations,
-              polished visual intuition, readable mathematical logic, code
-              examples, and a browser-based neural playground you can manipulate
-              yourself.
+            <h1 className="w-full max-w-full text-balance font-headline text-[2.75rem] font-medium leading-[1.04] tracking-normal text-on-surface sm:max-w-[520px] sm:text-[4.05rem] lg:text-[4rem] xl:text-[4.35rem]">
+              Understand AI, Mathematically <span className="text-on-surface-variant">& Intuitively.</span>
+            </h1>
+            <p className="mt-8 w-full max-w-full text-base font-medium leading-8 text-on-surface-variant sm:max-w-2xl sm:text-[17px]">
+              A structured curriculum that teaches machine learning through mathematical foundations, visual intuition, and code-oriented thinking from calculus through modern models.
             </p>
-
-            {/* CTA Buttons */}
-            <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
+            <div className="mt-9 flex flex-col gap-4 sm:flex-row">
               <Link
                 href="/algorithms/calculus"
-                className="inline-flex items-center justify-center border-4 border-outline-dark bg-primary px-8 py-4 font-mono text-sm font-bold uppercase tracking-wider text-outline-dark shadow-[-6px_6px_0px_0px_var(--color-outline-dark)] transition-transform hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-2px_2px_0px_0px_var(--color-outline-dark)]"
+                className="inline-flex min-h-10 items-center justify-center border border-on-surface bg-on-surface px-8 py-3 font-mono text-[11px] uppercase tracking-[0.18em] text-background hover:bg-primary"
               >
-                Start Learning
+                Begin Curriculum
               </Link>
-
-              <Link
-                href="#curriculum"
-                className="inline-flex items-center justify-center border-4 border-outline-dark bg-[#E5E5E5] px-8 py-4 font-mono text-sm font-bold uppercase tracking-wider text-outline-dark shadow-[-6px_6px_0px_0px_var(--color-outline-dark)] transition-transform hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-2px_2px_0px_0px_var(--color-outline-dark)]"
-              >
-                Explore Curriculum
-              </Link>
-
               <Link
                 href="/playground"
-                className="inline-flex items-center justify-center border-4 border-tertiary bg-transparent px-8 py-4 font-mono text-sm font-bold uppercase tracking-wider text-tertiary shadow-[-6px_6px_0px_0px_var(--color-tertiary)] transition-transform hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-2px_2px_0px_0px_var(--color-tertiary)]"
+                className="inline-flex min-h-10 items-center justify-center border border-transparent px-8 py-3 font-mono text-[11px] uppercase tracking-[0.18em] text-primary hover:border-outline"
               >
-                Open Playground
+                Open Playground →
               </Link>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Right Column (Visuals & Data Cards) */}
-          <div className="relative mt-12 lg:mt-0">
-            {/* Abstract Background Shapes */}
-            <motion.div
-              className="pointer-events-none absolute -right-16 -top-16 z-0 h-64 w-64"
-              animate={{ y: [0, -15, 0] }}
-              transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-            >
-              <svg
-                viewBox="0 0 100 100"
-                className="h-full w-full overflow-visible"
-              >
-                <polygon
-                  points="50,10 90,90 10,90"
-                  fill="var(--color-tertiary)"
-                  stroke="var(--color-outline)"
-                  strokeWidth="4"
-                  strokeLinejoin="miter"
-                />
-              </svg>
-            </motion.div>
-
-            <motion.div
-              className="pointer-events-none absolute -bottom-16 -left-16 z-0 h-56 w-56"
-              animate={{ y: [0, 15, 0] }}
-              transition={{
-                repeat: Infinity,
-                duration: 5,
-                ease: "easeInOut",
-                delay: 1,
-              }}
-            >
-              <svg
-                viewBox="0 0 100 100"
-                className="h-full w-full overflow-visible"
-              >
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  fill="var(--color-secondary)"
-                  stroke="var(--color-outline)"
-                  strokeWidth="4"
-                />
-              </svg>
-            </motion.div>
-
-            {/* Data Cards */}
-            <motion.div
-              className="relative z-10 flex flex-col gap-6 pointer-events-auto"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              {heroStats.map((stat) => (
-                <div
-                  key={stat.label}
-                  className="border-4 border-outline bg-[#2A2A2A] p-6 shadow-[-8px_8px_0px_0px_var(--color-outline)] transition-transform hover:-translate-y-1 hover:translate-x-1 hover:shadow-[-4px_4px_0px_0px_var(--color-outline)]"
-                >
-                  <div className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#D4D4D4]">
-                    {stat.label}
-                  </div>
-                  <div className="mt-2 font-headline text-5xl font-black tracking-tight text-on-surface">
-                    {stat.value}
-                  </div>
-                </div>
-              ))}
-            </motion.div>
+          <div className="hidden w-full max-w-[380px] justify-self-end lg:block">
+            <HeroLossSurface />
           </div>
         </div>
       </section>
 
-      {/* Main Complete Curriculum Grid */}
-      <section className="px-6 pb-20 pt-10 sm:px-8 lg:px-12 lg:pb-24 lg:pt-12">
-        <div className="mr-auto max-w-[1400px]">
-          <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <section id="philosophy" className="border-b border-outline bg-surface-dim px-5 py-14 sm:px-8 sm:py-16 lg:px-12">
+        <div className="mx-auto max-w-[1360px] border border-outline bg-border">
+          <div className="grid gap-px md:grid-cols-3">
+            {pillars.map((pillar) => (
+              <article key={pillar.title} className="bg-surface px-7 py-9 sm:px-9 sm:py-10">
+                <div className="mb-7 font-headline text-3xl text-outline-dark">
+                  {pillar.glyph}
+                </div>
+                <h2 className="font-headline text-xl font-medium text-on-surface">
+                  {pillar.title}
+                </h2>
+                <p className="mt-5 text-sm font-medium leading-7 text-on-surface-variant">
+                  {pillar.text}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="curriculum" className="border-b border-outline px-5 py-14 sm:px-8 sm:py-16 lg:px-12">
+        <div className="mx-auto max-w-[1360px]">
+          <div className="mb-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
             <div>
-              <p
-                className="mb-2 font-mono text-xs font-bold uppercase tracking-[0.2em] text-secondary"
-                id="curriculum"
-              >
+              <p className="mb-5 font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
                 Curriculum
               </p>
-              <h2 className="font-headline text-4xl font-black uppercase tracking-tight text-on-surface">
-                Complete Sequence
+              <h2 className="max-w-2xl font-headline text-4xl font-medium leading-tight text-on-surface sm:text-5xl">
+                Thirteen modules, one coherent arc.
               </h2>
-              <p className="mt-2 max-w-2xl font-mono text-base font-medium leading-relaxed text-[#D4D4D4]">
-                Master the full mathematical foundations sequentially across all{" "}
-                {algorithms.length} distinct rigorous learning modules.
-              </p>
             </div>
-
-            <div className="hidden border-2 border-outline bg-surface px-4 py-2 font-mono text-sm font-bold uppercase text-on-surface shadow-[-4px_4px_0px_0px_var(--color-outline)] md:inline-flex">
-              {algorithms.length} topics available
-            </div>
+            <p className="pt-8 text-sm font-medium leading-7 text-on-surface-variant lg:text-right">
+              A structured progression from mathematical foundations to modern generative models. Select any module to preview.
+            </p>
           </div>
 
-          <motion.div
-            className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
-            variants={stagger}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-40px" }}
-          >
-            {algorithms.map((algorithm, i) => (
-              <motion.div key={algorithm.id} variants={fadeUp} custom={i}>
-                <AlgorithmCard
-                  title={algorithm.title}
-                  description={algorithm.shortDescription}
-                  formula={getFormulaPreview(algorithm.mathematics)}
-                  icon={getAlgorithmIcon(algorithm.id)}
-                  slug={algorithm.id}
-                  color={getCategoryColor(algorithm.category)}
-                />
-              </motion.div>
-            ))}
-          </motion.div>
+          <CurriculumExplorer algorithms={filteredAlgorithms} />
         </div>
       </section>
+
+      <section className="bg-surface-dim px-5 py-14 sm:px-8 sm:py-16 lg:px-12">
+        <div className="mx-auto grid max-w-[1360px] gap-12 lg:grid-cols-[430px_minmax(0,1fr)] lg:items-center">
+          <div>
+            <div className="mb-9 flex items-center gap-4 font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
+              <span className="h-px w-8 bg-outline-dark" />
+              Interactive Lab
+            </div>
+            <h2 className="font-headline text-4xl font-medium leading-tight text-on-surface sm:text-5xl">
+              Neural Network Playground
+            </h2>
+            <p className="mt-8 text-base font-medium leading-8 text-on-surface-variant">
+              Draw a dataset, configure a network architecture, and train it in-browser. Watch decision boundaries form in real time as loss converges.
+            </p>
+            <ul className="mt-9 space-y-4 text-sm font-medium leading-6 text-on-surface-variant">
+              {[
+                "Live decision boundary visualisation",
+                "Configurable width, rate, and regularisation",
+                "Real-time loss and accuracy curves",
+                "Multiple classification datasets",
+              ].map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span className="font-mono text-primary">›</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <Link
+              href="/playground"
+              className="mt-10 inline-flex min-h-10 items-center justify-center border border-on-surface bg-on-surface px-8 py-3 font-mono text-[11px] uppercase tracking-[0.18em] text-background hover:bg-primary"
+            >
+              Open Playground →
+            </Link>
+          </div>
+          <div>
+            <NetworkDiagram />
+            <div className="grid grid-cols-3 border-t border-outline text-center">
+              {[
+                ["Layers", "2 hidden"],
+                ["Neurons", "4 / layer"],
+                ["Activation", "tanh"],
+              ].map(([label, value]) => (
+                <div key={label} className="border-r border-outline px-4 py-5 last:border-r-0">
+                  <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">
+                    {label}
+                  </p>
+                  <p className="mt-2 font-mono text-sm text-on-surface">{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t border-outline px-5 py-8 sm:px-8 lg:px-12">
+        <div className="mx-auto flex max-w-[1360px] flex-col gap-4 font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant sm:flex-row sm:items-center sm:justify-between">
+          <p>ML Learn · The Digital Observatory</p>
+          <p>© 2026 Suranjan Poudel</p>
+        </div>
+      </footer>
     </div>
   );
 }

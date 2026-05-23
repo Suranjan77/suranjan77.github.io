@@ -11,7 +11,13 @@ export type AlgorithmCategory =
   | "Ensemble Learning"
   | "Dimensionality Reduction"
   | "Markov Chain Monte Carlo"
-  | "Neural Networks / Deep Learning";
+  | "Neural Networks / Deep Learning"
+  | "Convolutional Neural Networks"
+  | "Computer Vision"
+  | "Natural Language Processing"
+  | "Autoencoders"
+  | "Transformers"
+  | "Large Language Models";
 
 export interface Algorithm {
   id: string;

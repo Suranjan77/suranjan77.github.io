@@ -13,7 +13,7 @@ The real world is messy. The data we feed into machine learning models is almost
 
 ### Beyond Absolute Certainty
 
-Probability lets algorithms measure their own uncertainty. Instead of giving a single, rigid answer (like "This house is worth exactly $400,000"), statistical machine learning gives a probabilistic forecast: "I'm 95% sure this house is worth between $380,000 and $420,000, assuming the housing market behaves normally."
+Probability lets algorithms measure their own uncertainty. Instead of giving a single, rigid answer (like "This house is worth exactly USD 400,000"), statistical machine learning gives a probabilistic forecast: "I am 95 percent sure this house is worth between USD 380,000 and USD 420,000, assuming the housing market behaves normally."
 
 This isn't just a nice feature added on top of AI—**many of the most important machine learning models are built entirely out of probability math.** 
 
