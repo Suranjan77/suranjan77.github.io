@@ -16,6 +16,32 @@ const guidelines = [
   ["04", "Analyse the Output", "Read loss, accuracy, and weight magnitude together. The contour marks the region where the model is uncertain."],
 ] as const;
 
+const architectureMath = String.raw`
+$$
+\begin{aligned}
+\text{Hidden:}\quad
+\mathbf{z} &= \mathbf{W}_1\mathbf{x} + \mathbf{b}_1 \\
+\mathbf{a} &= \tanh(\mathbf{z}) \\
+\text{Output:}\quad
+\hat{y} &= \sigma(\mathbf{w}_2^T\mathbf{a} + b_2)
+\end{aligned}
+$$
+`;
+
+const trainingLoopMath = String.raw`
+$$
+\begin{aligned}
+\mathcal{L}
+&= -\frac{1}{n}\sum_{i=1}^{n}
+\left[
+y_i\log(\hat{y}_i)
++ (1-y_i)\log(1-\hat{y}_i)
+\right] \\
+&\quad + \frac{\lambda}{2n}\lVert\mathbf{w}\rVert_2^2
+\end{aligned}
+$$
+`;
+
 export default function PlaygroundPage() {
   return (
     <div className="min-h-screen">
@@ -108,7 +134,7 @@ export default function PlaygroundPage() {
               The simulator runs a single-hidden-layer perceptron. Inputs are normalized canvas coordinates, hidden units use tanh, and the output sigmoid represents the probability of Class B.
             </p>
             <div className="crop-marks relative mt-6 border border-outline bg-surface-container-lowest px-4 py-4">
-              <LogicContent content="$$ \\text{Hidden: } \\mathbf{z} = \\mathbf{W}_1\\mathbf{x} + \\mathbf{b}_1, \\quad \\mathbf{a} = \\tanh(\\mathbf{z}) $$ $$ \\text{Output: } \\hat{y} = \\sigma(\\mathbf{w}_2^T\\mathbf{a} + b_2) $$" size="sm" />
+              <LogicContent content={architectureMath} size="sm" />
             </div>
           </article>
 
@@ -118,7 +144,7 @@ export default function PlaygroundPage() {
               Each training step performs full-batch gradient descent against binary cross-entropy and adds L2 regularisation to discourage unnecessarily large weights.
             </p>
             <div className="crop-marks relative mt-6 border border-outline bg-surface-container-lowest px-4 py-4">
-              <LogicContent content="$$ \\mathcal{L} = -\\frac{1}{n} \\sum_{i=1}^n \\left[ y_i \\log(\\hat{y}_i) + (1 - y_i) \\log(1 - \\hat{y}_i) \\right] + \\frac{\\lambda}{2n} \\|\\mathbf{w}\\|_2^2 $$" size="sm" />
+              <LogicContent content={trainingLoopMath} size="sm" />
             </div>
           </article>
         </div>

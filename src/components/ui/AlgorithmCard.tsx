@@ -10,6 +10,7 @@ interface AlgorithmCardProps {
   difficulty?: 1 | 2 | 3;
   active?: boolean;
   onClick?: () => void;
+  id?: string;
 }
 
 export default function AlgorithmCard({
@@ -20,9 +21,11 @@ export default function AlgorithmCard({
   difficulty = 1,
   active = false,
   onClick,
+  id,
 }: AlgorithmCardProps) {
   return (
     <button
+      id={id}
       type="button"
       onClick={onClick}
       aria-pressed={active}

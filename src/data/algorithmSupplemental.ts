@@ -23,6 +23,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
         title: "Calculus",
         source: "Spivak, M. (2008) Calculus. 4th edn. Houston, TX: Publish or Perish."
       }
+,
+      {
+        title: "Mathematics for Machine Learning",
+        source: "Deisenroth, M. P., Faisal, A. A. and Ong, C. S. (2020) Mathematics for Machine Learning. Cambridge: Cambridge University Press."
+      }
     ]
   },
   "linear-algebra": {
@@ -39,6 +44,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
         title: "Introduction to Linear Algebra",
         source: "Strang, G. (2016) Introduction to Linear Algebra. 5th edn. Wellesley, MA: Wellesley-Cambridge Press."
       }
+,
+      {
+        title: "Linear Algebra and Learning from Data",
+        source: "Strang, G. (2019) Linear Algebra and Learning from Data. Wellesley, MA: Wellesley-Cambridge Press."
+      }
     ]
   },
   "probability-theory": {
@@ -54,6 +64,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
       {
         title: "Probability and Computing",
         source: "Mitzenmacher, M. and Upfal, E. (2017) Probability and Computing: Randomization and Probabilistic Techniques in Algorithms and Data Analysis. 2nd edn. Cambridge: Cambridge University Press."
+      }
+,
+      {
+        title: "Probabilistic Machine Learning: An Introduction",
+        source: "Murphy, K. P. (2022) Probabilistic Machine Learning: An Introduction. Cambridge, MA: MIT Press."
       }
     ]
   },
@@ -76,6 +91,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
         title: "On the Mathematical Foundations of Theoretical Statistics",
         source: "Fisher, R. A. (1922) 'On the mathematical foundations of theoretical statistics', Philosophical Transactions of the Royal Society of London. Series A, 222(594-604), pp. 309-368."
       }
+,
+      {
+        title: "Computer Age Statistical Inference",
+        source: "Efron, B. and Hastie, T. (2016) Computer Age Statistical Inference. Cambridge: Cambridge University Press."
+      }
     ]
   },
   "bayesian-inference": {
@@ -92,6 +112,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
       {
         title: "Bayesian Data Analysis",
         source: "Gelman, A., Carlin, J.B., Stern, H.S., Dunson, D.B., Vehtari, A. and Rubin, D.B. (2013) Bayesian Data Analysis. 3rd edn. Boca Raton, FL: CRC Press."
+      }
+,
+      {
+        title: "Statistical Rethinking",
+        source: "McElreath, R. (2020) Statistical Rethinking: A Bayesian Course with Examples in R and Stan. 2nd edn. Boca Raton, FL: CRC Press."
       }
     ]
   },
@@ -110,6 +135,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
         title: "Elements of Statistical Learning",
         source: "Hastie, T., Tibshirani, R. and Friedman, J. (2009) The Elements of Statistical Learning: Data Mining, Inference, and Prediction. 2nd edn. New York: Springer."
       }
+,
+      {
+        title: "An Introduction to Statistical Learning",
+        source: "James, G., Witten, D., Hastie, T. and Tibshirani, R. (2021) An Introduction to Statistical Learning: with Applications in R. 2nd edn. New York: Springer."
+      }
     ]
   },
   "instance-based-trees": {
@@ -125,6 +155,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
       {
         title: "Classification and Regression Trees",
         source: "Breiman, L., Friedman, J., Stone, C.J. and Olshen, R.A. (1984) Classification and Regression Trees. Belmont, CA: Wadsworth International Group."
+      }
+,
+      {
+        title: "Machine Learning with Random Forests and Decision Trees",
+        source: "Scott, S. (2021) Machine Learning with Random Forests and Decision Trees: A Visual Guide for Beginners. Independently published."
       }
     ]
   },
@@ -142,6 +177,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
         title: "Pattern Recognition and Machine Learning",
         source: "Bishop, C. M. (2006) Pattern Recognition and Machine Learning. New York: Springer."
       }
+,
+      {
+        title: "Data Clustering: Algorithms and Applications",
+        source: "Aggarwal, C. C. and Reddy, C. K. (2013) Data Clustering: Algorithms and Applications. Boca Raton, FL: CRC Press."
+      }
     ]
   },
   "support-vector-machines": {
@@ -157,6 +197,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
       {
         title: "A Training Algorithm for Optimal Margin Classifiers",
         source: "Boser, B.E., Guyon, I.M. and Vapnik, V.N. (1992) 'A training algorithm for optimal margin classifiers', in Proceedings of the fifth annual workshop on Computational learning theory. Pittsburgh, Pennsylvania: ACM, pp. 144-152."
+      }
+,
+      {
+        title: "Understanding Machine Learning: From Theory to Algorithms",
+        source: "Shalev-Shwartz, S. and Ben-David, S. (2014) Understanding Machine Learning: From Theory to Algorithms. Cambridge: Cambridge University Press."
       }
     ]
   },
@@ -174,6 +219,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
         title: "Gradient Boosting Machine",
         source: "Friedman, J.H. (2001) 'Greedy function approximation: a gradient boosting machine', Annals of Statistics, 29(5), pp. 1189-1232."
       }
+,
+      {
+        title: "Ensemble Methods: Foundations and Algorithms",
+        source: "Zhou, Z.-H. (2012) Ensemble Methods: Foundations and Algorithms. Boca Raton, FL: CRC Press."
+      }
     ]
   },
   "dimensionality-reduction": {
@@ -189,6 +239,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
       {
         title: "Principal Component Analysis",
         source: "Jolliffe, I.T. (2002) Principal Component Analysis. 2nd edn. New York: Springer."
+      }
+,
+      {
+        title: "UMAP: Uniform Manifold Approximation and Projection",
+        source: "McInnes, L., Healy, J. and Melville, J. (2018) 'UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction', arXiv preprint arXiv:1802.03426."
       }
     ]
   },
@@ -206,6 +261,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
         title: "Markov Chain Monte Carlo in Practice",
         source: "Gilks, W.R., Richardson, S. and Spiegelhalter, D. (1996) Markov Chain Monte Carlo in Practice. Boca Raton, FL: Chapman and Hall/CRC."
       }
+,
+      {
+        title: "Handbook of Markov Chain Monte Carlo",
+        source: "Brooks, S., Gelman, A., Jones, G. L. and Meng, X.-L. (eds) (2011) Handbook of Markov Chain Monte Carlo. Boca Raton, FL: CRC Press."
+      }
     ]
   },
   "neural-networks": {
@@ -221,6 +281,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
       {
         title: "Deep Learning",
         source: "Goodfellow, I., Bengio, Y. and Courville, A. (2016) Deep Learning. Cambridge, MA: MIT Press."
+      }
+,
+      {
+        title: "Dive into Deep Learning",
+        source: "Zhang, A., Lipton, Z. C., Li, M. and Smola, A. J. (2023) Dive into Deep Learning. Cambridge: Cambridge University Press."
       }
     ]
   },
@@ -238,6 +303,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
         title: "Gradient-Based Learning Applied to Document Recognition",
         source: "LeCun, Y., Bottou, L., Bengio, Y. and Haffner, P. (1998) 'Gradient-based learning applied to document recognition', Proceedings of the IEEE, 86(11), pp. 2278-2324."
       }
+,
+      {
+        title: "Deep Learning for Vision Systems",
+        source: "Elgendy, M. (2020) Deep Learning for Vision Systems. Shelter Island, NY: Manning Publications."
+      }
     ]
   },
   "computer-vision": {
@@ -253,6 +323,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
       {
         title: "You Only Look Once: Unified, Real-Time Object Detection",
         source: "Redmon, J., Divvala, S., Girshick, R. and Farhadi, A. (2016) 'You only look once: Unified, real-time object detection', in IEEE Conference on Computer Vision and Pattern Recognition (CVPR)."
+      }
+,
+      {
+        title: "Computer Vision: Algorithms and Applications",
+        source: "Szeliski, R. (2022) Computer Vision: Algorithms and Applications. 2nd edn. New York: Springer."
       }
     ]
   },
@@ -270,6 +345,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
         title: "Speech and Language Processing",
         source: "Jurafsky, D. and Martin, J. H. (2023) Speech and Language Processing. 3rd edn. Draft available online."
       }
+,
+      {
+        title: "Natural Language Processing with Transformers",
+        source: "Tunstall, L., von Werra, L. and Wolf, T. (2022) Natural Language Processing with Transformers. Sebastopol, CA: O'Reilly Media."
+      }
     ]
   },
   "autoencoders": {
@@ -285,6 +365,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
       {
         title: "Reducing the Dimensionality of Data with Neural Networks",
         source: "Hinton, G. E. and Salakhutdinov, R. R. (2006) 'Reducing the dimensionality of data with neural networks', Science, 313(5786), pp. 504-507."
+      }
+,
+      {
+        title: "Representation Learning: A Review and New Perspectives",
+        source: "Bengio, Y., Courville, A. and Vincent, P. (2013) 'Representation learning: a review and new perspectives', IEEE Transactions on Pattern Analysis and Machine Intelligence, 35(8), pp. 1798-1828."
       }
     ]
   },
@@ -302,6 +387,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
         title: "Attention Is All You Need",
         source: "Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A.N., Kaiser, L. and Polosukhin, I. (2017) 'Attention is all you need', in Advances in Neural Information Processing Systems (NeurIPS), pp. 5998-6008."
       }
+,
+      {
+        title: "Formal Algorithms for Transformers",
+        source: "Phuong, M. and Kraus, D. (2022) 'Formal Algorithms for Transformers', arXiv preprint arXiv:2207.09238."
+      }
     ]
   },
   "llms": {
@@ -317,6 +407,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
       {
         title: "Language Models are Few-Shot Learners",
         source: "Brown, T. B. et al. (2020) 'Language models are few-shot learners', in Advances in Neural Information Processing Systems (NeurIPS)."
+      }
+,
+      {
+        title: "Sparks of Artificial General Intelligence: Early experiments with GPT-4",
+        source: "Bubeck, S. et al. (2023) 'Sparks of Artificial General Intelligence: Early experiments with GPT-4', arXiv preprint arXiv:2303.12712."
       }
     ]
   },
@@ -334,6 +429,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
         title: "Reinforcement Learning: An Introduction",
         source: "Sutton, R. S. and Barto, A. G. (2018) Reinforcement Learning: An Introduction. 2nd edn. Cambridge, MA: MIT Press."
       }
+,
+      {
+        title: "Deep Reinforcement Learning Hands-On",
+        source: "Lapan, M. (2020) Deep Reinforcement Learning Hands-On. 2nd edn. Birmingham: Packt Publishing."
+      }
     ]
   },
   "bias-variance": {
@@ -349,6 +449,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
       {
         title: "The Elements of Statistical Learning",
         source: "Hastie, T., Tibshirani, R. and Friedman, J. (2009) The Elements of Statistical Learning. 2nd edn. New York: Springer."
+      }
+,
+      {
+        title: "Machine Learning Yearning",
+        source: "Ng, A. (2018) Machine Learning Yearning. Draft available online."
       }
     ]
   },
@@ -366,6 +471,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
         title: "Generative Adversarial Nets",
         source: "Goodfellow, I. et al. (2014) 'Generative adversarial nets', in Advances in Neural Information Processing Systems (NeurIPS), pp. 2672-2680."
       }
+,
+      {
+        title: "Generative Deep Learning",
+        source: "Foster, D. (2023) Generative Deep Learning: Teaching Machines to Paint, Write, Compose, and Play. 2nd edn. Sebastopol, CA: O'Reilly Media."
+      }
     ]
   },
   "regularization": {
@@ -382,6 +492,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
         title: "Regression Shrinkage and Selection via the Lasso",
         source: "Tibshirani, R. (1996) 'Regression shrinkage and selection via the lasso', Journal of the Royal Statistical Society: Series B (Methodological), 58(1), pp. 267-288."
       }
+,
+      {
+        title: "Statistical Learning with Sparsity",
+        source: "Hastie, T., Tibshirani, R. and Wainwright, M. (2015) Statistical Learning with Sparsity: The Lasso and Generalizations. Boca Raton, FL: CRC Press."
+      }
     ]
   },
   "evaluation-metrics": {
@@ -397,6 +512,11 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
       {
         title: "Introduction to ROC Analysis",
         source: "Fawcett, T. (2006) 'An introduction to ROC analysis', Pattern Recognition Letters, 27(8), pp. 861-874."
+      }
+,
+      {
+        title: "Evaluating Machine Learning Models",
+        source: "Zheng, A. (2015) Evaluating Machine Learning Models. Sebastopol, CA: O'Reilly Media."
       }
     ]
   }

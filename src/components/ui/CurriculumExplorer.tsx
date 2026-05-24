@@ -207,6 +207,21 @@ export default function CurriculumExplorer({ algorithms }: CurriculumExplorerPro
   const [selectedId, setSelectedId] = useState(algorithms[0]?.id ?? "");
   const rows = useMemo(() => chunkAlgorithms(algorithms, columns), [algorithms, columns]);
 
+  const handleSelect = (algoId: string) => {
+    const isOpening = selectedId !== algoId;
+    setSelectedId(isOpening ? algoId : "");
+    
+    if (isOpening) {
+      setTimeout(() => {
+        const el = document.getElementById(`card-${algoId}`);
+        if (el) {
+          const y = el.getBoundingClientRect().top + window.scrollY - 100;
+          window.scrollTo({ top: y, behavior: "smooth" });
+        }
+      }, 100);
+    }
+  };
+
   return (
     <div className="space-y-px">
       {rows.map((row) => {
@@ -218,13 +233,14 @@ export default function CurriculumExplorer({ algorithms }: CurriculumExplorerPro
               {row.map((algo) => (
                 <AlgorithmCard
                   key={algo.id}
+                  id={`card-${algo.id}`}
                   index={algorithms.findIndex((item) => item.id === algo.id)}
                   title={algo.title}
                   description={algo.shortDescription}
                   category={foundationCategories.has(algo.category) ? "Foundation" : deepCategories.has(algo.category) ? "Advanced" : "Method"}
                   difficulty={getDifficulty(algo.category)}
                   active={selectedId === algo.id}
-                  onClick={() => setSelectedId((current) => current === algo.id ? "" : algo.id)}
+                  onClick={() => handleSelect(algo.id)}
                 />
               ))}
             </div>
