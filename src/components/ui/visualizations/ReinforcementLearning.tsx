@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   COLORS,
   ControlPanel,
@@ -63,8 +63,8 @@ export default function ReinforcementLearningVisualization() {
 
   // Execute one step of Q-learning
   const stepAgent = useCallback(() => {
-    let currentR = agentPos.r;
-    let currentC = agentPos.c;
+    const currentR = agentPos.r;
+    const currentC = agentPos.c;
 
     // Check if agent is currently on goal or trap -> reset
     if (grid[currentR][currentC] === "goal" || grid[currentR][currentC] === "trap") {
@@ -119,7 +119,8 @@ export default function ReinforcementLearningVisualization() {
     // Q-value Update equation
     // Q(s,a) = Q(s,a) + alpha * (reward + gamma * max_a' Q(s', a') - Q(s,a))
     const nextQs = qTable[nextR][nextC];
-    const maxNextQ = Math.max(nextQs.up, nextQs.right, nextQs.down, nextQs.left);
+    const isTerminal = nextType === "goal" || nextType === "trap";
+    const maxNextQ = isTerminal ? 0 : Math.max(nextQs.up, nextQs.right, nextQs.down, nextQs.left);
     const currentQ = qTable[currentR][currentC][chosenAction];
 
     const updatedQ = currentQ + alpha * (reward + gamma * maxNextQ - currentQ);
@@ -325,12 +326,13 @@ export default function ReinforcementLearningVisualization() {
         return copy;
       });
 
-      // Clear Q-table cell values to reset learning context
-      setQTable((prev) => {
-        const copy = prev.map((row) => row.map((qs) => ({ ...qs })));
-        copy[clickR][clickC] = { up: 0, right: 0, down: 0, left: 0 };
-        return copy;
-      });
+      setQTable(
+        Array.from({ length: GRID_SIZE }, () =>
+          Array.from({ length: GRID_SIZE }, () => ({ up: 0, right: 0, down: 0, left: 0 }))
+        )
+      );
+      setEpisodes(0);
+      setSteps(0);
     }
   };
 
@@ -370,8 +372,8 @@ export default function ReinforcementLearningVisualization() {
             onClick={handlePlotClick}
             className="h-full w-full cursor-pointer"
           />
-          <div className="absolute right-6 bottom-6 border border-outline/30 bg-surface/80 px-2 py-1 font-mono text-[8px] uppercase tracking-wide text-on-surface-variant rounded-xs select-none">
-            [Click cells to toggle grid properties]
+          <div className="absolute right-4 bottom-4 max-w-[210px] border border-outline/30 bg-surface/90 px-2.5 py-1.5 font-mono text-[11px] uppercase tracking-wide text-on-surface-variant rounded-xs select-none sm:right-6 sm:bottom-6 sm:max-w-none sm:px-2 sm:py-1 sm:text-[8px]">
+            Click cells to toggle grid properties
           </div>
         </PlotFrame>
 
@@ -379,7 +381,7 @@ export default function ReinforcementLearningVisualization() {
           <div className="flex gap-2">
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className={`flex-1 border px-3 py-2 rounded text-[9px] font-bold uppercase transition-all cursor-pointer ${
+              className={`flex-1 border px-3 py-2.5 rounded text-xs font-bold uppercase transition-all cursor-pointer sm:py-2 sm:text-[9px] ${
                 isPlaying
                   ? "bg-pink text-on-primary border-pink hover:bg-pink/90"
                   : "bg-primary text-on-primary border-primary hover:bg-primary/90"
@@ -390,13 +392,13 @@ export default function ReinforcementLearningVisualization() {
             <button
               onClick={stepAgent}
               disabled={isPlaying}
-              className="flex-1 border border-outline rounded bg-surface text-on-surface px-3 py-2 font-mono text-[10px] font-bold uppercase hover:bg-primary/10 active:scale-[0.98] disabled:opacity-40 transition-all cursor-pointer text-center"
+              className="flex-1 border border-outline rounded bg-surface text-on-surface px-3 py-2.5 font-mono text-xs font-bold uppercase hover:bg-primary/10 active:scale-[0.98] disabled:opacity-40 transition-all cursor-pointer text-center sm:py-2 sm:text-[10px]"
             >
               Manual Step
             </button>
           </div>
 
-          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-[11px] text-on-surface">
+          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-xs text-on-surface sm:text-[11px]">
             <div className="flex justify-between font-bold uppercase tracking-wide text-primary">
               <span>Exploration Rate (ε)</span>
               <span className="text-pink font-bold">{(epsilon * 100).toFixed(0)}%</span>
@@ -412,7 +414,7 @@ export default function ReinforcementLearningVisualization() {
             />
           </div>
 
-          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-[11px] text-on-surface">
+          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-xs text-on-surface sm:text-[11px]">
             <div className="flex justify-between font-bold uppercase tracking-wide text-primary">
               <span>Learning Rate (α)</span>
               <span className="text-pink font-bold">{alpha.toFixed(2)}</span>
@@ -428,7 +430,7 @@ export default function ReinforcementLearningVisualization() {
             />
           </div>
 
-          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-[11px] text-on-surface">
+          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-xs text-on-surface sm:text-[11px]">
             <div className="flex justify-between font-bold uppercase tracking-wide text-primary">
               <span>Discount Factor (γ)</span>
               <span className="text-pink font-bold">{gamma.toFixed(2)}</span>
@@ -446,7 +448,7 @@ export default function ReinforcementLearningVisualization() {
 
           <button
             onClick={handleReset}
-            className="border border-outline rounded bg-surface-container text-on-surface px-3 py-2 font-mono text-[10px] font-bold uppercase hover:bg-primary/10 active:scale-[0.98] transition-all cursor-pointer text-center"
+            className="border border-outline rounded bg-surface-container text-on-surface px-3 py-2.5 font-mono text-xs font-bold uppercase hover:bg-primary/10 active:scale-[0.98] transition-all cursor-pointer text-center sm:py-2 sm:text-[10px]"
           >
             Reset Grid & Q-Table
           </button>

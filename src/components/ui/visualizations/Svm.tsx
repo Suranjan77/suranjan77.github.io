@@ -213,13 +213,13 @@ export default function SvmVisualization() {
     return solveLinearSVM(points, C);
   }, [points, C]);
 
-  // Calculate actual margin size 1 / ||w||
-  const marginSize = useMemo(() => {
+  // Calculate full distance between the two margin lines: 2 / ||w||
+  const marginWidth = useMemo(() => {
     if (!svmSolveResult) return 0;
     const { w } = svmSolveResult;
     const normSq = w[0] * w[0] + w[1] * w[1];
     if (normSq < 1e-8) return 0;
-    return 1 / Math.sqrt(normSq);
+    return 2 / Math.sqrt(normSq);
   }, [svmSolveResult]);
 
   const onDraw = useCallback(
@@ -359,19 +359,19 @@ export default function SvmVisualization() {
             onClick={handlePlotClick}
             className="h-full w-full cursor-crosshair"
           />
-          <div className="absolute right-6 bottom-6 border border-outline/30 bg-surface/80 px-2 py-1 font-mono text-[8px] uppercase tracking-wide text-on-surface-variant rounded-xs select-none">
-            [Click plot space to place observations]
+          <div className="absolute right-4 bottom-4 max-w-[210px] border border-outline/30 bg-surface/90 px-2.5 py-1.5 font-mono text-[11px] uppercase tracking-wide text-on-surface-variant rounded-xs select-none sm:right-6 sm:bottom-6 sm:max-w-none sm:px-2 sm:py-1 sm:text-[8px]">
+            Click plot space to place observations
           </div>
 
-          <div className="absolute left-14 top-8 border border-outline bg-surface/90 px-3 py-1.5 font-mono text-[10px] uppercase tracking-wide text-primary shadow-sm rounded-sm backdrop-blur-xs flex flex-col gap-0.5">
+          <div className="absolute left-4 top-4 border border-outline bg-surface/90 px-3 py-2 font-mono text-[11px] uppercase tracking-wide text-primary shadow-sm rounded-sm backdrop-blur-xs flex flex-col gap-0.5 sm:left-14 sm:top-8 sm:text-[10px]">
             <div>
-              Optimal Gutter Width (d):{" "}
+              Full Margin Width:{" "}
               <span className="font-bold text-pink">
-                {marginSize > 0 ? marginSize.toFixed(3) : "No boundary"}
+                {marginWidth > 0 ? marginWidth.toFixed(3) : "No boundary"}
               </span>
             </div>
             {!svmSolveResult && (
-              <div className="text-[8px] text-error font-bold tracking-tight lowercase">
+              <div className="text-[11px] text-error font-bold tracking-tight lowercase sm:text-[8px]">
                 * Place both classes to solve boundary
               </div>
             )}
@@ -379,12 +379,12 @@ export default function SvmVisualization() {
         </PlotFrame>
 
         <ControlPanel className="flex flex-col gap-3">
-          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-[11px] text-on-surface">
+          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-xs text-on-surface sm:text-[11px]">
             <span className="font-bold uppercase tracking-wide text-primary">Class Placement</span>
             <div className="flex gap-2 mt-1">
               <button
                 onClick={() => setActiveLabel("A")}
-                className={`flex-1 border px-3 py-2 rounded text-[9px] font-bold uppercase transition-all cursor-pointer ${
+                className={`flex-1 border px-3 py-2.5 rounded text-xs font-bold uppercase transition-all cursor-pointer sm:py-2 sm:text-[9px] ${
                   activeLabel === "A" ? "bg-cyan text-on-primary border-cyan" : "bg-surface hover:bg-cyan/10"
                 }`}
               >
@@ -392,7 +392,7 @@ export default function SvmVisualization() {
               </button>
               <button
                 onClick={() => setActiveLabel("B")}
-                className={`flex-1 border px-3 py-2 rounded text-[9px] font-bold uppercase transition-all cursor-pointer ${
+                className={`flex-1 border px-3 py-2.5 rounded text-xs font-bold uppercase transition-all cursor-pointer sm:py-2 sm:text-[9px] ${
                   activeLabel === "B" ? "bg-pink text-on-primary border-pink" : "bg-surface hover:bg-pink/10"
                 }`}
               >
@@ -401,12 +401,12 @@ export default function SvmVisualization() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-[11px] text-on-surface">
+          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-xs text-on-surface sm:text-[11px]">
             <div className="flex justify-between font-bold uppercase tracking-wide text-primary">
               <span>Penalty Cost (C)</span>
               <span className="text-pink font-bold">{C}</span>
             </div>
-            <p className="text-[9px] text-on-surface-variant leading-relaxed font-normal">
+            <p className="text-xs text-on-surface-variant leading-relaxed font-normal sm:text-[9px]">
               Lower C increases margin width (tolerating classification errors). Higher C enforces strict separation boundaries.
             </p>
             <input
@@ -423,13 +423,13 @@ export default function SvmVisualization() {
           <div className="flex gap-2">
             <button
               onClick={handleReset}
-              className="flex-1 border border-outline rounded bg-surface-container text-on-surface px-3 py-2 font-mono text-[10px] font-bold uppercase hover:bg-primary/10 active:scale-[0.98] transition-all cursor-pointer text-center"
+              className="flex-1 border border-outline rounded bg-surface-container text-on-surface px-3 py-2.5 font-mono text-xs font-bold uppercase hover:bg-primary/10 active:scale-[0.98] transition-all cursor-pointer text-center sm:py-2 sm:text-[10px]"
             >
               Reset Default
             </button>
             <button
               onClick={handleClear}
-              className="flex-1 border border-outline rounded bg-surface-container text-on-surface px-3 py-2 font-mono text-[10px] font-bold uppercase hover:bg-error/10 hover:text-error hover:border-error/40 active:scale-[0.98] transition-all cursor-pointer text-center"
+              className="flex-1 border border-outline rounded bg-surface-container text-on-surface px-3 py-2.5 font-mono text-xs font-bold uppercase hover:bg-error/10 hover:text-error hover:border-error/40 active:scale-[0.98] transition-all cursor-pointer text-center sm:py-2 sm:text-[10px]"
             >
               Clear Space
             </button>

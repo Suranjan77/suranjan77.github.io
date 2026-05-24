@@ -7,7 +7,7 @@ export const biasVariance: Algorithm = {
   shortDescription: "Balancing model complexity to minimize error from high bias (underfitting) and high variance (overfitting).",
 
   fullDescription: `
-The Bias-Variance Tradeoff is a core diagnostic framework in statistical machine learning. It decomposes the expected generalization error of any predictive model into three components: Bias, Variance, and Irreducible Noise.
+The bias-variance tradeoff explains why model capacity matters. Expected prediction error can be viewed as a combination of bias, variance, and irreducible noise.
 
 - **Bias**: Error introduced by approximating a complex real-world process with a simple model (e.g. fitting a straight line to quadratic data). High bias leads to **underfitting**.
 - **Variance**: Error introduced by the model's sensitivity to small fluctuations in the training dataset. High variance leads to **overfitting**, where the model learns the noise rather than the signal.
@@ -21,7 +21,7 @@ Imagine a target board at an archery range:
 3. **Low Bias, High Variance**: Arrows are spread widely across the entire board, but their average center is close to the bullseye. (Overfitting: highly inconsistent, chasing individual training noise).
 4. **High Bias, High Variance**: Arrows are scattered and completely off target. (The worst case).
 
-As model capacity (e.g., polynomial degree, network size) increases, training error drops monotonically, but validation/generalization error forms a U-shape, reaching its lowest point at the optimal tradeoff.
+As model capacity increases, training error usually falls. Validation error often falls at first, then rises when the model starts fitting noise. The best model is usually near the bottom of that validation curve.
   `,
 
   mathematics: `
@@ -47,14 +47,14 @@ $$ \\text{Variance}\\left[\\hat{f}(x)\\right] = E\\left[\\left(\\hat{f}(x) - E\\
 
   pros: [
     "Provides a clear diagnostic roadmap for improving models (e.g., add features if bias is high; add data/regularization if variance is high).",
-    "Establishes a theoretical limit on accuracy (the noise floor $\\sigma^2$).",
-    "Informs feature engineering and selection criteria."
+    "Separates avoidable modeling error from the irreducible noise floor $\\sigma^2$.",
+    "Guides feature selection, model capacity decisions, and validation strategy."
   ],
 
   cons: [
     "In practice, computing exact bias and variance terms is impossible because the true underlying distribution $f(x)$ is unknown.",
     "Modern deep learning exhibits a 'double descent' phenomenon where extremely overparameterized models bypass the classical tradeoff and generalize well.",
-    "Does not give direct recipes for hyperparameters; requires cross-validation search."
+    "Does not choose hyperparameters directly; validation or cross-validation is still required."
   ],
 
   codeSnippet: `import numpy as np

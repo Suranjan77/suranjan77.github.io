@@ -7,20 +7,20 @@ export const generativeModels: Algorithm = {
   shortDescription: "Training a generator and a discriminator in a minimax game to generate highly realistic, synthetic data.",
 
   fullDescription: `
-Generative Adversarial Networks (GANs) are a class of deep generative models where two neural networks—the Generator ($G$) and the Discriminator ($D$)—are trained simultaneously in a zero-sum, adversarial game.
+Generative Adversarial Networks (GANs) are generative models trained through a two-player game between a generator ($G$) and a discriminator ($D$).
 
-- **The Generator ($G$)**: Learns to map random vectors from a latent space (noise prior $p_z$) to synthetic data samples, attempting to mimic the true data distribution $p_{data}$.
-- **The Discriminator ($D$)**: Learns to classify input samples as either "real" (originating from the training dataset) or "fake" (produced by the Generator).
+- **The Generator ($G$)** maps random latent vectors from $p_z$ into synthetic samples.
+- **The Discriminator ($D$)** estimates whether a sample came from the real data distribution $p_{data}$ or from the generator.
   `,
 
   intuition: `
-Think of the interaction as a game between a money counterfeiter (the Generator) and a bank teller / detective (the Discriminator):
+Think of the interaction as a game between a counterfeiter and an inspector:
 
 1. **Initial Phase**: The counterfeiter makes highly unconvincing copies (random noise). The detective easily spots them.
 2. **Adversarial Feedback**: The counterfeiter receives feedback (their fakes were rejected) and improves their paper and printing methods. The detective also learns to spot newer, more subtle flaws.
 3. **Equilibrium**: Eventually, the counterfeiter makes flawless bills that are indistinguishable from real currency. The detective has to guess randomly (50% accuracy).
 
-In machine learning, this Nash Equilibrium means the Generator has perfectly captured the real data distribution.
+In the ideal equilibrium, generated samples are indistinguishable from real samples, so the discriminator can do no better than guessing. In practice, GANs rarely reach that ideal exactly.
   `,
 
   mathematics: `
@@ -49,7 +49,7 @@ In practice, training alternates between:
 
   cons: [
     "Extremely unstable to train; prone to **Mode Collapse** where the generator outputs identical patterns repeatedly.",
-    "No explicit evaluation metric; checking sample quality relies on visual inspection or indicators like FID score.",
+    "Evaluation is indirect; sample quality is often assessed with proxy metrics such as FID or by downstream performance.",
     "Non-convergence: gradient descent can oscillate in parameter loops instead of reaching Nash Equilibrium."
   ],
 

@@ -7,16 +7,16 @@ export const regularization: Algorithm = {
   shortDescription: "Preventing overfitting by adding parameter penalty constraints (L1 Lasso and L2 Ridge) to the loss objective.",
 
   fullDescription: `
-Regularization is a fundamental technique used to prevent overfitting by penalizing large model parameters. It adds a regularization penalty term to the primary loss function (like Mean Squared Error).
+Regularization reduces overfitting by adding a penalty for overly large or complex model parameters. The model must now fit the data while keeping its weights under control.
 
 - **L1 Regularization (Lasso)**: Adds a penalty proportional to the absolute values of the weights. This drives many parameters to exactly zero, producing **sparse models** and performing automatic feature selection.
 - **L2 Regularization (Ridge / Weight Decay)**: Adds a penalty proportional to the squared values of the weights. This shrinks parameters toward zero but keeps them non-zero, distributing weights smoothly.
   `,
 
   intuition: `
-Imagine fitting a model to noisy coordinates. Without penalties, the model can set extreme weight values (e.g. $w_1 = 1000, w_2 = -999$) to wiggle the line and hit every single point. This wiggling fits training noise perfectly but fails generalization.
+Imagine fitting a model to noisy coordinates. Without penalties, the model can use extreme weights to chase every small fluctuation in the training set. That can reduce training loss while hurting generalization.
 
-Regularization forces the model to be "simple".
+Regularization makes that behavior expensive.
 Geometrically:
 - **L1 constraint** forms a **diamond/cross** shape ($|w_1| + |w_2| \\le C$). Contours of the unregularized loss are most likely to intersect the constraint diamond at its sharp corners, which lie directly on the axes (meaning one weight is exactly $0$).
 - **L2 constraint** forms a **circle/hypersphere** ($w_1^2 + w_2^2 \\le C^2$). Loss contours intersect the circle smoothly at non-zero values on both axes.
@@ -52,7 +52,7 @@ Where $(1 - 2\\alpha\\lambda) < 1$ shrinks the weight at every iteration (known 
   ],
 
   cons: [
-    "Choosing the optimal hyperparameter $\\lambda$ requires computationally expensive cross-validation grid search.",
+    "Choosing the hyperparameter $\\lambda$ requires validation or cross-validation.",
     "Lasso (L1) cannot yield analytical closed-form solutions (requires coordinate descent optimization).",
     "Extreme regularization causes high bias (underfitting), flattening the model predictions."
   ],

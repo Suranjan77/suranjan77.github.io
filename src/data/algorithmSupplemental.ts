@@ -59,13 +59,13 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
   },
   "maximum-likelihood": {
     whenToUse: [
-      "When the underlying random process generating the data is well-understood or can be strictly mathematically parameterized.",
-      "As a foundational formal tool for explicitly deriving optimal unique loss functions given a specific assumed data noise distribution (e.g., MSE under strictly Gaussian noise assumptions)."
+      "When you can describe the data-generating process with a parameterized probability model.",
+      "To derive losses from distributional assumptions, such as squared error from Gaussian noise."
     ],
     assumptions: [
-      "The empirical dataset sample is strictly Independent and Identically Distributed (i.i.d.).",
-      "The true structural probability distribution exists within the parameterized formal distribution family.",
-      "The likelihood function possesses a distinct unique global mathematical maximum peak."
+      "The samples are independent and identically distributed, or the dependence structure is modeled explicitly.",
+      "The chosen probability family is a reasonable approximation to the true process.",
+      "The likelihood surface can be optimized reliably enough for the application."
     ],
     references: [
       {
@@ -80,13 +80,13 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
   },
   "bayesian-inference": {
     whenToUse: [
-      "When observational data sets are incredibly small, fundamentally expensive to acquire, or naturally missing.",
-      "When prior domain theoretical knowledge explicitly exists and needs to accurately be formally integrated into the predictive logic.",
-      "Whenever quantifying predictive mathematical uncertainty (credible intervals) is more valuable than generating a single deterministic prediction."
+      "When data is scarce, expensive, or noisy and prior knowledge should be included.",
+      "When uncertainty estimates such as posterior intervals matter more than a single point estimate.",
+      "When decisions must be updated as evidence arrives."
     ],
     assumptions: [
-      "The specified prior mathematical distribution rigorously captures the explicit initial abstract state of pre-data objective knowledge.",
-      "The explicit exact likelihood density accurately models the completely fundamental data generation sequence."
+      "The prior represents defensible domain knowledge or a transparent modeling choice.",
+      "The likelihood captures the relevant noise and sampling process."
     ],
     references: [
       {
@@ -97,13 +97,13 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
   },
   "linear-regression": {
     whenToUse: [
-      "Analyzing explicit functional quantitative empirical relationships between variables cleanly.",
-      "Developing fundamentally totally remarkably rapidly absolutely easily heavily explicitly solidly robust baseline models."
+      "Analyzing quantitative relationships between features and a continuous target.",
+      "Building a fast, interpretable baseline before trying more complex models."
     ],
     assumptions: [
-      "Linearity cleanly exactly rigorously between the independent features and the dependent variable.",
-      "Homoscedasticity precisely ensuring the error variance remains statistically constant.",
-      "Independence seamlessly firmly guaranteeing residuals are inherently uncorrelated."
+      "The conditional mean of the target is approximately linear in the features.",
+      "Residual variance is roughly constant across the prediction range.",
+      "Residuals are not strongly correlated after accounting for the features."
     ],
     references: [
       {
@@ -114,12 +114,12 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
   },
   "instance-based-trees": {
     whenToUse: [
-      "When purely explicitly formally learning highly distinct non-linear decision boundaries tightly accurately.",
-      "Whenever natively relying on absolute localized spatial nearest-neighbor structural similarities explicitly cleverly perfectly."
+      "When nonlinear boundaries or feature interactions are important.",
+      "When local similarity, rule-based explanations, or tabular decision paths are useful."
     ],
     assumptions: [
-      "Decision trees seamlessly implicitly assume logical hierarchical splits efficiently map the feature space cleanly.",
-      "KNN uniquely mathematically strictly practically exclusively assumes spatially close points share similar target classes."
+      "Decision trees assume useful partitions can be built from feature thresholds.",
+      "KNN assumes nearby points under the chosen distance metric tend to share labels or targets."
     ],
     references: [
       {
@@ -130,12 +130,12 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
   },
   "clustering": {
     whenToUse: [
-      "Discovering explicitly previously unknown mathematically unobserved structural groupings strictly cleanly.",
-      "Building dynamically structurally effectively purely mathematical geometric centroid architectures successfully precisely."
+      "Discovering unknown groups or segments in unlabeled data.",
+      "Summarizing large datasets with centroids, mixture components, or anomaly scores."
     ],
     assumptions: [
-      "K-Means effectively natively assumes clusters are spherical and explicitly functionally equally explicitly sized cleanly.",
-      "GMM natively mathematically firmly functionally strictly rigorously safely smoothly elegantly optimally models clusters as distinctly explicit continuous Gaussian distributions cleanly."
+      "K-Means works best when clusters are compact and roughly spherical.",
+      "GMMs assume clusters can be approximated by a mixture of Gaussian distributions."
     ],
     references: [
       {
@@ -146,11 +146,12 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
   },
   "support-vector-machines": {
     whenToUse: [
-      "Handling uniquely geometrically extraordinarily definitively mathematically completely highly explicitly non-linear boundary manifolds securely.",
-      "Modeling explicitly specifically functional cleanly mathematically rigorously distinctly safely completely efficiently robust high-margin boundaries securely."
+      "Training high-margin classifiers on small to medium-sized datasets.",
+      "Using kernels when pairwise similarities capture useful nonlinear structure."
     ],
     assumptions: [
-      "The explicit exact margin cleanly strictly cleanly perfectly smoothly depends clearly reliably."
+      "Features are scaled so distances and dot products are meaningful.",
+      "The selected kernel and regularization parameter match the data geometry."
     ],
     references: [
       {
@@ -161,12 +162,12 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
   },
   "ensemble-learning": {
     whenToUse: [
-      "Dominating purely explicitly strictly effectively structured heavily effective tabular datasets reliably.",
-      "Whenever rigorous strictly completely seamlessly depends natively smoothly securely elegantly correctly successfully."
+      "Improving predictive performance on structured or tabular data.",
+      "Reducing variance by averaging models or reducing bias with boosting."
     ],
     assumptions: [
-      "Base efficiently exactly independent structurally purely cleanly dependably safely rely smoothly seamlessly efficiently dependably successfully expertly.",
-      "The seamlessly squarely perfectly heavily explicitly rigorously cleanly securely smoothly correctly."
+      "Base learners make errors that are not perfectly identical.",
+      "Validation data is representative enough to tune ensemble size and complexity."
     ],
     references: [
       {
@@ -177,12 +178,12 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
   },
   "dimensionality-reduction": {
     whenToUse: [
-      "When safely fundamentally seamlessly efficiently strictly cleanly.",
-      "Visualizing correctly directly completely purely successfully."
+      "Compressing high-dimensional features for visualization, denoising, or faster modeling.",
+      "Finding lower-dimensional structure before clustering or downstream prediction."
     ],
     assumptions: [
-      "The completely fundamentally exactly stably successfully gracefully assumes relationships are linear.",
-      "Principal precisely cleanly structurally mathematically independent specifically."
+      "For PCA, the most useful structure is captured by directions of high variance.",
+      "Features are scaled appropriately before variance-based projection."
     ],
     references: [
       {
@@ -193,12 +194,12 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
   },
   "mcmc": {
     whenToUse: [
-      "Approximating seamlessly intelligently explicitly absolutely analytically complex hierarchical posterior boundaries precisely.",
-      "Modeling exactly intelligently dependably explicit generalized purely smoothly uniquely exact simulations cleanly."
+      "Approximating posterior distributions that cannot be integrated analytically.",
+      "Estimating expectations under complex probabilistic models."
     ],
     assumptions: [
-      "Detailed explicitly purely rigorously detailed detailed Markov explicit clearly gracefully properties securely precisely perfectly cleanly expertly.",
-      "The successfully smoothly exactly completely implicitly exactly seamlessly cleanly neatly accurately relies smoothly explicitly tightly smartly neatly squarely smoothly specifically wisely safely smoothly intelligently successfully effectively expertly depends gracefully purely cleanly flawlessly."
+      "The Markov chain has the intended stationary distribution.",
+      "The chain mixes well enough that collected samples represent the target distribution."
     ],
     references: [
       {
@@ -358,7 +359,7 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
     ],
     assumptions: [
       "The training dataset contains sufficient samples to represent the underlying manifold geometry.",
-      "The Nash Equilibrium between the generator and discriminator can be reached using standard gradient optimization."
+      "Training dynamics can be stabilized enough that the generator improves instead of collapsing to a few modes."
     ],
     references: [
       {
@@ -389,8 +390,8 @@ export const algorithmSupplemental: Record<string, AlgorithmSupplemental> = {
       "When comparing the performance of classifiers independently of specific decision thresholds."
     ],
     assumptions: [
-      "Validation samples are representative of target testing population categories.",
-      "Threshold choices are uniform across testing environments."
+      "Validation samples are representative of the population where the model will be used.",
+      "The decision threshold is chosen from the costs of false positives and false negatives."
     ],
     references: [
       {

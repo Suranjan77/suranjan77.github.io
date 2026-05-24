@@ -23,13 +23,13 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-outline bg-background/95">
-      <div className="mx-auto flex w-full items-center justify-between gap-4 px-5 py-4 sm:px-8 lg:px-12">
+      <div className="mx-auto flex w-full items-center justify-between gap-4 px-4 py-4 sm:px-8 lg:px-12">
         <Link href="/" className="flex items-center gap-3">
           <span>
             <p className="font-headline text-xl font-medium leading-none tracking-normal text-on-surface">
               ML Learn
             </p>
-            <p className="mt-1 font-mono text-[10px] font-normal uppercase tracking-[0.32em] text-on-surface-variant">
+            <p className="mt-1 font-mono text-xs font-normal uppercase tracking-[0.16em] text-on-surface-variant sm:text-[10px] sm:tracking-[0.32em]">
               Learning AI & ML
             </p>
           </span>
@@ -48,7 +48,7 @@ export default function Header() {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={clsx(
-                  "relative whitespace-nowrap border-b font-mono text-[11px] font-normal uppercase tracking-[0.22em] transition-colors",
+                  "relative whitespace-nowrap border-b py-1 font-mono text-xs font-normal uppercase tracking-[0.14em] transition-colors sm:py-0 sm:text-[11px] sm:tracking-[0.22em]",
                   item.label === "About" && "hidden sm:inline",
                   active
                     ? "border-primary text-primary"

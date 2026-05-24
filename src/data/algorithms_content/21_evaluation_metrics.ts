@@ -7,9 +7,9 @@ export const evaluationMetrics: Algorithm = {
   shortDescription: "Measuring binary classification performance using confusion matrices, precision, recall, and ROC/AUC curves.",
 
   fullDescription: `
-Evaluating classification models goes beyond simple accuracy. In many datasets (particularly imbalanced ones like fraud detection or medical diagnosis), a model that guesses the majority class can have 99% accuracy while being completely useless.
+Classification evaluation goes beyond accuracy. On imbalanced datasets such as fraud detection or medical screening, a model can achieve high accuracy by mostly predicting the majority class while failing on the cases that matter.
 
-To accurately assess performance, we construct a **Confusion Matrix** to map actual vs. predicted labels, and derive metrics like **Precision**, **Recall**, and **F1-Score**. By sweeping the decision threshold, we draw the **Receiver Operating Characteristic (ROC) Curve**.
+A **confusion matrix** compares actual labels with predicted labels. From it we derive precision, recall, F1-score, false positive rate, and accuracy. By sweeping the decision threshold, we can trace curves such as ROC and precision-recall.
   `,
 
   intuition: `
@@ -19,7 +19,7 @@ Imagine a fire alarm:
 - **True Negative (TN)**: There is no fire, and the alarm is silent. (Success).
 - **False Negative (FN / Type II Error)**: There is a fire, but the alarm stays silent. (Disaster - hurts recall).
 
-A sensitive alarm has high **Recall** (catches every fire) but low **Precision** (lots of false alarms). A conservative alarm has high **Precision** (only rings when there is definitely a fire) but low **Recall** (might miss small fires). The threshold slider balances these two risks.
+A sensitive alarm has high **recall** because it catches most fires, but may have low **precision** because many alarms are false. A conservative alarm can have high precision but lower recall. The threshold determines that operating point.
   `,
 
   mathematics: `

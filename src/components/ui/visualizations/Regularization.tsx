@@ -106,9 +106,14 @@ export default function RegularizationVisualization() {
       ctx.beginPath();
 
       if (regType === "L2") {
-        // Map radius scale to the mapped coordinate grid
-        const rPx = toXPixel(C) - toXPixel(0);
-        ctx.arc(toXPixel(0), toYPixel(0), rPx, 0, Math.PI * 2);
+        for (let angle = 0; angle <= Math.PI * 2 + 0.05; angle += 0.05) {
+          const w1 = C * Math.cos(angle);
+          const w2 = C * Math.sin(angle);
+          const px = toXPixel(w1);
+          const py = toYPixel(w2);
+          if (angle === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
       } else {
         ctx.moveTo(toXPixel(0), toYPixel(C));
         ctx.lineTo(toXPixel(C), toYPixel(0));
@@ -186,7 +191,7 @@ export default function RegularizationVisualization() {
     <VisualizationShell
       title="L1 vs L2 Parameter Constraints"
       subtitle="Toggle L1 Lasso vs L2 Ridge, and slide C to shrink the parameters budget. Observe how contours intersect the boundaries."
-      insight="L1 regularization (diamond constraint) has sharp corners on the axes. Loss ellipses tend to touch these corners first, driving w2 exactly to zero. L2 (circle constraint) shrinks parameters smoothly without sparsity."
+      insight="L1 regularization (diamond constraint) has sharp corners on the axes, so the optimum often lands with one coefficient exactly zero. L2 (circle constraint) shrinks parameters smoothly without that sparsity pressure."
       legend={[
         { label: "Unregularized w*", color: COLORS.cyan },
         { label: "Optimal Regularized w_reg", color: COLORS.yellow },
@@ -200,12 +205,12 @@ export default function RegularizationVisualization() {
         </PlotFrame>
 
         <ControlPanel className="flex flex-col gap-3">
-          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-[11px] text-on-surface">
+          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-xs text-on-surface sm:text-[11px]">
             <span className="font-bold uppercase tracking-wide text-primary">Penalty Geometry</span>
             <div className="flex gap-2 mt-1">
               <button
                 onClick={() => setRegType("L1")}
-                className={`flex-1 border px-3 py-2 rounded text-[9px] font-bold uppercase transition-all cursor-pointer ${
+                className={`flex-1 border px-3 py-2.5 rounded text-xs font-bold uppercase transition-all cursor-pointer sm:py-2 sm:text-[9px] ${
                   regType === "L1" ? "bg-primary text-on-primary border-primary" : "bg-surface hover:bg-primary/10"
                 }`}
               >
@@ -213,7 +218,7 @@ export default function RegularizationVisualization() {
               </button>
               <button
                 onClick={() => setRegType("L2")}
-                className={`flex-1 border px-3 py-2 rounded text-[9px] font-bold uppercase transition-all cursor-pointer ${
+                className={`flex-1 border px-3 py-2.5 rounded text-xs font-bold uppercase transition-all cursor-pointer sm:py-2 sm:text-[9px] ${
                   regType === "L2" ? "bg-primary text-on-primary border-primary" : "bg-surface hover:bg-primary/10"
                 }`}
               >
@@ -222,12 +227,12 @@ export default function RegularizationVisualization() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-[11px] text-on-surface">
+          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-xs text-on-surface sm:text-[11px]">
             <div className="flex justify-between font-bold uppercase tracking-wide text-primary">
               <span>Constraint Radius (C)</span>
               <span className="text-pink font-bold">{C.toFixed(1)}</span>
             </div>
-            <p className="text-[9px] text-on-surface-variant leading-relaxed font-normal">
+            <p className="text-xs text-on-surface-variant leading-relaxed font-normal sm:text-[9px]">
               Smaller C enforces tighter regularization, shrinking parameters. Larger C expands the budget.
             </p>
             <input
@@ -241,7 +246,7 @@ export default function RegularizationVisualization() {
             />
           </div>
 
-          <div className="border border-outline rounded bg-surface-container-lowest/60 px-4 py-3 font-mono text-[10px] leading-relaxed text-on-surface-variant">
+          <div className="border border-outline rounded bg-surface-container-lowest/60 px-4 py-3 font-mono text-xs leading-relaxed text-on-surface-variant sm:text-[10px]">
             <span className="font-bold uppercase text-primary">Fitted Parameters:</span>
             <div className="mt-1">
               Weight 1 (w₁): <span className="font-bold text-cyan">{solvedOpt.w1.toFixed(3)}</span>
@@ -249,9 +254,9 @@ export default function RegularizationVisualization() {
             <div className="mt-0.5">
               Weight 2 (w₂): <span className="font-bold text-pink">{solvedOpt.w2.toFixed(3)}</span>
             </div>
-            <div className="mt-1 border-t border-outline/30 pt-1 text-[8px] uppercase tracking-wide">
-              {Math.abs(solvedOpt.w2) < 1e-4 ? (
-                <span className="font-bold text-green">Sparsity achieved (w2 = 0)</span>
+            <div className="mt-1 border-t border-outline/30 pt-1 text-[11px] uppercase tracking-wide sm:text-[8px]">
+              {Math.abs(solvedOpt.w1) < 1e-4 || Math.abs(solvedOpt.w2) < 1e-4 ? (
+                <span className="font-bold text-green">Sparsity achieved</span>
               ) : (
                 <span className="text-on-surface-variant">Both weights active</span>
               )}
@@ -260,7 +265,7 @@ export default function RegularizationVisualization() {
 
           <button
             onClick={handleReset}
-            className="border border-outline rounded bg-surface-container text-on-surface px-3 py-2 font-mono text-[10px] font-bold uppercase hover:bg-primary/10 active:scale-[0.98] transition-all cursor-pointer text-center"
+            className="border border-outline rounded bg-surface-container text-on-surface px-3 py-2.5 font-mono text-xs font-bold uppercase hover:bg-primary/10 active:scale-[0.98] transition-all cursor-pointer text-center sm:py-2 sm:text-[10px]"
           >
             Reset Space
           </button>

@@ -193,7 +193,7 @@ export default function TransformersVisualization() {
           <div className="border border-outline rounded bg-surface-container-lowest/60 px-4 py-3 font-mono text-[10px] leading-relaxed text-on-surface-variant">
             <span className="font-bold uppercase text-primary">Attention details:</span>
             {activeIdx !== null && (
-              <span className="block mt-1 font-bold text-pink">Locked Query: "{tokens[activeIdx]}"</span>
+              <span className="block mt-1 font-bold text-pink">Locked Query: {tokens[activeIdx]}</span>
             )}
             {activeAttentions.map((item, idx) => (
               <div key={idx} className="flex justify-between mt-1 text-[9px] lowercase font-normal">

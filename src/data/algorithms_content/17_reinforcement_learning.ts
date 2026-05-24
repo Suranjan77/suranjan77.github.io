@@ -7,9 +7,9 @@ export const reinforcementLearning: Algorithm = {
   shortDescription: "Training autonomous agents to make sequential decisions by trial-and-error to maximize cumulative reward.",
 
   fullDescription: `
-Reinforcement Learning (RL) is a paradigm of machine learning where an agent learns to make decisions by performing actions in an environment and receiving feedback in the form of rewards or penalties.
+Reinforcement Learning (RL) studies how an agent can learn good behavior by acting in an environment and receiving rewards or penalties.
 
-Unlike supervised learning where a model is trained on labeled target samples, an RL agent operates under **delayed feedback**. The goal is not just to select the best immediate action, but to find a sequence of actions—a policy—that maximizes the total expected cumulative reward over time.
+Unlike supervised learning, the agent is not handed the correct answer for each state. It often receives **delayed feedback**, so the goal is to learn a policy: a rule for choosing actions that maximizes expected cumulative reward over time.
 
 ### Core Components
 1. **The Agent**: The learner or decision-maker.
@@ -20,11 +20,11 @@ Unlike supervised learning where a model is trained on labeled target samples, a
   `,
 
   intuition: `
-Imagine training a dog to catch a frisbee. You don't hand the dog a mathematical equation explaining aerodynamics. Instead, the dog runs around, attempts to catch it (action), misses (no reward), tries another way, catches it (treat/reward), and slowly learns which running patterns yield treats.
+Imagine training a robot to cross a room. It tries actions, sees whether it moves closer to the goal, hits obstacles, or reaches the target, and updates its behavior from those outcomes.
 
-In computer science, an RL agent behaves similarly. By starting with random actions (exploration) and gradually shifting to executing actions it knows are lucrative (exploitation), the agent forms an internal map of "good" decisions.
+An RL agent starts by exploring, then gradually exploits actions that have produced better long-term results. The hard part is that an action can look bad immediately but be useful several steps later.
 
-The challenge is the **Credit Assignment Problem**: if an agent receives a huge reward at the end of a game, which specific moves made 20 steps earlier were responsible for the success? Temporal Difference learning resolves this by updating values step-by-step.
+This is the **credit assignment problem**: if a reward arrives at the end of a sequence, which earlier actions deserve credit? Temporal-difference learning handles this by updating estimates one transition at a time.
   `,
 
   mathematics: `

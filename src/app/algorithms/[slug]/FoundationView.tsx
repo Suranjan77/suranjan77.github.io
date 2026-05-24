@@ -26,10 +26,10 @@ export default function FoundationView({
   const accent = getAccentClasses(getCategoryColor(algorithm.category));
 
   return (
-    <div className="relative px-5 py-8 sm:px-8 lg:px-12">
+    <div className="relative px-4 py-6 sm:px-8 sm:py-8 lg:px-12">
       <section className="relative z-10 mx-auto max-w-6xl">
         {/* Breadcrumb navigation */}
-        <nav className="mb-8 flex flex-wrap items-center gap-2 text-sm text-on-surface-variant/70">
+        <nav className="mb-6 flex flex-wrap items-center gap-2 text-[15px] text-on-surface-variant/70 sm:mb-8 sm:text-sm">
           <Link href="/" className="transition-colors hover:text-primary">
             Home
           </Link>
@@ -47,16 +47,16 @@ export default function FoundationView({
         </nav>
 
         {/* Page header */}
-        <div className="mb-10 border border-outline bg-surface-container-low p-6 sm:p-8 lg:p-10">
+        <div className="mb-8 border border-outline bg-surface-container-low p-5 sm:mb-10 sm:p-8 lg:p-10">
           <div className="mb-4 flex flex-wrap items-center gap-3">
             <div
-              className={`inline-flex items-center px-4 py-1.5 text-xs font-medium tracking-wide ${accent.badge}`}
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium tracking-wide sm:py-1.5 sm:text-xs ${accent.badge}`}
             >
               Machine Learning Foundation
             </div>
           </div>
 
-          <h1 className="mb-5 max-w-4xl text-balance font-headline text-4xl font-semibold tracking-normal text-on-surface sm:text-5xl lg:text-6xl">
+          <h1 className="mb-5 max-w-4xl text-balance font-headline text-[2.35rem] font-semibold leading-tight tracking-normal text-on-surface sm:text-5xl lg:text-6xl">
             {algorithm.title}
           </h1>
           <div className="max-w-auto sm:text-lg">
@@ -78,7 +78,7 @@ export default function FoundationView({
                 <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
                   Intuition
                 </h2>
-                <p className="text-xs text-on-surface-variant/70">
+                <p className="text-sm text-on-surface-variant/70 sm:text-xs">
                   How to think conceptually about this mathematics
                 </p>
               </div>
@@ -88,7 +88,7 @@ export default function FoundationView({
             </div>
           </div>
 
-          <div className="p-3 sm:p-6">
+          <div className="p-2 sm:p-6">
             <div className="min-h-[380px]">
               <AlgorithmVisualization algorithmId={algorithm.id} />
             </div>
@@ -106,7 +106,7 @@ export default function FoundationView({
                 <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
                   Core Mathematics
                 </h2>
-                <p className="text-xs text-on-surface-variant/70">
+                <p className="text-sm text-on-surface-variant/70 sm:text-xs">
                   Fundamental theorems and formulations
                 </p>
               </div>
@@ -137,7 +137,7 @@ export default function FoundationView({
                     key={index}
                     className="flex items-start gap-3 bg-surface-container px-4 py-3 accent-left-primary"
                   >
-                    <div className="w-full text-sm leading-7 text-on-surface-variant">
+                    <div className="w-full text-[15px] leading-7 text-on-surface-variant sm:text-sm">
                       <LogicContent content={pro} size="sm" />
                     </div>
                   </li>
@@ -163,7 +163,7 @@ export default function FoundationView({
                     key={index}
                     className="flex items-start gap-3 bg-surface-container px-4 py-3 accent-left-error"
                   >
-                    <div className="w-full text-sm leading-7 text-on-surface-variant">
+                    <div className="w-full text-[15px] leading-7 text-on-surface-variant sm:text-sm">
                       <LogicContent content={con} size="sm" />
                     </div>
                   </li>
@@ -186,7 +186,7 @@ export default function FoundationView({
                     <h2 className="font-headline text-xl font-semibold text-on-surface">
                       References
                     </h2>
-                    <p className="text-xs text-on-surface-variant/70">
+                    <p className="text-sm text-on-surface-variant/70 sm:text-xs">
                       Standardized citations for further reading
                     </p>
                   </div>
@@ -200,7 +200,7 @@ export default function FoundationView({
                       key={index}
                       className="rounded-lg border border-outline bg-surface-container p-4"
                     >
-                      <p className="mt-1 text-sm leading-6 text-on-surface-variant/90">
+                      <p className="mt-1 text-[15px] leading-7 text-on-surface-variant/90 sm:text-sm sm:leading-6">
                         {reference.source}
                       </p>
                       {reference.url ? (
@@ -208,7 +208,7 @@ export default function FoundationView({
                           href={reference.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-3 inline-flex text-sm font-medium text-primary transition-colors hover:text-primary/80"
+                          className="mt-3 inline-flex text-[15px] font-medium text-primary transition-colors hover:text-primary/80 sm:text-sm"
                         >
                           Open reference
                         </a>
@@ -222,7 +222,7 @@ export default function FoundationView({
         )}
       </section>
 
-      <footer className="relative z-10 mx-auto mt-16 flex max-w-6xl flex-col gap-4 border-t border-outline pt-8 text-sm text-on-surface-variant/70 sm:flex-row sm:items-center sm:justify-between">
+      <footer className="relative z-10 mx-auto mt-16 flex max-w-6xl flex-col gap-4 border-t border-outline pt-8 text-[15px] text-on-surface-variant/70 sm:flex-row sm:items-center sm:justify-between sm:text-sm">
         <p>© 2026 Learning AI & ML</p>
         <div className="flex flex-wrap gap-4 sm:gap-6">
           <Link

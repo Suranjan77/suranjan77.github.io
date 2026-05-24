@@ -173,10 +173,10 @@ export default function CodeBlock({
     <div className="mb-6 overflow-hidden border border-outline bg-surface-container-lowest">
       <div className="flex flex-col gap-3 border-b border-outline bg-surface-container-low px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="min-w-0 flex items-center gap-3">
-          <div className="border border-outline bg-surface-container-high px-2.5 py-1 font-mono text-[10px] font-normal uppercase tracking-[0.16em] text-primary">
+          <div className="border border-outline bg-surface-container-high px-2.5 py-1.5 font-mono text-[11px] font-normal uppercase tracking-[0.14em] text-primary sm:py-1 sm:text-[10px] sm:tracking-[0.16em]">
             {detectedLanguage}
           </div>
-          <div className="truncate font-mono text-sm font-medium text-on-surface">
+          <div className="truncate font-mono text-[15px] font-medium text-on-surface sm:text-sm">
             {displayFileName}
           </div>
         </div>
@@ -185,7 +185,7 @@ export default function CodeBlock({
           type="button"
           onClick={handleCopy}
           aria-live="polite"
-          className={`inline-flex items-center justify-center border px-3 py-1.5 font-mono text-[10px] font-normal uppercase tracking-[0.16em] transition-colors ${
+          className={`inline-flex items-center justify-center border px-3 py-2 font-mono text-[11px] font-normal uppercase tracking-[0.14em] transition-colors sm:py-1.5 sm:text-[10px] sm:tracking-[0.16em] ${
             copyState === "copied"
               ? "border-secondary/40 bg-secondary/15 text-secondary"
               : copyState === "error"
@@ -207,7 +207,7 @@ export default function CodeBlock({
             background: "transparent",
             padding: 0,
             margin: 0,
-            fontSize: "13px",
+            fontSize: "14px",
             lineHeight: "1.7",
           }}
           codeTagProps={{

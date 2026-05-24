@@ -250,7 +250,7 @@ export default function EvaluationMetricsVisualization() {
         </PlotFrame>
 
         <ControlPanel className="flex flex-col gap-3">
-          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-[11px] text-on-surface">
+          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-xs text-on-surface sm:text-[11px]">
             <div className="flex justify-between font-bold uppercase tracking-wide text-primary">
               <span>Decision Threshold (t)</span>
               <span className="text-pink font-bold">{threshold.toFixed(2)}</span>
@@ -266,29 +266,34 @@ export default function EvaluationMetricsVisualization() {
             />
           </div>
 
-          <div className="border border-outline bg-surface rounded p-3 font-mono text-[9px] text-on-surface">
+          <div className="border border-outline bg-surface rounded p-3 font-mono text-xs text-on-surface sm:text-[9px]">
             <span className="block font-bold uppercase tracking-wide text-primary mb-2 text-center">Confusion Matrix (N=200)</span>
-            <div className="grid grid-cols-2 gap-2 text-center">
+            <div className="grid grid-cols-[auto_1fr_1fr] gap-1 text-center">
+              <div />
+              <div className="px-1 py-1 text-[10px] font-bold uppercase text-on-surface-variant sm:text-[8px]">Pred +</div>
+              <div className="px-1 py-1 text-[10px] font-bold uppercase text-on-surface-variant sm:text-[8px]">Pred -</div>
+              <div className="flex items-center justify-end px-1 text-[10px] font-bold uppercase text-on-surface-variant sm:text-[8px]">Actual +</div>
               <div className="border border-outline bg-surface-container p-2 flex flex-col justify-center">
-                <span className="text-on-surface-variant font-medium text-[8px] uppercase">True Pos (TP)</span>
-                <span className="font-bold text-green text-[13px] mt-0.5">{metrics.TP.toFixed(0)}</span>
+                <span className="text-on-surface-variant font-medium text-[10px] uppercase sm:text-[8px]">TP</span>
+                <span className="font-bold text-green text-base mt-0.5 sm:text-[13px]">{metrics.TP.toFixed(0)}</span>
               </div>
               <div className="border border-outline bg-surface-container p-2 flex flex-col justify-center">
-                <span className="text-on-surface-variant font-medium text-[8px] uppercase">False Pos (FP)</span>
-                <span className="font-bold text-pink text-[13px] mt-0.5">{metrics.FP.toFixed(0)}</span>
+                <span className="text-on-surface-variant font-medium text-[10px] uppercase sm:text-[8px]">FN</span>
+                <span className="font-bold text-pink text-base mt-0.5 sm:text-[13px]">{metrics.FN.toFixed(0)}</span>
+              </div>
+              <div className="flex items-center justify-end px-1 text-[10px] font-bold uppercase text-on-surface-variant sm:text-[8px]">Actual -</div>
+              <div className="border border-outline bg-surface-container p-2 flex flex-col justify-center">
+                <span className="text-on-surface-variant font-medium text-[10px] uppercase sm:text-[8px]">FP</span>
+                <span className="font-bold text-pink text-base mt-0.5 sm:text-[13px]">{metrics.FP.toFixed(0)}</span>
               </div>
               <div className="border border-outline bg-surface-container p-2 flex flex-col justify-center">
-                <span className="text-on-surface-variant font-medium text-[8px] uppercase">False Neg (FN)</span>
-                <span className="font-bold text-pink text-[13px] mt-0.5">{metrics.FN.toFixed(0)}</span>
-              </div>
-              <div className="border border-outline bg-surface-container p-2 flex flex-col justify-center">
-                <span className="text-on-surface-variant font-medium text-[8px] uppercase">True Neg (TN)</span>
-                <span className="font-bold text-green text-[13px] mt-0.5">{metrics.TN.toFixed(0)}</span>
+                <span className="text-on-surface-variant font-medium text-[10px] uppercase sm:text-[8px]">TN</span>
+                <span className="font-bold text-green text-base mt-0.5 sm:text-[13px]">{metrics.TN.toFixed(0)}</span>
               </div>
             </div>
           </div>
 
-          <div className="border border-outline rounded bg-surface-container-lowest/60 px-4 py-3 font-mono text-[10px] leading-relaxed text-on-surface-variant">
+          <div className="border border-outline rounded bg-surface-container-lowest/60 px-4 py-3 font-mono text-xs leading-relaxed text-on-surface-variant sm:text-[10px]">
             <span className="font-bold uppercase text-primary">Performance Diagnostics:</span>
             <div className="mt-1 flex justify-between">
               <span>Accuracy:</span>
@@ -314,7 +319,7 @@ export default function EvaluationMetricsVisualization() {
 
           <button
             onClick={handleReset}
-            className="border border-outline rounded bg-surface-container text-on-surface px-3 py-2 font-mono text-[10px] font-bold uppercase hover:bg-primary/10 active:scale-[0.98] transition-all cursor-pointer text-center"
+            className="border border-outline rounded bg-surface-container text-on-surface px-3 py-2.5 font-mono text-xs font-bold uppercase hover:bg-primary/10 active:scale-[0.98] transition-all cursor-pointer text-center sm:py-2 sm:text-[10px]"
           >
             Reset threshold
           </button>

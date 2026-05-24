@@ -40,9 +40,9 @@ export default function KMeansVisualization() {
   const [centroids, setCentroids] = useState(defaultCentroids);
   const [step, setStep] = useState<"assign" | "update">("assign");
 
-  const colors = [COLORS.cyan, COLORS.pink, COLORS.yellow];
+  const colors = useMemo(() => [COLORS.cyan, COLORS.pink, COLORS.yellow], []);
 
-  const getAssignment = (px: number, py: number, currentCentroids = centroids) => {
+  const getAssignment = useCallback((px: number, py: number, currentCentroids = centroids) => {
     let minD = Infinity;
     let assignedIdx = 0;
     currentCentroids.forEach((c, cIdx) => {
@@ -53,7 +53,7 @@ export default function KMeansVisualization() {
       }
     });
     return assignedIdx;
-  };
+  }, [centroids]);
 
   const handleIterate = () => {
     if (step === "assign") {
@@ -101,7 +101,7 @@ export default function KMeansVisualization() {
       const cY = toYPixel(c[1]);
       drawHelper.point(ctx, cX, cY, colors[cIdx], "star", 7.5);
     });
-  }, [points, centroids]);
+  }, [points, centroids, getAssignment, colors]);
 
   const handlePlotClick = (x: number, y: number) => {
     const dataX = fromXPixel(x);

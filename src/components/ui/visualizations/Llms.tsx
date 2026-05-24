@@ -111,8 +111,8 @@ export default function LlmsVisualization() {
               onChange={(e) => setPromptIdx(parseInt(e.target.value))}
               className="border border-outline p-1.5 w-full bg-surface-container text-[9px] font-bold rounded cursor-pointer"
             >
-              <option value={0}>"...changing the world by"</option>
-              <option value={1}>"...learn representations of"</option>
+              <option value={0}>...changing the world by</option>
+              <option value={1}>...learn representations of</option>
             </select>
           </div>
 

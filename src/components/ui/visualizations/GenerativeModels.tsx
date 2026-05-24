@@ -28,7 +28,7 @@ export default function GenerativeModelsVisualization() {
     const numReal = 50;
     for (let i = 0; i < numReal; i++) {
       const angle = (i / numReal) * Math.PI * 2;
-      const radius = 3.0 + (Math.random() - 0.5) * 0.4;
+      const radius = 3.0 + Math.sin(i * 12.9898) * 0.18;
       pts.push({
         x: 5.0 + Math.cos(angle) * radius,
         y: 5.0 + Math.sin(angle) * radius,
@@ -38,7 +38,7 @@ export default function GenerativeModelsVisualization() {
   }, []);
 
   // 2. Dynamic Generator/Fake Points (initialized as a tight Gaussian blob around (1.5, 1.5))
-  const [fakePoints, setFakePoints] = useState<Array<{ x: number; y: number }>>(() => {
+  const createInitialFakePoints = () => {
     const pts = [];
     for (let i = 0; i < 45; i++) {
       pts.push({
@@ -47,7 +47,9 @@ export default function GenerativeModelsVisualization() {
       });
     }
     return pts;
-  });
+  };
+
+  const [fakePoints, setFakePoints] = useState<Array<{ x: number; y: number }>>(createInitialFakePoints);
 
   // 3. Discriminator Weights: w = [w_x, w_y, w_xx, w_yy, w_xy, b]
   // Initialized to small random values
@@ -100,12 +102,10 @@ export default function GenerativeModelsVisualization() {
       }
     });
 
-    // Update Discriminator weights
-    let updatedW: number[] = [];
-    setDWeights((prev) => {
-      updatedW = prev.map((w, i) => w - lrD * (gradsW[i] / (realPoints.length + fakePoints.length)));
-      return updatedW;
-    });
+    const updatedW = dWeights.map(
+      (w, i) => w - lrD * (gradsW[i] / (realPoints.length + fakePoints.length))
+    );
+    setDWeights(updatedW);
 
     // ----------------------------------------------------
     // B. Train Generator (Update Fake Points Coordinates)
@@ -120,7 +120,7 @@ export default function GenerativeModelsVisualization() {
         const factor = dVal * (1.0 - dVal);
 
         const dsDx = updatedW[0] + 2 * updatedW[2] * p.x + updatedW[4] * p.y;
-        const dsDy = updatedW[1] + 2 * updatedW[4] * p.y + updatedW[4] * p.x;
+        const dsDy = updatedW[1] + 2 * updatedW[3] * p.y + updatedW[4] * p.x;
 
         // Add a tiny random walk (entropy noise) to prevent mode collapse!
         const noiseX = (Math.random() - 0.5) * 0.15;
@@ -226,16 +226,7 @@ export default function GenerativeModelsVisualization() {
   );
 
   const handleReset = () => {
-    setFakePoints(() => {
-      const pts = [];
-      for (let i = 0; i < 45; i++) {
-        pts.push({
-          x: 1.5 + (Math.random() - 0.5) * 0.6,
-          y: 1.5 + (Math.random() - 0.5) * 0.6,
-        });
-      }
-      return pts;
-    });
+    setFakePoints(createInitialFakePoints);
     setDWeights([-0.1, -0.1, -0.05, -0.05, 0.0, 1.0]);
     setEpoch(0);
     setIsPlaying(false);
@@ -256,7 +247,7 @@ export default function GenerativeModelsVisualization() {
         <PlotFrame className="min-h-[360px] relative">
           <NativeCanvasPlot onDraw={onDraw} className="h-full w-full" />
 
-          <div className="absolute left-14 top-8 border border-outline bg-surface/90 px-3 py-1.5 font-mono text-[10px] uppercase tracking-wide text-primary shadow-sm rounded-sm backdrop-blur-xs flex flex-col gap-0.5">
+          <div className="absolute left-4 top-4 border border-outline bg-surface/90 px-3 py-2 font-mono text-[11px] uppercase tracking-wide text-primary shadow-sm rounded-sm backdrop-blur-xs flex flex-col gap-0.5 sm:left-14 sm:top-8 sm:text-[10px]">
             <div>
               Training Epoch: <span className="font-bold text-pink">{epoch}</span>
             </div>
@@ -272,7 +263,7 @@ export default function GenerativeModelsVisualization() {
         <ControlPanel className="flex flex-col gap-3">
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className={`w-full border px-3 py-2 rounded text-[9px] font-bold uppercase transition-all cursor-pointer ${
+            className={`w-full border px-3 py-2.5 rounded text-xs font-bold uppercase transition-all cursor-pointer sm:py-2 sm:text-[9px] ${
               isPlaying
                 ? "bg-pink text-on-primary border-pink hover:bg-pink/90"
                 : "bg-primary text-on-primary border-primary hover:bg-primary/90"
@@ -284,12 +275,12 @@ export default function GenerativeModelsVisualization() {
           <button
             onClick={trainGANStep}
             disabled={isPlaying}
-            className="w-full border border-outline rounded bg-surface text-on-surface px-3 py-2 font-mono text-[10px] font-bold uppercase hover:bg-primary/10 active:scale-[0.98] disabled:opacity-40 transition-all cursor-pointer text-center"
+            className="w-full border border-outline rounded bg-surface text-on-surface px-3 py-2.5 font-mono text-xs font-bold uppercase hover:bg-primary/10 active:scale-[0.98] disabled:opacity-40 transition-all cursor-pointer text-center sm:py-2 sm:text-[10px]"
           >
             Single Optimization Step
           </button>
 
-          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-[11px] text-on-surface">
+          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-xs text-on-surface sm:text-[11px]">
             <div className="flex justify-between font-bold uppercase tracking-wide text-primary">
               <span>Discriminator Learning Rate</span>
               <span className="text-pink font-bold">{lrD.toFixed(3)}</span>
@@ -305,7 +296,7 @@ export default function GenerativeModelsVisualization() {
             />
           </div>
 
-          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-[11px] text-on-surface">
+          <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-xs text-on-surface sm:text-[11px]">
             <div className="flex justify-between font-bold uppercase tracking-wide text-primary">
               <span>Generator Gradient Step</span>
               <span className="text-pink font-bold">{lrG.toFixed(3)}</span>
@@ -323,7 +314,7 @@ export default function GenerativeModelsVisualization() {
 
           <button
             onClick={handleReset}
-            className="border border-outline rounded bg-surface-container text-on-surface px-3 py-2 font-mono text-[10px] font-bold uppercase hover:bg-primary/10 active:scale-[0.98] transition-all cursor-pointer text-center"
+            className="border border-outline rounded bg-surface-container text-on-surface px-3 py-2.5 font-mono text-xs font-bold uppercase hover:bg-primary/10 active:scale-[0.98] transition-all cursor-pointer text-center sm:py-2 sm:text-[10px]"
           >
             Reset Space
           </button>

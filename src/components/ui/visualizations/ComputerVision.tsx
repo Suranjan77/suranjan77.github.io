@@ -174,10 +174,10 @@ export default function ComputerVisionVisualization() {
           <div className="flex flex-col gap-2 rounded border border-outline bg-surface p-4 font-mono text-[11px] text-on-surface">
             <span className="font-bold uppercase tracking-wide text-primary">Filter Direction</span>
             <div className="flex gap-2 mt-1">
-              {["sobelX", "sobelY"].map((type) => (
+              {(["sobelX", "sobelY"] as const).map((type) => (
                 <button
                   key={type}
-                  onClick={() => setFilterType(type as any)}
+                  onClick={() => setFilterType(type)}
                   className={`flex-1 border px-2 py-1.5 font-mono text-[9px] font-bold uppercase transition-all cursor-pointer ${
                     filterType === type ? "bg-primary text-on-primary border-primary" : "bg-surface hover:bg-primary/10"
                   }`}
