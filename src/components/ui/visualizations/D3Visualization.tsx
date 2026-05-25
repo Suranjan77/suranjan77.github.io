@@ -1035,14 +1035,14 @@ function NeuralScene({ kind, t }: { kind: AlgorithmKind; t: number }) {
         {/* Similarity Score Table */}
         <rect x={420} y={140} width={180} height={130} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} />
         <text x={434} y={166} fill={COLORS.muted} fontSize={11} fontWeight={800} letterSpacing="0.05em">Cosine Similarity</text>
-        <text x={434} y={180} fill={COLORS.cyan} fontSize={10} fontWeight={700}>query: "royal"</text>
+        <text x={434} y={180} fill={COLORS.cyan} fontSize={10} fontWeight={700}>query: &quot;royal&quot;</text>
         
         {simTokens.map((st, i) => {
           const dist = Math.sqrt((st.a - target.a)**2 + (st.b - target.b)**2);
           const sim = Math.max(0, 1 - dist / 10);
           return (
             <g key={st.w}>
-              <text x={434} y={210 + i * 22} fill={COLORS.muted} fontSize={12} fontWeight={700}>"{st.w}"</text>
+              <text x={434} y={210 + i * 22} fill={COLORS.muted} fontSize={12} fontWeight={700}>&quot;{st.w}&quot;</text>
               <rect x={490} y={202 + i * 22} width={60} height={6} fill={COLORS.bg} stroke={COLORS.border} />
               <rect x={490} y={202 + i * 22} width={60 * sim} height={6} fill={COLORS.pink} />
               <text x={586} y={210 + i * 22} textAnchor="end" fill={COLORS.muted} fontSize={11} fontWeight={700}>{sim.toFixed(2)}</text>
