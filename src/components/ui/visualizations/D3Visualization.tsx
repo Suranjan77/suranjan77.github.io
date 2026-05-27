@@ -9,6 +9,36 @@ import {
   VisualizationShell,
 } from "../visualizationPrimitives";
 
+import CalculusViz from "./CalculusViz";
+import LinearAlgebraViz from "./LinearAlgebraViz";
+import ProbabilityViz from "./ProbabilityViz";
+import MaximumLikelihoodViz from "./MaximumLikelihoodViz";
+import BayesianInferenceViz from "./BayesianInferenceViz";
+
+import LinearRegressionViz from "./LinearRegressionViz";
+import LogisticRegressionViz from "./LogisticRegressionViz";
+import KNNViz from "./KNNViz";
+import DecisionTreeViz from "./DecisionTreeViz";
+import SVMViz from "./SVMViz";
+import KMeansViz from "./KMeansViz";
+import EnsembleViz from "./EnsembleViz";
+import PCAViz from "./PCAViz";
+import MCMCViz from "./MCMCViz";
+
+import NeuralNetworkViz from "./NeuralNetworkViz";
+import CNNViz from "./CNNViz";
+import ComputerVisionViz from "./ComputerVisionViz";
+import NLPEmbeddingsViz from "./NLPEmbeddingsViz";
+import AutoencoderViz from "./AutoencoderViz";
+import TransformerViz from "./TransformerViz";
+import LLMViz from "./LLMViz";
+import RLViz from "./RLViz";
+import GenerativeViz from "./GenerativeViz";
+
+import BiasVarianceViz from "./BiasVarianceViz";
+import RegularizationViz from "./RegularizationViz";
+import EvaluationMetricsViz from "./EvaluationMetricsViz";
+
 type AlgorithmKind =
   | "calculus"
   | "linear-algebra"
@@ -1209,6 +1239,344 @@ function NeuralScene({ kind, t }: { kind: AlgorithmKind; t: number }) {
 }
 
 export default function D3Visualization({ algorithmId }: { algorithmId: string }) {
+  if (algorithmId === "calculus") {
+    return (
+      <VisualizationShell
+        title={configs["calculus"].title}
+        subtitle={configs["calculus"].subtitle}
+        insight={configs["calculus"].insight}
+        legend={configs["calculus"].legend}
+      >
+        <CalculusViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "linear-algebra") {
+    return (
+      <VisualizationShell
+        title={configs["linear-algebra"].title}
+        subtitle={configs["linear-algebra"].subtitle}
+        insight={configs["linear-algebra"].insight}
+        legend={configs["linear-algebra"].legend}
+      >
+        <LinearAlgebraViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "probability-theory") {
+    return (
+      <VisualizationShell
+        title={configs["probability-theory"].title}
+        subtitle={configs["probability-theory"].subtitle}
+        insight={configs["probability-theory"].insight}
+        legend={configs["probability-theory"].legend}
+      >
+        <ProbabilityViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "maximum-likelihood") {
+    return (
+      <VisualizationShell
+        title={configs["maximum-likelihood"].title}
+        subtitle={configs["maximum-likelihood"].subtitle}
+        insight={configs["maximum-likelihood"].insight}
+        legend={configs["maximum-likelihood"].legend}
+      >
+        <MaximumLikelihoodViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "bayesian-inference") {
+    return (
+      <VisualizationShell
+        title={configs["bayesian-inference"].title}
+        subtitle={configs["bayesian-inference"].subtitle}
+        insight={configs["bayesian-inference"].insight}
+        legend={configs["bayesian-inference"].legend}
+      >
+        <BayesianInferenceViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "linear-regression") {
+    return (
+      <VisualizationShell
+        title={configs["linear-regression"].title}
+        subtitle={configs["linear-regression"].subtitle}
+        insight={configs["linear-regression"].insight}
+        legend={configs["linear-regression"].legend}
+      >
+        <LinearRegressionViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "logistic-regression") {
+    return (
+      <VisualizationShell
+        title={configs["logistic-regression"].title}
+        subtitle={configs["logistic-regression"].subtitle}
+        insight={configs["logistic-regression"].insight}
+        legend={configs["logistic-regression"].legend}
+      >
+        <LogisticRegressionViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "knn") {
+    return (
+      <VisualizationShell
+        title={configs["knn"].title}
+        subtitle={configs["knn"].subtitle}
+        insight={configs["knn"].insight}
+        legend={configs["knn"].legend}
+      >
+        <KNNViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "instance-based-trees") {
+    return (
+      <VisualizationShell
+        title={configs["instance-based-trees"].title}
+        subtitle={configs["instance-based-trees"].subtitle}
+        insight={configs["instance-based-trees"].insight}
+        legend={configs["instance-based-trees"].legend}
+      >
+        <DecisionTreeViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "support-vector-machines") {
+    return (
+      <VisualizationShell
+        title={configs["support-vector-machines"].title}
+        subtitle={configs["support-vector-machines"].subtitle}
+        insight={configs["support-vector-machines"].insight}
+        legend={configs["support-vector-machines"].legend}
+      >
+        <SVMViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "clustering") {
+    return (
+      <VisualizationShell
+        title={configs["clustering"].title}
+        subtitle={configs["clustering"].subtitle}
+        insight={configs["clustering"].insight}
+        legend={configs["clustering"].legend}
+      >
+        <KMeansViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "ensemble-learning") {
+    return (
+      <VisualizationShell
+        title={configs["ensemble-learning"].title}
+        subtitle={configs["ensemble-learning"].subtitle}
+        insight={configs["ensemble-learning"].insight}
+        legend={configs["ensemble-learning"].legend}
+      >
+        <EnsembleViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "dimensionality-reduction") {
+    return (
+      <VisualizationShell
+        title={configs["dimensionality-reduction"].title}
+        subtitle={configs["dimensionality-reduction"].subtitle}
+        insight={configs["dimensionality-reduction"].insight}
+        legend={configs["dimensionality-reduction"].legend}
+      >
+        <PCAViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "mcmc") {
+    return (
+      <VisualizationShell
+        title={configs["mcmc"].title}
+        subtitle={configs["mcmc"].subtitle}
+        insight={configs["mcmc"].insight}
+        legend={configs["mcmc"].legend}
+      >
+        <MCMCViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "neural-networks") {
+    return (
+      <VisualizationShell
+        title={configs["neural-networks"].title}
+        subtitle={configs["neural-networks"].subtitle}
+        insight={configs["neural-networks"].insight}
+        legend={configs["neural-networks"].legend}
+      >
+        <NeuralNetworkViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "cnn") {
+    return (
+      <VisualizationShell
+        title={configs["cnn"].title}
+        subtitle={configs["cnn"].subtitle}
+        insight={configs["cnn"].insight}
+        legend={configs["cnn"].legend}
+      >
+        <CNNViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "computer-vision") {
+    return (
+      <VisualizationShell
+        title={configs["computer-vision"].title}
+        subtitle={configs["computer-vision"].subtitle}
+        insight={configs["computer-vision"].insight}
+        legend={configs["computer-vision"].legend}
+      >
+        <ComputerVisionViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "nlp") {
+    return (
+      <VisualizationShell
+        title={configs["nlp"].title}
+        subtitle={configs["nlp"].subtitle}
+        insight={configs["nlp"].insight}
+        legend={configs["nlp"].legend}
+      >
+        <NLPEmbeddingsViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "autoencoders") {
+    return (
+      <VisualizationShell
+        title={configs["autoencoders"].title}
+        subtitle={configs["autoencoders"].subtitle}
+        insight={configs["autoencoders"].insight}
+        legend={configs["autoencoders"].legend}
+      >
+        <AutoencoderViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "transformers") {
+    return (
+      <VisualizationShell
+        title={configs["transformers"].title}
+        subtitle={configs["transformers"].subtitle}
+        insight={configs["transformers"].insight}
+        legend={configs["transformers"].legend}
+      >
+        <TransformerViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "llms") {
+    return (
+      <VisualizationShell
+        title={configs["llms"].title}
+        subtitle={configs["llms"].subtitle}
+        insight={configs["llms"].insight}
+        legend={configs["llms"].legend}
+      >
+        <LLMViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "reinforcement-learning") {
+    return (
+      <VisualizationShell
+        title={configs["reinforcement-learning"].title}
+        subtitle={configs["reinforcement-learning"].subtitle}
+        insight={configs["reinforcement-learning"].insight}
+        legend={configs["reinforcement-learning"].legend}
+      >
+        <RLViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "generative-models") {
+    return (
+      <VisualizationShell
+        title={configs["generative-models"].title}
+        subtitle={configs["generative-models"].subtitle}
+        insight={configs["generative-models"].insight}
+        legend={configs["generative-models"].legend}
+      >
+        <GenerativeViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "bias-variance") {
+    return (
+      <VisualizationShell
+        title={configs["bias-variance"].title}
+        subtitle={configs["bias-variance"].subtitle}
+        insight={configs["bias-variance"].insight}
+        legend={configs["bias-variance"].legend}
+      >
+        <BiasVarianceViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "regularization") {
+    return (
+      <VisualizationShell
+        title={configs["regularization"].title}
+        subtitle={configs["regularization"].subtitle}
+        insight={configs["regularization"].insight}
+        legend={configs["regularization"].legend}
+      >
+        <RegularizationViz />
+      </VisualizationShell>
+    );
+  }
+
+  if (algorithmId === "evaluation-metrics") {
+    return (
+      <VisualizationShell
+        title={configs["evaluation-metrics"].title}
+        subtitle={configs["evaluation-metrics"].subtitle}
+        insight={configs["evaluation-metrics"].insight}
+        legend={configs["evaluation-metrics"].legend}
+      >
+        <EvaluationMetricsViz />
+      </VisualizationShell>
+    );
+  }
+
   const config = configs[algorithmId] ?? configs["linear-regression"];
   const [control, setControl] = useState(56);
 
@@ -1219,7 +1587,7 @@ export default function D3Visualization({ algorithmId }: { algorithmId: string }
       insight={config.insight}
       legend={config.legend}
     >
-      <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(260px,0.8fr)]">
+      <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(340px,1fr)]">
         <PlotFrame className="min-h-[360px]">
           <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={config.title}>
             <title>{config.title}</title>
@@ -1227,8 +1595,8 @@ export default function D3Visualization({ algorithmId }: { algorithmId: string }
             <Scene kind={config.kind} control={control} />
           </svg>
         </PlotFrame>
-        <ControlPanel className="flex flex-col gap-3">
-          <div className="rounded border border-outline bg-surface p-4 font-mono text-[11px] text-on-surface">
+        <ControlPanel className="flex min-w-0 flex-col gap-3">
+          <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
             <div className="mb-3 flex items-center justify-between gap-4 font-bold uppercase tracking-wide">
               <span>{config.control.label}</span>
               <span className="text-primary">{config.control.value(control)}</span>
@@ -1247,7 +1615,7 @@ export default function D3Visualization({ algorithmId }: { algorithmId: string }
             </div>
           </div>
           <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">
-            <span className="font-mono text-[11px] font-bold uppercase tracking-wide text-primary">Mental model</span>
+            <span className="font-mono text-xs sm:text-sm font-bold uppercase tracking-wide text-primary">Mental model</span>
             <p className="mt-2">{config.subtitle}</p>
           </div>
         </ControlPanel>

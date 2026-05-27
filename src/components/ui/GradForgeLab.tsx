@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import {
   BookOpen,
   Braces,
@@ -15,7 +16,7 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 
-type OpKind = "leaf" | "add" | "mul" | "tanh";
+type OpKind = "leaf" | "add" | "sub" | "mul" | "div" | "tanh" | "relu";
 type Phase = "Forward" | "Topo Sort" | "Seed Loss" | "Backward" | "Final";
 
 interface GraphNode {
@@ -29,7 +30,7 @@ interface GraphNode {
   localRule: string;
   forward: string;
   backward: string;
-  rustNote: string;
+  pythonNote: string;
 }
 
 interface GraphEdge {
@@ -68,56 +69,43 @@ interface Lesson {
   };
 }
 
-const rustImplementations = {
-  arena: `#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-struct NodeId(usize);
-
-struct ValueNode {
-    data: f64,
-    grad: f64,
-    op: Op,
-    parents: Vec<NodeId>,
-    label: &'static str,
-}
-
-struct Graph {
-    nodes: Vec<ValueNode>,
-}`,
-  backward: `match node.op {
-    Op::Add => {
-        left.grad += out.grad * 1.0;
-        right.grad += out.grad * 1.0;
-    }
-    Op::Mul => {
-        left.grad += out.grad * right.data;
-        right.grad += out.grad * left.data;
-    }
-    Op::Tanh => {
-        input.grad += out.grad * (1.0 - out.data * out.data);
-    }
-    Op::Leaf => {}
-}`,
-  ownership: `// Good for a first toy engine:
-type ValueRef = Rc<RefCell<Value>>;
-
-// Better for visualisation:
-// store nodes in one arena and pass stable IDs.
-let x = graph.value("x", 2.0);
-let y = graph.value("y", -3.0);
-let z = graph.mul(x, y);`,
+const pythonImplementations = {
+  arena: `class Value:
+    def __init__(self, data, _children=(), _op='', label=''):
+        self.data = data
+        self.grad = 0.0
+        self._backward = lambda: None
+        self._prev = set(_children)
+        self._op = _op
+        self.label = label`,
+  backward: `def _backward():
+    self.grad += out.grad * (1.0 - out.data**2)
+out._backward = _backward`,
+  ownership: `a = Value(2.0, label='a')
+b = Value(-3.0, label='b')
+c = a * b
+d = c.tanh()
+d.backward()`
 };
 
 function formatNumber(value: number | undefined) {
   if (value === undefined) return "?";
+  if (!Number.isFinite(value)) return "undefined";
   if (Math.abs(value) < 0.00001) return "0.00";
   return value.toFixed(2);
+}
+
+function safeDivide(numerator: number, denominator: number) {
+  const stableDenominator =
+    Math.abs(denominator) < 1e-9 ? Math.sign(denominator || 1) * 1e-9 : denominator;
+  return numerator / stableDenominator;
 }
 
 function edgeKey(edge: GraphEdge) {
   return `${edge.from}->${edge.to}${edge.slot === undefined ? "" : `:${edge.slot}`}`;
 }
 
-type EngineNode = Omit<GraphNode, "x" | "y" | "localRule" | "forward" | "backward" | "rustNote">;
+type EngineNode = Omit<GraphNode, "x" | "y" | "localRule" | "forward" | "backward" | "pythonNote">;
 
 interface EngineGraph {
   nodes: EngineNode[];
@@ -137,8 +125,22 @@ function localRuleFor(node: EngineNode, nodesById: Map<string, EngineNode>) {
     return `d${node.id}/d${leftId} = 1.0, d${node.id}/d${rightId} = 1.0`;
   }
 
+  if (node.op === "sub") {
+    return `d${node.id}/d${leftId} = 1.0, d${node.id}/d${rightId} = -1.0`;
+  }
+
   if (node.op === "mul") {
     return `d${node.id}/d${leftId} = ${rightId} = ${formatNumber(right?.data)}, d${node.id}/d${rightId} = ${leftId} = ${formatNumber(left?.data)}`;
+  }
+
+  if (node.op === "div") {
+    const rightValue = right?.data ?? 1;
+    const guardedRight = Math.abs(rightValue) < 1e-9 ? 1e-9 : rightValue;
+    return `d${node.id}/d${leftId} = 1/${rightId} = ${formatNumber(safeDivide(1, rightValue))}, d${node.id}/d${rightId} = -${leftId}/${rightId}^2 = ${formatNumber(-(left?.data ?? 0) / (guardedRight ** 2))}`;
+  }
+
+  if (node.op === "relu") {
+    return `d${node.id}/d${leftId} = ${leftId} > 0 ? 1 : 0 = ${formatNumber((left?.data ?? 0) > 0 ? 1 : 0)}`;
   }
 
   return `d${node.id}/d${leftId} = 1 - tanh(${leftId})^2 = ${formatNumber(1 - node.data * node.data)}`;
@@ -148,15 +150,27 @@ function backwardRuleFor(node: EngineNode) {
   const [leftId, rightId] = node.parents;
 
   if (node.op === "leaf") {
-    return "No local backward function. Parents are empty.";
+    return "Leaves don't have parents to pass gradients to!";
   }
 
   if (node.op === "add") {
     return `${leftId}.grad += ${node.id}.grad; ${rightId}.grad += ${node.id}.grad;`;
   }
 
+  if (node.op === "sub") {
+    return `${leftId}.grad += ${node.id}.grad; ${rightId}.grad -= ${node.id}.grad;`;
+  }
+
   if (node.op === "mul") {
     return `${leftId}.grad += ${node.id}.grad * ${rightId}.data; ${rightId}.grad += ${node.id}.grad * ${leftId}.data;`;
+  }
+
+  if (node.op === "div") {
+    return `${leftId}.grad += ${node.id}.grad / ${rightId}.data; ${rightId}.grad -= ${node.id}.grad * ${leftId}.data / (${rightId}.data * ${rightId}.data);`;
+  }
+
+  if (node.op === "relu") {
+    return `${leftId}.grad += ${node.id}.grad * (${node.id}.data > 0 ? 1.0 : 0.0);`;
   }
 
   return `${leftId}.grad += ${node.id}.grad * (1.0 - ${node.id}.data * ${node.id}.data);`;
@@ -171,23 +185,41 @@ function forwardTextFor(node: EngineNode, nodesById: Map<string, EngineNode>) {
   if (node.op === "add") {
     return `${node.id} = ${leftId} + ${rightId} = ${formatNumber(left?.data)} + ${formatNumber(right?.data)} = ${formatNumber(node.data)}`;
   }
+  if (node.op === "sub") {
+    return `${node.id} = ${leftId} - ${rightId} = ${formatNumber(left?.data)} - ${formatNumber(right?.data)} = ${formatNumber(node.data)}`;
+  }
   if (node.op === "mul") {
     return `${node.id} = ${leftId} * ${rightId} = ${formatNumber(left?.data)} * ${formatNumber(right?.data)} = ${formatNumber(node.data)}`;
+  }
+  if (node.op === "div") {
+    return `${node.id} = ${leftId} / ${rightId} = ${formatNumber(left?.data)} / ${formatNumber(right?.data)} = ${formatNumber(node.data)}`;
+  }
+  if (node.op === "relu") {
+    return `${node.id} = relu(${leftId}) = relu(${formatNumber(left?.data)}) = ${formatNumber(node.data)}`;
   }
   return `${node.id} = tanh(${leftId}) = tanh(${formatNumber(left?.data)}) = ${formatNumber(node.data)}`;
 }
 
-function rustNoteFor(node: EngineNode) {
+function pythonNoteFor(node: EngineNode) {
   if (node.op === "leaf") {
-    return "This is an arena leaf: the code owns a stable NodeId and the Graph owns the mutable data.";
+    return "This is a starting value! It holds our data and collects gradients, but since it has no parents, the backward step stops here.";
   }
   if (node.op === "add") {
-    return "Add is a backward closure with two parent NodeIds and local derivatives equal to 1.";
+    return "Addition is super simple: it just passes the incoming gradient equally to both of its inputs!";
+  }
+  if (node.op === "sub") {
+    return "Subtraction passes the gradient to the first input as-is, but flips the sign for the second input.";
   }
   if (node.op === "mul") {
-    return "Mul reads both parent data values before mutating parent gradients, which keeps Rust borrowing simple in an arena.";
+    return "Multiplication is a cross-over! It scales the gradient for one input using the data from the other input.";
   }
-  return "Tanh stores its output value so backward can compute 1 - out^2 without recomputing tanh.";
+  if (node.op === "div") {
+    return "Division uses the classic quotient rule to figure out how much gradient goes to the top and bottom inputs.";
+  }
+  if (node.op === "relu") {
+    return "ReLU acts like a gatekeeper. If the data was positive, it lets the gradient flow through. Otherwise, it blocks it (0)!";
+  }
+  return "Tanh squishes the numbers. Its backward step scales the gradient based on how 'squished' the data got.";
 }
 
 function topoSort(graph: EngineGraph) {
@@ -249,7 +281,7 @@ function layoutNodes(nodes: EngineNode[], outputId: string): GraphNode[] {
       localRule: localRuleFor(node, nodesByEngineId),
       forward: forwardTextFor(node, nodesByEngineId),
       backward: backwardRuleFor(node),
-      rustNote: rustNoteFor(node),
+      pythonNote: pythonNoteFor(node),
     };
     return decorated;
   });
@@ -293,10 +325,22 @@ function makeGradientStories(nodes: EngineNode[], finalGrads: Record<string, num
               const child = nodesById.get(childId);
               if (!child) return `${childId} contributes to ${node.id}.grad.`;
               if (child.op === "add") return `${childId} adds a direct contribution because d${childId}/d${node.id} = 1.`;
+              if (child.op === "sub") return `${childId} adds a contribution because d${childId}/d${node.id} = ${child.parents[0] === node.id ? '1' : '-1'}.`;
               if (child.op === "mul") {
                 const otherId = child.parents.find((parentId) => parentId !== node.id) ?? node.id;
                 const other = nodesById.get(otherId);
                 return `${childId} contributes ${childId}.grad * ${otherId}.data = ${formatNumber(finalGrads[childId])} * ${formatNumber(other?.data)}.`;
+              }
+              if (child.op === "div") {
+                const isLeft = child.parents[0] === node.id;
+                const otherId = child.parents.find((parentId) => parentId !== node.id) ?? node.id;
+                const other = nodesById.get(otherId);
+                return isLeft
+                  ? `${childId} contributes ${childId}.grad / ${otherId}.data = ${formatNumber(finalGrads[childId])} / ${formatNumber(other?.data)}.`
+                  : `${childId} contributes -${childId}.grad * ${otherId}.data / ${node.id}.data^2.`;
+              }
+              if (child.op === "relu") {
+                return `${childId} contributes through relu with local derivative ${childId}.data > 0 ? 1 : 0.`;
               }
               return `${childId} contributes through tanh with local derivative 1 - ${childId}.data^2.`;
             });
@@ -364,6 +408,16 @@ function runBackwardTrace(nodes: EngineNode[], outputId: string) {
       });
     }
 
+    if (node.op === "sub") {
+      const [leftId, rightId] = node.parents;
+      const leftContribution = grads[node.id];
+      const rightContribution = -grads[node.id];
+      grads[leftId] = (grads[leftId] ?? 0) + leftContribution;
+      grads[rightId] = (grads[rightId] ?? 0) + rightContribution;
+      updates.push(`${leftId}.grad += ${formatNumber(leftContribution)} * 1.0 = ${formatNumber(leftContribution)}, total ${formatNumber(grads[leftId])}`);
+      updates.push(`${rightId}.grad += ${formatNumber(rightContribution)} * -1.0 = ${formatNumber(rightContribution)}, total ${formatNumber(grads[rightId])}`);
+    }
+
     if (node.op === "mul") {
       const [leftId, rightId] = node.parents;
       const left = nodesById.get(leftId);
@@ -381,12 +435,36 @@ function runBackwardTrace(nodes: EngineNode[], outputId: string) {
       });
     }
 
+    if (node.op === "div") {
+      const [leftId, rightId] = node.parents;
+      const left = nodesById.get(leftId);
+      const right = nodesById.get(rightId);
+      const rightValue = right?.data ?? 1;
+      const guardedRight = Math.abs(rightValue) < 1e-9 ? 1e-9 : rightValue;
+      const leftDeriv = safeDivide(1, rightValue);
+      const rightDeriv = -(left?.data ?? 0) / (guardedRight ** 2);
+      const leftContribution = grads[node.id] * leftDeriv;
+      const rightContribution = grads[node.id] * rightDeriv;
+      grads[leftId] = (grads[leftId] ?? 0) + leftContribution;
+      grads[rightId] = (grads[rightId] ?? 0) + rightContribution;
+      updates.push(`${leftId}.grad += ${formatNumber(grads[node.id])} / ${rightId}.data (${formatNumber(leftDeriv)}) = ${formatNumber(leftContribution)}, total ${formatNumber(grads[leftId])}`);
+      updates.push(`${rightId}.grad += ${formatNumber(grads[node.id])} * -${leftId}.data / ${rightId}.data^2 (${formatNumber(rightDeriv)}) = ${formatNumber(rightContribution)}, total ${formatNumber(grads[rightId])}`);
+    }
+
     if (node.op === "tanh") {
       const [parentId] = node.parents;
       const localDerivative = 1 - node.data * node.data;
       const contribution = grads[node.id] * localDerivative;
       grads[parentId] = (grads[parentId] ?? 0) + contribution;
       updates.push(`${parentId}.grad += ${formatNumber(grads[node.id])} * (1 - ${node.id}.data^2) = ${formatNumber(contribution)}, total ${formatNumber(grads[parentId])}`);
+    }
+
+    if (node.op === "relu") {
+      const [parentId] = node.parents;
+      const localDerivative = node.data > 0 ? 1 : 0;
+      const contribution = grads[node.id] * localDerivative;
+      grads[parentId] = (grads[parentId] ?? 0) + contribution;
+      updates.push(`${parentId}.grad += ${formatNumber(grads[node.id])} * (${node.id}.data > 0 ? 1 : 0) = ${formatNumber(contribution)}, total ${formatNumber(grads[parentId])}`);
     }
 
     trace.push({
@@ -426,8 +504,11 @@ function evaluateGraph(nodes: EngineNode[], replacements: Record<string, number>
     const left = values.get(leftId) ?? 0;
     const right = values.get(rightId) ?? 0;
     if (node.op === "add") values.set(node.id, left + right);
+    if (node.op === "sub") values.set(node.id, left - right);
     if (node.op === "mul") values.set(node.id, left * right);
+    if (node.op === "div") values.set(node.id, safeDivide(left, right));
     if (node.op === "tanh") values.set(node.id, Math.tanh(left));
+    if (node.op === "relu") values.set(node.id, Math.max(0, left));
   });
 
   return values;
@@ -449,9 +530,10 @@ function createLessonFromEngine(sourceCode: string, graph: EngineGraph): Lesson 
 
   return {
     id: "custom",
-    title: "Custom Rust Autograd Trace",
-    subtitle: `${graph.outputId} = browser-executed arena graph`,
-    objective: "Run the edited Rust-shaped code through the scalar autograd interpreter.",
+    title: "Your Python Code Playground",
+    subtitle:
+      "Type your own code! Write everyday Python math and see how it builds the computational graph.",
+    objective: "Hit the 'Run My Code' button below to watch the engine break your math down step by step.",
     code: sourceCode,
     nodes,
     edges: makeEdges(graph.nodes),
@@ -467,7 +549,15 @@ function createLessonFromEngine(sourceCode: string, graph: EngineGraph): Lesson 
   };
 }
 
-function parseRustLabCode(sourceCode: string): Lesson {
+function positionsFor(nodes: GraphNode[]) {
+  const initialPositions: Record<string, { x: number; y: number }> = {};
+  nodes.forEach((node) => {
+    initialPositions[node.id] = { x: node.x, y: node.y };
+  });
+  return initialPositions;
+}
+
+function parsePythonLabCode(sourceCode: string): Lesson {
   const env = new Map<string, EngineNode>();
   const nodes: EngineNode[] = [];
   let outputId = "";
@@ -481,14 +571,15 @@ function parseRustLabCode(sourceCode: string): Lesson {
   sourceCode
     .split("\n")
     .map((line) => line.trim())
-    .filter((line) => line && !line.startsWith("//"))
+    .filter((line) => line && !line.startsWith("#"))
     .forEach((line) => {
-      const valueMatch = line.match(/^let\s+([a-zA-Z_]\w*)\s*=\s*graph\.value\("([^"]+)",\s*(-?\d+(?:\.\d+)?)\)\s*;?$/);
+      const numericLiteral = "[-+]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][-+]?\\d+)?";
+      const valueMatch = line.match(new RegExp(`^([a-zA-Z_]\\w*)\\s*=\\s*Value\\((${numericLiteral})(?:,\\s*label=['"]([^'"]+)['"])?\\)$`));
       if (valueMatch) {
-        const [, variable, label, rawValue] = valueMatch;
+        const [, variable, rawValue, label] = valueMatch;
         const node: EngineNode = {
           id: variable,
-          label,
+          label: label || variable,
           op: "leaf",
           data: Number(rawValue),
           parents: [],
@@ -498,16 +589,17 @@ function parseRustLabCode(sourceCode: string): Lesson {
         return;
       }
 
-      const binaryMatch = line.match(/^let\s+([a-zA-Z_]\w*)\s*=\s*graph\.(add|mul)\(([a-zA-Z_]\w*),\s*([a-zA-Z_]\w*)\)\s*;?$/);
+      const binaryMatch = line.match(/^([a-zA-Z_]\w*)\s*=\s*([a-zA-Z_]\w*)\s*([\+\-\*\/])\s*([a-zA-Z_]\w*)$/);
       if (binaryMatch) {
-        const [, variable, op, leftId, rightId] = binaryMatch;
+        const [, variable, leftId, opChar, rightId] = binaryMatch;
         const left = getNode(leftId, line);
         const right = getNode(rightId, line);
-        const data = op === "add" ? left.data + right.data : left.data * right.data;
+        const op = opChar === "+" ? "add" : opChar === "-" ? "sub" : opChar === "*" ? "mul" : "div";
+        const data = op === "add" ? left.data + right.data : op === "sub" ? left.data - right.data : op === "mul" ? left.data * right.data : safeDivide(left.data, right.data);
         const node: EngineNode = {
           id: variable,
-          label: `${variable} = ${leftId} ${op === "add" ? "+" : "*"} ${rightId}`,
-          op: op as "add" | "mul",
+          label: `${variable} = ${leftId} ${opChar} ${rightId}`,
+          op: op,
           data,
           parents: [leftId, rightId],
         };
@@ -516,15 +608,15 @@ function parseRustLabCode(sourceCode: string): Lesson {
         return;
       }
 
-      const tanhMatch = line.match(/^let\s+([a-zA-Z_]\w*)\s*=\s*graph\.tanh\(([a-zA-Z_]\w*)\)\s*;?$/);
-      if (tanhMatch) {
-        const [, variable, inputId] = tanhMatch;
+      const unaryMatch = line.match(/^([a-zA-Z_]\w*)\s*=\s*([a-zA-Z_]\w*)\.(tanh|relu)\(\)$/);
+      if (unaryMatch) {
+        const [, variable, inputId, op] = unaryMatch;
         const input = getNode(inputId, line);
         const node: EngineNode = {
           id: variable,
-          label: `${variable} = tanh(${inputId})`,
-          op: "tanh",
-          data: Math.tanh(input.data),
+          label: `${variable} = ${inputId}.${op}()`,
+          op: op as "tanh" | "relu",
+          data: op === "tanh" ? Math.tanh(input.data) : Math.max(0, input.data),
           parents: [inputId],
         };
         env.set(variable, node);
@@ -532,7 +624,7 @@ function parseRustLabCode(sourceCode: string): Lesson {
         return;
       }
 
-      const backwardMatch = line.match(/^graph\.backward\(([a-zA-Z_]\w*)\)\s*;?$/);
+      const backwardMatch = line.match(/^([a-zA-Z_]\w*)\.backward\(\)$/);
       if (backwardMatch) {
         const [, id] = backwardMatch;
         getNode(id, line);
@@ -544,7 +636,7 @@ function parseRustLabCode(sourceCode: string): Lesson {
     });
 
   if (nodes.length === 0) {
-    throw new Error("Add at least one graph.value call.");
+    throw new Error("Add at least one Value() assignment.");
   }
 
   if (!outputId) {
@@ -555,8 +647,8 @@ function parseRustLabCode(sourceCode: string): Lesson {
 }
 
 function circleEdgePath(
-  from: GraphNode,
-  to: GraphNode,
+  from: { x: number; y: number },
+  to: { x: number; y: number },
   index: number,
   siblings: number,
 ) {
@@ -596,7 +688,7 @@ function createLessons(): Lesson[] {
       localRule: "Leaf value. It receives gradient from every child path.",
       forward: "x = 2.0",
       backward: "No local backward function. Children accumulate into x.grad.",
-      rustNote: "A leaf is a NodeId whose op is Op::Leaf and parents is empty.",
+      pythonNote: "A leaf is a NodeId whose op is Op::Leaf and parents is empty.",
     },
     {
       id: "y",
@@ -609,7 +701,7 @@ function createLessons(): Lesson[] {
       localRule: "Leaf value. It receives gradient from the multiply node.",
       forward: "y = -3.0",
       backward: "No local backward function. The multiply rule writes y.grad.",
-      rustNote: "Leaves hold trainable data in the same node table as ops.",
+      pythonNote: "Leaves hold trainable data in the same node table as ops.",
     },
     {
       id: "c",
@@ -622,7 +714,7 @@ function createLessons(): Lesson[] {
       localRule: "dc/dx = y = -3.0, dc/dy = x = 2.0",
       forward: "c = 2.0 * -3.0 = -6.0",
       backward: "x.grad += c.grad * y.data; y.grad += c.grad * x.data;",
-      rustNote: "Mul needs both parent data values, so the arena lookup happens before mutation.",
+      pythonNote: "Mul needs both parent data values, so the arena lookup happens before mutation.",
     },
     {
       id: "d",
@@ -635,7 +727,7 @@ function createLessons(): Lesson[] {
       localRule: "dd/dc = 1.0, dd/dx = 1.0",
       forward: "d = -6.0 + 2.0 = -4.0",
       backward: "c.grad += d.grad; x.grad += d.grad;",
-      rustNote: "Because x is reused, Add contributes one path and Mul contributes another.",
+      pythonNote: "Because x is reused, Add contributes one path and Mul contributes another.",
     },
   ];
 
@@ -658,7 +750,7 @@ function createLessons(): Lesson[] {
       localRule: "The same NodeId is used twice by the multiply op.",
       forward: "x = 3.0",
       backward: "Two parent slots both target x, so both contributions must be added.",
-      rustNote: "This is the bug finder for grad = contribution versus grad += contribution.",
+      pythonNote: "This is the bug finder for grad = contribution versus grad += contribution.",
     },
     {
       id: "y",
@@ -671,7 +763,7 @@ function createLessons(): Lesson[] {
       localRule: "dy/dx(left) = x = 3.0 and dy/dx(right) = x = 3.0",
       forward: "y = 3.0 * 3.0 = 9.0",
       backward: "x.grad += y.grad * 3.0; x.grad += y.grad * 3.0;",
-      rustNote: "The arena stores one x node, while the op records two parent references to it.",
+      pythonNote: "The arena stores one x node, while the op records two parent references to it.",
     },
   ];
 
@@ -687,7 +779,7 @@ function createLessons(): Lesson[] {
       localRule: "Leaf input to multiplication.",
       forward: "a = 2.0",
       backward: "Receives gradient from c.",
-      rustNote: "NodeId(0) can be copied freely; the graph owns the node data.",
+      pythonNote: "NodeId(0) can be copied freely; the graph owns the node data.",
     },
     {
       id: "b",
@@ -700,7 +792,7 @@ function createLessons(): Lesson[] {
       localRule: "Leaf input to multiplication.",
       forward: "b = 3.0",
       backward: "Receives gradient from c.",
-      rustNote: "No shared mutation is needed until the backward pass.",
+      pythonNote: "No shared mutation is needed until the backward pass.",
     },
     {
       id: "c",
@@ -713,7 +805,7 @@ function createLessons(): Lesson[] {
       localRule: "dc/da = b = 3.0, dc/db = a = 2.0",
       forward: "c = 2.0 * 3.0 = 6.0",
       backward: "a.grad += c.grad * b.data; b.grad += c.grad * a.data;",
-      rustNote: "Backward order must visit d before c so c.grad is ready.",
+      pythonNote: "Backward order must visit d before c so c.grad is ready.",
     },
     {
       id: "d",
@@ -726,23 +818,22 @@ function createLessons(): Lesson[] {
       localRule: "dd/dc = 1 - tanh(c)^2 = 0.000025",
       forward: "d = tanh(6.0) = 0.9999877",
       backward: "c.grad += d.grad * (1.0 - d.data * d.data);",
-      rustNote: "Tanh can use the output value already stored in the node.",
+      pythonNote: "Tanh can use the output value already stored in the node.",
     },
   ];
 
   return [
     {
       id: "reuse",
-      title: "Multiplication and Gradient Accumulation",
+      title: "Multiplication & Gradient Accumulation",
       subtitle: "z = x * y + x",
       objective:
-        "See why a reused variable receives gradient through multiple paths.",
-      code: `let x = graph.value("x", 2.0);
-let y = graph.value("y", -3.0);
-let c = graph.mul(x, y);
-let d = graph.add(c, x);
-
-graph.backward(d);`,
+        "Let's see what happens when we use the same variable 'x' twice! It should collect gradients from both paths.",
+      code: `x = Value(2.0, label="x")
+y = Value(-3.0, label="y")
+c = x * y
+d = c + x
+d.backward()`,
       nodes: sharedNodes,
       edges: sharedEdges,
       topo: ["x", "y", "c", "d"],
@@ -752,9 +843,9 @@ graph.backward(d);`,
           activeNode: "d",
           grads: {},
           activeEdges: sharedEdges.map(edgeKey),
-          title: "Build the graph during the forward pass",
+          title: "Build the graph!",
           explanation:
-            "The arena stores four nodes. The output d remembers that it came from c and x.",
+            "We just created four nodes. Notice how our output 'd' remembers it was made by adding 'c' and 'x'.",
           updates: ["x = 2.0", "y = -3.0", "c = x * y = -6.0", "d = c + x = -4.0"],
         },
         {
@@ -762,9 +853,9 @@ graph.backward(d);`,
           activeNode: "d",
           grads: {},
           activeEdges: ["c->d", "x->d"],
-          title: "Create a topological ordering",
+          title: "Figure out the backward order",
           explanation:
-            "DFS visits parents before children, giving [x, y, c, d]. Backward reverses it.",
+            "We need to figure out the right order to go backwards. Topo sort makes sure parents are visited after children.",
           updates: ["Topo order: [x, y, c, d]", "Backward order: [d, c, y, x]"],
         },
         {
@@ -772,9 +863,9 @@ graph.backward(d);`,
           activeNode: "d",
           grads: { d: 1 },
           activeEdges: [],
-          title: "Seed the output gradient",
+          title: "Spark the gradient",
           explanation:
-            "The derivative of the output with respect to itself is 1.0.",
+            "We always start the backward pass by giving the final output a gradient of 1.0. It's the spark that starts the fire!",
           updates: ["d.grad = 1.0"],
         },
         {
@@ -784,7 +875,7 @@ graph.backward(d);`,
           activeEdges: ["c->d", "x->d"],
           title: "Backprop through add",
           explanation:
-            "Addition copies the incoming gradient to both parents because both local derivatives are 1.",
+            "Addition is a gradient distributor! It passes that 1.0 gradient equally to both 'c' and 'x'.",
           updates: ["c.grad += 1.0 * 1.0 = 1.0", "x.grad += 1.0 * 1.0 = 1.0"],
         },
         {
@@ -794,7 +885,7 @@ graph.backward(d);`,
           activeEdges: ["x->c", "y->c"],
           title: "Backprop through multiply",
           explanation:
-            "The multiply node sends y.data to x and x.data to y, scaled by c.grad.",
+            "Multiplication is a switcher. It sends y's data to x, and x's data to y, scaling by the incoming gradient.",
           updates: ["x.grad += 1.0 * -3.0 = -3.0, total -2.0", "y.grad += 1.0 * 2.0 = 2.0"],
         },
         {
@@ -804,7 +895,7 @@ graph.backward(d);`,
           activeEdges: [],
           title: "Final gradients",
           explanation:
-            "x has two paths into d, so the contributions 1.0 and -3.0 accumulate.",
+            "Because 'x' was used twice, it neatly collected gradients from both the addition and the multiplication paths!",
           updates: ["x.grad = -2.0", "y.grad = 2.0", "c.grad = 1.0", "d.grad = 1.0"],
         },
       ],
@@ -829,11 +920,10 @@ graph.backward(d);`,
       title: "The Classic x Squared Test",
       subtitle: "y = x * x",
       objective:
-        "Use one graph node twice and prove that accumulation is required.",
-      code: `let x = graph.value("x", 3.0);
-let y = graph.mul(x, x);
-
-graph.backward(y);`,
+        "Let's use the same node twice in a single operation! We'll see why gradients must be added up (accumulated).",
+      code: `x = Value(3.0, label="x")
+y = x * x
+y.backward()`,
       nodes: accumulationNodes,
       edges: [
         { from: "x", to: "y", label: "left parent" },
@@ -848,7 +938,7 @@ graph.backward(y);`,
           activeEdges: ["x->y"],
           title: "Build y = x * x",
           explanation:
-            "Both parent slots point to the same x node. This is one variable reused twice.",
+            "Notice how both inputs for our multiply node point back to the very same 'x' node!",
           updates: ["x = 3.0", "y = 9.0"],
         },
         {
@@ -858,7 +948,7 @@ graph.backward(y);`,
           activeEdges: ["x->y"],
           title: "Reverse the topo order",
           explanation:
-            "The only valid backward order is [y, x]. x cannot run before y has sent its gradient.",
+            "We can only go backwards from y to x. If we tried doing x first, we wouldn't have the gradient from y yet!",
           updates: ["Topo order: [x, y]", "Backward order: [y, x]"],
         },
         {
@@ -867,7 +957,7 @@ graph.backward(y);`,
           grads: { y: 1 },
           activeEdges: [],
           title: "Seed y.grad",
-          explanation: "dy/dy = 1.0, so the output starts the backward pass.",
+          explanation: "Just like before, we kickstart the process by giving our output 'y' a gradient of 1.0.",
           updates: ["y.grad = 1.0"],
         },
         {
@@ -877,7 +967,7 @@ graph.backward(y);`,
           activeEdges: ["x->y"],
           title: "Apply the multiply rule twice",
           explanation:
-            "The left slot contributes 3.0 and the right slot contributes 3.0 to the same node.",
+            "The multiply node asks 'what was the other input?' for both sides. Since both are 3.0, it sends 3.0 down both paths!",
           updates: ["left contribution = 1.0 * 3.0 = 3.0", "right contribution = 1.0 * 3.0 = 3.0"],
         },
         {
@@ -886,7 +976,7 @@ graph.backward(y);`,
           grads: { y: 1, x: 6 },
           activeEdges: [],
           title: "Final gradient",
-          explanation: "x.grad = 3.0 + 3.0 = 6.0, matching d(x^2)/dx = 2x.",
+          explanation: "Our 'x' node caught 3.0 from the left and 3.0 from the right, giving a total of 6.0! This matches the calculus rule d(x²)/dx = 2x.",
           updates: ["x.grad = 6.0"],
         },
       ],
@@ -907,16 +997,15 @@ graph.backward(y);`,
     },
     {
       id: "tanh",
-      title: "Topological Order with tanh",
+      title: "Squishing Gradients with Tanh",
       subtitle: "d = tanh(a * b)",
       objective:
-        "Watch a nonlinear local derivative gate the gradient before multiplication runs.",
-      code: `let a = graph.value("a", 2.0);
-let b = graph.value("b", 3.0);
-let c = graph.mul(a, b);
-let d = graph.tanh(c);
-
-graph.backward(d);`,
+        "Watch what happens when a number gets too big! Tanh 'squishes' it, which almost completely stops the gradient from flowing backwards.",
+      code: `a = Value(2.0, label="a")
+b = Value(3.0, label="b")
+c = a * b
+d = c.tanh()
+d.backward()`,
       nodes: tanhNodes,
       edges: [
         { from: "a", to: "c", label: "left" },
@@ -931,7 +1020,7 @@ graph.backward(d);`,
           grads: {},
           activeEdges: ["a->c", "b->c", "c->d"],
           title: "Forward values",
-          explanation: "The output is almost saturated because tanh(6) is close to 1.",
+          explanation: "Our multiplication gave us 6.0. Tanh squishes 6.0 down to almost exactly 1.0 (it's nearly maxed out or 'saturated').",
           updates: ["c = 6.0", "d = tanh(c) = 0.9999877"],
         },
         {
@@ -940,7 +1029,7 @@ graph.backward(d);`,
           grads: {},
           activeEdges: ["c->d"],
           title: "Topological dependency",
-          explanation: "d must run before c because c.grad is produced by tanh's backward rule.",
+          explanation: "To go backwards, 'd' has to run first so it can pass its gradient down to 'c'.",
           updates: ["Topo order: [a, b, c, d]", "Backward order: [d, c, b, a]"],
         },
         {
@@ -949,7 +1038,7 @@ graph.backward(d);`,
           grads: { d: 1 },
           activeEdges: [],
           title: "Seed d.grad",
-          explanation: "The output gradient starts at 1.0.",
+          explanation: "We start the backward chain by giving our final output a gradient of 1.0.",
           updates: ["d.grad = 1.0"],
         },
         {
@@ -959,7 +1048,7 @@ graph.backward(d);`,
           activeEdges: ["c->d"],
           title: "Backprop through tanh",
           explanation:
-            "tanh is saturated, so 1 - d.data^2 is tiny. The gradient entering c is tiny too.",
+            "Because our tanh was nearly maxed out, its derivative is tiny! It chokes the 1.0 gradient down to just 0.000025.",
           updates: ["c.grad += 1.0 * (1 - 0.9999877^2) = 0.000025"],
         },
         {
@@ -968,7 +1057,7 @@ graph.backward(d);`,
           grads: { d: 1, c: 0.000025, a: 0.000074, b: 0.000049 },
           activeEdges: ["a->c", "b->c"],
           title: "Backprop through multiply",
-          explanation: "The tiny gradient at c is scaled by the opposite parent values.",
+          explanation: "That tiny gradient reaches the multiply node, which splits and scales it for 'a' and 'b'.",
           updates: ["a.grad += 0.000025 * 3.0 = 0.000074", "b.grad += 0.000025 * 2.0 = 0.000049"],
         },
         {
@@ -977,7 +1066,7 @@ graph.backward(d);`,
           grads: { d: 1, c: 0.000025, a: 0.000074, b: 0.000049 },
           activeEdges: [],
           title: "Final gradients",
-          explanation: "Saturation makes the whole upstream gradient small.",
+          explanation: "The whole network suffers! Because tanh squished the forward pass, very little learning signal reaches the start.",
           updates: ["a.grad ~= 0.000074", "b.grad ~= 0.000049"],
         },
       ],
@@ -993,13 +1082,27 @@ graph.backward(d);`,
         answer: "d creates c.grad",
       },
     },
+    {
+      ...parsePythonLabCode(`a = Value(-2.0, label="a")
+b = a.relu()
+b.backward()`),
+      id: "relu",
+      title: "Dead ReLU",
+      subtitle: "b = relu(a)",
+      objective: "Watch what happens when a negative number hits a ReLU! It completely kills the gradient.",
+      quiz: {
+        prompt: "Why is a's gradient zero?",
+        options: ["a is negative", "ReLU output is zero", "Topological sort failed"],
+        answer: "a is negative",
+      },
+    },
   ];
 }
 
 function nodeAccent(op: OpKind) {
   if (op === "leaf") return "var(--color-primary)";
-  if (op === "mul") return "var(--color-warning)";
-  if (op === "tanh") return "var(--color-error)";
+  if (op === "mul" || op === "div") return "var(--color-warning)";
+  if (op === "tanh" || op === "relu") return "var(--color-error)";
   return "var(--color-secondary)";
 }
 
@@ -1012,10 +1115,26 @@ export default function GradForgeLab() {
   const [lens, setLens] = useState(2);
   const [codeDraft, setCodeDraft] = useState(lessons[0].code);
   const [quizChoice, setQuizChoice] = useState("");
-  const [implTab, setImplTab] = useState<keyof typeof rustImplementations>("arena");
+  const [implTab, setImplTab] = useState<keyof typeof pythonImplementations>("arena");
   const [runMessage, setRunMessage] = useState(
-    "Ready: edit graph.value, graph.add, graph.mul, graph.tanh, then run.",
+    "Ready: edit Value(...), then run.",
   );
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [nodePositions, setNodePositions] = useState<Record<string, { x: number; y: number }>>(
+    () => positionsFor(lessons[0].nodes),
+  );
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    const timer = setTimeout(() => {
+      if (stepIndex >= activeLesson.trace.length - 1) {
+        setIsPlaying(false);
+      } else {
+        setStepIndex((s) => s + 1);
+      }
+    }, stepIndex >= activeLesson.trace.length - 1 ? 0 : 1200);
+    return () => clearTimeout(timer);
+  }, [isPlaying, stepIndex, activeLesson.trace.length]);
 
   const lesson = activeLesson;
   const step = lesson.trace[stepIndex];
@@ -1031,8 +1150,10 @@ export default function GradForgeLab() {
     setActiveLesson(next);
     setStepIndex(0);
     setSelectedNodeId(next.nodes[0].id);
+    setNodePositions(positionsFor(next.nodes));
     setCodeDraft(next.code);
     setQuizChoice("");
+    setIsPlaying(false);
     setRunMessage("Loaded preset lesson.");
   }
 
@@ -1042,13 +1163,15 @@ export default function GradForgeLab() {
 
   function runEditorCode() {
     try {
-      const customLesson = parseRustLabCode(codeDraft);
+      const customLesson = parsePythonLabCode(codeDraft);
       setActiveLesson(customLesson);
       setLessonIndex(-1);
-      setStepIndex(customLesson.trace.length - 1);
+      setStepIndex(0);
       setSelectedNodeId(customLesson.nodes[0].id);
+      setNodePositions(positionsFor(customLesson.nodes));
       setQuizChoice("");
-      setRunMessage("Executed in the browser scalar autograd engine.");
+      setIsPlaying(true);
+      setRunMessage("Success! I just ran your code through our mini autograd engine!");
     } catch (error) {
       setRunMessage(error instanceof Error ? error.message : "Could not run this code.");
     }
@@ -1061,6 +1184,10 @@ export default function GradForgeLab() {
           <div className="mb-4 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-primary">
             <BookOpen size={14} />
             Learn Mode
+          </div>
+          <div className="mb-3 text-[10px] uppercase tracking-wide text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline mb-3">
+            <p className="font-bold mb-1 text-primary">How to use this:</p>
+            Choose a lesson below to load pre-written code, or write your own Python code on the right. When you&apos;re ready, hit &quot;Run My Code&quot; to trace it.
           </div>
           <div className="space-y-2">
             {lessons.map((item, index) => (
@@ -1123,10 +1250,9 @@ export default function GradForgeLab() {
 
           <div className="relative min-h-[360px] overflow-hidden border border-outline bg-surface-container-lowest">
             <svg
-              viewBox="0 0 620 360"
-              className="h-full min-h-[360px] w-full"
-              role="img"
-              aria-label="Interactive computation graph"
+              className="absolute inset-0 size-full pointer-events-none"
+              style={{ zIndex: 0 }}
+              xmlns="http://www.w3.org/2000/svg"
             >
               <defs>
                 <marker
@@ -1163,102 +1289,121 @@ export default function GradForgeLab() {
                 const siblingIndex = siblings.findIndex(
                   (candidate) => candidate.slot === edge.slot,
                 );
+                
+                const posFrom = nodePositions[from.id] || { x: from.x, y: from.y };
+                const posTo = nodePositions[to.id] || { x: to.x, y: to.y };
+
                 const path = circleEdgePath(
-                  from,
-                  to,
+                  posFrom,
+                  posTo,
                   Math.max(siblingIndex, index),
                   siblings.length,
                 );
                 return (
                   <g key={`${edge.from}-${edge.to}-${index}`}>
-                    <path
-                      d={path.d}
+                    <motion.path
+                      initial={false}
+                      animate={{
+                        d: path.d,
+                        stroke: active ? "var(--color-warning)" : "var(--color-outline-dark)",
+                        strokeWidth: active ? 2.8 : 1.4,
+                        strokeDasharray: active ? "7 5" : "0",
+                        strokeDashoffset: active ? [0, -24] : 0,
+                      }}
+                      transition={{
+                        default: { type: "spring", stiffness: 300, damping: 30 },
+                        strokeDashoffset: active ? { repeat: Infinity, duration: 1, ease: "linear" } : { type: "spring" }
+                      }}
                       fill="none"
-                      stroke={active ? "var(--color-warning)" : "var(--color-outline-dark)"}
-                      strokeWidth={active ? 2.8 : 1.4}
-                      strokeDasharray={active ? "7 5" : "0"}
                       markerEnd={active ? "url(#gradforge-arrow-active)" : "url(#gradforge-arrow)"}
                     />
-                    <text
-                      x={path.labelX}
-                      y={path.labelY - 8}
+                    <motion.text
+                      initial={false}
+                      animate={{ x: path.labelX, y: path.labelY - 8 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
                       textAnchor="middle"
                       className="fill-on-surface-variant font-mono text-[9px]"
                     >
                       {edge.label}
-                    </text>
-                  </g>
-                );
-              })}
-
-              {lesson.nodes.map((node) => {
-                const active = node.id === step.activeNode;
-                const selected = node.id === selectedNode.id;
-                const grad = step.grads[node.id];
-                const labelParts = node.label.split(" = ");
-                return (
-                  <g
-                    key={node.id}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => setSelectedNodeId(node.id)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") setSelectedNodeId(node.id);
-                    }}
-                    className="cursor-pointer"
-                  >
-                    <circle
-                      cx={node.x}
-                      cy={node.y}
-                      r="54"
-                      fill={
-                        active
-                          ? "var(--color-primary-container)"
-                          : selected
-                            ? "var(--color-surface-container-high)"
-                            : "var(--color-surface)"
-                      }
-                      stroke={active || selected ? nodeAccent(node.op) : "var(--color-outline-dark)"}
-                      strokeWidth={active ? 2.3 : 1.2}
-                    />
-                    <text
-                      x={node.x}
-                      y={node.y - 24}
-                      textAnchor="middle"
-                      className="fill-on-surface font-mono text-[11px]"
-                    >
-                      {labelParts[0]}
-                    </text>
-                    {labelParts[1] && (
-                      <text
-                        x={node.x}
-                        y={node.y - 8}
-                        textAnchor="middle"
-                        className="fill-on-surface-variant font-mono text-[9px]"
-                      >
-                        {labelParts[1].slice(0, 14)}
-                      </text>
-                    )}
-                    <text
-                      x={node.x}
-                      y={node.y + 15}
-                      textAnchor="middle"
-                      className="fill-on-surface-variant font-mono text-[10px]"
-                    >
-                      data {formatNumber(node.data)}
-                    </text>
-                    <text
-                      x={node.x}
-                      y={node.y + 34}
-                      textAnchor="middle"
-                      className="fill-primary font-mono text-[10px]"
-                    >
-                      grad {formatNumber(grad)}
-                    </text>
+                    </motion.text>
                   </g>
                 );
               })}
             </svg>
+
+            {lesson.nodes.map((node) => {
+              const active = node.id === step.activeNode;
+              const selected = node.id === selectedNode.id;
+              const grad = step.grads[node.id];
+              const labelParts = node.label.split(" = ");
+              const pos = nodePositions[node.id] || { x: node.x, y: node.y };
+
+              return (
+                <motion.div
+                  key={node.id}
+                  drag
+                  dragMomentum={false}
+                  onDrag={(_, info) => {
+                    setNodePositions(prev => ({
+                      ...prev,
+                      [node.id]: {
+                        x: prev[node.id].x + info.delta.x,
+                        y: prev[node.id].y + info.delta.y,
+                      }
+                    }));
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelectedNodeId(node.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") setSelectedNodeId(node.id);
+                  }}
+                  className="absolute cursor-pointer select-none"
+                  initial={false}
+                  animate={{
+                    x: pos.x - 70, // offset by half width
+                    y: pos.y - 35, // offset by half height
+                    scale: active ? 1.05 : 1,
+                    boxShadow: active
+                      ? "0 0 20px 0px var(--color-primary)"
+                      : selected
+                        ? "0 0 0px 2px var(--color-outline)"
+                        : "0 0 0px 1px var(--color-outline-dark)",
+                  }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  style={{
+                    width: 140,
+                    height: 70,
+                    borderRadius: 9999,
+                    backgroundColor: active
+                      ? "var(--color-primary-container)"
+                      : selected
+                        ? "var(--color-surface-container-high)"
+                        : "var(--color-surface)",
+                    backdropFilter: "blur(8px)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: `2px solid ${active || selected ? nodeAccent(node.op) : "var(--color-outline-dark)"}`,
+                    zIndex: active || selected ? 10 : 1,
+                  }}
+                >
+                  <div className="font-mono text-[11px] font-semibold text-on-surface">
+                    {labelParts[0]}
+                  </div>
+                  {labelParts[1] && (
+                    <div className="font-mono text-[9px] text-on-surface-variant">
+                      {labelParts[1].slice(0, 14)}
+                    </div>
+                  )}
+                  <div className="mt-1 flex gap-2 font-mono text-[9px] uppercase tracking-wider">
+                    <span className="text-on-surface-variant">data {formatNumber(node.data)}</span>
+                    <span className="text-primary">grad {formatNumber(grad)}</span>
+                  </div>
+                </motion.div>
+              );
+            })}
 
             <div className="absolute left-4 top-4 border border-outline bg-surface/95 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em] text-on-surface-variant">
               Phase: <span className="text-primary">{step.phase}</span>
@@ -1376,7 +1521,7 @@ export default function GradForgeLab() {
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-primary">
               <Braces size={14} />
-              Rust Editor
+              Python Editor
             </div>
             <div className="flex gap-2">
               <button
@@ -1388,6 +1533,8 @@ export default function GradForgeLab() {
                   setCodeDraft(next.code);
                   setStepIndex(0);
                   setSelectedNodeId(next.nodes[0].id);
+                  setNodePositions(positionsFor(next.nodes));
+                  setIsPlaying(false);
                   setRunMessage("Reset to the lesson source.");
                 }}
                 className="inline-flex items-center gap-2 border border-outline bg-surface-container-lowest px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em] text-on-surface-variant hover:border-primary"
@@ -1410,7 +1557,7 @@ export default function GradForgeLab() {
             onChange={(event) => setCodeDraft(event.target.value)}
             spellCheck={false}
             className="min-h-[270px] w-full resize-y border border-outline bg-surface-container-lowest p-4 font-mono text-sm leading-7 text-on-surface outline-none focus:border-primary"
-            aria-label="Rust editor"
+            aria-label="Python editor"
           />
           <p
             className={clsx(
@@ -1439,7 +1586,7 @@ export default function GradForgeLab() {
         <section className="bg-surface p-5">
           <div className="mb-4 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-primary">
             <GitBranch size={14} />
-            Rust Engine Notes
+            Python Engine Notes
           </div>
           <div className="mb-3 grid grid-cols-3 gap-px border border-outline bg-border">
             {[
@@ -1450,7 +1597,7 @@ export default function GradForgeLab() {
               <button
                 key={id}
                 type="button"
-                onClick={() => setImplTab(id as keyof typeof rustImplementations)}
+                onClick={() => setImplTab(id as keyof typeof pythonImplementations)}
                 className={clsx(
                   "bg-surface px-2 py-2 font-mono text-[10px] uppercase tracking-[0.14em]",
                   implTab === id
@@ -1463,10 +1610,10 @@ export default function GradForgeLab() {
             ))}
           </div>
           <pre className="overflow-auto border border-outline bg-surface-container-lowest p-4 text-[12px] leading-6 text-on-surface">
-            <code>{rustImplementations[implTab]}</code>
+            <code>{pythonImplementations[implTab]}</code>
           </pre>
           <p className="mt-4 border border-outline bg-surface-container-lowest p-4 text-sm leading-6 text-on-surface-variant">
-            {selectedNode.rustNote}
+            {selectedNode.pythonNote}
           </p>
         </section>
       </div>

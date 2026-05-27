@@ -8,6 +8,7 @@ import React, {
 } from "react";
 
 type Label = 0 | 1;
+type Activation = "tanh" | "relu" | "sigmoid";
 type Preset = "linear" | "xor" | "rings" | "custom";
 
 interface DataPoint {
@@ -21,6 +22,10 @@ interface Network {
   b1: number[];
   w2: number[];
   b2: number;
+  vW1: number[][];
+  vB1: number[];
+  vW2: number[];
+  vB2: number;
 }
 
 interface Metrics {
@@ -38,6 +43,8 @@ const clamp = (value: number, min: number, max: number) =>
 
 const sigmoid = (x: number) => 1 / (1 + Math.exp(-x));
 const tanhDerivativeFromActivation = (a: number) => 1 - a * a;
+const reluDerivativeFromActivation = (a: number) => a > 0 ? 1 : 0;
+const sigmoidDerivativeFromActivation = (a: number) => a * (1 - a);
 
 function normalizeCoordinate(value: number) {
   return value / 50 - 1;
@@ -124,14 +131,20 @@ function createInitialNetwork(hiddenUnits: number): Network {
     b1: Array.from({ length: hiddenUnits }, () => 0),
     w2: Array.from({ length: hiddenUnits }, () => rand(limit2)),
     b2: 0,
+    vW1: Array.from({ length: hiddenUnits }, () => [0, 0]),
+    vB1: Array.from({ length: hiddenUnits }, () => 0),
+    vW2: Array.from({ length: hiddenUnits }, () => 0),
+    vB2: 0,
   };
 }
 
-function forward(network: Network, x1: number, x2: number) {
+function forward(network: Network, x1: number, x2: number, activation: Activation) {
   const z1 = network.w1.map(
     ([w11, w12], i) => w11 * x1 + w12 * x2 + network.b1[i],
   );
-  const a1 = z1.map((value) => Math.tanh(value));
+  const a1 = z1.map((value) => 
+    activation === "relu" ? Math.max(0, value) : activation === "sigmoid" ? sigmoid(value) : Math.tanh(value)
+  );
   const z2 =
     a1.reduce((sum, value, i) => sum + value * network.w2[i], 0) + network.b2;
   const yHat = sigmoid(z2);
@@ -139,7 +152,7 @@ function forward(network: Network, x1: number, x2: number) {
   return { z1, a1, z2, yHat };
 }
 
-function evaluateNetwork(network: Network, points: DataPoint[]): Metrics {
+function evaluateNetwork(network: Network, points: DataPoint[], activation: Activation): Metrics {
   if (points.length === 0) {
     return {
       epoch: 0,
@@ -153,7 +166,7 @@ function evaluateNetwork(network: Network, points: DataPoint[]): Metrics {
 
   for (const point of points) {
     const [x1, x2] = toModelInput(point);
-    const { yHat } = forward(network, x1, x2);
+    const { yHat } = forward(network, x1, x2, activation);
     const clipped = clamp(yHat, 1e-7, 1 - 1e-7);
 
     loss += -(
@@ -188,6 +201,8 @@ function trainEpoch(
   points: DataPoint[],
   learningRate: number,
   regularization: number,
+  activation: Activation,
+  momentum: number,
 ): Metrics {
   if (points.length === 0) {
     return {
@@ -209,7 +224,7 @@ function trainEpoch(
   for (const point of points) {
     const [x1, x2] = toModelInput(point);
     const target = point.label;
-    const { a1, yHat } = forward(network, x1, x2);
+    const { a1, yHat } = forward(network, x1, x2, activation);
 
     const clipped = clamp(yHat, 1e-7, 1 - 1e-7);
     totalLoss += -(
@@ -231,7 +246,7 @@ function trainEpoch(
 
     for (let i = 0; i < hiddenUnits; i += 1) {
       const da1 = network.w2[i] * dz2;
-      const dz1 = da1 * tanhDerivativeFromActivation(a1[i]);
+      const dz1 = da1 * (activation === "relu" ? reluDerivativeFromActivation(a1[i]) : activation === "sigmoid" ? sigmoidDerivativeFromActivation(a1[i]) : tanhDerivativeFromActivation(a1[i]));
       gradW1[i][0] += dz1 * x1;
       gradW1[i][1] += dz1 * x2;
       gradB1[i] += dz1;
@@ -241,17 +256,21 @@ function trainEpoch(
   const n = points.length;
 
   for (let i = 0; i < hiddenUnits; i += 1) {
-    network.w2[i] -=
-      learningRate * (gradW2[i] / n + regularization * network.w2[i]);
-    network.b1[i] -= learningRate * (gradB1[i] / n);
+    network.vW2[i] = momentum * network.vW2[i] + learningRate * (gradW2[i] / n + regularization * network.w2[i]);
+    network.w2[i] -= network.vW2[i];
+    
+    network.vB1[i] = momentum * network.vB1[i] + learningRate * (gradB1[i] / n);
+    network.b1[i] -= network.vB1[i];
 
-    network.w1[i][0] -=
-      learningRate * (gradW1[i][0] / n + regularization * network.w1[i][0]);
-    network.w1[i][1] -=
-      learningRate * (gradW1[i][1] / n + regularization * network.w1[i][1]);
+    network.vW1[i][0] = momentum * network.vW1[i][0] + learningRate * (gradW1[i][0] / n + regularization * network.w1[i][0]);
+    network.w1[i][0] -= network.vW1[i][0];
+    
+    network.vW1[i][1] = momentum * network.vW1[i][1] + learningRate * (gradW1[i][1] / n + regularization * network.w1[i][1]);
+    network.w1[i][1] -= network.vW1[i][1];
   }
 
-  network.b2 -= learningRate * (gradB2 / n);
+  network.vB2 = momentum * network.vB2 + learningRate * (gradB2 / n);
+  network.b2 -= network.vB2;
 
   return {
     epoch: 1,
@@ -328,6 +347,8 @@ export default function AlgorithmSimulator() {
   const [regularization, setRegularization] = useState(
     initialDefaults.regularization,
   );
+  const [activation, setActivation] = useState<Activation>("tanh");
+  const [momentum, setMomentum] = useState(0.9);
   const [running, setRunning] = useState(false);
   const [hasTrained, setHasTrained] = useState(false);
   const [metrics, setMetrics] = useState<Metrics>({
@@ -348,6 +369,10 @@ export default function AlgorithmSimulator() {
     b1: [],
     w2: [],
     b2: 0,
+    vW1: [],
+    vB1: [],
+    vW2: [],
+    vB2: 0,
   });
 
   // Initial randomization on client only to avoid hydration mismatch
@@ -357,6 +382,7 @@ export default function AlgorithmSimulator() {
     const initialEvaluation = evaluateNetwork(
       networkRef.current,
       createLinearDataset(),
+      "tanh"
     );
     setMetrics({
       ...initialEvaluation,
@@ -378,7 +404,7 @@ export default function AlgorithmSimulator() {
   const canTrain = hasBothClasses(points);
 
   const syncMetricsToCurrentState = (nextPoints = points) => {
-    const current = evaluateNetwork(networkRef.current, nextPoints);
+    const current = evaluateNetwork(networkRef.current, nextPoints, activation);
     setMetrics((existing) => ({
       epoch: existing.epoch,
       loss: current.loss,
@@ -393,7 +419,7 @@ export default function AlgorithmSimulator() {
   ) => {
     networkRef.current = createInitialNetwork(nextHiddenUnits);
     setWeightNorm(calculateWeightNorm(networkRef.current));
-    const evaluation = evaluateNetwork(networkRef.current, nextPoints);
+    const evaluation = evaluateNetwork(networkRef.current, nextPoints, activation);
 
     setRunning(false);
     setHasTrained(false);
@@ -435,7 +461,7 @@ export default function AlgorithmSimulator() {
 
     networkRef.current = createInitialNetwork(defaults.hiddenUnits);
     setWeightNorm(calculateWeightNorm(networkRef.current));
-    const evaluation = evaluateNetwork(networkRef.current, nextPoints);
+    const evaluation = evaluateNetwork(networkRef.current, nextPoints, activation);
 
     setRunning(false);
     setHasTrained(false);
@@ -550,6 +576,8 @@ export default function AlgorithmSimulator() {
           points,
           learningRate,
           regularization,
+          activation,
+          momentum,
         );
         latestLoss = step.loss;
         latestAccuracy = step.accuracy;
@@ -573,7 +601,7 @@ export default function AlgorithmSimulator() {
         window.cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [running, points, learningRate, regularization]);
+  }, [running, points, learningRate, regularization, activation, momentum]);
 
   useEffect(() => {
     const draw = () => {
@@ -614,7 +642,7 @@ export default function AlgorithmSimulator() {
           const y = 100 - (py / height) * 100;
           const nx = normalizeCoordinate(x);
           const ny = normalizeCoordinate(y);
-          const probability = forward(networkRef.current, nx, ny).yHat;
+          const probability = forward(networkRef.current, nx, ny, activation).yHat;
 
           const classAWeight = 1 - probability;
           const classBWeight = probability;
@@ -890,7 +918,7 @@ export default function AlgorithmSimulator() {
             </div>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             <div className="rounded border border-outline bg-surface-container px-4 py-3 accent-left-primary">
               <label className="mb-2 flex justify-between font-mono text-xs font-bold tracking-wide text-on-surface">
                 Capacity (Nodes) <span className="text-primary">{hiddenUnits}</span>
@@ -949,6 +977,41 @@ export default function AlgorithmSimulator() {
                 className="w-full accent-secondary"
               />
               <p className="mt-2 text-xs text-on-surface-variant">Stops extreme overfitting by limiting weight sizes.</p>
+            </div>
+
+            <div className="rounded border border-outline bg-surface-container px-4 py-3 accent-left-primary">
+              <label className="mb-2 flex justify-between font-mono text-xs font-bold tracking-wide text-on-surface">
+                Activation <span className="text-primary uppercase">{activation}</span>
+              </label>
+              <select
+                value={activation}
+                onChange={(event) => {
+                  setActivation(event.target.value as Activation);
+                  resetNetwork(hiddenUnits, points, "Activation function changed. Network has been wiped.");
+                }}
+                className="w-full border border-outline bg-surface p-1 text-sm text-on-surface outline-none focus:border-primary"
+              >
+                <option value="tanh">Tanh (Smooth)</option>
+                <option value="relu">ReLU (Linear)</option>
+                <option value="sigmoid">Sigmoid (Soft)</option>
+              </select>
+              <p className="mt-2 text-xs text-on-surface-variant">Non-linear squashing function.</p>
+            </div>
+
+            <div className="rounded border border-outline bg-surface-container px-4 py-3 accent-left-tertiary">
+              <label className="mb-2 flex justify-between font-mono text-xs font-bold tracking-wide text-on-surface">
+                Momentum <span className="text-tertiary">{momentum.toFixed(2)}</span>
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="0.99"
+                step="0.01"
+                value={momentum}
+                onChange={(event) => setMomentum(Number(event.target.value))}
+                className="w-full accent-tertiary"
+              />
+              <p className="mt-2 text-xs text-on-surface-variant">Accelerates gradients in consistent directions.</p>
             </div>
           </div>
 

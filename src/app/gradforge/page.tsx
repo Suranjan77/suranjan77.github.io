@@ -5,13 +5,13 @@ import GradForgeLab from "@/components/ui/GradForgeLab";
 export const metadata: Metadata = {
   title: "GradForge Autograd Lab",
   description:
-    "Build a tiny Rust-style autograd engine, inspect computation graphs, and step through reverse-mode gradients in the browser.",
+    "Build a mini Python autograd engine, explore computation graphs, and step through reverse-mode gradients in the browser.",
 };
 
 const promises = [
-  ["Graph", "Forward values, local derivatives, topological order, and backward flow stay synchronized."],
-  ["Rust", "Arena NodeId design, ownership notes, and backward rules are taught beside the trace."],
-  ["Maths", "Every gradient can be inspected through path contributions and chain-rule expansion."],
+  ["Watch it work", "See how the neural network calculates answers step by step, both forwards and backwards."],
+  ["Write real code", "Type in everyday Python code and instantly watch the math come to life on screen."],
+  ["Understand gradients", "Demystify the chain rule. Click on any number to see exactly how it learns."],
 ] as const;
 
 export default function GradForgePage() {
@@ -27,7 +27,7 @@ export default function GradForgePage() {
               Back
             </Link>
             <div className="border border-outline bg-surface-container-high px-3 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
-              Interactive Rust Autograd Lab
+              Interactive Micrograd Lab
             </div>
           </div>
 
@@ -37,13 +37,10 @@ export default function GradForgePage() {
                 GradForge
               </p>
               <h1 className="mt-4 text-balance font-headline text-5xl font-medium leading-tight text-on-surface sm:text-6xl">
-                Build Autograd from Scratch in Rust.
+                How Neural Networks Actually Learn.
               </h1>
               <p className="mt-7 text-base font-medium leading-8 text-on-surface-variant">
-                A visual debugger and executable textbook for reverse-mode
-                automatic differentiation. Write Rust-shaped graph code, step
-                through the backward pass, and ask why each gradient has the
-                value it has.
+                A friendly, hands-on playground that shows you the magic behind AI. Write simple Python code, watch the backward pass unfold step by step, and finally understand how gradients flow without getting lost in the math.
               </p>
             </div>
 
