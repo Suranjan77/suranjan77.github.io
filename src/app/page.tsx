@@ -6,7 +6,7 @@ import { algorithms } from "@/data/algorithms";
 
 const heroStats = [
   { label: "Modules", value: "13" },
-  { label: "Interactive Lab", value: "1" },
+  { label: "Interactive Labs", value: "2" },
 ] as const;
 
 const suranjanQrSvg =
@@ -212,6 +212,12 @@ export default function Home() {
                 className="inline-flex min-h-10 items-center justify-center border border-transparent px-8 py-3 font-mono text-[11px] uppercase tracking-[0.18em] text-primary hover:border-outline"
               >
                 Open Playground →
+              </Link>
+              <Link
+                href="/gradforge"
+                className="inline-flex min-h-10 items-center justify-center border border-transparent px-8 py-3 font-mono text-[11px] uppercase tracking-[0.18em] text-primary hover:border-outline"
+              >
+                Open GradForge →
               </Link>
             </div>
           </div>

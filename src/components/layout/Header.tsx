@@ -7,6 +7,7 @@ import { clsx } from "clsx";
 const navItems = [
   { label: "Curriculum", mobileLabel: "Curric", href: "/#curriculum" },
   { label: "Playground", mobileLabel: "Lab", href: "/playground" },
+  { label: "GradForge", mobileLabel: "Grad", href: "/gradforge" },
   { label: "About", mobileLabel: "About", href: "/#philosophy" },
 ];
 
