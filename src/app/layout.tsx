@@ -2,8 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { DM_Mono, Outfit, Shippori_Mincho } from "next/font/google";
 import "./globals.css";
 import "katex/dist/katex.min.css";
-import Sidebar from "@/components/layout/Sidebar";
-import Header from "@/components/layout/Header";
+import AppShell from "@/components/layout/AppShell";
 import { getAbsoluteUrl, siteConfig } from "@/lib/site";
 
 const shippori = Shippori_Mincho({
@@ -85,15 +84,7 @@ export default function RootLayout({
       <body
         className={`${shippori.variable} ${outfit.variable} ${dmMono.variable} min-h-screen bg-background font-body text-on-surface antialiased`}
       >
-        <div className="min-h-screen lg:flex">
-          <Sidebar />
-          <div className="flex min-h-screen min-w-0 flex-1 flex-col lg:ml-[278px]">
-            <div className="mx-auto flex min-h-screen w-full max-w-[1500px] min-w-0 flex-1 flex-col border-x border-outline bg-background">
-              <Header />
-              <main className="min-w-0 flex-1">{children}</main>
-            </div>
-          </div>
-        </div>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

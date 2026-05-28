@@ -4,9 +4,9 @@ import Link from "next/link";
 import CurriculumExplorer from "@/components/ui/CurriculumExplorer";
 import { algorithms } from "@/data/algorithms";
 
-const heroStats = [
-  { label: "Modules", value: "13" },
-  { label: "Interactive Labs", value: "2" },
+const interactiveLabs = [
+  { label: "Playground", href: "/playground" },
+  { label: "GradForge", href: "/gradforge" },
 ] as const;
 
 const suranjanQrSvg =
@@ -177,6 +177,10 @@ export default function Home() {
   const filteredAlgorithms = algorithms.filter(
     (a) => !a.id.includes("reinforcement") && !a.id.includes("generative"),
   );
+  const heroStats = [
+    { label: "Modules", value: algorithms.length },
+    { label: "Interactive Labs", value: interactiveLabs.length },
+  ] as const;
 
   return (
     <div className="min-h-screen">
@@ -265,7 +269,7 @@ export default function Home() {
                 Curriculum
               </p>
               <h2 className="max-w-2xl font-headline text-4xl font-medium leading-tight text-on-surface sm:text-5xl">
-                Thirteen modules, one coherent arc.
+                {algorithms.length} modules, one coherent arc.
               </h2>
             </div>
             <p className="pt-8 text-sm font-medium leading-7 text-on-surface-variant lg:text-right">
