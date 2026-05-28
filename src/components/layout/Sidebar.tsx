@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
@@ -15,11 +16,14 @@ export default function Sidebar() {
       <div className="shrink-0 border-b border-outline px-5 py-6">
         <Link href="/" className="block">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center border border-outline bg-surface">
-              <span className="font-headline text-lg font-medium text-primary">
-                ML
-              </span>
-            </div>
+            <Image
+              src="/logo-favicon.svg"
+              alt=""
+              width={40}
+              height={40}
+              priority
+              className="h-10 w-10 shrink-0"
+            />
             <div>
               <p className="font-headline text-base font-medium tracking-wide text-on-surface">
                 ML Learn

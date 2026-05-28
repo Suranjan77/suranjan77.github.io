@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
@@ -26,6 +27,14 @@ export default function Header() {
     <header className="sticky top-0 z-30 border-b border-outline bg-background/95">
       <div className="mx-auto flex w-full items-center justify-between gap-4 px-4 py-4 sm:px-8 lg:px-12">
         <Link href="/" className="flex items-center gap-3">
+          <Image
+            src="/logo-favicon.svg"
+            alt=""
+            width={34}
+            height={34}
+            priority
+            className="h-8 w-8 shrink-0 sm:h-[34px] sm:w-[34px]"
+          />
           <span>
             <p className="font-headline text-xl font-medium leading-none tracking-normal text-on-surface">
               ML Learn

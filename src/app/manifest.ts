@@ -17,9 +17,15 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "en",
     icons: [
       {
-        src: "/favicon.ico",
+        src: "/logo-favicon.svg",
         sizes: "any",
-        type: "image/x-icon",
+        type: "image/svg+xml",
+        purpose: "any",
+      },
+      {
+        src: "/favicon.png",
+        sizes: "32x32",
+        type: "image/png",
       },
     ],
   };
