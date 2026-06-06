@@ -141,6 +141,7 @@ export default function LLMViz() {
       <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
         <div className="absolute inset-0 z-10 flex items-center justify-center">
           <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="LLM Temperature Logits Scaling">
+            <title>L L M Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -265,7 +266,7 @@ export default function LLMViz() {
             <span className="block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
               TEMPERATURE (SCALING):
             </span>
-            <input
+            <input aria-label="LLM input"
               type="range"
               min="0.2"
               max="2.2"
@@ -288,6 +289,7 @@ export default function LLMViz() {
             <div className="grid grid-cols-2 gap-1 border border-outline p-1 bg-surface-container-low">
               {(["greedy", "sample"] as const).map((mode) => (
                 <button
+                  aria-label={mode === "greedy" ? "Greedy (Max)" : "Random Sample"}
                   key={mode}
                   onClick={() => setSamplingMode(mode)}
                   className={`py-1 text-[9px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
@@ -303,14 +305,14 @@ export default function LLMViz() {
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <button
+            <button aria-label="SAMPLE NEXT WORD"
               onClick={handleSample}
               disabled={isSpinning}
               className="flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold cursor-pointer disabled:opacity-50 text-center text-[10px]"
             >
               SAMPLE NEXT WORD
             </button>
-            <button
+            <button aria-label="RESET SENTENCE"
               onClick={handleReset}
               className="flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container active:scale-[0.98] transition-all font-bold cursor-pointer text-center text-[10px]"
             >

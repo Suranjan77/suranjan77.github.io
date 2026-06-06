@@ -121,7 +121,7 @@ if (typeof window !== 'undefined') {
       matrixTransform: function() {
         return this;
       }
-    } as any;
+    } as unknown as DOMPoint;
   };
 
   window.SVGSVGElement.prototype.getScreenCTM = function() {
@@ -129,7 +129,7 @@ if (typeof window !== 'undefined') {
       a: 1, b: 0, c: 0, d: 1, e: 0, f: 0,
       inverse: function() { return this; },
       multiply: function() { return this; }
-    } as any;
+    } as unknown as DOMMatrix;
   };
 
   Object.defineProperty(window.SVGElement.prototype, 'getBBox', {

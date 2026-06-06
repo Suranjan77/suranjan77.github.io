@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const nlp: Algorithm = {
+export const nlp: LearningModule = {
   id: "nlp",
   title: "Natural Language Processing",
   category: "Natural Language Processing",
+  prerequisites: ["neural-networks"],
+  tracks: ["practitioner"],
+  difficulty: 3,
+  relatedModules: ["neural-networks", "transformers"],
   shortDescription: "Techniques to translate human speech and text into vector mathematics, enabling machines to read, translate, and synthesize language.",
+  estimatedMinutes: 25,
+  learningObjectives: [
+    'Explain the concept of word embeddings and dense vector representations',
+    'Calculate Term Frequency-Inverse Document Frequency (TF-IDF) weights for a vocabulary',
+    'Describe the mechanics of n-gram models and recurrent neural networks (RNNs)',
+    'Distinguish between lexical, syntactic, and semantic levels of language processing',
+  ],
+  keyTerms: [
+    { term: 'Tokenization', definition: 'The process of breaking down text streams into individual words, symbols, or subwords (tokens).' },
+    { term: 'TF-IDF', definition: 'A numerical statistic intended to reflect how important a word is to a document in a collection or corpus.' },
+    { term: 'Word Embedding', definition: 'A dense vector representation of a word that captures its semantic meaning and relationships with other words.' },
+  ],
+  workedExamples: [
+    {
+      title: 'TF-IDF Calculation',
+      problem: 'A word appears 3 times in a document of 100 words. The total corpus has 10,000 documents, and 100 of them contain the word. Compute the TF-IDF weight using $\\text{IDF} = \\log_{10}(\\frac{N}{DF})$.',
+      solution: 'Term Frequency $\\text{TF} = \\frac{3}{100} = 0.03$. Inverse Document Frequency $\\text{IDF} = \\log_{10}(\\frac{10000}{100}) = \\log_{10}(100) = 2$. Weight $\\text{TF-IDF} = 0.03 \\times 2 = 0.06$.',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'TF-IDF is a deep learning technique.',
+      correction: 'TF-IDF is a classical, statistics-based frequency calculation that does not use neural networks or learn word embeddings.'
+    },
+    {
+      claim: 'Word embeddings like Word2Vec capture the exact contextual meaning of a word in a specific sentence.',
+      correction: 'Word2Vec assigns a single, static vector to each word regardless of context. Modern models (like Transformers) produce dynamic, context-dependent embeddings.'
+    }
+  ],
+  references: [
+    {
+      title: "Speech and Language Processing",
+      authors: "Jurafsky, D. and Martin, J. H",
+      url: "https://web.stanford.edu/~jurafsky/slp3/",
+      type: "textbook"
+    },
+    {
+      title: "Foundations of Statistical Natural Language Processing",
+      authors: "Manning, C. D. and Schütze, H",
+      url: "https://nlp.stanford.edu/fsnlp/",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Out-of-Vocabulary (OOV) Words',
+      description: 'Words that were not present in the training vocabulary cannot be embedded, causing classification failures.',
+      mitigation: 'Use subword tokenization algorithms (like Byte-Pair Encoding or WordPiece).'
+    }
+  ],
 
   fullDescription: `
 Natural Language Processing (NLP) is the mathematical discipline that allows computer chips to process, understand, and generate human languages. Because computers operate only on numbers, NLP maps text into continuous vector spaces.

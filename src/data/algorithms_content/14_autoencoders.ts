@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const autoencoders: Algorithm = {
+export const autoencoders: LearningModule = {
   id: "autoencoders",
   title: "Autoencoders",
   category: "Autoencoders",
+  prerequisites: ["neural-networks", "dimensionality-reduction"],
+  tracks: ["practitioner"],
+  difficulty: 3,
+  relatedModules: ["neural-networks", "dimensionality-reduction", "generative-models"],
   shortDescription: "Neural networks that compress inputs into a tight bottleneck representation, then try to reconstruct the original input from it.",
+  estimatedMinutes: 20,
+  learningObjectives: [
+    'Explain the encoder-decoder structure and the role of the latent space bottleneck',
+    'Derive reconstruction loss for autoencoders (MSE vs Binary Cross-Entropy)',
+    'Relate linear autoencoders with identity activation functions to PCA',
+    'Describe Variational Autoencoders (VAEs) and the concept of a regularized latent space',
+  ],
+  keyTerms: [
+    { term: 'Latent Space (Bottleneck)', definition: 'The low-dimensional representation space where the input features are compressed.' },
+    { term: 'Reconstruction Loss', definition: 'A loss metric measuring the difference between the original input and the decoded reconstruction.' },
+    { term: 'Variational Autoencoder (VAE)', definition: 'A probabilistic version of an autoencoder that maps inputs to probability distributions in latent space, enabling generation.' },
+  ],
+  workedExamples: [
+    {
+      title: 'Reconstruction Loss',
+      problem: 'Calculate Mean Squared Error reconstruction loss for input vector $x = [1.0, 0.5]$ and reconstructed vector $\\hat{x} = [0.9, 0.7]$.',
+      solution: 'Squared errors: $(1.0-0.9)^2 = 0.01$; $(0.5-0.7)^2 = 0.04$. Mean Squared Error $\\text{MSE} = \\frac{0.01 + 0.04}{2} = 0.025$.',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'Autoencoders are supervised learning models because they require labels.',
+      correction: 'Autoencoders are self-supervised. They use the input itself as the label (the target $y$ equals the input $x$), meaning no external annotations are needed.'
+    },
+    {
+      claim: 'A standard autoencoder can be used to generate new data directly.',
+      correction: 'Standard autoencoders have unregularized, discrete latent spaces with large gaps, which leads to poor generation. Variational Autoencoders (VAEs) enforce a continuous, Gaussian prior on latent space, making generation reliable.'
+    }
+  ],
+  references: [
+    {
+      title: "Reducing the Dimensionality of Data with Neural Networks",
+      authors: "Hinton, G. E. and Salakhutdinov, R. R",
+      url: "https://science.sciencemag.org",
+      type: "textbook"
+    },
+    {
+      title: "Deep Learning (Chapter 14)",
+      authors: "Goodfellow, I. et al",
+      url: "https://www.deeplearningbook.org",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Identity Mapping (Copying)',
+      description: 'If the latent dimension is too large or the network is too powerful, it will simply memorize or copy inputs directly without learning useful abstractions.',
+      mitigation: 'Use a tight bottleneck (undercomplete), add noise to inputs (denoising), or apply L1 regularization on activations (sparse autoencoders).'
+    }
+  ],
 
   fullDescription: `
 Autoencoders are self-supervised neural networks designed for feature learning and dimensionality reduction. The network architecture is split into two halves:

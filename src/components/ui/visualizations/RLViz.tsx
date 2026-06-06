@@ -174,6 +174,7 @@ export default function RLViz() {
       <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
         <div className="absolute inset-0 z-10 flex items-center justify-center">
           <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Q-Learning Reinforcement Learning Gridworld">
+            <title>R L Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -286,27 +287,27 @@ export default function RLViz() {
 
           {/* Navigation Button Pad */}
           <div className="flex flex-col items-center gap-1.5 mb-4">
-            <button
+            <button aria-label="UP"
               onClick={() => handleStep(0)}
               className="h-8 w-16 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer"
             >
               UP
             </button>
             <div className="flex gap-2">
-              <button
+              <button aria-label="LEFT"
                 onClick={() => handleStep(3)}
                 className="h-8 w-16 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer"
               >
                 LEFT
               </button>
-              <button
+              <button aria-label="RIGHT"
                 onClick={() => handleStep(1)}
                 className="h-8 w-16 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer"
               >
                 RIGHT
               </button>
             </div>
-            <button
+            <button aria-label="DOWN"
               onClick={() => handleStep(2)}
               className="h-8 w-16 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer"
             >
@@ -315,7 +316,7 @@ export default function RLViz() {
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <button
+            <button aria-label="PAUSE AUTO RUN AUTO EXPLORE"
               onClick={() => setIsPlaying(!isPlaying)}
               className={`flex h-9 items-center justify-center border font-bold cursor-pointer transition-colors text-[10px] ${
                 isPlaying ? "bg-warning/20 border-warning text-warning" : "bg-surface border-outline hover:bg-surface-container"
@@ -323,7 +324,7 @@ export default function RLViz() {
             >
               {isPlaying ? "PAUSE AUTO RUN" : "AUTO EXPLORE"}
             </button>
-            <button
+            <button aria-label="RESET Q-TABLE"
               onClick={handleReset}
               className="flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container active:scale-[0.98] transition-all font-bold cursor-pointer text-[10px]"
             >

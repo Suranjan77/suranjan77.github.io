@@ -211,6 +211,7 @@ export default function KMeansViz() {
       <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
         <div className="absolute inset-0 z-10 flex items-center justify-center">
           <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="K-Means Clustering Iterations">
+            <title>K Means Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -347,7 +348,7 @@ export default function KMeansViz() {
 
           <div className="my-3 min-h-[52px] text-[10px] text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline font-sans">
             {converged ? (
-              <span className="text-cyan font-bold block">✓ CONVERGED! Centroids have stabilized.</span>
+              <span className="text-cyan font-bold block">CONVERGED: Centroids have stabilized.</span>
             ) : phase === "unassigned" ? (
               "Ready to begin. Click STEP or PLAY to assign territory."
             ) : phase === "assign" ? (

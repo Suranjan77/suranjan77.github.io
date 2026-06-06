@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const mcmc: Algorithm = {
+export const mcmc: LearningModule = {
   id: "mcmc",
   title: "Markov Chain Monte Carlo",
   category: "Markov Chain Monte Carlo",
+  prerequisites: ["probability-theory", "bayesian-inference"],
+  tracks: ["practitioner"],
+  difficulty: 3,
+  relatedModules: ["bayesian-inference", "maximum-likelihood"],
   shortDescription: "A family of sampling algorithms that approximate hard probability distributions by constructing a Markov chain.",
+  estimatedMinutes: 25,
+  learningObjectives: [
+    'Explain the mathematical foundation of Markov Chain Monte Carlo sampling',
+    'Describe the Metropolis-Hastings acceptance ratio and its rationale',
+    'Identify diagnostic metrics for MCMC convergence such as Gelman-Rubin $\\hat{R}$ and Effective Sample Size',
+    'Explain the concept of burn-in or warm-up phase in MCMC',
+  ],
+  keyTerms: [
+    { term: 'Markov Chain', definition: 'A sequence of random variables where the probability of the next state depends only on the current state.' },
+    { term: 'Stationary Distribution', definition: 'A probability distribution that remains invariant under the transitions of the Markov chain.' },
+    { term: 'Metropolis-Hastings', definition: 'A specific MCMC algorithm that uses proposal distributions and acceptance criteria to sample from target distributions.' },
+  ],
+  workedExamples: [
+    {
+      title: 'Metropolis-Hastings Acceptance Probability',
+      problem: 'Target density $P(x) \\propto e^{-x^2}$. Current state $x = 1.0$, proposed state $x\' = 1.5$. Calculate the acceptance probability $\\alpha$.',
+      solution: '$P(x) = e^{-1} \\approx 0.368$. $P(x\') = e^{-2.25} \\approx 0.105$. Acceptance ratio is $\\frac{P(x\')}{P(x)} = \\frac{e^{-2.25}}{e^{-1}} = e^{-1.25} \\approx 0.286$. Therefore, $\\alpha = \\min(1, 0.286) = 0.286$. The step is accepted with a $28.6\\%$ probability.',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'MCMC samples are completely independent of each other.',
+      correction: 'Because each step is proposed from the current position, adjacent samples are highly correlated. This autocorrelation reduces the effective sample size.'
+    },
+    {
+      claim: 'The chain always converges to the true distribution immediately.',
+      correction: 'MCMC chains require a "burn-in" or "warm-up" phase to discard early samples before the chain reaches its stationary distribution.'
+    }
+  ],
+  references: [
+    {
+      title: "Markov Chains and Mixing Times",
+      authors: "Levin, D.A. and Peres, Y",
+      url: "https://www.ams.org",
+      type: "textbook"
+    },
+    {
+      title: "Handbook of Markov Chain Monte Carlo",
+      authors: "Brooks, S. et al",
+      url: "https://www.crcpress.com",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Poor Mixing',
+      description: 'If the proposal step size is too small, the chain explores very slowly. If the step size is too large, proposed steps are almost always rejected.',
+      mitigation: 'Tune proposal variance, use adaptive samplers, or switch to Hamiltonian Monte Carlo (HMC).'
+    }
+  ],
 
   fullDescription: `
 Markov Chain Monte Carlo (MCMC) is used when a probability distribution is known up to proportionality, but direct integration or exact sampling is too difficult. This is common in Bayesian inference, where the posterior may be high-dimensional and analytically intractable.

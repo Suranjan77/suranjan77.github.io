@@ -121,6 +121,7 @@ export default function EnsembleViz() {
             role="img"
             aria-label="Ensemble Voting Boosting Surface"
           >
+            <title>Ensemble Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -260,7 +261,7 @@ export default function EnsembleViz() {
               Weak Learners (Stumps):
             </span>
             <div className="flex items-center gap-2 bg-surface-container p-2 border border-outline">
-              <button
+              <button aria-label="-"
                 onClick={() => setLearnerCount((prev) => Math.max(1, prev - 1))}
                 disabled={learnerCount <= 1}
                 className="h-7 w-7 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer disabled:opacity-30"
@@ -270,7 +271,7 @@ export default function EnsembleViz() {
               <span className="font-bold text-primary text-center w-24">
                 {learnerCount} Stumps
               </span>
-              <button
+              <button aria-label="+"
                 onClick={() => setLearnerCount((prev) => Math.min(5, prev + 1))}
                 disabled={learnerCount >= 5}
                 className="h-7 w-7 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer disabled:opacity-30"

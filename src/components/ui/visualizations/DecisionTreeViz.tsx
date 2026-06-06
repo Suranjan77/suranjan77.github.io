@@ -153,6 +153,7 @@ export default function DecisionTreeViz() {
             aria-label="Decision Tree Space Partition"
             onPointerDown={handlePlotClick}
           >
+            <title>Decision Tree Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -391,7 +392,7 @@ export default function DecisionTreeViz() {
             <span>Controls</span>
           </div>
 
-          <button
+          <button aria-label="REDUCE TREE SIZE (SHRINK) GROW TREE (ADD LEVEL 2 SPLIT)"
             onClick={() => {
               setIsTreeGrown(!isTreeGrown);
               setQuery(null);

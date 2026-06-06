@@ -47,11 +47,23 @@ const categoryConfig: Record<
     label: "Linear Regression",
     description: "Predict continuous specific values or distinct probabilities reliably using exact distinct linear explicit feature combinations.",
   },
-  "Instance-based Learning & Decision Trees": {
+  "Logistic Regression": {
+    color: "tertiary",
+    route: "/algorithms/logistic-regression",
+    label: "Logistic Regression",
+    description: "Predict binary category probabilities using a linear boundary feeding into a sigmoid function.",
+  },
+  "K-Nearest Neighbors": {
     color: "primary",
-    route: "/algorithms/instance-and-trees",
-    label: "Instance-based & Trees",
-    description: "Predict from nearby examples or from interpretable rule paths through a decision tree.",
+    route: "/algorithms/knn",
+    label: "K-Nearest Neighbors",
+    description: "Predict from nearby examples using proximity-based distance metrics.",
+  },
+  "Decision Trees": {
+    color: "primary",
+    route: "/algorithms/decision-trees",
+    label: "Decision Trees",
+    description: "Predict from interpretable rule paths through a decision tree flowchart.",
   },
   "Clustering": {
     color: "secondary",
@@ -155,6 +167,90 @@ const categoryConfig: Record<
     label: "Evaluation Metrics",
     description: "Use classification diagnostics like confusion matrices, precision-recall, and ROC/AUC curves to assess predictive performance.",
   },
+  "Statistics and Estimation": {
+    color: "primary",
+    route: "/algorithms/statistics-estimation",
+    label: "Statistics and Estimation",
+    description: "Calculate uncertainty and draw robust estimates from data samples using statistical techniques like bootstrapping.",
+  },
+  "Gradient Descent and Optimization": {
+    color: "secondary",
+    route: "/algorithms/gradient-descent",
+    label: "Gradient Descent and Optimization",
+    description: "Train models by wiggling weights in the direction of steepest loss descent using gradient updates.",
+  },
+  "Data Preparation and Feature Engineering": {
+    color: "tertiary",
+    route: "/algorithms/data-preparation",
+    label: "Data Prep & Feature Engineering",
+    description: "Clean raw data, perform feature scaling, and encode categorical features to build robust input pipelines.",
+  },
+  "Naive Bayes": {
+    color: "primary",
+    route: "/algorithms/naive-bayes",
+    label: "Naive Bayes",
+    description: "Probabilistic classification model based on Bayes' Theorem with a naive independence assumption.",
+  },
+  "Model Selection and Cross-Validation": {
+    color: "secondary",
+    route: "/algorithms/model-selection",
+    label: "Model Selection & CV",
+    description: "Evaluate generalization performance and tune hyperparameters using cross-validation techniques.",
+  },
+  "Gaussian Mixtures and EM": {
+    color: "tertiary",
+    route: "/algorithms/gmm-em",
+    label: "GMM & EM",
+    description: "Soft probabilistic clustering using mixture models fit with the Expectation-Maximization algorithm.",
+  },
+  "Anomaly Detection": {
+    color: "primary",
+    route: "/algorithms/anomaly-detection",
+    label: "Anomaly Detection",
+    description: "Identify rare, unusual points in datasets using tree-based and distance-based scoring.",
+  },
+  "Backpropagation": {
+    color: "secondary",
+    route: "/algorithms/backpropagation",
+    label: "Backpropagation",
+    description: "Learn how deep networks update parameters by passing error gradients backward through computational graphs.",
+  },
+  "Sequence Models": {
+    color: "tertiary",
+    route: "/algorithms/sequence-models",
+    label: "Sequence Models",
+    description: "Process sequential inputs like text or time-series data using RNNs, LSTMs, and GRUs.",
+  },
+  "Embeddings and Tokenization": {
+    color: "primary",
+    route: "/algorithms/embeddings-tokenization",
+    label: "Embeddings & Tokenization",
+    description: "Convert raw text into tokens and map them to dense vector spaces preserving semantic relationships.",
+  },
+  "Retrieval-Augmented Generation": {
+    color: "secondary",
+    route: "/algorithms/rag",
+    label: "RAG Systems",
+    description: "Enhance large language models by retrieving relevant external facts before generating answers.",
+  },
+  "Fine-Tuning and Preference Optimization": {
+    color: "tertiary",
+    route: "/algorithms/fine-tuning",
+    label: "Fine-Tuning & RLHF",
+    description: "Adapt pre-trained models to specific domains or align them with human values using preference learning.",
+  },
+  "LLM Evaluation and Safety": {
+    color: "primary",
+    route: "/algorithms/llm-evaluation-safety",
+    label: "LLM Eval & Safety",
+    description: "Measure language model performance, reliability, and safety using benchmarks and safety guardrails.",
+  },
+  "AI Inference Systems": {
+    color: "secondary",
+    route: "/algorithms/ai-inference",
+    label: "AI Inference Systems",
+    description: "Optimize execution of deep models with quantization, batching, and KV cache serving techniques.",
+  },
 };
 
 const algorithmIcons: Record<string, string> = {
@@ -182,6 +278,20 @@ const algorithmIcons: Record<string, string> = {
   "generative-models": "auto_awesome",
   "regularization": "align_horizontal_center",
   "evaluation-metrics": "fact_check",
+  "statistics-estimation": "analytics",
+  "gradient-descent": "trending_down",
+  "data-preparation": "build",
+  "naive-bayes": "calculate",
+  "model-selection": "published_with_changes",
+  "gmm-em": "lens",
+  "anomaly-detection": "report_problem",
+  "backpropagation": "alt_route",
+  "sequence-models": "repeat",
+  "embeddings-tokenization": "pattern",
+  "rag": "find_in_page",
+  "fine-tuning": "tune",
+  "llm-evaluation-safety": "gavel",
+  "ai-inference": "memory",
 };
 
 export function getAlgorithmBySlug(slug: string): Algorithm | undefined {

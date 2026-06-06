@@ -1,10 +1,62 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const clustering: Algorithm = {
+export const clustering: LearningModule = {
   id: "clustering",
   title: "Clustering (K-Means, EM, GMM)",
   category: "Clustering",
+  difficulty: 2,
+  tracks: ["practitioner"],
   shortDescription: "Algorithms that automatically group similar data points together without needing human labels.",
+  estimatedMinutes: 25,
+  learningObjectives: [
+    'Explain the mechanics of the K-Means clustering algorithm',
+    'Evaluate cluster quality using inertia and silhouette scores',
+    'Compare K-Means and Gaussian Mixture Models (GMM)',
+    'Formulate the steps of the Expectation-Maximization (EM) algorithm',
+  ],
+  keyTerms: [
+    { term: 'Centroid', definition: 'The geometric center of a cluster, computed as the mean of all data points assigned to the cluster.' },
+    { term: 'Expectation-Maximization (EM)', definition: 'An iterative optimization method used to find maximum likelihood estimates of parameters in probabilistic models with latent variables.' },
+    { term: 'Inertia', definition: 'The sum of squared distances of samples to their closest cluster center.' },
+  ],
+  workedExamples: [
+    {
+      title: 'K-Means Centroid Update Step',
+      problem: 'Given a 2D cluster containing three points: $A(1, 2)$, $B(3, 4)$, and $C(5, 6)$, compute the new centroid coordinate.',
+      solution: 'The new centroid is the mean of the coordinates: $\\mu_x = \\frac{1+3+5}{3} = 3$, $\\mu_y = \\frac{2+4+6}{3} = 4$. So the new centroid is $(3, 4)$.',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'K-Means will automatically choose the best number of clusters $K$.',
+      correction: 'K-Means requires the user to specify $K$ beforehand. Techniques like the Elbow Method or Silhouette analysis are needed to guide this choice.'
+    },
+    {
+      claim: 'K-Means works well on all cluster shapes.',
+      correction: 'K-Means assumes clusters are spherical and of similar size. It performs poorly on elongated, nested, or highly irregular cluster shapes.'
+    }
+  ],
+  references: [
+    {
+      title: "Pattern Recognition and Machine Learning",
+      authors: "Bishop, C. M",
+      url: "https://www.springer.com",
+      type: "textbook"
+    },
+    {
+      title: "Data Clustering: Algorithms and Applications",
+      authors: "Aggarwal, C. C. and Reddy, C. K",
+      url: "https://www.crcpress.com",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Sensitivity to Initialization',
+      description: 'Bad random centroid initialization can lead to poor local minima.',
+      mitigation: 'Use algorithms like K-Means++ to seed centroids far apart, or run multiple random initializations.'
+    }
+  ],
 
   fullDescription: `
 Clustering algorithms are the detectives of machine learning. You hand them a massive pile of completely unlabelled data, and they automatically organize it into distinct, meaningful groups based on hidden patterns.

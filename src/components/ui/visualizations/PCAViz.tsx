@@ -148,6 +148,7 @@ export default function PCAViz() {
             role="img"
             aria-label="Principal Component Analysis Projection"
           >
+            <title>P C A Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -331,7 +332,7 @@ export default function PCAViz() {
             <span>Interactions</span>
           </div>
 
-          <button
+          <button aria-label="RESTORE 2D COORDINATES COLLAPSE POINTS ONTO AXIS"
             onClick={toggleProjection}
             className="w-full flex h-9 items-center justify-center border border-outline bg-surface-container hover:bg-outline-variant text-on-surface hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer mb-2"
           >

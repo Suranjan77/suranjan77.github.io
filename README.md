@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ML Learn
 
-## Getting Started
+ML Learn is an interactive machine learning curriculum that connects
+mathematical foundations, visual intuition, and implementation-oriented
+explanations. It currently includes 40 modules across three guided tracks.
 
-First, run the development server:
+## Run Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Validation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run test
+npm run lint
+npm run build
+npm run test:e2e
+```
 
-## Learn More
+`test:e2e` builds the static export, serves the generated `out/` artifact, and
+runs the Cypress browser suite against the production-equivalent output.
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `src/data/algorithms_content/`: typed lesson content and the module registry.
+- `src/components/ui/visualizations/`: interactive module visualizations.
+- `src/components/lesson/`: reusable lesson-page sections and navigation.
+- `src/app/`: Next.js pages, route metadata, sitemap, and track pages.
+- `cypress/e2e/`: end-to-end coverage for core learner journeys.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Add A Module
 
-## Deploy on Vercel
+1. Create a typed `LearningModule` file in `src/data/algorithms_content/`.
+2. Export it from `src/data/algorithms_content/index.ts`.
+3. Add or reuse an appropriate category and learning track.
+4. Create the visualization component in
+   `src/components/ui/visualizations/`.
+5. Register the visualization in `D3Visualization.tsx`.
+6. Run the full validation commands above.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Stack
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 16, React 19, TypeScript, Tailwind CSS, D3, Framer Motion, KaTeX,
+Vitest, Testing Library, and Cypress.

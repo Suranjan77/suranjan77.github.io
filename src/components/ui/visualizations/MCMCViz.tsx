@@ -46,7 +46,7 @@ export default function MCMCViz() {
 
   const autoStepTimerRef = useRef<NodeJS.Timeout | null>(null);
   const visualTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const latestStepRef = useRef<any>(null);
+  const latestStepRef = useRef<((instant?: boolean) => void) | null>(null);
 
   // Box-Muller transform for normal distribution proposal noise
   const randomNormal = (mean = 0, std = 1.1) => {
@@ -167,6 +167,7 @@ export default function MCMCViz() {
       <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
         <div className="absolute inset-0 z-10 flex items-center justify-center">
           <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="MCMC Metropolis-Hastings Walker">
+            <title>M C M C Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -310,7 +311,7 @@ export default function MCMCViz() {
           </div>
 
           <div className="grid grid-cols-2 gap-2 mb-3">
-            <button
+            <button aria-label="MCMC STEP"
               onClick={() => {
                 setIsAutoPlaying(false);
                 executeMcmcStep(false);
@@ -320,7 +321,7 @@ export default function MCMCViz() {
             >
               MCMC STEP
             </button>
-            <button
+            <button aria-label="PAUSE SAMPLER AUTO RUN"
               onClick={() => setIsAutoPlaying(!isAutoPlaying)}
               className={`flex h-9 items-center justify-center border border-outline font-bold cursor-pointer active:scale-[0.98] transition-all text-center ${
                 isAutoPlaying
@@ -339,6 +340,7 @@ export default function MCMCViz() {
             <div className="grid grid-cols-2 gap-1 border border-outline p-1 bg-surface-container-low">
               {(["slow", "fast"] as const).map((spd) => (
                 <button
+                  aria-label={spd === "slow" ? "Slow (Visual)" : "Fast (Math)"}
                   key={spd}
                   onClick={() => setStepSpeed(spd)}
                   className={`py-1 text-[9px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
@@ -358,6 +360,7 @@ export default function MCMCViz() {
               Show Trace Overlay:
             </span>
             <button
+              aria-label={showTrace ? "ON" : "OFF"}
               onClick={() => setShowTrace(!showTrace)}
               className={`px-3 py-1 border text-[9px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
                 showTrace ? "bg-cyan/20 border-cyan text-cyan" : "bg-surface"
@@ -367,7 +370,7 @@ export default function MCMCViz() {
             </button>
           </div>
 
-          <button
+          <button aria-label="RESET SAMPLER & SAMPLES"
             onClick={handleReset}
             disabled={totalSamples === 0}
             className="w-full flex h-8 items-center justify-center border border-outline bg-surface hover:bg-surface-container text-on-surface-variant text-[10px] active:scale-[0.98] transition-all tracking-wider cursor-pointer disabled:opacity-50"

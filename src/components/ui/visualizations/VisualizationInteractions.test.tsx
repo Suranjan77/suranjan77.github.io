@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import D3Visualization from "./D3Visualization";
 
@@ -107,17 +107,24 @@ describe("algorithm visualization interaction contracts", () => {
     expect(screen.getByRole("button", { name: /hide decision boundary/i })).toBeInTheDocument();
   });
 
-  it("runs linear regression fit controls and exposes SSE/formula readouts", () => {
+  it("runs linear regression fit controls and exposes SSE/formula readouts", async () => {
     renderVisualization("linear-regression");
 
     expect(screen.getByText("SUM OF SQUARES (SSE)")).toBeInTheDocument();
     expect(screen.getByText("FITTED LINE FORMULA")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /snap to ols fit/i }));
-    expect(screen.getByText("FITTED LINE FORMULA")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("linear-regression-formula")).toHaveTextContent(
+        /y = 0\.70 · x \+ 1\.81/,
+      );
+    });
 
     fireEvent.click(screen.getByRole("button", { name: /run gradient descent/i }));
-    expect(screen.getByRole("button", { name: /pause gradient descent/i })).toBeInTheDocument();
+    const pauseButton = screen.getByRole("button", { name: /pause gradient descent/i });
+    expect(pauseButton).toBeInTheDocument();
+    fireEvent.click(pauseButton);
+    expect(screen.getByRole("button", { name: /run gradient descent/i })).toBeInTheDocument();
   });
 
   it("keeps SVM soft-margin slider and metrics visible", () => {

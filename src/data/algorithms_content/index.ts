@@ -1,11 +1,14 @@
 export * from "./types";
+import { LearningModule } from "./learningModuleTypes";
 import { calculus } from "./0_1_calculus";
 import { linearAlgebra } from "./0_2_linear_algebra";
 import { probabilityTheory } from "./0_3_probability_theory";
 import { maximumLikelihood } from "./1_maximum_likelihood";
 import { bayesianInference } from "./2_bayesian";
 import { linearRegression } from "./3_linear_regression";
-import { instanceBasedTrees } from "./4_instances_trees";
+import { logisticRegression } from "./3b_logistic_regression";
+import { knn } from "./4a_knn";
+import { decisionTrees } from "./4b_decision_trees";
 import { clustering } from "./5_clustering";
 import { svm } from "./6_svm";
 import { ensembleLearning } from "./7_ensemble";
@@ -23,15 +26,31 @@ import { biasVariance } from "./18_bias_variance";
 import { generativeModels } from "./19_generative_models";
 import { regularization } from "./20_regularization";
 import { evaluationMetrics } from "./21_evaluation_metrics";
+import { statisticsEstimation } from "./22_statistics_estimation";
+import { gradientDescent } from "./23_gradient_descent";
+import { dataPreparation } from "./24_data_preparation";
+import { naiveBayes } from "./25_naive_bayes";
+import { modelSelection } from "./26_model_selection";
+import { gmmEm } from "./27_gmm_em";
+import { anomalyDetection } from "./28_anomaly_detection";
+import { backpropagation } from "./29_backpropagation";
+import { sequenceModels } from "./30_sequence_models";
+import { embeddingsTokenization } from "./31_embeddings_tokenization";
+import { rag } from "./32_rag";
+import { fineTuning } from "./33_fine_tuning";
+import { llmEvaluationSafety } from "./34_llm_evaluation_safety";
+import { aiInference } from "./35_ai_inference";
 
-export const algorithmsList = [
+export const algorithmsList: LearningModule[] = [
   calculus,
   linearAlgebra,
   probabilityTheory,
   maximumLikelihood,
   bayesianInference,
   linearRegression,
-  instanceBasedTrees,
+  logisticRegression,
+  knn,
+  decisionTrees,
   clustering,
   svm,
   ensembleLearning,
@@ -49,4 +68,18 @@ export const algorithmsList = [
   generativeModels,
   regularization,
   evaluationMetrics,
+  statisticsEstimation,
+  gradientDescent,
+  dataPreparation,
+  naiveBayes,
+  modelSelection,
+  gmmEm,
+  anomalyDetection,
+  backpropagation,
+  sequenceModels,
+  embeddingsTokenization,
+  rag,
+  fineTuning,
+  llmEvaluationSafety,
+  aiInference,
 ];

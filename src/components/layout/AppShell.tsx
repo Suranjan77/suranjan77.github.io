@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
+import { useHydrated } from "@/lib/useHydrated";
 
 export default function AppShell({
   children,
@@ -11,7 +12,8 @@ export default function AppShell({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const showStudySidebar = pathname.startsWith("/algorithms/");
+  const isHydrated = useHydrated();
+  const showStudySidebar = isHydrated && pathname.startsWith("/algorithms/");
 
   return (
     <div className="min-h-screen lg:flex">
@@ -19,7 +21,7 @@ export default function AppShell({
       <div
         className={clsx(
           "flex min-h-screen min-w-0 flex-1 flex-col",
-          showStudySidebar && "lg:ml-[278px]",
+          showStudySidebar && "lg:ml-[300px]",
         )}
       >
         <div

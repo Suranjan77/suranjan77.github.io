@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import MarkdownRenderer from "../MarkdownRenderer";
-import { animate, motion } from "framer-motion";
+import { animate, motion, type AnimationPlaybackControls } from "framer-motion";
 import {
   COLORS,
   SVGFilters,
@@ -42,7 +42,7 @@ export default function MaximumLikelihoodViz() {
   const [pulse, setPulse] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
 
-  const animationRef = useRef<any>(null);
+  const animationRef = useRef<AnimationPlaybackControls | null>(null);
 
   // Exact MLE mean
   const mleMean = dataPoints.reduce((sum, p) => sum + p, 0) / dataPoints.length;
@@ -160,6 +160,7 @@ export default function MaximumLikelihoodViz() {
             role="img"
             aria-label="Maximum Likelihood Optimization"
           >
+            <title>Maximum Likelihood Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -336,7 +337,7 @@ export default function MaximumLikelihoodViz() {
                 </foreignObject>
 
                 {Math.abs(mu - mleMean) < 0.05 && (
-                  <text x={50} y={114} fill={COLORS.cyan} fontSize={9} fontWeight={800}>✓ CONVERGED</text>
+                  <text x={50} y={114} fill={COLORS.cyan} fontSize={9} fontWeight={800}>CONVERGED</text>
                 )}
               </g>
             </g>
@@ -350,7 +351,7 @@ export default function MaximumLikelihoodViz() {
             <span>Interactions</span>
           </div>
 
-          <button
+          <button aria-label="OPTIMIZING... FIND MLE VIA GRADIENT ASCENT"
             onClick={runGradientAscent}
             disabled={isAnimating}
             className="w-full flex h-9 items-center justify-center border border-outline bg-surface-container hover:bg-outline-variant text-on-surface hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer mb-2 disabled:opacity-50"

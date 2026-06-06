@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const linearAlgebra: Algorithm = {
+export const linearAlgebra: LearningModule = {
   id: "linear-algebra",
   title: "Linear Algebra & Data Structure",
   category: "Linear Algebra",
+  prerequisites: [],
+  tracks: ['foundations'],
+  difficulty: 1,
+  relatedModules: ['calculus'],
   shortDescription: "The structural foundation of algorithms, managing massive multidimensional datasets via matrices and vectors.",
+  estimatedMinutes: 20,
+  learningObjectives: [
+    'Compute vector operations such as addition, scalar multiplication, and dot products',
+    'Perform matrix multiplication and explain the dimension compatibility rules',
+    'Describe the geometric interpretation of linear independence and matrix span',
+    'Explain the concept of eigenvalues and eigenvectors and their application in dimensionality reduction',
+  ],
+  keyTerms: [
+    { term: 'Vector', definition: 'An ordered list of numbers representing a coordinate point or direction in space.' },
+    { term: 'Matrix', definition: 'A 2D array of numbers that represents a linear transformation.' },
+    { term: 'Eigenvector', definition: 'A non-zero vector whose direction does not change when a linear transformation is applied.' },
+  ],
+  workedExamples: [
+    {
+      title: 'Matrix Multiplication',
+      problem: 'Compute $C = AB$ where $A = \\begin{bmatrix} 1 & 2 \\\\ 3 & 4 \\end{bmatrix}$ and $B = \\begin{bmatrix} 5 \\\\ 6 \\end{bmatrix}$.',
+      solution: '$C = \\begin{bmatrix} 1 \\times 5 + 2 \\times 6 \\\\ 3 \\times 5 + 4 \\times 6 \\end{bmatrix} = \\begin{bmatrix} 17 \\\\ 39 \\end{bmatrix}$.',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'Matrix multiplication is always commutative ($AB = BA$).',
+      correction: 'Matrix multiplication is non-commutative in general. Changing the order of multiplication represents applying transformations in a different sequence.'
+    },
+    {
+      claim: 'A matrix must be invertible to be useful.',
+      correction: 'Many matrices in machine learning are not invertible (singular), which is why we use techniques like pseudoinverse or regularization.'
+    }
+  ],
+  references: [
+    {
+      title: "Introduction to Linear Algebra",
+      authors: "Strang, G",
+      url: "https://math.mit.edu/~gs/",
+      type: "textbook"
+    },
+    {
+      title: "Linear Algebra and Learning from Data",
+      authors: "Strang, G",
+      url: "https://math.mit.edu/~gs/",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Singular Matrix (Determinant = 0)',
+      description: 'Attempting to invert a singular matrix leads to computational errors and division by zero.',
+      mitigation: 'Use the Moore-Penrose pseudoinverse or add a small identity matrix component (L2 regularization).'
+    }
+  ],
 
   fullDescription: `
 While calculus explains *how* a machine learning algorithm learns, **linear algebra provides the actual structure for the data and the model.** In many ways, machine learning is just applied linear algebra.
@@ -68,5 +122,8 @@ For datasets that aren't perfectly square, we use **Singular Value Decomposition
   ],
 
 
-  codeSnippet: ``
+  codeSnippet: `import numpy as np
+
+def dot_product(v1, v2):
+    return np.dot(v1, v2)`
 };

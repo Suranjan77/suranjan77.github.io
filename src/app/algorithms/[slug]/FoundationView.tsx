@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Check, Lightbulb, Sigma } from "lucide-react";
 import AlgorithmVisualization from "@/components/ui/AlgorithmVisualization";
 import LogicContent from "@/components/ui/LogicContent";
 import { type Algorithm } from "@/data/algorithms";
@@ -71,8 +72,8 @@ export default function FoundationView({
         <div className="overflow-hidden border border-outline bg-surface-container-low">
           <div className="border-b border-outline px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center border border-tertiary/30 bg-tertiary/12 text-lg font-semibold text-tertiary">
-                i
+              <div className="flex h-10 w-10 items-center justify-center border border-tertiary/30 bg-tertiary/12 text-tertiary">
+                <Lightbulb size={18} strokeWidth={1.7} aria-hidden="true" />
               </div>
               <div>
                 <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
@@ -99,8 +100,8 @@ export default function FoundationView({
         <div className="overflow-hidden border border-outline bg-surface-container-low">
           <div className="border-b border-outline px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center border border-primary/30 bg-primary/12 text-lg text-primary">
-                ∑
+              <div className="flex h-10 w-10 items-center justify-center border border-primary/30 bg-primary/12 text-primary">
+                <Sigma size={18} strokeWidth={1.7} aria-hidden="true" />
               </div>
               <div>
                 <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
@@ -123,8 +124,8 @@ export default function FoundationView({
           <div className="overflow-hidden border border-outline bg-surface-container-low">
             <div className="px-6 py-6 sm:px-8">
               <div className="mb-6 flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center border border-primary/30 bg-primary/12 text-sm font-bold text-primary">
-                  ✓
+                <div className="flex h-9 w-9 items-center justify-center border border-primary/30 bg-primary/12 text-primary">
+                  <Check size={16} strokeWidth={1.8} aria-hidden="true" />
                 </div>
                 <h2 className="font-headline text-xl font-bold text-on-surface">
                   Key Properties & Applications

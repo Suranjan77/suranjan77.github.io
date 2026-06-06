@@ -40,5 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Cypress artifacts
+cypress/videos
+cypress/screenshots
+cypress/downloads
 
 *.log

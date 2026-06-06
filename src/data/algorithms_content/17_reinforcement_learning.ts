@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const reinforcementLearning: Algorithm = {
+export const reinforcementLearning: LearningModule = {
   id: "reinforcement-learning",
   title: "Reinforcement Learning",
   category: "Reinforcement Learning",
+  prerequisites: ["probability-theory"],
+  tracks: ["practitioner"],
+  difficulty: 4,
+  relatedModules: ["probability-theory", "neural-networks"],
   shortDescription: "Training autonomous agents to make sequential decisions by trial-and-error to maximize cumulative reward.",
+  estimatedMinutes: 25,
+  learningObjectives: [
+    'Identify components of a Markov Decision Process (MDP)',
+    'Explain the Bellman Equation for value functions and state-action values ($Q$-values)',
+    'Describe the exploration-exploitation dilemma and epsilon-greedy strategies',
+    'Explain temporal difference learning and the Q-learning update step',
+  ],
+  keyTerms: [
+    { term: 'Policy', definition: 'A mapping from states of the environment to actions to be taken.' },
+    { term: 'Q-Value (State-Action Value)', definition: 'The expected cumulative reward of taking an action in a state and following a policy thereafter.' },
+    { term: 'Markov Decision Process (MDP)', definition: 'A mathematical framework for modeling decision-making where outcomes are partly random and partly under control of a decision maker.' },
+  ],
+  workedExamples: [
+    {
+      title: 'Temporal Difference (TD) Target',
+      problem: 'Given state $s$, action $a$, reward $r = 10$, next state $s\'$, discount factor $\\gamma = 0.9$, and estimated $Q(s\', a\') = 5.0$, compute the TD target.',
+      solution: 'TD Target = $r + \\gamma \\max_{a\'} Q(s\', a\') = 10 + 0.9 \\times 5.0 = 10 + 4.5 = 14.5$.',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'Reinforcement learning is just supervised learning with scalar labels.',
+      correction: 'In supervised learning, the model is directly given the correct action. In RL, the agent must explore the environment to discover which actions yield the highest cumulative reward, and feedback is often delayed.'
+    },
+    {
+      claim: 'The agent should always take the action with the highest estimated reward.',
+      correction: 'If the agent always chooses the highest estimated reward (exploitation), it may never discover better actions (exploration), leading to suboptimal behaviors.'
+    }
+  ],
+  references: [
+    {
+      title: "Reinforcement Learning: An Introduction",
+      authors: "Sutton, R. S. and Barto, A. G",
+      url: "http://incompleteideas.net/book/the-book-2nd.html",
+      type: "textbook"
+    },
+    {
+      title: "Algorithms for Reinforcement Learning",
+      authors: "Szepesvári, C",
+      url: "https://sztaki.hu/~szcsaba/papers/RLBook.pdf",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Reward Exploitation (Loophole Abuse)',
+      description: 'The agent finds a shortcut in the environment that maximizes reward without achieving the actual intended goal.',
+      mitigation: 'Carefully design the reward function (reward shaping) and add constraints or penalties for undesirable behaviors.'
+    }
+  ],
 
   fullDescription: `
 Reinforcement Learning (RL) studies how an agent can learn good behavior by acting in an environment and receiving rewards or penalties.

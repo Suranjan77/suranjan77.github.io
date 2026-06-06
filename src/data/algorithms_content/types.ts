@@ -5,7 +5,9 @@ export type AlgorithmCategory =
   | "Maximum Likelihood"
   | "Bayesian Inference"
   | "Linear Regression"
-  | "Instance-based Learning & Decision Trees"
+  | "Logistic Regression"
+  | "K-Nearest Neighbors"
+  | "Decision Trees"
   | "Clustering"
   | "Support Vector Machines"
   | "Ensemble Learning"
@@ -22,7 +24,21 @@ export type AlgorithmCategory =
   | "Model Complexity & Bias-Variance"
   | "Generative Models"
   | "Regularization"
-  | "Evaluation Metrics";
+  | "Evaluation Metrics"
+  | "Statistics and Estimation"
+  | "Gradient Descent and Optimization"
+  | "Data Preparation and Feature Engineering"
+  | "Naive Bayes"
+  | "Model Selection and Cross-Validation"
+  | "Gaussian Mixtures and EM"
+  | "Anomaly Detection"
+  | "Backpropagation"
+  | "Sequence Models"
+  | "Embeddings and Tokenization"
+  | "Retrieval-Augmented Generation"
+  | "Fine-Tuning and Preference Optimization"
+  | "LLM Evaluation and Safety"
+  | "AI Inference Systems";
 
 export interface Algorithm {
   id: string;
@@ -36,3 +52,5 @@ export interface Algorithm {
   cons: string[];
   codeSnippet: string;
 }
+
+export * from './learningModuleTypes';

@@ -137,6 +137,7 @@ export default function GenerativeViz() {
             aria-label="Generative Models Latent Space Walk"
             onPointerDown={handlePlotClick}
           >
+            <title>Generative Diagram</title>
             <defs>
               <filter id="generative-blur">
                 <feGaussianBlur stdDeviation={blurVal} />
@@ -228,12 +229,12 @@ export default function GenerativeViz() {
               {isOutOfManifold ? (
                 <g>
                   <text x={470} y={300} textAnchor="middle" fill={COLORS.pink} fontSize={10} fontWeight={900} className="animate-pulse">
-                    ⚠️ OUT OF MANIFOLD (BLURRY NOISE)
+                    OUT OF MANIFOLD (BLURRY NOISE)
                   </text>
                 </g>
               ) : (
                 <text x={470} y={300} textAnchor="middle" fill={COLORS.cyan} fontSize={10} fontWeight={800}>
-                  ✓ HIGH DENSITY MANIFOLD (CRISP)
+                  HIGH DENSITY MANIFOLD (CRISP)
                 </text>
               )}
             </g>
@@ -250,6 +251,7 @@ export default function GenerativeViz() {
           <div className="grid grid-cols-2 gap-2 mb-4">
             {(["single", "interpolate"] as const).map((mKey) => (
               <button
+                aria-label={mKey === "single" ? "Single Walk" : "Interpolation"}
                 key={mKey}
                 onClick={() => {
                   setMode(mKey);
@@ -267,7 +269,7 @@ export default function GenerativeViz() {
           </div>
 
           {mode === "interpolate" ? (
-            <button
+            <button aria-label="RUN INTERPOLATION WALKER"
               onClick={handleInterpolate}
               disabled={isInterpolating}
               className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer mb-2 text-[10px]"

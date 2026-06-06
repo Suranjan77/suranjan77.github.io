@@ -201,6 +201,7 @@ export default function ProbabilityViz() {
             role="img"
             aria-label="Probability Sampling Convergence"
           >
+            <title>Probability Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -309,7 +310,7 @@ export default function ProbabilityViz() {
               <g transform="translate(440, 44)">
                 <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
                 <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>TOTAL TRIALS (n)</text>
-                <text x={12} y={36} fill={COLORS.pink} fontSize={16} fontWeight={800}>{n}</text>
+                <text data-testid="probability-total-trials" x={12} y={36} fill={COLORS.pink} fontSize={16} fontWeight={800}>{n}</text>
               </g>
 
               {/* Total Variation Distance */}
@@ -352,7 +353,7 @@ export default function ProbabilityViz() {
 
                 {tvd < 0.05 && n > 200 && (
                   <g>
-                    <text x={48} y={114} fill={COLORS.cyan} fontSize={9} fontWeight={800}>✓ CONVERGED!</text>
+                    <text x={48} y={114} fill={COLORS.cyan} fontSize={9} fontWeight={800}>CONVERGED</text>
                     <text x={48} y={126} fill={COLORS.muted} fontSize={7}>Law of Large Numbers</text>
                   </g>
                 )}
@@ -371,13 +372,13 @@ export default function ProbabilityViz() {
           </div>
 
           <div className="grid grid-cols-2 gap-2 mb-3">
-            <button
+            <button aria-label="DROP 1 SAMPLE"
               onClick={spawnSingleSample}
               className="flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold cursor-pointer"
             >
               DROP 1 SAMPLE
             </button>
-            <button
+            <button aria-label="DROP 100 SAMPLES"
               onClick={() => addBulkSamples(100)}
               className="flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold cursor-pointer"
             >
@@ -391,7 +392,7 @@ export default function ProbabilityViz() {
             </label>
             <div className="grid grid-cols-4 gap-1 border border-outline p-1 bg-surface-container-low">
               {(["off", "slow", "fast", "ultra"] as const).map((mode) => (
-                <button
+                <button aria-label="Visualization action"
                   key={mode}
                   onClick={() => setAutoPlayMode(mode)}
                   className={`py-1 text-[9px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
@@ -406,7 +407,7 @@ export default function ProbabilityViz() {
             </div>
           </div>
 
-          <button
+          <button aria-label="RESET SIMULATION & SCATTER"
             onClick={handleReset}
             disabled={n === 0}
             className="w-full flex h-8 items-center justify-center border border-outline bg-surface hover:bg-surface-container text-on-surface-variant text-[10px] active:scale-[0.98] transition-all tracking-wider cursor-pointer disabled:opacity-50"

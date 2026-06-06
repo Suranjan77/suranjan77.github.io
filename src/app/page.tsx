@@ -174,9 +174,7 @@ function NetworkDiagram() {
 }
 
 export default function Home() {
-  const filteredAlgorithms = algorithms.filter(
-    (a) => !a.id.includes("reinforcement") && !a.id.includes("generative"),
-  );
+  const filteredAlgorithms = algorithms;
   const heroStats = [
     { label: "Modules", value: algorithms.length },
     { label: "Interactive Labs", value: interactiveLabs.length },
@@ -210,6 +208,12 @@ export default function Home() {
                 className="inline-flex min-h-10 items-center justify-center border border-on-surface bg-on-surface px-8 py-3 font-mono text-[11px] uppercase tracking-[0.18em] text-background hover:bg-primary"
               >
                 Begin Curriculum
+              </Link>
+              <Link
+                href="/tracks"
+                className="inline-flex min-h-10 items-center justify-center border border-transparent px-8 py-3 font-mono text-[11px] uppercase tracking-[0.18em] text-primary hover:border-outline"
+              >
+                Browse Tracks →
               </Link>
               <Link
                 href="/playground"

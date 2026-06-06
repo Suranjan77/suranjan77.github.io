@@ -4,9 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
+import SearchBar from "@/components/SearchBar";
+import { useHydrated } from "@/lib/useHydrated";
 
 const navItems = [
   { label: "Curriculum", mobileLabel: "Curric", href: "/#curriculum" },
+  { label: "Tracks", mobileLabel: "Tracks", href: "/tracks" },
   { label: "Playground", mobileLabel: "Lab", href: "/playground" },
   { label: "GradForge", mobileLabel: "Grad", href: "/gradforge" },
   { label: "About", mobileLabel: "About", href: "/#philosophy" },
@@ -22,10 +25,11 @@ function isActiveLink(pathname: string, href: string) {
 
 export default function Header() {
   const pathname = usePathname();
+  const isHydrated = useHydrated();
 
   return (
     <header className="sticky top-0 z-30 border-b border-outline bg-background/95">
-      <div className="mx-auto flex w-full items-center justify-between gap-4 px-4 py-4 sm:px-8 lg:px-12">
+      <div className="mx-auto flex w-full flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-8 lg:px-12">
         <Link href="/" className="flex items-center gap-3">
           <Image
             src="/logo-favicon.svg"
@@ -45,12 +49,15 @@ export default function Header() {
           </span>
         </Link>
 
-        <nav
-          aria-label="Primary"
-          className="flex max-w-[48vw] items-center gap-5 overflow-x-auto sm:max-w-none sm:gap-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
+        <div className="flex flex-1 items-center justify-end gap-4 sm:gap-6">
+          <SearchBar />
+
+          <nav
+            aria-label="Primary"
+            className="flex max-w-[48vw] items-center gap-5 overflow-x-auto sm:max-w-none sm:gap-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
           {navItems.map((item) => {
-            const active = isActiveLink(pathname, item.href);
+            const active = isHydrated && isActiveLink(pathname, item.href);
 
             return (
               <Link
@@ -71,6 +78,7 @@ export default function Header() {
             );
           })}
         </nav>
+      </div>
       </div>
     </header>
   );

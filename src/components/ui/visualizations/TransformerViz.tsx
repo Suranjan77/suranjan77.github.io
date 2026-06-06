@@ -51,6 +51,7 @@ export default function TransformerViz() {
       <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
         <div className="absolute inset-0 z-10 flex items-center justify-center">
           <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Transformer Self-Attention Layer">
+            <title>Transformer Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -249,7 +250,7 @@ export default function TransformerViz() {
             <span>Attention Heads</span>
           </div>
 
-          <button
+          <button aria-label="MULTI-HEAD ATTENTION (2 heads) SINGLE-HEAD ATTENTION"
             onClick={() => setMultiHead(!multiHead)}
             className={`w-full flex h-9 items-center justify-center border font-bold tracking-wider cursor-pointer active:scale-[0.98] transition-all text-[9px] uppercase ${
               multiHead

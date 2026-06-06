@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const bayesianInference: Algorithm = {
+export const bayesianInference: LearningModule = {
   id: "bayesian-inference",
   title: "Bayesian Inference",
   category: "Bayesian Inference",
+  prerequisites: ['probability-theory'],
+  tracks: ['foundations'],
+  difficulty: 2,
+  relatedModules: ['maximum-likelihood'],
   shortDescription: "A mathematical way to update your beliefs as you get new information, rather than just making a single blind guess.",
+  estimatedMinutes: 25,
+  learningObjectives: [
+    'Distinguish between Bayesian and Frequentist paradigms of statistics',
+    'Identify the components of Bayes Theorem: Prior, Likelihood, Posterior, and Evidence',
+    'Explain Maximum a Posteriori (MAP) estimation and its relation to MLE and Regularization',
+    'Contrast conjugate priors and numerical approximation techniques (MCMC, Variational Inference)',
+  ],
+  keyTerms: [
+    { term: 'Prior Probability', definition: 'Initial belief about the probability of parameters before observing data.' },
+    { term: 'Posterior Probability', definition: 'Updated belief about parameters after observing data, incorporating the prior and likelihood.' },
+    { term: 'Credible Interval', definition: 'An interval in Bayesian statistics that contains a parameter with a specified probability.' },
+  ],
+  workedExamples: [
+    {
+      title: 'MAP Estimate for a Beta-Binomial Model',
+      problem: 'Given prior Beta($\\alpha, \\beta$), find the posterior after observing $h$ heads and $t$ tails.',
+      solution: 'By conjugacy, the posterior is Beta($\\alpha + h, \\beta + t$). The MAP estimate (mode of Beta) is $\\frac{\\alpha + h - 1}{\\alpha + h + \\beta + t - 2}$ for $\\alpha, \\beta > 1$.',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'A Bayesian credible interval is interpreted exactly like a frequentist confidence interval.',
+      correction: 'A credible interval states there is a 95% probability that the parameter lies within the interval. A confidence interval states that 95% of similarly constructed intervals contain the true parameter.'
+    },
+    {
+      claim: 'Bayesian inference is always better because it uses priors.',
+      correction: 'If the prior is chosen poorly or is biased, it can severely skew the posterior distribution and lead to poor predictions.'
+    }
+  ],
+  references: [
+    {
+      title: "Bayesian Data Analysis",
+      authors: "Gelman, A. et al",
+      url: "https://www.stat.columbia.edu/~gelman/book/",
+      type: "textbook"
+    },
+    {
+      title: "Statistical Rethinking",
+      authors: "McElreath, R",
+      url: "https://xcelab.net/rm/statistical-rethinking/",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Computational Intractability of the Evidence',
+      description: 'The evidence term $P(X) = \\int P(X|\\theta)P(\\theta)d\\theta$ requires integration over high-dimensional spaces, which is often analytically impossible.',
+      mitigation: 'Use Markov Chain Monte Carlo (MCMC) sampling or Variational Inference (VI) approximations.'
+    }
+  ],
 
   fullDescription: `
 Bayesian inference is a formal mathematical framework for changing your mind. Unlike standard statistics (which assumes there is one single, fixed "true" answer out there), Bayesian math treats everything as a probability. Instead of giving you a single, rigid prediction, it gives you a full range of possibilities, showing exactly how confident the AI is in every possible answer.

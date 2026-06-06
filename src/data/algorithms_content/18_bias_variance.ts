@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const biasVariance: Algorithm = {
+export const biasVariance: LearningModule = {
   id: "bias-variance",
   title: "Bias-Variance Tradeoff",
   category: "Model Complexity & Bias-Variance",
+  prerequisites: ["probability-theory", "linear-regression"],
+  tracks: ["practitioner"],
+  difficulty: 2,
+  relatedModules: ["probability-theory", "linear-regression", "regularization"],
   shortDescription: "Balancing model complexity to minimize error from high bias (underfitting) and high variance (overfitting).",
+  estimatedMinutes: 20,
+  learningObjectives: [
+    'Explain expected prediction error in terms of bias, variance, and irreducible error',
+    'Distinguish between underfitting (high bias) and overfitting (high variance) behaviors',
+    'Identify diagnostic signs of high bias versus high variance on training and validation curves',
+    'List regularization and training methods used to address bias and variance issues',
+  ],
+  keyTerms: [
+    { term: 'Bias', definition: 'The error introduced by approximating a complex real-world relationship with a simpler model.' },
+    { term: 'Variance', definition: 'The error introduced by a model\'s high sensitivity to fluctuations in the training dataset.' },
+    { term: 'Irreducible Error', definition: 'The noise inherent in the data itself, which cannot be eliminated regardless of model selection.' },
+  ],
+  workedExamples: [
+    {
+      title: 'Error Decomposition',
+      problem: 'Given true function $y = x^2$, a model family makes prediction $\\hat{f}(x)$. If expected prediction $\\mathbb{E}[\\hat{f}(x)] = x^2 - 1.0$, model variance is $0.5$, and irreducible noise variance is $0.2$, calculate the total expected squared prediction error.',
+      solution: 'Total Error = $\\text{Bias}^2 + \\text{Variance} + \\text{Irreducible Error}$. Bias = $\\mathbb{E}[\\hat{f}(x)] - f(x) = (x^2-1.0) - x^2 = -1.0$. $\\text{Bias}^2 = 1.0$. Total Error = $1.0 + 0.5 + 0.2 = 1.7$.',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'You should always aim to have exactly zero bias and zero variance.',
+      correction: 'Because reducing bias often increases variance, and vice versa, it is generally impossible to achieve zero for both. The goal is to find the optimal tradeoff that minimizes the sum of all three error components.'
+    },
+    {
+      claim: 'Getting more training data always reduces bias.',
+      correction: 'More training data helps reduce variance (overfitting), but it does not change the model family. If your model family is too simple (e.g., linear regression on highly non-linear data), the bias remains high.'
+    }
+  ],
+  references: [
+    {
+      title: "Neural Networks and the Bias/Variance Dilemma",
+      authors: "Geman, S., Bienenstock, E. and Doursat, R",
+      url: "https://dl.acm.org",
+      type: "textbook"
+    },
+    {
+      title: "The Elements of Statistical Learning (Chapter 7)",
+      authors: "Hastie, T. et al",
+      url: "https://web.stanford.edu/~hastie/ElemStatLearn/",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'High Variance Overfitting',
+      description: 'The model fits the training data perfectly (zero training error) but fails completely on the test dataset.',
+      mitigation: 'Simplify the model (reduce capacity), collect more training data, or add L1/L2 regularization.'
+    }
+  ],
 
   fullDescription: `
 The bias-variance tradeoff explains why model capacity matters. Expected prediction error can be viewed as a combination of bias, variance, and irreducible noise.

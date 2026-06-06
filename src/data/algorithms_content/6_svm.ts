@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const svm: Algorithm = {
+export const svm: LearningModule = {
   id: "support-vector-machines",
   title: "Support Vector Machines",
   category: "Support Vector Machines",
+  prerequisites: ["linear-algebra", "probability-theory"],
+  tracks: ["practitioner"],
+  difficulty: 3,
+  relatedModules: ["linear-regression", "logistic-regression"],
   shortDescription: "A margin-based classifier that chooses the separating boundary with the largest distance to the nearest training points.",
+  estimatedMinutes: 20,
+  learningObjectives: [
+    'Explain the concept of margins and why SVM maximizes the margin',
+    'Distinguish between hard-margin and soft-margin SVM formulations',
+    'Explain the role of support vectors in defining the decision boundary',
+    'Describe the Kernel Trick and compute the Radial Basis Function (RBF) kernel',
+  ],
+  keyTerms: [
+    { term: 'Support Vector', definition: 'The data points closest to the decision boundary that influence its position and orientation.' },
+    { term: 'Margin', definition: 'The distance between the decision boundary and the closest training data points.' },
+    { term: 'Kernel Trick', definition: 'A method that projects data into a higher-dimensional space to make it linearly separable, without explicitly calculating the new coordinates.' },
+  ],
+  workedExamples: [
+    {
+      title: 'RBF Kernel Similarity',
+      problem: 'Calculate the RBF kernel value $K(x_1, x_2)$ for $x_1 = (1, 2)$, $x_2 = (2, 2)$ with $\\gamma = 0.5$.',
+      solution: 'Squared Euclidean distance is $\\|x_1 - x_2\\|^2 = (1-2)^2 + (2-2)^2 = 1 + 0 = 1$. RBF kernel value $K(x_1, x_2) = \\exp(-\\gamma \\|x_1 - x_2\\|^2) = \\exp(-0.5 \\times 1) = e^{-0.5} \\approx 0.607$.',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'SVMs only work for binary classification.',
+      correction: 'SVMs can be extended to multi-class classification using One-vs-One (OvO) or One-vs-Rest (OvR) strategies.'
+    },
+    {
+      claim: 'Adding more features will always make SVM slower to evaluate.',
+      correction: 'Thanks to the Kernel Trick, the evaluation time depends on the number of support vectors rather than the dimensionality of the high-dimensional space.'
+    }
+  ],
+  references: [
+    {
+      title: "A Training Algorithm for Optimal Margin Classifiers",
+      authors: "Boser, B.E., Guyon, I.M. and Vapnik, V.N",
+      url: "https://dl.acm.org",
+      type: "textbook"
+    },
+    {
+      title: "Understanding Machine Learning: From Theory to Algorithms",
+      authors: "Shalev-Shwartz, S. and Ben-David, S",
+      url: "https://www.cambridge.org",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Sensitivity to Hyperparameters (C and Gamma)',
+      description: 'If $C$ is too large, the margin becomes narrow and overfits. If $\\gamma$ is too large, the kernel acts like individual indicators and fails to generalize.',
+      mitigation: 'Use grid search with cross-validation to tune $C$ and $\\gamma$.'
+    }
+  ],
 
   fullDescription: `
 Support Vector Machines (SVMs) are margin-based classifiers. If many separating lines classify the training data correctly, an SVM chooses the one with the largest margin: the greatest distance to the closest training examples.

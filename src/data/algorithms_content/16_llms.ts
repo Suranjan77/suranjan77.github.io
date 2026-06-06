@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const llms: Algorithm = {
+export const llms: LearningModule = {
   id: "llms",
   title: "Large Language Models",
   category: "Large Language Models",
+  prerequisites: ["transformers"],
+  tracks: ["practitioner"],
+  difficulty: 4,
+  relatedModules: ["transformers", "nlp"],
   shortDescription: "Decoder-only Transformer language models trained to predict the next token and then adapted to follow instructions.",
+  estimatedMinutes: 30,
+  learningObjectives: [
+    'Explain the autoregressive next-token prediction task',
+    'Describe the stages of LLM development: Pretraining, Instruction Tuning, and Preference Optimization (RLHF/DPO)',
+    'Explain decoding strategies such as greedy search, top-k, top-p, and temperature sampling',
+    'Contrast hallucination, context limits, and retrieval-augmented generation architectures',
+  ],
+  keyTerms: [
+    { term: 'Autoregressive', definition: 'A modeling approach where the model predicts the next element in a sequence using the previously predicted elements as inputs.' },
+    { term: 'Temperature', definition: 'A hyperparameter that controls the randomness of next-token predictions by scaling logit values before softmax.' },
+    { term: 'Instruction Tuning', definition: 'Fine-tuning a pretrained model on a dataset of prompt-response pairs to teach it to follow instructions.' },
+  ],
+  workedExamples: [
+    {
+      title: 'Autoregressive Decoding Probability',
+      problem: 'For vocabulary [cat, dog, fish], model output logits are [2.0, 1.0, 0.0] at temperature $T = 1.0$. Calculate the next-token probability of "cat".',
+      solution: 'Scale logits by temperature: $L = \\frac{\\text{logits}}{T} = [2.0, 1.0, 0.0]$. Next-token probabilities are $\\text{Softmax}([2.0, 1.0, 0.0]) = [\\frac{e^2}{e^2 + e^1 + e^0}, \\frac{e^1}{e^2 + e^1 + e^0}, \\frac{e^0}{e^2 + e^1 + e^0}] \\approx [\\frac{7.389}{7.389+2.718+1}, \\frac{2.718}{11.107}, \\frac{1}{11.107}] \\approx [0.665, 0.245, 0.090]$. The probability of "cat" is $66.5\\%$.',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'LLMs search a database of facts to answer questions.',
+      correction: 'LLMs do not search databases or copy stored text; they generate text token-by-token based on statistical associations learned during training. They do not have access to real-time information unless combined with external retrieval tools.'
+    },
+    {
+      claim: 'Higher temperature sampling increases the factual accuracy of the model.',
+      correction: 'Higher temperature increases logit entropy, making predictions more random and creative but also increasing the probability of hallucinations and factually incorrect statements.'
+    }
+  ],
+  references: [
+    {
+      title: "Language Models are Few-Shot Learners",
+      authors: "Brown, T. B. et al",
+      url: "https://arxiv.org/abs/2005.14165",
+      type: "textbook"
+    },
+    {
+      title: "Introducing LLaMA: A foundational, 65-billion-parameter large language model",
+      authors: "Touvron, H. et al",
+      url: "https://arxiv.org/abs/2302.13971",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Hallucination',
+      description: 'The model generates highly plausible-sounding but factually incorrect or completely fabricated information.',
+      mitigation: 'Use Retrieval-Augmented Generation (RAG), ground responses in source documents, and use low temperatures for factual tasks.'
+    }
+  ],
 
   fullDescription: `
 Large Language Models (LLMs) are usually decoder-only Transformers trained with an autoregressive objective: predict the next token from the previous tokens. A token can be a word, part of a word, punctuation mark, or byte-like unit depending on the tokenizer.

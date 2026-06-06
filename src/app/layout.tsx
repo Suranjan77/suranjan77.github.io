@@ -80,7 +80,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="light scroll-smooth">
+    <html lang="en" className="light">
       <body
         className={`${shippori.variable} ${outfit.variable} ${dmMono.variable} min-h-screen bg-background font-body text-on-surface antialiased`}
       >

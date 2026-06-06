@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const dimensionalityReduction: Algorithm = {
+export const dimensionalityReduction: LearningModule = {
   id: "dimensionality-reduction",
   title: "Dimensionality Reduction",
   category: "Dimensionality Reduction",
+  prerequisites: ["linear-algebra"],
+  tracks: ["practitioner"],
+  difficulty: 3,
+  relatedModules: ["linear-algebra", "clustering"],
   shortDescription: "Techniques to shrink massive datasets down to their most important core features, making them easier to visualize and faster to process.",
+  estimatedMinutes: 20,
+  learningObjectives: [
+    'Explain the mathematical purpose of covariance matrices in Principal Component Analysis',
+    'Formulate the eigenvalue problem and relate eigenvalues to explained variance',
+    'Distinguish between PCA (linear projection) and non-linear methods (like t-SNE or UMAP)',
+    'Interpret the explained variance ratio of principal components',
+  ],
+  keyTerms: [
+    { term: 'Covariance Matrix', definition: 'A matrix whose elements represent the covariances between pairs of features.' },
+    { term: 'Principal Component', definition: 'A linear combination of the original variables that captures the maximum variance in the dataset.' },
+    { term: 'Explained Variance Ratio', definition: 'The fraction of the total variance in the dataset that is captured by each principal component.' },
+  ],
+  workedExamples: [
+    {
+      title: 'Explained Variance calculation',
+      problem: 'PCA returns three eigenvalues: $\\lambda_1 = 6.0$, $\\lambda_2 = 3.0$, $\\lambda_3 = 1.0$. Calculate the explained variance ratio of the first component.',
+      solution: 'Total variance is the sum of eigenvalues: $\\sum \\lambda_i = 6.0 + 3.0 + 1.0 = 10.0$. Explained variance ratio for component 1 is $\\frac{\\lambda_1}{\\text{Total}} = \\frac{6.0}{10.0} = 0.6$ (or 60%).',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'PCA is a feature selection technique.',
+      correction: 'Feature selection chooses a subset of the original features. PCA is feature extraction; it creates entirely new features that are linear combinations of the original ones.'
+    },
+    {
+      claim: 'PCA does not require centering the data.',
+      correction: 'Without centering the columns to have zero mean, the first principal component would point in the direction of the mean vector instead of the direction of maximum variance.'
+    }
+  ],
+  references: [
+    {
+      title: "Principal Component Analysis",
+      authors: "Jolliffe, I.T",
+      url: "https://www.springer.com",
+      type: "textbook"
+    },
+    {
+      title: "UMAP: Uniform Manifold Approximation and Projection",
+      authors: "McInnes, L., Healy, J. and Melville, J",
+      url: "https://arxiv.org",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Non-Linear Manifolds',
+      description: 'PCA cannot capture non-linear relationships, like a Swiss roll dataset, and will compress it poorly.',
+      mitigation: 'Use Kernel PCA, Isomap, t-SNE, or Autoencoders.'
+    }
+  ],
 
   fullDescription: `
 Imagine you have a spreadsheet with 1,000 columns describing a house (square footage, number of windows, color of the front door, distance to the nearest coffee shop, etc.). "Dimensionality Reduction" algorithms figure out how to compress those 1,000 columns down to, say, 10 columns, without losing the core "meaning" of the data.

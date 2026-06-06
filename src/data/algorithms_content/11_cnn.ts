@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const cnn: Algorithm = {
+export const cnn: LearningModule = {
   id: "cnn",
   title: "Convolutional Neural Networks",
   category: "Convolutional Neural Networks",
+  prerequisites: ["neural-networks"],
+  tracks: ["practitioner"],
+  difficulty: 3,
+  relatedModules: ["neural-networks", "computer-vision"],
   shortDescription: "Neural networks for grid-like data that reuse small filters across space to learn local, translation-aware features.",
+  estimatedMinutes: 25,
+  learningObjectives: [
+    'Explain the mathematical convolution operation as applied to grid-like data',
+    'Describe the concepts of local receptive fields and weight sharing',
+    'Calculate dimensions of output activation maps given filter size, stride, and padding',
+    'Compare convolutional layers, pooling layers, and fully connected layers',
+  ],
+  keyTerms: [
+    { term: 'Kernel (Filter)', definition: 'A small matrix of weights that slides across the input data to extract local features.' },
+    { term: 'Stride', definition: 'The step size with which the filter moves across the input grid.' },
+    { term: 'Pooling', definition: 'A downsampling operation that reduces the spatial dimensions of activation maps, introducing translation invariance.' },
+  ],
+  workedExamples: [
+    {
+      title: 'Convolution Output Dimension',
+      problem: 'Given input size $W = 32$, filter size $K = 5$, padding $P = 2$, and stride $S = 1$, calculate the output spatial size.',
+      solution: 'Formula: $W_{out} = \\frac{W - K + 2P}{S} + 1$. Substitute values: $W_{out} = \\frac{32 - 5 + 4}{1} + 1 = 31 + 1 = 32$. The output size is $32 \\times 32$.',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'CNNs are only useful for 2D images.',
+      correction: 'CNNs can be applied to 1D data (such as audio signals or text sequences) and 3D data (such as videos or medical MRI scans) by adjusting the kernel dimensions.'
+    },
+    {
+      claim: 'Pooling layers are always required in a CNN.',
+      correction: 'Many modern CNN architectures replace pooling layers with strided convolutions to downsample while keeping the model fully differentiable.'
+    }
+  ],
+  references: [
+    {
+      title: "Gradient-Based Learning Applied to Document Recognition",
+      authors: "LeCun, Y. et al",
+      url: "http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf",
+      type: "textbook"
+    },
+    {
+      title: "ImageNet Classification with Deep Convolutional Neural Networks",
+      authors: "Krizhevsky, A., Sutskever, I. and Hinton, G. E",
+      url: "https://papers.nips.cc",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Texture Bias (Lack of Shape Understanding)',
+      description: 'CNNs often recognize objects by local textures (like elephant skin) rather than global shapes, making them easily fooled by synthetic styles.',
+      mitigation: 'Train with data augmentation techniques that randomize style, color, and texture.'
+    }
+  ],
 
   fullDescription: `
 Convolutional Neural Networks (CNNs) are built around a simple constraint: nearby pixels matter together, and the same visual pattern can appear in many positions. Instead of connecting every input pixel to every hidden unit, a convolutional layer learns a small kernel and applies it across the image.

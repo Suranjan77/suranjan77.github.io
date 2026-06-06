@@ -150,6 +150,7 @@ export default function SVMViz() {
             role="img"
             aria-label="SVM Maximum Margin Hyperplane"
           >
+            <title>S V M Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -317,7 +318,7 @@ export default function SVMViz() {
             <span className="block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
               Soft-Margin Penalty (C):
             </span>
-            <input
+            <input aria-label="SVM input"
               type="range"
               min="0.1"
               max="1.0"

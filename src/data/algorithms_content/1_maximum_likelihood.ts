@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const maximumLikelihood: Algorithm = {
+export const maximumLikelihood: LearningModule = {
   id: "maximum-likelihood",
   title: "Maximum Likelihood Estimation",
   category: "Maximum Likelihood",
+  prerequisites: ['probability-theory'],
+  tracks: ['foundations'],
+  difficulty: 2,
+  relatedModules: ['bayesian-inference'],
   shortDescription: "A mathematical way to figure out the most likely rules of a game just by looking at the final score.",
+  estimatedMinutes: 25,
+  learningObjectives: [
+    'Define the likelihood function for a given probability model',
+    'Explain why log-likelihood is used instead of standard likelihood',
+    'Derive maximum likelihood estimators for simple distributions (like Bernoulli or Normal)',
+    'Solve parameter estimation problems using optimization or analytical methods',
+  ],
+  keyTerms: [
+    { term: 'Likelihood', definition: 'The probability of observing the given data as a function of the model parameters.' },
+    { term: 'Log-Likelihood', definition: 'The natural logarithm of the likelihood function, used to simplify derivatives and avoid numeric underflow.' },
+    { term: 'Parameter', definition: 'A configuration variable internal to the model whose value is estimated from data.' },
+  ],
+  workedExamples: [
+    {
+      title: 'MLE of a Bernoulli Trial',
+      problem: 'Given $k$ successes out of $n$ independent trials, find the MLE of the success probability $p$.',
+      solution: 'Likelihood $\\mathcal{L}(p) = p^k(1-p)^{n-k}$. Log-likelihood $\\ln \\mathcal{L}(p) = k \\ln p + (n-k) \\ln(1-p)$. Take derivative and set to zero: $\\frac{k}{p} - \\frac{n-k}{1-p} = 0 \\implies k(1-p) = (n-k)p \\implies k - kp = np - kp \\implies p = \\frac{k}{n}$.',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'Likelihood is the same as probability.',
+      correction: 'Probability calculates the chance of data given fixed parameters. Likelihood evaluates how likely different parameters are given the fixed observed data.'
+    },
+    {
+      claim: 'MLE always yields unbiased estimators.',
+      correction: 'MLE can be biased for small samples, e.g. the MLE estimator of variance $\\sigma^2$ is biased by a factor of $\\frac{n-1}{n}$.'
+    }
+  ],
+  references: [
+    {
+      title: "Pattern Recognition and Machine Learning",
+      authors: "Bishop, C. M",
+      url: "https://www.springer.com",
+      type: "textbook"
+    },
+    {
+      title: "On the Mathematical Foundations of Theoretical Statistics",
+      authors: "Fisher, R. A",
+      url: "https://royalsocietypublishing.org",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Overfitting on Small Data',
+      description: 'With very few observations, MLE can assign extreme probabilities (e.g., estimating coin bias as 100% heads after 2 flips).',
+      mitigation: 'Use Bayesian estimation (MAP) or add prior regularization.'
+    }
+  ],
 
   fullDescription: `
 Maximum Likelihood Estimation (MLE) is a core concept in statistics and machine learning. It answers a very simple question: "Given the data we just saw, what are the most likely rules that created it?" It's the mathematical engine behind how many algorithms learn from data, from simple trend lines to massive neural networks.

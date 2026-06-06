@@ -6,8 +6,12 @@
     "dev": "next dev -H 0.0.0.0",
     "build": "next build",
     "start": "next start -H 0.0.0.0",
+    "serve:static": "node scripts/serve-static.mjs",
     "lint": "eslint",
-    "test": "vitest --run"
+    "test": "vitest --run",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "test:e2e": "npm run build && start-server-and-test serve:static http://localhost:3000 cy:run"
   },
   "dependencies": {
     "@types/d3": "^7.4.3",
@@ -34,9 +38,11 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.2",
+    "cypress": "^15.16.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "jsdom": "^29.1.1",
+    "start-server-and-test": "^3.0.8",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.7"

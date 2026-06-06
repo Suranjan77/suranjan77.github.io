@@ -150,6 +150,7 @@ export default function NeuralNetworkViz() {
       <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
         <div className="absolute inset-0 z-10 flex items-center justify-center">
           <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Backpropagation Neural Network">
+            <title>Neural Network Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -386,14 +387,14 @@ export default function NeuralNetworkViz() {
             <div className="flex items-center justify-between bg-surface-container p-2 border border-outline">
               <span className="font-bold">x1 value:</span>
               <div className="flex items-center gap-1.5">
-                <button
+                <button aria-label="-"
                   onClick={() => setX1((prev) => Math.max(-1.0, prev - 0.2))}
                   className="h-6 w-6 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer"
                 >
                   -
                 </button>
                 <span className="w-10 text-center font-bold text-primary">{x1.toFixed(1)}</span>
-                <button
+                <button aria-label="+"
                   onClick={() => setX1((prev) => Math.min(1.0, prev + 0.2))}
                   className="h-6 w-6 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer"
                 >
@@ -405,14 +406,14 @@ export default function NeuralNetworkViz() {
             <div className="flex items-center justify-between bg-surface-container p-2 border border-outline">
               <span className="font-bold">x2 value:</span>
               <div className="flex items-center gap-1.5">
-                <button
+                <button aria-label="-"
                   onClick={() => setX2((prev) => Math.max(-1.0, prev - 0.2))}
                   className="h-6 w-6 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer"
                 >
                   -
                 </button>
                 <span className="w-10 text-center font-bold text-primary">{x2.toFixed(1)}</span>
-                <button
+                <button aria-label="+"
                   onClick={() => setX2((prev) => Math.min(1.0, prev + 0.2))}
                   className="h-6 w-6 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer"
                 >
@@ -423,7 +424,7 @@ export default function NeuralNetworkViz() {
 
             <div className="flex items-center justify-between bg-surface-container p-2 border border-outline">
               <span className="font-bold">Target y:</span>
-              <button
+              <button aria-label="CLASS +1.0 CLASS -1.0"
                 onClick={() => setTarget((prev) => (prev === 1.0 ? -1.0 : 1.0))}
                 className="h-6 px-2.5 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer"
               >

@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const calculus: Algorithm = {
+export const calculus: LearningModule = {
   id: "calculus",
   title: "Calculus & Optimisation",
   category: "Calculus",
+  prerequisites: [],
+  tracks: ['foundations'],
+  difficulty: 1,
+  relatedModules: ['linear-algebra', 'probability-theory'],
   shortDescription: "The math behind how AI learns from its mistakes by finding the fastest way to improve.",
+  estimatedMinutes: 30,
+  learningObjectives: [
+    'Compute derivatives of common functions using differentiation rules',
+    'Explain the geometric meaning of a gradient vector',
+    'Apply the chain rule to compute gradients through composed functions',
+    'Distinguish between partial derivatives and the full gradient',
+  ],
+  keyTerms: [
+    { term: 'Derivative', definition: 'The instantaneous rate of change of a function with respect to its input.' },
+    { term: 'Gradient', definition: 'A vector of partial derivatives pointing in the direction of steepest ascent.' },
+    { term: 'Chain Rule', definition: 'A formula for computing the derivative of a composed function.' },
+  ],
+  workedExamples: [
+    {
+      title: 'Derivative of Mean Squared Error',
+      problem: 'Given $L(w) = \\frac{1}{n}\\sum_{i=1}^{n}(y_i - wx_i)^2$, compute $\\frac{dL}{dw}$.',
+      solution: 'Apply the chain rule: $\\frac{dL}{dw} = \\frac{1}{n}\\sum_{i=1}^{n} 2(y_i - wx_i)(-x_i) = -\\frac{2}{n}\\sum_{i=1}^{n} x_i(y_i - wx_i)$.',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'Gradient Descent always finds the absolute best global minimum.',
+      correction: 'Gradient descent can get trapped in local minima or saddle points, especially in non-convex loss landscapes.'
+    },
+    {
+      claim: 'A larger learning rate is always better because the model learns faster.',
+      correction: 'If the learning rate is too large, the optimizer may overshoot the minimum and diverge, causing training to fail.'
+    }
+  ],
+  references: [
+    {
+      title: "Calculus",
+      authors: "Spivak, M",
+      url: "https://www.publishorperish.com",
+      type: "textbook"
+    },
+    {
+      title: "Mathematics for Machine Learning",
+      authors: "Deisenroth, M. P., Faisal, A. A. and Ong, C. S",
+      url: "https://mml-book.github.io",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Vanishing Gradients',
+      description: 'Gradients become extremely small during backpropagation, stopping weights from updating.',
+      mitigation: 'Use activation functions like ReLU, skip connections, or batch normalization.'
+    }
+  ],
 
   fullDescription: `
 Machine learning is really just a giant game of "getting better through trial and error." During training, an AI model tries to find the best possible settings to make the fewest mistakes. **Calculus is the math of continuous change**, and it gives our models the exact instructions they need to improve.
@@ -71,5 +125,6 @@ Neural networks are basically just giant chains of functions: $Output = f_3(f_2(
     "Exploding Gradients: On the flip side, multiplying large slopes together can cause updates to spiral out of control and crash the math."
   ],
 
-  codeSnippet: ``
+  codeSnippet: `def numerical_gradient(f, x, h=1e-5):
+    return (f(x + h) - f(x - h)) / (2 * h)`
 };

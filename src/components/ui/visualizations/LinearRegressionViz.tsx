@@ -359,7 +359,7 @@ export default function LinearRegressionViz() {
             <span>Interactions</span>
           </div>
 
-          <button
+          <button aria-label="SNAP TO OLS FIT (ANALYTICAL)"
             onClick={snapToOls}
             disabled={isRunning}
             className="w-full flex h-9 items-center justify-center border border-outline bg-surface-container hover:bg-outline-variant text-on-surface hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer mb-2 disabled:opacity-50"
@@ -367,7 +367,7 @@ export default function LinearRegressionViz() {
             SNAP TO OLS FIT (ANALYTICAL)
           </button>
 
-          <button
+          <button aria-label="PAUSE GRADIENT DESCENT RUN GRADIENT DESCENT (OPTIMIZE)"
             onClick={isRunning ? stop : start}
             className={`w-full flex h-9 items-center justify-center border border-outline font-bold tracking-wider cursor-pointer mb-2 active:scale-[0.98] transition-all ${
               isRunning

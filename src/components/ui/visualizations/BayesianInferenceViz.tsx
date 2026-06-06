@@ -178,6 +178,7 @@ export default function BayesianInferenceViz() {
             role="img"
             aria-label="Bayesian updating stepper"
           >
+            <title>Bayesian Inference Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -413,7 +414,7 @@ export default function BayesianInferenceViz() {
           <div className="flex items-center justify-between gap-2 bg-surface-container p-2 border border-outline mb-3">
             <div className="flex items-center gap-1.5">
               <span className="text-on-surface">Successes k:</span>
-              <button
+              <button aria-label="-"
                 onClick={() => setK((prev) => Math.max(0, prev - 1))}
                 disabled={k === 0 || isPlaying}
                 className="h-6 w-6 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
@@ -421,7 +422,7 @@ export default function BayesianInferenceViz() {
                 -
               </button>
               <span className="font-bold text-primary w-4 text-center">{k}</span>
-              <button
+              <button aria-label="+"
                 onClick={() => setK((prev) => Math.min(n, prev + 1))}
                 disabled={k === n || isPlaying}
                 className="h-6 w-6 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
@@ -431,7 +432,7 @@ export default function BayesianInferenceViz() {
             </div>
             <div className="flex items-center gap-1.5">
               <span className="text-on-surface">Trials n:</span>
-              <button
+              <button aria-label="-"
                 onClick={() => {
                   setN((prev) => {
                     const next = Math.max(1, prev - 1);
@@ -445,7 +446,7 @@ export default function BayesianInferenceViz() {
                 -
               </button>
               <span className="font-bold text-primary w-4 text-center">{n}</span>
-              <button
+              <button aria-label="+"
                 onClick={() => setN((prev) => Math.min(25, prev + 1))}
                 disabled={n >= 25 || isPlaying}
                 className="h-6 w-6 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
@@ -456,14 +457,14 @@ export default function BayesianInferenceViz() {
           </div>
 
           <div className="grid grid-cols-2 gap-2">
-            <button
+            <button aria-label="Feed to Prior →"
               onClick={handleNextIteration}
               disabled={currentStep !== 4 || isPlaying}
               className="flex h-9 items-center justify-center border border-outline bg-surface-container hover:bg-outline-variant text-on-surface hover:text-primary active:scale-[0.98] transition-all font-bold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed text-center uppercase"
             >
               Feed to Prior →
             </button>
-            <button
+            <button aria-label="Reset All"
               onClick={handleResetEntirely}
               className="flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container text-on-surface-variant active:scale-[0.98] transition-all cursor-pointer text-center uppercase"
             >

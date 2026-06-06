@@ -70,7 +70,7 @@ export default function AutoencoderViz() {
 
       setParticles((prev) => {
         // Move existing particles
-        let next = prev
+        const next = prev
           .map((p) => ({
             ...p,
             progress: p.progress + particleSpeed * (delta / 16),
@@ -116,7 +116,7 @@ export default function AutoencoderViz() {
     const offset = pathOffsets[p.pathIdx];
     
     // interpolation path
-    let px = lx + p.progress * (rx - lx);
+    const px = lx + p.progress * (rx - lx);
     let py = 200;
     
     if (p.progress < 0.5) {
@@ -136,6 +136,7 @@ export default function AutoencoderViz() {
       <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
         <div className="absolute inset-0 z-10 flex items-center justify-center">
           <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Autoencoder Bottleneck Compression">
+            <title>Autoencoder Diagram</title>
             <defs>
               <filter id="autoencoder-blur">
                 <feGaussianBlur stdDeviation={blurVal} />

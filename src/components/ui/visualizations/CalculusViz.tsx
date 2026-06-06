@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import MarkdownRenderer from "../MarkdownRenderer";
-import { animate, motion } from "framer-motion";
+import { animate, motion, type AnimationPlaybackControls } from "framer-motion";
 import {
   COLORS,
   SVGFilters,
@@ -36,7 +36,7 @@ export default function CalculusViz() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [pulse, setPulse] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const animationRef = useRef<any>(null);
+  const animationRef = useRef<AnimationPlaybackControls | null>(null);
 
   // Compute points
   const sec = focusX + h;
@@ -241,7 +241,7 @@ export default function CalculusViz() {
               {/* Tangent Slope Readout */}
               <g transform="translate(440, 102)">
                 <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>TANGENT SLOPE (f'(x))</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>TANGENT SLOPE (f&apos;(x))</text>
                 <text x={12} y={36} fill={COLORS.pink} fontSize={15} fontWeight={800}>{exactSlope.toFixed(3)}</text>
               </g>
 
@@ -295,7 +295,7 @@ export default function CalculusViz() {
             <span>Interactions</span>
           </div>
 
-          <button
+          <button aria-label="LIMIT IN PROGRESS... TAKE THE LIMIT (h → 0)"
             onClick={startLimitAnimation}
             disabled={isAnimating}
             className="w-full flex h-9 items-center justify-center border border-outline bg-surface-container hover:bg-outline-variant text-on-surface hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed mb-2"
@@ -303,7 +303,7 @@ export default function CalculusViz() {
             {isAnimating ? "LIMIT IN PROGRESS..." : "TAKE THE LIMIT (h → 0)"}
           </button>
 
-          <button
+          <button aria-label="RESET LIMIT DISTANCE"
             onClick={() => setH(4.0)}
             disabled={h === 4.0 && !isAnimating}
             className="w-full flex h-8 items-center justify-center border border-outline bg-surface hover:bg-surface-container text-on-surface-variant text-[10px] active:scale-[0.98] transition-all tracking-wider cursor-pointer disabled:opacity-50"

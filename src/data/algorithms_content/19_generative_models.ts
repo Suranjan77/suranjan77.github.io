@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const generativeModels: Algorithm = {
+export const generativeModels: LearningModule = {
   id: "generative-models",
   title: "Generative Adversarial Networks",
   category: "Generative Models",
+  prerequisites: ["neural-networks", "probability-theory"],
+  tracks: ["practitioner"],
+  difficulty: 4,
+  relatedModules: ["neural-networks", "probability-theory", "autoencoders"],
   shortDescription: "Training a generator and a discriminator in a minimax game to generate highly realistic, synthetic data.",
+  estimatedMinutes: 25,
+  learningObjectives: [
+    'Explain the minimax game formulation of Generative Adversarial Networks',
+    'Describe the role of the Generator and the Discriminator',
+    'Compare GANs, Variational Autoencoders (VAEs), and Diffusion Models',
+    'Identify common training issues such as mode collapse and vanishing gradients',
+  ],
+  keyTerms: [
+    { term: 'Generator', definition: 'A neural network that maps a random noise vector to a synthetic data sample.' },
+    { term: 'Discriminator', definition: 'A classifier network that distinguishes between real data samples and synthetic ones.' },
+    { term: 'Mode Collapse', definition: 'A failure mode where the generator learns to produce samples from only a few categories (modes), ignoring diversity.' },
+  ],
+  workedExamples: [
+    {
+      title: 'Minimax Objective Loss',
+      problem: 'Calculate the discriminator loss $L_D$ for a single real sample $x$ (with $D(x) = 0.9$) and a single fake sample $z$ (with $D(G(z)) = 0.2$). Objective is $L_D = -\\log D(x) - \\log(1 - D(G(z)))$.',
+      solution: '$-\\log(0.9) - \\log(1-0.2) = -\\log(0.9) - \\log(0.8) \\approx 0.105 + 0.223 = 0.328$.',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'The generator and discriminator should both reach 100% accuracy.',
+      correction: 'In an ideal equilibrium, the discriminator output should be exactly 0.5 for all samples, meaning it cannot distinguish real from fake data, and the generator is producing perfect replicas.'
+    },
+    {
+      claim: 'GANs are the only way to generate realistic images.',
+      correction: 'Diffusion models (like Stable Diffusion) and Autoregressive models (like Transformers) have largely replaced GANs for image and text generation due to training stability.'
+    }
+  ],
+  references: [
+    {
+      title: "Generative Adversarial Networks",
+      authors: "Goodfellow, I. et al",
+      url: "https://arxiv.org/abs/1406.2661",
+      type: "textbook"
+    },
+    {
+      title: "Deep Generative Modeling",
+      authors: "Tomczak, J. M",
+      url: "https://link.springer.com",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Mode Collapse',
+      description: 'The generator outputs identical or very similar images (e.g. generating only one digit instead of all digits from 0-9) to fool the discriminator.',
+      mitigation: 'Use Wasserstein GAN (WGAN) loss, spectral normalization, or minibatch discrimination.'
+    }
+  ],
 
   fullDescription: `
 Generative Adversarial Networks (GANs) are generative models trained through a two-player game between a generator ($G$) and a discriminator ($D$).

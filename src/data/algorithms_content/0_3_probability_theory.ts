@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const probabilityTheory: Algorithm = {
+export const probabilityTheory: LearningModule = {
   id: "probability-theory",
   title: "Probability & Statistics",
   category: "Probability Theory",
+  prerequisites: [],
+  tracks: ['foundations'],
+  difficulty: 1,
+  relatedModules: ['bayesian-inference', 'maximum-likelihood'],
   shortDescription: "The math that helps AI deal with uncertainty, ignore random noise, and make smart guesses in a messy world.",
+  estimatedMinutes: 20,
+  learningObjectives: [
+    'Distinguish between discrete and continuous random variables',
+    'Calculate expectation, variance, and covariance for simple probability distributions',
+    'Apply Bayes Theorem to update conditional probabilities',
+    'Explain the concept of entropy and cross-entropy in measuring information content',
+  ],
+  keyTerms: [
+    { term: 'Random Variable', definition: 'A variable whose values depend on outcomes of a random phenomenon.' },
+    { term: 'Probability Density Function', definition: 'A function that describes the relative likelihood for a continuous random variable to take on a given value.' },
+    { term: 'Entropy', definition: 'A measure of the uncertainty or randomness in a set of data.' },
+  ],
+  workedExamples: [
+    {
+      title: 'Conditional Probability using Bayes Theorem',
+      problem: 'Given $P(A) = 0.1$, $P(B|A) = 0.8$, and $P(B|A^c) = 0.2$, calculate $P(A|B)$.',
+      solution: 'First find $P(B) = P(B|A)P(A) + P(B|A^c)P(A^c) = 0.8 \\times 0.1 + 0.2 \\times 0.9 = 0.08 + 0.18 = 0.26$. Then, $P(A|B) = \\frac{P(B|A)P(A)}{P(B)} = \\frac{0.08}{0.26} \\approx 0.308$.',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'Correlation implies causation.',
+      correction: 'Correlation measures linear association, but does not imply that one variable causes changes in the other.'
+    },
+    {
+      claim: 'A probability of 0 means an event is impossible.',
+      correction: 'For continuous random variables, the probability of any single exact value is 0, yet the values still occur.'
+    }
+  ],
+  references: [
+    {
+      title: "Probability and Computing",
+      authors: "Mitzenmacher, M. and Upfal, E",
+      url: "https://www.cambridge.org",
+      type: "textbook"
+    },
+    {
+      title: "Probabilistic Machine Learning: An Introduction",
+      authors: "Murphy, K. P",
+      url: "https://probml.github.io/pml-book/book1.html",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Underflow in Product Probabilities',
+      description: 'Multiplying many small probability values together causes numeric underflow to zero.',
+      mitigation: 'Perform computations in log-space (e.g. sum of log-probabilities).'
+    }
+  ],
 
   fullDescription: `
 While calculus helps models improve and linear algebra gives them structure, **probability theory gives AI the logic it needs to handle uncertainty.** 

@@ -15,7 +15,8 @@ export default function NotFound() {
             This page drifted outside the observable dataset.
           </h1>
           <p className="mt-7 max-w-xl text-base font-medium leading-8 text-on-surface-variant">
-            The page you requested does not exist or may have moved. Return to the curriculum or open the interactive lab.
+            The page you requested does not exist or may have moved. Return to
+            the curriculum, browse a learning track, or use the header search.
           </p>
           <div className="mt-9 flex flex-wrap gap-4">
             <Link
@@ -25,10 +26,10 @@ export default function NotFound() {
               Home
             </Link>
             <Link
-              href="/playground"
+              href="/tracks"
               className="border border-outline bg-surface px-6 py-3 font-mono text-[11px] uppercase tracking-[0.16em] text-on-surface hover:border-primary hover:text-primary"
             >
-              Playground
+              Learning Tracks
             </Link>
           </div>
         </section>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import MarkdownRenderer from "../MarkdownRenderer";
-import { animate, motion } from "framer-motion";
+import { animate, motion, type AnimationPlaybackControls } from "framer-motion";
 import {
   COLORS,
   SVGFilters,
@@ -31,7 +31,7 @@ export default function LinearAlgebraViz() {
   const [activeDrag, setActiveDrag] = useState<"a" | "b" | null>(null);
 
   // Animation reference
-  const animationRef = useRef<any>(null);
+  const animationRef = useRef<AnimationPlaybackControls | null>(null);
 
   // Projection math
   const dotProd = a.x * b.x + a.y * b.y;
@@ -173,6 +173,7 @@ export default function LinearAlgebraViz() {
             role="img"
             aria-label="Linear Algebra Projection & Basis"
           >
+            <title>Linear Algebra Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -393,7 +394,7 @@ export default function LinearAlgebraViz() {
             <span>Interactions</span>
           </div>
 
-          <button
+          <button aria-label="WARP BACK TO STANDARD GRID MORPH GRID TO BASIS {a, b}"
             onClick={toggleBasis}
             className="w-full flex h-9 items-center justify-center border border-outline bg-surface-container hover:bg-outline-variant text-on-surface hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer mb-2"
           >

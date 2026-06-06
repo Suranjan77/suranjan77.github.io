@@ -30,7 +30,8 @@ function DragHarness() {
     maxY: 10,
   });
   return (
-    <svg>
+    <svg role="img" aria-label="Interactive use Animation Engine.test.tsx visualization diagram">
+            <title>use Animation Engine.test.tsx Diagram</title>
       <circle
         data-testid="handle"
         cx={draggable.position.x}

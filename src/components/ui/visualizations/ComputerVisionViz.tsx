@@ -117,6 +117,7 @@ export default function ComputerVisionViz() {
       <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
         <div className="absolute inset-0 z-10 flex items-center justify-center">
           <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Computer Vision Sandbox">
+            <title>Computer Vision Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -233,19 +234,19 @@ export default function ComputerVisionViz() {
           </div>
 
           <div className="grid grid-cols-3 gap-1 mb-4">
-            <button
+            <button aria-label="BAR"
               onClick={() => setPreset("vertical")}
               className="py-1 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer"
             >
               BAR
             </button>
-            <button
+            <button aria-label="BOX"
               onClick={() => setPreset("box")}
               className="py-1 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer"
             >
               BOX
             </button>
-            <button
+            <button aria-label="CLEAR"
               onClick={() => setPreset("clear")}
               className="py-1 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer"
             >
@@ -257,7 +258,7 @@ export default function ComputerVisionViz() {
             <label className="block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
               EDGE GLOW THRESHOLD:
             </label>
-            <input
+            <input aria-label="ComputerVision input"
               type="range"
               min="0.5"
               max="4.0"
@@ -277,7 +278,7 @@ export default function ComputerVisionViz() {
             <span className="text-[9px] font-bold uppercase tracking-wide text-on-surface-variant">
               Edge Filter Isolation:
             </span>
-            <button
+            <button aria-label="ISOLATE ALL CELLS"
               onClick={() => setShowEdgeOnly(!showEdgeOnly)}
               className={`px-3 py-1 border text-[9px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
                 showEdgeOnly ? "bg-cyan/20 border-cyan text-cyan" : "bg-surface"

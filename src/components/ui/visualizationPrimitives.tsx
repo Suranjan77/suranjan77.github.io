@@ -1,6 +1,6 @@
 "use client";
 
-import React, { type ReactNode } from "react";
+import React, { type ComponentProps, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { Play, Pause, RotateCcw, ChevronRight, ChevronLeft } from "lucide-react";
 
@@ -39,7 +39,10 @@ export function VisualizationShell({
   children,
 }: VisualizationShellProps) {
   return (
-    <div className="relative flex w-full flex-col font-body">
+    <div
+      className="relative flex w-full flex-col font-body"
+      data-testid="visualization"
+    >
       <div className="relative z-10 flex flex-col items-start justify-between gap-4 border-b border-outline py-6 lg:flex-row lg:gap-8">
         <div className="min-w-0 flex-1">
           <div className="mb-3 inline-block border border-outline bg-surface-container-high px-3 py-1.5 font-mono text-[11px] font-normal uppercase tracking-[0.14em] text-primary sm:text-[10px] sm:tracking-[0.18em]">
@@ -195,8 +198,7 @@ export function AnimatedPath({
   strokeWidth?: number;
   dashed?: boolean;
   duration?: number;
-  [key: string]: any;
-}) {
+} & Omit<ComponentProps<typeof motion.path>, "d" | "color" | "strokeWidth">) {
   return (
     <motion.path
       d={d}
@@ -262,8 +264,7 @@ export function FlowingEdge({
   color: string;
   strokeWidth?: number;
   speed?: number;
-  [key: string]: any;
-}) {
+} & Omit<ComponentProps<typeof motion.path>, "d" | "color" | "strokeWidth">) {
   return (
     <motion.path
       d={d}

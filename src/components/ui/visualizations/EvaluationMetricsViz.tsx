@@ -127,6 +127,7 @@ export default function EvaluationMetricsViz() {
       <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
         <div className="absolute inset-0 z-10 flex items-center justify-center">
           <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Evaluation Metrics Overlapping Distributions">
+            <title>Evaluation Metrics Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -253,7 +254,7 @@ export default function EvaluationMetricsViz() {
             <span className="block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
               SLIDE THRESHOLD:
             </span>
-            <input
+            <input aria-label="EvaluationMetrics input"
               type="range"
               min="1.0"
               max="9.0"

@@ -1,11 +1,9 @@
 "use client";
 
 import * as d3 from "d3";
-import React, { useState } from "react";
+import React from "react";
 import {
   COLORS,
-  ControlPanel,
-  PlotFrame,
   VisualizationShell,
 } from "../visualizationPrimitives";
 
@@ -38,6 +36,20 @@ import GenerativeViz from "./GenerativeViz";
 import BiasVarianceViz from "./BiasVarianceViz";
 import RegularizationViz from "./RegularizationViz";
 import EvaluationMetricsViz from "./EvaluationMetricsViz";
+import StatisticsViz from "./StatisticsViz";
+import GradientDescentViz from "./GradientDescentViz";
+import DataPreparationViz from "./DataPreparationViz";
+import NaiveBayesViz from "./NaiveBayesViz";
+import ModelSelectionViz from "./ModelSelectionViz";
+import GMMEMViz from "./GMMEMViz";
+import AnomalyDetectionViz from "./AnomalyDetectionViz";
+import BackpropagationViz from "./BackpropagationViz";
+import SequenceModelsViz from "./SequenceModelsViz";
+import EmbeddingsTokenizationViz from "./EmbeddingsTokenizationViz";
+import RAGViz from "./RAGViz";
+import FineTuningViz from "./FineTuningViz";
+import LLMEvalSafetyViz from "./LLMEvalSafetyViz";
+import AIInferenceViz from "./AIInferenceViz";
 
 type AlgorithmKind =
   | "calculus"
@@ -87,6 +99,101 @@ const percentControl = (label: string, low: string, high: string) => ({
   high,
   value: (control: number) => `${control}%`,
 });
+
+const extendedVisualizations: Record<
+  string,
+  {
+    component: React.ComponentType;
+    title: string;
+    subtitle: string;
+    insight: string;
+  }
+> = {
+  "statistics-estimation": {
+    component: StatisticsViz,
+    title: "Sampling and Bootstrap Estimation",
+    subtitle: "Resample observed data to see uncertainty emerge from repeated estimates.",
+    insight: "Bootstrap distributions approximate estimator uncertainty using only the observed sample.",
+  },
+  "gradient-descent": {
+    component: GradientDescentViz,
+    title: "Gradient Descent and Optimization",
+    subtitle: "Compare optimization paths across loss surfaces, learning rates, and update rules.",
+    insight: "Optimization behavior depends jointly on geometry, step size, and optimizer state.",
+  },
+  "data-preparation": {
+    component: DataPreparationViz,
+    title: "Data Preparation and Feature Engineering",
+    subtitle: "Explore scaling, missing-value handling, and leakage controls before model fitting.",
+    insight: "Reliable models begin with transformations learned only from training data.",
+  },
+  "naive-bayes": {
+    component: NaiveBayesViz,
+    title: "Naive Bayes Evidence Accumulation",
+    subtitle: "Toggle observed features and watch class evidence combine in log-probability space.",
+    insight: "Conditional independence turns many small likelihood updates into a fast classifier.",
+  },
+  "model-selection": {
+    component: ModelSelectionViz,
+    title: "Cross-Validation and Model Selection",
+    subtitle: "Move through validation folds and compare training and held-out performance.",
+    insight: "Repeated held-out evaluation estimates how a model will generalize beyond its training set.",
+  },
+  "gmm-em": {
+    component: GMMEMViz,
+    title: "Gaussian Mixtures and Expectation-Maximization",
+    subtitle: "Alternate soft assignments and parameter updates for a mixture model.",
+    insight: "EM improves latent-variable models by alternating inference and parameter estimation.",
+  },
+  "anomaly-detection": {
+    component: AnomalyDetectionViz,
+    title: "Anomaly Detection",
+    subtitle: "Compare scoring methods and contamination thresholds on a two-dimensional dataset.",
+    insight: "Anomaly labels depend on both the scoring model and the operating threshold.",
+  },
+  backpropagation: {
+    component: BackpropagationViz,
+    title: "Backpropagation Through a Computational Graph",
+    subtitle: "Change inputs and trace local derivatives backward through a graph.",
+    insight: "Backpropagation reuses local derivatives to efficiently compute parameter gradients.",
+  },
+  "sequence-models": {
+    component: SequenceModelsViz,
+    title: "Sequence Models and Gradient Flow",
+    subtitle: "Compare vanishing, stable, and exploding gradients through an unrolled recurrent model.",
+    insight: "Long-range learning depends on preserving useful gradient magnitude across time steps.",
+  },
+  "embeddings-tokenization": {
+    component: EmbeddingsTokenizationViz,
+    title: "Embeddings and Tokenization",
+    subtitle: "Tokenize text and inspect how token identities map into a geometric representation.",
+    insight: "Tokenization defines model inputs; embeddings turn those discrete IDs into learnable vectors.",
+  },
+  rag: {
+    component: RAGViz,
+    title: "Retrieval-Augmented Generation",
+    subtitle: "Step through query, retrieval, context assembly, and grounded generation.",
+    insight: "RAG improves grounding by supplying retrieved evidence at inference time.",
+  },
+  "fine-tuning": {
+    component: FineTuningViz,
+    title: "Fine-Tuning and Parameter-Efficient Adaptation",
+    subtitle: "Compare full-model updates with low-rank adaptation.",
+    insight: "Low-rank adapters can specialize a model while training far fewer parameters.",
+  },
+  "llm-evaluation-safety": {
+    component: LLMEvalSafetyViz,
+    title: "LLM Evaluation and Safety",
+    subtitle: "Reweight quality, safety, cost, and latency to compare model choices.",
+    insight: "Evaluation is multi-objective; a useful model must meet capability and risk constraints.",
+  },
+  "ai-inference": {
+    component: AIInferenceViz,
+    title: "AI Inference Systems",
+    subtitle: "Estimate memory and throughput as model size, precision, context, and batching change.",
+    insight: "Serving performance is governed by model weights, KV cache growth, and hardware limits.",
+  },
+};
 
 const configs: Record<string, SceneConfig> = {
   "calculus": {
@@ -481,6 +588,130 @@ const configs: Record<string, SceneConfig> = {
     },
   },
 };
+
+export interface VisualizationRegistryEntry {
+  component: React.ComponentType;
+  title: string;
+  subtitle: string;
+  insight: string;
+  accessibleLabel: string;
+  legend?: SceneConfig["legend"];
+}
+
+const visualizationComponents: Record<string, React.ComponentType> = {
+  calculus: CalculusViz,
+  "linear-algebra": LinearAlgebraViz,
+  "probability-theory": ProbabilityViz,
+  "maximum-likelihood": MaximumLikelihoodViz,
+  "bayesian-inference": BayesianInferenceViz,
+  "statistics-estimation": StatisticsViz,
+  "gradient-descent": GradientDescentViz,
+  "data-preparation": DataPreparationViz,
+  "linear-regression": LinearRegressionViz,
+  "logistic-regression": LogisticRegressionViz,
+  knn: KNNViz,
+  "decision-trees": DecisionTreeViz,
+  "support-vector-machines": SVMViz,
+  "naive-bayes": NaiveBayesViz,
+  "ensemble-learning": EnsembleViz,
+  clustering: KMeansViz,
+  "gmm-em": GMMEMViz,
+  "dimensionality-reduction": PCAViz,
+  mcmc: MCMCViz,
+  "anomaly-detection": AnomalyDetectionViz,
+  "model-selection": ModelSelectionViz,
+  "bias-variance": BiasVarianceViz,
+  regularization: RegularizationViz,
+  "evaluation-metrics": EvaluationMetricsViz,
+  "neural-networks": NeuralNetworkViz,
+  cnn: CNNViz,
+  "computer-vision": ComputerVisionViz,
+  nlp: NLPEmbeddingsViz,
+  autoencoders: AutoencoderViz,
+  transformers: TransformerViz,
+  llms: LLMViz,
+  "reinforcement-learning": RLViz,
+  "generative-models": GenerativeViz,
+  backpropagation: BackpropagationViz,
+  "sequence-models": SequenceModelsViz,
+  "embeddings-tokenization": EmbeddingsTokenizationViz,
+  rag: RAGViz,
+  "fine-tuning": FineTuningViz,
+  "llm-evaluation-safety": LLMEvalSafetyViz,
+  "ai-inference": AIInferenceViz,
+};
+
+const accessibleLabels: Record<string, string> = {
+  calculus: "Derivative Limit Visualizer",
+  "linear-algebra": "Linear Algebra Projection & Basis",
+  "probability-theory": "Probability Sampling Convergence",
+  "maximum-likelihood": "Maximum Likelihood Optimization",
+  "bayesian-inference": "Bayesian updating stepper",
+  "statistics-estimation": "Seeded Bootstrap Simulator",
+  "gradient-descent": "Gradient Descent Trajectory Visualizer",
+  "data-preparation": "Data Prep and Feature Scaling View",
+  "linear-regression": "Linear Regression Residuals",
+  "logistic-regression": "Logistic Regression thresholding",
+  knn: "K-Nearest Neighbors Neighborhood",
+  "decision-trees": "Decision Tree Space Partition",
+  "support-vector-machines": "SVM Maximum Margin Hyperplane",
+  "naive-bayes": "Naive Bayes Evidence Accumulator",
+  "ensemble-learning": "Ensemble Voting Boosting Surface",
+  clustering: "K-Means Clustering Iterations",
+  "gmm-em": "GMM EM Fit Visualizer",
+  "dimensionality-reduction": "Principal Component Analysis Projection",
+  mcmc: "MCMC Metropolis-Hastings Walker",
+  "anomaly-detection": "2D Anomaly Detection Scatter Plot",
+  "model-selection": "K-Fold Split Visualizer",
+  "bias-variance": "Bias-Variance Tradeoff Curves",
+  regularization: "Regularization Loss Contours",
+  "evaluation-metrics": "Evaluation Metrics Overlapping Distributions",
+  "neural-networks": "Backpropagation Neural Network",
+  cnn: "Convolutional Neural Network Scanner",
+  "computer-vision": "Computer Vision Sandbox",
+  nlp: "NLP Embeddings Analogy Grid",
+  autoencoders: "Autoencoder Bottleneck Compression",
+  transformers: "Transformer Self-Attention Layer",
+  llms: "LLM Temperature Logits Scaling",
+  "reinforcement-learning": "Q-Learning Reinforcement Learning Gridworld",
+  "generative-models": "Generative Models Latent Space Walk",
+  backpropagation: "Backpropagation Computational Graph Visualizer",
+  "sequence-models": "Sequence Models RNN Unrolled Graph Visualizer",
+  "embeddings-tokenization": "Tokenization and embedding comparison",
+  rag: "RAG Pipeline Flow Diagram",
+  "fine-tuning": "LoRA vs Full Fine-Tuning Parameter Update Diagram",
+  "llm-evaluation-safety": "LLM Model Scores Bar Chart",
+  "ai-inference": "AI inference memory and throughput calculator",
+};
+
+const legacyConfigId: Record<string, string> = {
+  "decision-trees": "instance-based-trees",
+};
+
+export const visualizationRegistry: Record<string, VisualizationRegistryEntry> =
+  Object.fromEntries(
+    Object.entries(visualizationComponents).map(([moduleId, component]) => {
+      const extended = extendedVisualizations[moduleId];
+      const config = configs[legacyConfigId[moduleId] ?? moduleId];
+      const metadata = extended ?? config;
+
+      if (!metadata) {
+        throw new Error(`Missing visualization metadata for "${moduleId}"`);
+      }
+
+      return [
+        moduleId,
+        {
+          component,
+          title: metadata.title,
+          subtitle: metadata.subtitle,
+          insight: metadata.insight,
+          accessibleLabel: accessibleLabels[moduleId],
+          legend: config?.legend,
+        },
+      ];
+    }),
+  );
 
 const W = 640;
 const H = 420;
@@ -1239,387 +1470,36 @@ function NeuralScene({ kind, t }: { kind: AlgorithmKind; t: number }) {
 }
 
 export default function D3Visualization({ algorithmId }: { algorithmId: string }) {
-  if (algorithmId === "calculus") {
+  const entry = visualizationRegistry[algorithmId];
+
+  if (!entry) {
     return (
-      <VisualizationShell
-        title={configs["calculus"].title}
-        subtitle={configs["calculus"].subtitle}
-        insight={configs["calculus"].insight}
-        legend={configs["calculus"].legend}
+      <div
+        role="alert"
+        className="border border-error bg-error/5 p-6 text-on-surface"
+        data-testid="visualization-error"
       >
-        <CalculusViz />
-      </VisualizationShell>
+        <p className="font-mono text-xs uppercase tracking-[0.16em] text-error">
+          Visualization unavailable
+        </p>
+        <p className="mt-2 text-sm text-on-surface-variant">
+          No interactive diagram is registered for module{" "}
+          <code className="font-mono text-on-surface">{algorithmId}</code>.
+        </p>
+      </div>
     );
   }
 
-  if (algorithmId === "linear-algebra") {
-    return (
-      <VisualizationShell
-        title={configs["linear-algebra"].title}
-        subtitle={configs["linear-algebra"].subtitle}
-        insight={configs["linear-algebra"].insight}
-        legend={configs["linear-algebra"].legend}
-      >
-        <LinearAlgebraViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "probability-theory") {
-    return (
-      <VisualizationShell
-        title={configs["probability-theory"].title}
-        subtitle={configs["probability-theory"].subtitle}
-        insight={configs["probability-theory"].insight}
-        legend={configs["probability-theory"].legend}
-      >
-        <ProbabilityViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "maximum-likelihood") {
-    return (
-      <VisualizationShell
-        title={configs["maximum-likelihood"].title}
-        subtitle={configs["maximum-likelihood"].subtitle}
-        insight={configs["maximum-likelihood"].insight}
-        legend={configs["maximum-likelihood"].legend}
-      >
-        <MaximumLikelihoodViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "bayesian-inference") {
-    return (
-      <VisualizationShell
-        title={configs["bayesian-inference"].title}
-        subtitle={configs["bayesian-inference"].subtitle}
-        insight={configs["bayesian-inference"].insight}
-        legend={configs["bayesian-inference"].legend}
-      >
-        <BayesianInferenceViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "linear-regression") {
-    return (
-      <VisualizationShell
-        title={configs["linear-regression"].title}
-        subtitle={configs["linear-regression"].subtitle}
-        insight={configs["linear-regression"].insight}
-        legend={configs["linear-regression"].legend}
-      >
-        <LinearRegressionViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "logistic-regression") {
-    return (
-      <VisualizationShell
-        title={configs["logistic-regression"].title}
-        subtitle={configs["logistic-regression"].subtitle}
-        insight={configs["logistic-regression"].insight}
-        legend={configs["logistic-regression"].legend}
-      >
-        <LogisticRegressionViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "knn") {
-    return (
-      <VisualizationShell
-        title={configs["knn"].title}
-        subtitle={configs["knn"].subtitle}
-        insight={configs["knn"].insight}
-        legend={configs["knn"].legend}
-      >
-        <KNNViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "instance-based-trees") {
-    return (
-      <VisualizationShell
-        title={configs["instance-based-trees"].title}
-        subtitle={configs["instance-based-trees"].subtitle}
-        insight={configs["instance-based-trees"].insight}
-        legend={configs["instance-based-trees"].legend}
-      >
-        <DecisionTreeViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "support-vector-machines") {
-    return (
-      <VisualizationShell
-        title={configs["support-vector-machines"].title}
-        subtitle={configs["support-vector-machines"].subtitle}
-        insight={configs["support-vector-machines"].insight}
-        legend={configs["support-vector-machines"].legend}
-      >
-        <SVMViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "clustering") {
-    return (
-      <VisualizationShell
-        title={configs["clustering"].title}
-        subtitle={configs["clustering"].subtitle}
-        insight={configs["clustering"].insight}
-        legend={configs["clustering"].legend}
-      >
-        <KMeansViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "ensemble-learning") {
-    return (
-      <VisualizationShell
-        title={configs["ensemble-learning"].title}
-        subtitle={configs["ensemble-learning"].subtitle}
-        insight={configs["ensemble-learning"].insight}
-        legend={configs["ensemble-learning"].legend}
-      >
-        <EnsembleViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "dimensionality-reduction") {
-    return (
-      <VisualizationShell
-        title={configs["dimensionality-reduction"].title}
-        subtitle={configs["dimensionality-reduction"].subtitle}
-        insight={configs["dimensionality-reduction"].insight}
-        legend={configs["dimensionality-reduction"].legend}
-      >
-        <PCAViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "mcmc") {
-    return (
-      <VisualizationShell
-        title={configs["mcmc"].title}
-        subtitle={configs["mcmc"].subtitle}
-        insight={configs["mcmc"].insight}
-        legend={configs["mcmc"].legend}
-      >
-        <MCMCViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "neural-networks") {
-    return (
-      <VisualizationShell
-        title={configs["neural-networks"].title}
-        subtitle={configs["neural-networks"].subtitle}
-        insight={configs["neural-networks"].insight}
-        legend={configs["neural-networks"].legend}
-      >
-        <NeuralNetworkViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "cnn") {
-    return (
-      <VisualizationShell
-        title={configs["cnn"].title}
-        subtitle={configs["cnn"].subtitle}
-        insight={configs["cnn"].insight}
-        legend={configs["cnn"].legend}
-      >
-        <CNNViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "computer-vision") {
-    return (
-      <VisualizationShell
-        title={configs["computer-vision"].title}
-        subtitle={configs["computer-vision"].subtitle}
-        insight={configs["computer-vision"].insight}
-        legend={configs["computer-vision"].legend}
-      >
-        <ComputerVisionViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "nlp") {
-    return (
-      <VisualizationShell
-        title={configs["nlp"].title}
-        subtitle={configs["nlp"].subtitle}
-        insight={configs["nlp"].insight}
-        legend={configs["nlp"].legend}
-      >
-        <NLPEmbeddingsViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "autoencoders") {
-    return (
-      <VisualizationShell
-        title={configs["autoencoders"].title}
-        subtitle={configs["autoencoders"].subtitle}
-        insight={configs["autoencoders"].insight}
-        legend={configs["autoencoders"].legend}
-      >
-        <AutoencoderViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "transformers") {
-    return (
-      <VisualizationShell
-        title={configs["transformers"].title}
-        subtitle={configs["transformers"].subtitle}
-        insight={configs["transformers"].insight}
-        legend={configs["transformers"].legend}
-      >
-        <TransformerViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "llms") {
-    return (
-      <VisualizationShell
-        title={configs["llms"].title}
-        subtitle={configs["llms"].subtitle}
-        insight={configs["llms"].insight}
-        legend={configs["llms"].legend}
-      >
-        <LLMViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "reinforcement-learning") {
-    return (
-      <VisualizationShell
-        title={configs["reinforcement-learning"].title}
-        subtitle={configs["reinforcement-learning"].subtitle}
-        insight={configs["reinforcement-learning"].insight}
-        legend={configs["reinforcement-learning"].legend}
-      >
-        <RLViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "generative-models") {
-    return (
-      <VisualizationShell
-        title={configs["generative-models"].title}
-        subtitle={configs["generative-models"].subtitle}
-        insight={configs["generative-models"].insight}
-        legend={configs["generative-models"].legend}
-      >
-        <GenerativeViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "bias-variance") {
-    return (
-      <VisualizationShell
-        title={configs["bias-variance"].title}
-        subtitle={configs["bias-variance"].subtitle}
-        insight={configs["bias-variance"].insight}
-        legend={configs["bias-variance"].legend}
-      >
-        <BiasVarianceViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "regularization") {
-    return (
-      <VisualizationShell
-        title={configs["regularization"].title}
-        subtitle={configs["regularization"].subtitle}
-        insight={configs["regularization"].insight}
-        legend={configs["regularization"].legend}
-      >
-        <RegularizationViz />
-      </VisualizationShell>
-    );
-  }
-
-  if (algorithmId === "evaluation-metrics") {
-    return (
-      <VisualizationShell
-        title={configs["evaluation-metrics"].title}
-        subtitle={configs["evaluation-metrics"].subtitle}
-        insight={configs["evaluation-metrics"].insight}
-        legend={configs["evaluation-metrics"].legend}
-      >
-        <EvaluationMetricsViz />
-      </VisualizationShell>
-    );
-  }
-
-  const config = configs[algorithmId] ?? configs["linear-regression"];
-  const [control, setControl] = useState(56);
+  const Visualization = entry.component;
 
   return (
     <VisualizationShell
-      title={config.title}
-      subtitle={config.subtitle}
-      insight={config.insight}
-      legend={config.legend}
+      title={entry.title}
+      subtitle={entry.subtitle}
+      insight={entry.insight}
+      legend={entry.legend}
     >
-      <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(340px,1fr)]">
-        <PlotFrame className="min-h-[360px]">
-          <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={config.title}>
-            <title>{config.title}</title>
-            <rect width={W} height={H} fill={COLORS.bg} />
-            <Scene kind={config.kind} control={control} />
-          </svg>
-        </PlotFrame>
-        <ControlPanel className="flex min-w-0 flex-col gap-3">
-          <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-            <div className="mb-3 flex items-center justify-between gap-4 font-bold uppercase tracking-wide">
-              <span>{config.control.label}</span>
-              <span className="text-primary">{config.control.value(control)}</span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={control}
-              onChange={(event) => setControl(Number(event.target.value))}
-              className="w-full accent-primary"
-            />
-            <div className="mt-2 flex justify-between text-[9px] uppercase tracking-wide text-on-surface-variant">
-              <span>{config.control.low}</span>
-              <span>{config.control.high}</span>
-            </div>
-          </div>
-          <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">
-            <span className="font-mono text-xs sm:text-sm font-bold uppercase tracking-wide text-primary">Mental model</span>
-            <p className="mt-2">{config.subtitle}</p>
-          </div>
-        </ControlPanel>
-      </div>
+      <Visualization />
     </VisualizationShell>
   );
 }

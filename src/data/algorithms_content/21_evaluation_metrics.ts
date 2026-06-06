@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const evaluationMetrics: Algorithm = {
+export const evaluationMetrics: LearningModule = {
   id: "evaluation-metrics",
   title: "Evaluation Metrics",
   category: "Evaluation Metrics",
+  prerequisites: ["logistic-regression", "probability-theory"],
+  tracks: ["practitioner"],
+  difficulty: 2,
+  relatedModules: ["logistic-regression", "probability-theory", "bias-variance"],
   shortDescription: "Measuring binary classification performance using confusion matrices, precision, recall, and ROC/AUC curves.",
+  estimatedMinutes: 20,
+  learningObjectives: [
+    'Construct a confusion matrix and compute accuracy, precision, recall, and F1-score',
+    'Explain why accuracy is misleading on imbalanced datasets',
+    'Explain how changing the decision threshold impacts precision and recall',
+    'Plot and interpret ROC and Precision-Recall curves, explaining the significance of AUC',
+  ],
+  keyTerms: [
+    { term: 'Precision', definition: 'The ratio of correctly predicted positive observations to the total predicted positives.' },
+    { term: 'Recall (Sensitivity)', definition: 'The ratio of correctly predicted positive observations to all actual positives.' },
+    { term: 'ROC Curve (Receiver Operating Characteristic)', definition: 'A graph showing the performance of a classification model at all classification thresholds.' },
+  ],
+  workedExamples: [
+    {
+      title: 'Precision and Recall calculation',
+      problem: 'In a test set of 100 actual positive instances, the model predicts positive for 90 of them (TP = 90). The model also predicts positive for 10 actual negative instances (FP = 10). Calculate Precision and Recall.',
+      solution: 'Precision = $\\frac{TP}{TP + FP} = \\frac{90}{90 + 10} = 0.9$ (or $90\\%$). Recall = $\\frac{TP}{TP + FN} = \\frac{90}{100} = 0.9$ (or $90\\%$).',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'You should always maximize the ROC AUC score regardless of class balance.',
+      correction: 'ROC AUC can be overly optimistic on highly imbalanced datasets because the False Positive Rate denominator includes a large number of true negatives. Precision-Recall AUC is a more informative metric when the positive class is rare.'
+    },
+    {
+      claim: 'A model with high precision always has high recall.',
+      correction: 'There is a fundamental tradeoff: increasing the decision threshold increases precision but decreases recall, while lowering the threshold increases recall but decreases precision.'
+    }
+  ],
+  references: [
+    {
+      title: "Introduction to Information Retrieval (Evaluation chapter)",
+      authors: "Manning, C. D. et al",
+      url: "https://nlp.stanford.edu/IR-book/",
+      type: "textbook"
+    },
+    {
+      title: "Receiver-Operating Characteristic Analysis",
+      authors: "Fawcett, T",
+      url: "https://sciencedirect.com",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Accuracy Paradox',
+      description: 'In a dataset where 99% of samples are negative, a dummy model predicting always-negative gets 99% accuracy but fails completely to find positive instances.',
+      mitigation: 'Use F1-score, Cohen Kappa, or precision-recall curves instead of accuracy.'
+    }
+  ],
 
   fullDescription: `
 Classification evaluation goes beyond accuracy. On imbalanced datasets such as fraud detection or medical screening, a model can achieve high accuracy by mostly predicting the majority class while failing on the cases that matter.

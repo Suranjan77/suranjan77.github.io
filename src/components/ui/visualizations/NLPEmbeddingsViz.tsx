@@ -134,6 +134,7 @@ export default function NLPEmbeddingsViz() {
       <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
         <div className="absolute inset-0 z-10 flex items-center justify-center">
           <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="NLP Embeddings Analogy Grid">
+            <title>N L P Embeddings Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -299,7 +300,7 @@ export default function NLPEmbeddingsViz() {
             <span>Semantic Analogies</span>
           </div>
 
-          <button
+          <button aria-label="RUN ANALOGY STEP SUBTRACT MAN ADD WOMAN RESET ANALOGY"
             onClick={handleNextAnalogy}
             className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer mb-2"
           >
@@ -328,7 +329,7 @@ export default function NLPEmbeddingsViz() {
             </div>
           )}
 
-          <button
+          <button aria-label="CLEAR ARROWS"
             onClick={handleResetAnalogy}
             disabled={!showAnalogy}
             className="w-full flex h-8 items-center justify-center border border-outline bg-surface hover:bg-surface-container text-on-surface-variant text-[10px] active:scale-[0.98] transition-all tracking-wider cursor-pointer disabled:opacity-50"

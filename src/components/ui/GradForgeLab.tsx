@@ -1171,23 +1171,29 @@ export default function GradForgeLab() {
       setNodePositions(positionsFor(customLesson.nodes));
       setQuizChoice("");
       setIsPlaying(true);
-      setRunMessage("Success! I just ran your code through our mini autograd engine!");
+      setRunMessage("Trace complete: the expression ran through the autograd engine.");
     } catch (error) {
       setRunMessage(error instanceof Error ? error.message : "Could not run this code.");
     }
   }
 
   return (
-    <div className="border border-outline bg-surface">
+    <div
+      className="border border-outline bg-surface"
+      data-testid="gradforge-workspace"
+    >
       <div className="grid border-b border-outline bg-border lg:grid-cols-[310px_minmax(0,1fr)_330px]">
         <section className="bg-surface p-5 lg:border-r lg:border-outline">
           <div className="mb-4 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-primary">
-            <BookOpen size={14} />
-            Learn Mode
+            <BookOpen size={14} aria-hidden="true" />
+            Guided Lessons
           </div>
-          <div className="mb-3 text-[10px] uppercase tracking-wide text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline mb-3">
-            <p className="font-bold mb-1 text-primary">How to use this:</p>
-            Choose a lesson below to load pre-written code, or write your own Python code on the right. When you&apos;re ready, hit &quot;Run My Code&quot; to trace it.
+          <div className="mb-3 border border-outline bg-surface-container-low p-3 text-xs leading-5 text-on-surface-variant">
+            <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.16em] text-primary">
+              Start here
+            </p>
+            Load a preset, step through its trace, then modify the Python
+            expression in the editor below.
           </div>
           <div className="space-y-2">
             {lessons.map((item, index) => (

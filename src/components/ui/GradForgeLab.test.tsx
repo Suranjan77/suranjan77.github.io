@@ -6,7 +6,7 @@ describe("GradForgeLab", () => {
   it("switches lessons and resets the visible timeline", () => {
     render(<GradForgeLab />);
 
-    expect(screen.getByText(/Learn Mode/i)).toBeInTheDocument();
+    expect(screen.getByText(/Guided Lessons/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Step forward/i }));
     expect(screen.getByRole("slider", { name: /Execution timeline/i })).not.toHaveValue("0");
 
@@ -30,8 +30,7 @@ describe("GradForgeLab", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /run trace/i }));
 
-    expect(screen.getByText(/Success! I just ran your code/i)).toBeInTheDocument();
-    expect(screen.getByText(/Success! I just ran your code/i)).toBeInTheDocument();
+    expect(screen.getByText(/Trace complete/i)).toBeInTheDocument();
   });
 
   it("surfaces parser errors for unsupported and unknown code", () => {
@@ -66,7 +65,7 @@ describe("GradForgeLab", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /run trace/i }));
 
-    expect(screen.getByText(/Success! I just ran your code/i)).toBeInTheDocument();
+    expect(screen.getByText(/Trace complete/i)).toBeInTheDocument();
     expect(screen.queryByText(/Unsupported line/i)).not.toBeInTheDocument();
   });
 
@@ -127,7 +126,7 @@ describe("GradForgeLab", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /run trace/i }));
 
-    expect(screen.getByText(/Success! I just ran your code/i)).toBeInTheDocument();
+    expect(screen.getByText(/Trace complete/i)).toBeInTheDocument();
     expect(screen.queryByText(/Infinity|NaN/i)).not.toBeInTheDocument();
   });
 

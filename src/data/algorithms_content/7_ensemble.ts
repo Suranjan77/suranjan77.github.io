@@ -1,10 +1,64 @@
-import { Algorithm } from "./types";
+import { LearningModule } from "./types";
 
-export const ensembleLearning: Algorithm = {
+export const ensembleLearning: LearningModule = {
   id: "ensemble-learning",
   title: "Ensemble Learning (RFs & GBMs)",
   category: "Ensemble Learning",
+  prerequisites: ["decision-trees"],
+  tracks: ["practitioner"],
+  difficulty: 3,
+  relatedModules: ["decision-trees"],
   shortDescription: "The strategy of combining hundreds of 'okay' models together to create one unstoppable super-model.",
+  estimatedMinutes: 30,
+  learningObjectives: [
+    'Distinguish between bagging and boosting ensemble methodologies',
+    'Explain how Random Forests reduce correlation between base learners via feature bagging',
+    'Formulate the gradient boosting update step and define pseudo-residuals',
+    'Evaluate the trade-off between ensemble size, model diversity, and overfitting',
+  ],
+  keyTerms: [
+    { term: 'Bagging (Bootstrap Aggregating)', definition: 'An ensemble method where multiple base learners are trained in parallel on bootstrap samples of the training data.' },
+    { term: 'Boosting', definition: 'An ensemble method where base learners are trained sequentially, each trying to correct the errors of the prior models.' },
+    { term: 'Out-Of-Bag (OOB) Error', definition: 'A method of measuring the prediction error of boostrapped ensembles by testing samples on trees that did not include them.' },
+  ],
+  workedExamples: [
+    {
+      title: 'Random Forest Variance Reduction',
+      problem: 'Given single tree variance $\\sigma^2 = 1.0$, tree correlation $\\rho = 0.2$, calculate the ensemble variance for $B = 1$ tree vs $B = 100$ trees.',
+      solution: 'For $B=1$: $\\text{Var} = 0.2 \\times 1.0 + \\frac{1-0.2}{1} \\times 1.0 = 1.0$. For $B=100$: $\\text{Var} = 0.2 \\times 1.0 + \\frac{0.8}{100} \\times 1.0 = 0.2 + 0.008 = 0.208$. The variance is reduced by nearly 80%.',
+    },
+  ],
+  misconceptions: [
+    {
+      claim: 'Random Forests and Gradient Boosting always give identical predictions.',
+      correction: 'Random Forests average predictions of independent trees (reducing variance), whereas Gradient Boosting adds predictions of sequential correction trees (reducing bias). Their decision boundaries and error profiles are different.'
+    },
+    {
+      claim: 'An ensemble model with 1,000 trees is always much better than one with 100 trees.',
+      correction: 'Variance reduction slows down dramatically after a certain number of trees (e.g. 100). Adding more trees increases training and inference time with negligible gains in accuracy.'
+    }
+  ],
+  references: [
+    {
+      title: "Greedy Function Approximation: A Gradient Boosting Machine",
+      authors: "Friedman, J.H",
+      url: "https://projecteuclid.org",
+      type: "textbook"
+    },
+    {
+      title: "Ensemble Methods: Foundations and Algorithms",
+      authors: "Zhou, Z.-H",
+      url: "https://www.crcpress.com",
+      type: "textbook"
+    }
+  ],
+  failureModes: [
+    {
+      name: 'Boosting Overfitting via Learning Rate',
+      description: 'If the boosting learning rate $\\nu$ is too high or the number of trees is too large, the model will fit noise in pseudo-residuals, causing overfitting.',
+      mitigation: 'Shrink the learning rate (e.g. $\\nu = 0.01$) and use early stopping based on validation loss.'
+    }
+  ],
 
   fullDescription: `
 Ensemble learning is based on a very simple idea: the wisdom of the crowd. Instead of trying to build one massive, incredibly complex algorithm that gets everything right, you build hundreds of simple, slightly flawed algorithms and have them vote on the final answer. 

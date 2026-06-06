@@ -141,6 +141,7 @@ export default function KNNViz() {
             role="img"
             aria-label="K-Nearest Neighbors Neighborhood"
           >
+            <title>K N N Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
 
@@ -256,7 +257,7 @@ export default function KNNViz() {
               Neighbor Count (k):
             </span>
             <div className="flex items-center gap-2 bg-surface-container p-2 border border-outline">
-              <button
+              <button aria-label="-"
                 onClick={() => setK((prev) => Math.max(1, prev - 2))}
                 disabled={k <= 1}
                 className="h-7 w-7 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer disabled:opacity-30"
@@ -264,7 +265,7 @@ export default function KNNViz() {
                 -
               </button>
               <span className="font-bold text-primary text-center w-8">k = {k}</span>
-              <button
+              <button aria-label="+"
                 onClick={() => setK((prev) => Math.min(7, prev + 2))}
                 disabled={k >= 7}
                 className="h-7 w-7 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer disabled:opacity-30"
@@ -274,7 +275,7 @@ export default function KNNViz() {
             </div>
           </div>
 
-          <button
+          <button aria-label="HIDE DECISION BOUNDARY SHOW DECISION BOUNDARY"
             onClick={() => setShowBoundary(!showBoundary)}
             className={`w-full flex h-9 items-center justify-center border border-outline font-bold tracking-wider cursor-pointer mb-2 active:scale-[0.98] transition-all ${
               showBoundary

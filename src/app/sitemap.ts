@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { algorithms } from "@/data/algorithms";
+import { algorithmsList } from "@/data/algorithms_content";
 import { getAbsoluteUrl } from "@/lib/site";
 
 export const dynamic = "force-static";
@@ -15,26 +15,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
-      url: getAbsoluteUrl("/algorithms/supervised"),
+      url: getAbsoluteUrl("/tracks"),
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.9,
     },
-    {
-      url: getAbsoluteUrl("/algorithms/unsupervised"),
+    ...["foundations", "practitioner", "modern-ai"].map((track) => ({
+      url: getAbsoluteUrl(`/tracks/${track}`),
       lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.9,
-    },
-    {
-      url: getAbsoluteUrl("/algorithms/deep-learning"),
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.9,
-    },
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
   ];
 
-  const algorithmRoutes: MetadataRoute.Sitemap = algorithms.map(
+  const algorithmRoutes: MetadataRoute.Sitemap = algorithmsList.map(
     (algorithm) => ({
       url: getAbsoluteUrl(`/algorithms/${algorithm.id}`),
       lastModified: now,

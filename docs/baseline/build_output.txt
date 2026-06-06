@@ -1,0 +1,41 @@
+
+> ml_learning@0.1.0 build
+> next build
+
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+▲ Next.js 16.2.1 (Turbopack)
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 5.3s
+  Running TypeScript ...
+  Finished TypeScript in 3.6s ...
+  Collecting page data using 11 workers ...
+  Generating static pages using 11 workers (0/33) ...
+  Generating static pages using 11 workers (8/33) 
+  Generating static pages using 11 workers (16/33) 
+  Generating static pages using 11 workers (24/33) 
+✓ Generating static pages using 11 workers (33/33) in 934ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ● /algorithms/[slug]
+│ ├ /algorithms/calculus
+│ ├ /algorithms/linear-algebra
+│ ├ /algorithms/probability-theory
+│ └ [+21 more paths]
+├ ○ /gradforge
+├ ○ /manifest.webmanifest
+├ ○ /playground
+├ ○ /robots.txt
+└ ○ /sitemap.xml
+
+
+○  (Static)  prerendered as static content
+●  (SSG)     prerendered as static HTML (uses generateStaticParams)
+
