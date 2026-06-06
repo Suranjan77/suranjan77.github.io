@@ -25,7 +25,7 @@
 - Assumptions: the component's stated toy data, architecture, or pedagogical simplification.
 - Reference source: module mathematics and a test-local independent implementation.
 - Required vectors: default, one interior value, both boundaries, every preset, and reset.
-- Current oracle status: Implemented in `VisualizationAlgorithmAccuracy.test.tsx`.
+- Current oracle status: Implemented in `VisualizationAccuracyPractitioner.test.tsx`.
 
 ## Findings
 ### Purpose Fit
@@ -76,7 +76,7 @@ Routing is registry-backed, deterministic default rendering is asserted, and unk
 
 ## Verification
 - Focused unit tests: `D3Visualization.test.tsx`, `VisualizationAudit.test.tsx`.
-- Accuracy tests: `VisualizationAlgorithmAccuracy.test.tsx`.
+- Accuracy tests: `VisualizationAccuracyPractitioner.test.tsx`.
 - Browser checks: `cypress/e2e/all-modules.cy.ts` and `cypress/e2e/mobile.cy.ts`.
 - Build/lint: recorded in `FINAL_REPORT.md`.
 - Final status: VERIFIED.

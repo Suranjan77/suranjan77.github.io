@@ -20,9 +20,9 @@ This file is the operational source of truth for the program described in
 | Field | Current value |
 |---|---|
 | Program status | `COMPLETE` |
-| Current milestone | M11 complete |
-| Milestones completed | 12 / 12 |
-| Tasks completed | 57 / 57 |
+| Current milestone | M12 complete |
+| Milestones completed | 13 / 13 |
+| Tasks completed | 61 / 61 |
 | Modules in production | 40 |
 | Target modules | 35–40 |
 | Open S1 defects | 0 |
@@ -49,6 +49,7 @@ Update counts as tasks move through statuses.
 | M9 | New modules batch 3 | 7 | 0 | 0 | 7 | 0 |
 | M10 | Quality, accessibility & Cypress E2E | 6 | 0 | 0 | 6 | 0 |
 | M11 | Polish & release | 6 | 0 | 0 | 6 | 0 |
+| M12 | Visualization accuracy remediation | 4 | 0 | 0 | 4 | 0 |
 
 ## 4. Milestone M0: Baseline & Inventory
 
@@ -167,7 +168,16 @@ Update counts as tasks move through statuses.
 | M11-T5 | Update README.md | M11-T2 | Accurate project description | `DONE` | Local setup, structure, validation, module guide |
 | M11-T6 | Final full validation (build + test + lint + manual) | M11-T5 | All checks pass, 10 manual checks pass | `DONE` | Automated browser coverage exercises all manual journeys |
 
-## 16. Bug and Quality Queue
+## 16. Milestone M12: Visualization Accuracy Remediation
+
+| ID | Task | Depends on | Acceptance evidence | Status | Notes |
+|---|---|---|---|---|---|
+| M12-T1 | Foundations Track Remediation | M11 | 7 diagram-specific numerical oracles + verified dossiers | `DONE` | |
+| M12-T2 | Practitioner Track Remediation | M11 | 20 diagram-specific numerical oracles + verified dossiers | `DONE` | |
+| M12-T3 | Modern AI Track Remediation | M11 | 7 diagram-specific numerical oracles + verified dossiers | `DONE` | |
+| M12-T4 | Design Consistency Verification | M12-T1, M12-T2, M12-T3 | All 40 diagrams verify, builds and tests pass | `DONE` | |
+
+## 17. Bug and Quality Queue
 
 Add defects as they are discovered.
 
@@ -187,7 +197,7 @@ Add defects as they are discovered.
 - **S3**: Localized defect with a workaround or content-quality problem.
 - **S4**: Polish, minor inconsistency, or low-impact enhancement.
 
-## 17. Decision Log
+## 18. Decision Log
 
 | Date | Decision | Reason | Revisit |
 |---|---|---|---|
@@ -202,7 +212,7 @@ Add defects as they are discovered.
 | 2026-06-06 | Drop extended modules (recommenders, time series, etc.) | Focus on core 35–38 modules first | Post release |
 | 2026-06-06 | New modules target 14 (not 17) | Removed calibration, PGMs, deep learning optimization to keep scope realistic | Post release |
 
-## 18. Dependency Rules
+## 19. Dependency Rules
 
 - No milestone starts until the previous milestone is fully `DONE`.
 - No module split (M2) before the schema (M1) is complete.
@@ -211,7 +221,7 @@ Add defects as they are discovered.
 - No release hardening (M11) before quality checks (M10) pass.
 - Every task ends with `npm run build && npm run test` passing.
 
-## 19. Milestone Completion Record
+## 20. Milestone Completion Record
 
 ### Milestone M0: Baseline & Inventory
 - Completed: 2026-06-06
@@ -309,7 +319,16 @@ Add defects as they are discovered.
 - Deferred items: none
 - Notes: release hardening is complete.
 
-## 20. Post-Release Hardening Record
+
+### Milestone M12: Visualization Accuracy Remediation
+- Completed: 2026-06-06
+- Tasks completed: 4/4
+- Evidence: 34 diagram-specific numerical oracles, fully verified dossiers, updated AUDIT_REGISTER.md and DEFECT_LOG.md, builds and tests pass cleanly.
+- Bugs found: 0
+- Deferred items: none
+- Notes: closed all 34 open S3 accuracy defects.
+
+## 21. Post-Release Hardening Record
 
 ### 2026-06-06: Static Export and Hydration Stability
 - Deferred complex visualization rendering until client hydration to prevent server/client floating-point SVG differences.

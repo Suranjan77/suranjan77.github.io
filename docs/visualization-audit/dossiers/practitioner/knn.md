@@ -5,7 +5,7 @@
 - Route: `/algorithms/knn`
 - Component: `src/components/ui/visualizations/KNNViz.tsx`
 - Review date: 2026-06-06
-- Disposition: REFINE
+- Disposition: KEEP
 - Simulation class: exact
 
 ## Intended Teaching Purpose
@@ -25,7 +25,7 @@
 - Assumptions: the component's stated toy data, architecture, or pedagogical simplification.
 - Reference source: module mathematics and a test-local independent implementation.
 - Required vectors: default, one interior value, both boundaries, every preset, and reset.
-- Current oracle status: Open S3 coverage task; rendering and finite-output checks are implemented, but they are not substitutes for a mathematical oracle.
+- Current oracle status: Implemented in `VisualizationAccuracyPractitioner.test.tsx`.
 
 ## Findings
 ### Purpose Fit
@@ -58,7 +58,7 @@ Routing is registry-backed, deterministic default rendering is asserted, and unk
 | Dimension | Score | Evidence |
 |---|---:|---|
 | Purpose | 3 | Route, title, subtitle, and module objective alignment |
-| Accuracy | 2 | Finite-output baseline; oracle pending |
+| Accuracy | 4 | Independent deterministic assertion |
 | Interaction | 3 | Named controls and representative interaction suite |
 | UI | 3 | Shared shell and visual tokens |
 | Accessibility | 3 | Named visual and controls |
@@ -67,7 +67,7 @@ Routing is registry-backed, deterministic default rendering is asserted, and unk
 ## Defects
 | ID | Severity | Description | Reproduction | Required change |
 |---|---|---|---|---|
-| VIZ-PRC-011 | S3 | Independent boundary and reset oracle coverage is incomplete. | Run the focused diagram accuracy suite. | Add test-local calculations and displayed-value assertions. |
+| None | None | No open release defect. | Run the focused diagram accuracy suite. | None. | Add test-local calculations and displayed-value assertions. |
 
 ## Remediation
 - Code changes: trusted registry, explicit unknown-ID error, accessible visual contract, responsive audit harness.
@@ -76,7 +76,7 @@ Routing is registry-backed, deterministic default rendering is asserted, and unk
 
 ## Verification
 - Focused unit tests: `D3Visualization.test.tsx`, `VisualizationAudit.test.tsx`.
-- Accuracy tests: `VisualizationAlgorithmAccuracy.test.tsx`.
+- Accuracy tests: `VisualizationAccuracyPractitioner.test.tsx`.
 - Browser checks: `cypress/e2e/all-modules.cy.ts` and `cypress/e2e/mobile.cy.ts`.
 - Build/lint: recorded in `FINAL_REPORT.md`.
-- Final status: REMEDIATION.
+- Final status: VERIFIED.

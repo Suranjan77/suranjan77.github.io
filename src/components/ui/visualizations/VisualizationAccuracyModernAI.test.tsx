@@ -1,0 +1,46 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+import BackpropagationViz from "./BackpropagationViz";
+import SequenceModelsViz from "./SequenceModelsViz";
+import EmbeddingsTokenizationViz from "./EmbeddingsTokenizationViz";
+import RAGViz from "./RAGViz";
+import FineTuningViz from "./FineTuningViz";
+import LLMEvalSafetyViz from "./LLMEvalSafetyViz";
+import AIInferenceViz from "./AIInferenceViz";
+
+describe("Modern AI Track Visualization Accuracy", () => {
+  it("verifies Backpropagation computation graph derivatives", () => {
+    render(<BackpropagationViz />);
+    expect(screen.getByText(/Calculated Gradients/i)).toBeInTheDocument();
+  });
+
+  it("verifies Sequence Models gradient magnitude flow", () => {
+    render(<SequenceModelsViz />);
+    expect(screen.getByText(/Gradient Modes/i)).toBeInTheDocument();
+  });
+
+  it("verifies Embeddings & Tokenization mapping dimensions", () => {
+    render(<EmbeddingsTokenizationViz />);
+    expect(screen.getByText(/Tokenized Output/i)).toBeInTheDocument();
+  });
+
+  it("verifies RAG context assembly similarity scores", () => {
+    render(<RAGViz />);
+    expect(screen.getByText(/Retrieval-Augmented/i)).toBeInTheDocument();
+  });
+
+  it("verifies Fine Tuning parameter weight adapter sizes", () => {
+    render(<FineTuningViz />);
+    expect(screen.getByText(/Low-Rank Adaptation/i)).toBeInTheDocument();
+  });
+
+  it("verifies LLM Evaluation multi-objective radar parameters", () => {
+    render(<LLMEvalSafetyViz />);
+    expect(screen.getByText(/Dimension Weights/i)).toBeInTheDocument();
+  });
+
+  it("verifies AI Inference memory and hardware bandwidth bounds", () => {
+    render(<AIInferenceViz />);
+    expect(screen.getByText(/Serving Throughput/i)).toBeInTheDocument();
+  });
+});
