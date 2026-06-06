@@ -12,6 +12,7 @@ import {
   StepIndicator,
   SVGFilters,
   Vector,
+  VisualizationInstruction,
   VisualizationShell,
 } from "./visualizationPrimitives";
 
@@ -93,5 +94,19 @@ describe("visualization primitives", () => {
     expect(screen.getByText("Prior")).toBeInTheDocument();
     expect(screen.getByText("Data")).toBeInTheDocument();
     expect(screen.getByText("Posterior")).toBeInTheDocument();
+  });
+
+  it("renders Markdown in visualization instructions", () => {
+    const { container } = render(
+      <VisualizationInstruction
+        title="Interactivity tradeoff:"
+        content={"- Move **left** for recall.\n- Move **right** for precision."}
+      />,
+    );
+
+    expect(screen.getByText("left").tagName).toBe("STRONG");
+    expect(screen.getByText("right").tagName).toBe("STRONG");
+    expect(container.querySelectorAll("ul > li")).toHaveLength(2);
+    expect(container).not.toHaveTextContent("**");
   });
 });

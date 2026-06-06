@@ -8,6 +8,7 @@ import {
   SVGFilters,
   AnimatedPointMark,
   PulseRing,
+  VisualizationInstruction,
 } from "../visualizationPrimitives";
 
 const W = 640;
@@ -339,10 +340,11 @@ export default function PCAViz() {
             {isProjected ? "RESTORE 2D COORDINATES" : "COLLAPSE POINTS ONTO AXIS"}
           </button>
 
-          <div className="mt-3 text-xs uppercase tracking-wide text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline">
-            <p className="font-bold mb-1 text-primary">Direct Manipulation:</p>
-            <MarkdownRenderer content={`Drag the pink handle at the tip of the projection axis to rotate it in 2D space. Watch the variance indicator tick and the 1D points slide along the axis line in real-time.`} />
-          </div>
+          <VisualizationInstruction
+            title="Direct Manipulation:"
+            content="Drag the pink handle at the tip of the projection axis to rotate it in 2D space. Watch the variance indicator tick and the 1D points slide along the axis line in real-time."
+            className="uppercase"
+          />
         </div>
 
         <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">

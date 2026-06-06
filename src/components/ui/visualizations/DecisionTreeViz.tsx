@@ -7,6 +7,7 @@ import {
   COLORS,
   SVGFilters,
   AnimatedPointMark,
+  VisualizationInstruction,
 } from "../visualizationPrimitives";
 
 const W = 640;
@@ -403,10 +404,11 @@ export default function DecisionTreeViz() {
             {isTreeGrown ? "REDUCE TREE SIZE (SHRINK)" : "GROW TREE (ADD LEVEL 2 SPLIT)"}
           </button>
 
-          <div className="mt-3 text-xs uppercase tracking-wide text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline">
-            <p className="font-bold mb-1 text-primary">Direct Manipulation:</p>
-            <MarkdownRenderer content={`Click anywhere inside the left feature box. A query point will appear and visually fall through the split test nodes down to a leaf in the tree.`} />
-          </div>
+          <VisualizationInstruction
+            title="Direct Manipulation:"
+            content="Click anywhere inside the left feature box. A query point will appear and visually fall through the split test nodes down to a leaf in the tree."
+            className="uppercase"
+          />
         </div>
 
         {query && (

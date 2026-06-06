@@ -3,6 +3,7 @@
 import React, { type ComponentProps, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { Play, Pause, RotateCcw, ChevronRight, ChevronLeft } from "lucide-react";
+import MarkdownRenderer from "./MarkdownRenderer";
 
 export interface LegendItem {
   label: string;
@@ -120,6 +121,28 @@ export function ControlPanel({
       className={`font-sans text-[13px] font-medium text-on-surface ${className}`}
     >
       {children}
+    </div>
+  );
+}
+
+export function VisualizationInstruction({
+  title,
+  content,
+  className = "",
+}: {
+  title: string;
+  content: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`mt-3 border border-outline bg-surface-container-low p-2 font-sans text-xs leading-relaxed tracking-wide text-on-surface-variant ${className}`}
+    >
+      <p className="mb-1 font-bold uppercase text-primary">{title}</p>
+      <MarkdownRenderer
+        content={content}
+        className="[&_ol]:my-1 [&_ol]:ml-4 [&_ol]:list-decimal [&_ul]:my-1 [&_ul]:ml-4 [&_ul]:list-disc [&_li]:my-0.5 [&_p]:my-1"
+      />
     </div>
   );
 }

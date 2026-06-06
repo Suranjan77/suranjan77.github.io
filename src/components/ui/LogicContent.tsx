@@ -1,7 +1,6 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
+import { markdownRehypePlugins, markdownRemarkPlugins } from "@/lib/markdown";
 
 interface LogicContentProps {
   content: string;
@@ -28,8 +27,8 @@ export default function LogicContent({ content, className, size = "base" }: Logi
   return (
     <div className={`logic-markdown ${className || (isSm ? "text-on-surface" : "text-on-surface-variant")}`}>
       <ReactMarkdown
-        remarkPlugins={[remarkMath]}
-        rehypePlugins={[rehypeKatex]}
+        remarkPlugins={markdownRemarkPlugins}
+        rehypePlugins={markdownRehypePlugins}
         components={{
           h1: ({ children }) => (
             <h1 className={isSm ? "mt-4 mb-2 font-headline text-lg font-bold tracking-tight text-on-surface first:mt-0" : "mt-8 mb-4 font-headline text-3xl font-bold tracking-tight text-on-surface first:mt-0"}>

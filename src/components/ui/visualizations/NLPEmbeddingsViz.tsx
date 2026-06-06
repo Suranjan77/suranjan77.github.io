@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   COLORS,
   SVGFilters,
+  VisualizationInstruction,
 } from "../visualizationPrimitives";
 
 const W = 640;
@@ -337,11 +338,12 @@ export default function NLPEmbeddingsViz() {
             CLEAR ARROWS
           </button>
 
-          <div className="mt-3 text-xs uppercase tracking-wide text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline font-sans">
-            <p className="font-bold mb-1 text-primary">Direct Manipulation:</p>
-            1. Drag words to shift their coordinates. <br />
-            2. Hover words to display nearest neighbors.
-          </div>
+          <VisualizationInstruction
+            title="Direct Manipulation:"
+            content={`1. Drag words to shift their coordinates.
+2. Hover words to display nearest neighbors.`}
+            className="uppercase"
+          />
         </div>
 
         {hoveredTokenId && (

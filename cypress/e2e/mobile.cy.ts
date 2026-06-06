@@ -19,7 +19,17 @@ describe('Mobile Viewport', () => {
   it('renders a lesson without horizontal overflow', () => {
     cy.visit('/algorithms/calculus');
     cy.get('h1').should('exist');
+    cy.get('[aria-label="Lesson navigation"]').scrollIntoView().should('be.visible');
+    cy.get('a[href="#visualization"]').should('contain', 'Diagram');
     expectNoHorizontalOverflow();
+  });
+
+  it('uses an explicit mobile menu instead of a crowded navigation row', () => {
+    cy.visit('/');
+    cy.get('button[aria-label="Open navigation menu"]').click();
+    cy.get('#mobile-primary-navigation').should('be.visible');
+    cy.get('#mobile-primary-navigation').contains('Tracks').click();
+    cy.url().should('include', '/tracks');
   });
 
   it('keeps visualization SVGs within the viewport', () => {

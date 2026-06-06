@@ -7,6 +7,7 @@ import {
   COLORS,
   SVGFilters,
   AnimatedPointMark,
+  VisualizationInstruction,
 } from "../visualizationPrimitives";
 
 const W = 640;
@@ -243,10 +244,11 @@ export default function RegularizationViz() {
             ))}
           </div>
 
-          <div className="mt-3 text-xs uppercase tracking-wide text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline font-sans">
-            <p className="font-bold mb-1 text-primary">Direct Optimum Drag:</p>
-            Drag the red **OLS w_hat** dot. Notice how in L1 mode, the solution **snaps** exactly to the horizontal or vertical axis (inducing sparse weights). In L2 mode, the solution slides smoothly along the circle.
-          </div>
+          <VisualizationInstruction
+            title="Direct Optimum Drag:"
+            content="Drag the red **OLS w_hat** dot. Notice how in L1 mode, the solution **snaps** exactly to the horizontal or vertical axis (inducing sparse weights). In L2 mode, the solution slides smoothly along the circle."
+            className="uppercase"
+          />
         </div>
 
         <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">

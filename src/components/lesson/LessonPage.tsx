@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { LearningModule } from "@/data/algorithms_content/learningModuleTypes";
 import CodeBlock from "@/components/ui/CodeBlock";
+import InlineMarkdown from "@/components/ui/InlineMarkdown";
 import LogicContent from "@/components/ui/LogicContent";
 import AlgorithmVisualization from "@/components/ui/AlgorithmVisualization";
 import { VisualizationErrorBoundary } from "@/components/ui/visualizations/VisualizationErrorBoundary";
@@ -23,7 +24,6 @@ import {
 
 // Lesson section components
 import PrerequisiteLinks from "./PrerequisiteLinks";
-import LearningObjectives from "./LearningObjectives";
 import NotationTable from "./NotationTable";
 import WorkedExamples from "./WorkedExamples";
 import Misconceptions from "./Misconceptions";
@@ -31,6 +31,7 @@ import ReferenceList from "./ReferenceList";
 import RelatedModules from "./RelatedModules";
 import ModuleNavigation from "./ModuleNavigation";
 import MetadataBar from "./MetadataBar";
+import LessonNavigator from "./LessonNavigator";
 
 interface LessonPageProps {
   module: LearningModule;
@@ -78,21 +79,26 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
             tracks={module.tracks}
           />
           
-          <p className="mt-4 text-on-surface-variant text-[17px] sm:text-lg leading-relaxed max-w-4xl">
-            {module.shortDescription}
-          </p>
+          <InlineMarkdown
+            content={module.shortDescription}
+            className="mt-4 block max-w-4xl text-[17px] leading-relaxed text-on-surface-variant sm:text-lg"
+          />
         </div>
 
-        {/* Prerequisites and Learning Objectives */}
+        {/* Prerequisites */}
         <PrerequisiteLinks prerequisites={module.prerequisites} allModules={allModules} />
-        <LearningObjectives objectives={module.learningObjectives} />
       </section>
+
+      <LessonNavigator currentModule={module} allModules={allModules} />
 
       {/* Stacked content sections */}
       <section className="relative z-10 mx-auto max-w-6xl space-y-8">
         
         {/* Intuition Section */}
-        <div className="overflow-hidden border border-outline bg-surface-container-low">
+        <div
+          id="intuition"
+          className="scroll-mt-44 overflow-hidden border border-outline bg-surface-container-low"
+        >
           <div className="border-b border-outline px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center border border-tertiary/30 bg-tertiary/12 text-tertiary">
@@ -113,11 +119,43 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
           </div>
         </div>
 
+        {/* Interactive Visualization Section */}
+        <div
+          id="visualization"
+          className="scroll-mt-44 overflow-hidden border border-outline bg-surface-container-low"
+        >
+          <div className="border-b border-outline bg-surface-container px-6 py-5 sm:px-8">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center border border-primary/30 bg-primary/12 text-primary">
+                <ChartNoAxesCombined size={18} strokeWidth={1.7} aria-hidden="true" />
+              </div>
+              <div>
+                <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
+                  Interactive Diagram
+                </h2>
+                <p className="text-sm text-on-surface-variant/70 sm:text-xs">
+                  Test the intuition above by changing the model parameters
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-surface-container-low p-2 sm:p-6">
+            <div className="min-h-[380px]">
+              <VisualizationErrorBoundary algorithmId={module.id}>
+                <AlgorithmVisualization algorithmId={module.id} />
+              </VisualizationErrorBoundary>
+            </div>
+          </div>
+        </div>
+
         {/* Notation Table Section */}
         <NotationTable notationTable={module.notationTable} />
 
         {/* Mathematics Section */}
-        <div className="overflow-hidden border border-outline bg-surface-container-low">
+        <div
+          id="mathematics"
+          className="scroll-mt-44 overflow-hidden border border-outline bg-surface-container-low"
+        >
           <div className="border-b border-outline px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center border border-primary/30 bg-primary/12 text-primary">
@@ -139,7 +177,9 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         </div>
 
         {/* Worked Examples Section */}
-        <WorkedExamples examples={module.workedExamples} />
+        <div id="examples" className="scroll-mt-44">
+          <WorkedExamples examples={module.workedExamples} />
+        </div>
 
         {module.id === "backpropagation" && (
           <aside className="grid gap-px border border-outline bg-border sm:grid-cols-[1fr_auto]">
@@ -190,7 +230,10 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         </div>
 
         {/* Implementation / Code Section */}
-        <div className="overflow-hidden border border-outline bg-surface-container-low">
+        <div
+          id="implementation"
+          className="scroll-mt-44 overflow-hidden border border-outline bg-surface-container-low"
+        >
           <div className="border-b border-outline px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center border border-outline-variant/30 bg-outline-variant/10 text-on-surface">
@@ -211,32 +254,6 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
           </div>
         </div>
 
-        {/* Interactive Visualization Section */}
-        <div className="overflow-hidden border border-outline bg-surface-container-low">
-          <div className="border-b border-outline px-6 py-5 sm:px-8 bg-surface-container">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center border border-primary/30 bg-primary/12 text-primary">
-                <ChartNoAxesCombined size={18} strokeWidth={1.7} aria-hidden="true" />
-              </div>
-              <div>
-                <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
-                  Interactive Diagram
-                </h2>
-                <p className="text-sm text-on-surface-variant/70 sm:text-xs">
-                  Interact with parameters to build hands-on mental models
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="p-2 sm:p-6 bg-surface-container-low">
-            <div className="min-h-[380px]">
-              <VisualizationErrorBoundary algorithmId={module.id}>
-                <AlgorithmVisualization algorithmId={module.id} />
-              </VisualizationErrorBoundary>
-            </div>
-          </div>
-        </div>
-
         {/* Pros and Cons (Strengths and Limitations) Section */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-lg border border-outline bg-surface-container-low accent-left-success p-5">
@@ -245,7 +262,9 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
             </h3>
             <ul className="mt-4 list-disc pl-5 space-y-2 text-on-surface-variant text-sm sm:text-base leading-relaxed">
               {module.pros.map((pro, i) => (
-                <li key={i}>{pro}</li>
+                <li key={i}>
+                  <InlineMarkdown content={pro} />
+                </li>
               ))}
             </ul>
           </div>
@@ -256,7 +275,9 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
             </h3>
             <ul className="mt-4 list-disc pl-5 space-y-2 text-on-surface-variant text-sm sm:text-base leading-relaxed">
               {module.cons.map((con, i) => (
-                <li key={i}>{con}</li>
+                <li key={i}>
+                  <InlineMarkdown content={con} />
+                </li>
               ))}
             </ul>
           </div>
@@ -266,7 +287,9 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         <Misconceptions misconceptions={module.misconceptions} />
 
         {/* References */}
-        <ReferenceList references={module.references} />
+        <div id="references" className="scroll-mt-44">
+          <ReferenceList references={module.references} />
+        </div>
 
         {/* Related Modules */}
         <RelatedModules relatedModules={module.relatedModules} allModules={allModules} />

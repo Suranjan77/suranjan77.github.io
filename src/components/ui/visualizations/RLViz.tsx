@@ -7,6 +7,7 @@ import {
   COLORS,
   SVGFilters,
   PulseRing,
+  VisualizationInstruction,
 } from "../visualizationPrimitives";
 
 const W = 640;
@@ -332,11 +333,12 @@ export default function RLViz() {
             </button>
           </div>
 
-          <div className="mt-3 text-xs uppercase tracking-wide text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline font-sans">
-            <p className="font-bold mb-1 text-primary">Concept instruction:</p>
-            1. Move agent manually, or run **Auto Explore** to start Q-learning. <br />
-            2. As Q-values accumulate in the cell quadrants, policy arrows will orient toward the highest valued path.
-          </div>
+          <VisualizationInstruction
+            title="Concept instruction:"
+            content={`1. Move agent manually, or run **Auto Explore** to start Q-learning.
+2. As Q-values accumulate in the cell quadrants, policy arrows will orient toward the highest valued path.`}
+            className="uppercase"
+          />
         </div>
 
         <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">

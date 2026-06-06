@@ -8,6 +8,7 @@ import {
   SVGFilters,
   Vector,
   MiniStat,
+  VisualizationInstruction,
 } from "../visualizationPrimitives";
 
 const W = 640;
@@ -282,12 +283,14 @@ export default function AutoencoderViz() {
             <span>Latent Squeeze</span>
           </div>
 
-          <div className="mb-3 text-xs uppercase tracking-wide text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline font-sans">
-            <p className="font-bold mb-1 text-primary">Direct Manipulation:</p>
-            Drag the yellow <span className="text-yellow font-bold">bottleneck lines</span> in the center inward or outward. <br /><br />
-            - A **tighter bottleneck** squeezes the latent space, increasing compression but degrading the reconstructed output.<br />
-            - A **wider bottleneck** improves quality but reduces the compression ratio.
-          </div>
+          <VisualizationInstruction
+            title="Direct Manipulation:"
+            content={`Drag the yellow **bottleneck lines** in the center inward or outward.
+
+- A **tighter bottleneck** squeezes the latent space, increasing compression but degrading the reconstructed output.
+- A **wider bottleneck** improves quality but reduces the compression ratio.`}
+            className="mb-3 uppercase"
+          />
         </div>
 
         <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">

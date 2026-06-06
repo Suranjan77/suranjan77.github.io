@@ -1,5 +1,6 @@
 import React from 'react';
 import { Misconception } from '@/data/algorithms_content/learningModuleTypes';
+import InlineMarkdown from '@/components/ui/InlineMarkdown';
 
 interface MisconceptionsProps {
   misconceptions: Misconception[] | undefined;
@@ -17,11 +18,17 @@ export default function Misconceptions({ misconceptions }: MisconceptionsProps) 
             <div className="flex flex-col gap-3">
               <div>
                 <span className="text-[11px] font-bold text-error uppercase tracking-wider">Misconception</span>
-                <p className="mt-1 text-on-surface font-medium leading-relaxed text-[15px] sm:text-base">{mis.claim}</p>
+                <InlineMarkdown
+                  content={mis.claim}
+                  className="mt-1 block text-[15px] font-medium leading-relaxed text-on-surface sm:text-base"
+                />
               </div>
               <div className="border-t border-outline/30 pt-3">
                 <span className="text-[11px] font-bold text-success uppercase tracking-wider">Correction</span>
-                <p className="mt-1 text-on-surface-variant leading-relaxed text-[15px] sm:text-base">{mis.correction}</p>
+                <InlineMarkdown
+                  content={mis.correction}
+                  className="mt-1 block text-[15px] leading-relaxed text-on-surface-variant sm:text-base"
+                />
               </div>
             </div>
           </div>

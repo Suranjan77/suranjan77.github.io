@@ -4,8 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import katex from "katex";
 import ReactMarkdown from "react-markdown";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
+import { markdownRehypePlugins, markdownRemarkPlugins } from "@/lib/markdown";
 import type { Algorithm } from "@/data/algorithms";
 import { formatLogicContent, getFormulaPreview } from "@/lib/algorithmPresentation";
 import AlgorithmCard from "./AlgorithmCard";
@@ -125,8 +124,8 @@ function ExpandedPanel({ algorithm }: { algorithm: Algorithm }) {
           </h3>
           <div className="mt-5 max-w-3xl text-sm font-medium leading-7 text-on-surface-variant sm:text-[15px]">
             <ReactMarkdown
-              remarkPlugins={[remarkMath]}
-              rehypePlugins={[rehypeKatex]}
+              remarkPlugins={markdownRemarkPlugins}
+              rehypePlugins={markdownRehypePlugins}
               components={{
                 p: ({ children }) => (
                   <p className="mb-3 text-sm font-medium leading-7 text-on-surface-variant last:mb-0 sm:text-[15px]">

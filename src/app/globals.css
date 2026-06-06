@@ -47,6 +47,11 @@
     --color-on-error-container: #3B1713;
     --color-success: #556B4A;
     --color-warning: #927A4B;
+    --color-cyan: #556B4A;
+    --color-cyan-700: #556B4A;
+    --color-pink: #8D5149;
+    --color-yellow: #927A4B;
+    --color-green: #556B4A;
 
     --radius-sm: 2px;
     --radius-md: 2px;

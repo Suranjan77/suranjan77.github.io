@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   COLORS,
   SVGFilters,
+  VisualizationInstruction,
 } from "../visualizationPrimitives";
 
 const W = 640;
@@ -261,10 +262,11 @@ export default function TransformerViz() {
             {multiHead ? "MULTI-HEAD ATTENTION (2 heads)" : "SINGLE-HEAD ATTENTION"}
           </button>
 
-          <div className="mt-3 text-xs uppercase tracking-wide text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline font-sans">
-            <p className="font-bold mb-1 text-primary">Interactivity:</p>
-            Hover over any word in the top sentence. Attention weights scale node links and project softmax values instantly.
-          </div>
+          <VisualizationInstruction
+            title="Interactivity:"
+            content="Hover over any word in the top sentence. Attention weights scale node links and project softmax values instantly."
+            className="uppercase"
+          />
         </div>
 
         <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">

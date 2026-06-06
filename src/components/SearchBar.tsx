@@ -40,7 +40,7 @@ export default function SearchBar() {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-xs sm:max-w-sm">
+    <div ref={containerRef} className="relative w-full lg:max-w-sm">
       <div className="relative flex items-center">
         <Search className="absolute left-3 h-4 w-4 text-on-surface-variant" />
         <input

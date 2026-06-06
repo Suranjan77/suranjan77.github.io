@@ -8,6 +8,7 @@ import {
   SVGFilters,
   AnimatedPointMark,
   PulseRing,
+  VisualizationInstruction,
 } from "../visualizationPrimitives";
 import { useSimulation } from "./useAnimationEngine";
 
@@ -378,10 +379,11 @@ export default function LinearRegressionViz() {
             {isRunning ? "PAUSE GRADIENT DESCENT" : "RUN GRADIENT DESCENT (OPTIMIZE)"}
           </button>
 
-          <div className="mt-3 text-xs uppercase tracking-wide text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline">
-            <p className="font-bold mb-1 text-primary">Direct Manipulation:</p>
-            <MarkdownRenderer content={`Drag the two pink handles along the line to rotate or translate the regression fit. Watch the squares grow or shrink in response to your fit!`} />
-          </div>
+          <VisualizationInstruction
+            title="Direct Manipulation:"
+            content="Drag the two pink handles along the line to rotate or translate the regression fit. Watch the squares grow or shrink in response to your fit!"
+            className="uppercase"
+          />
         </div>
 
         <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">

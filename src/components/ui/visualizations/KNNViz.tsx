@@ -7,6 +7,7 @@ import {
   COLORS,
   SVGFilters,
   AnimatedPointMark,
+  VisualizationInstruction,
 } from "../visualizationPrimitives";
 
 const W = 640;
@@ -286,10 +287,11 @@ export default function KNNViz() {
             {showBoundary ? "HIDE DECISION BOUNDARY" : "SHOW DECISION BOUNDARY"}
           </button>
 
-          <div className="mt-3 text-xs uppercase tracking-wide text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline">
-            <p className="font-bold mb-1 text-primary">Direct Manipulation:</p>
-            <MarkdownRenderer content={`Click or drag anywhere inside the plot to move the query point. Watch neighbor arcs connect and the vote balance update.`} />
-          </div>
+          <VisualizationInstruction
+            title="Direct Manipulation:"
+            content="Click or drag anywhere inside the plot to move the query point. Watch neighbor arcs connect and the vote balance update."
+            className="uppercase"
+          />
         </div>
 
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">

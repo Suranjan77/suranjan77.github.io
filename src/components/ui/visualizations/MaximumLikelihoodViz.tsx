@@ -8,6 +8,7 @@ import {
   SVGFilters,
   AnimatedPointMark,
   PulseRing,
+  VisualizationInstruction,
 } from "../visualizationPrimitives";
 
 const W = 640;
@@ -359,10 +360,11 @@ export default function MaximumLikelihoodViz() {
             {isAnimating ? "OPTIMIZING..." : "FIND MLE VIA GRADIENT ASCENT"}
           </button>
 
-          <div className="mt-3 text-xs uppercase tracking-wide text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline">
-            <p className="font-bold mb-1 text-primary">Direct Manipulation:</p>
-            Drag the cyan <span className="text-cyan font-bold">observations x_i</span> left or right. The Gaussian and log-likelihood curves recalculate, and the MLE mean automatically chases the data.
-          </div>
+          <VisualizationInstruction
+            title="Direct Manipulation:"
+            content="Drag the cyan **observations x_i** left or right. The Gaussian and log-likelihood curves recalculate, and the MLE mean automatically chases the data."
+            className="uppercase"
+          />
         </div>
 
         <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">

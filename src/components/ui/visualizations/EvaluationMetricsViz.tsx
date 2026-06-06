@@ -8,6 +8,7 @@ import {
   SVGFilters,
   Vector,
   MiniStat,
+  VisualizationInstruction,
 } from "../visualizationPrimitives";
 
 const W = 640;
@@ -270,11 +271,12 @@ export default function EvaluationMetricsViz() {
             </div>
           </div>
 
-          <div className="mt-3 text-xs uppercase tracking-wide text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline font-sans">
-            <p className="font-bold mb-1 text-primary">Interactivity tradeoff:</p>
-            - Slide threshold **left**: Recall increases (more True Positives found), but Precision drops (more False Positives slip through). <br />
-            - Slide threshold **right**: Precision increases, but Recall drops.
-          </div>
+          <VisualizationInstruction
+            title="Interactivity tradeoff:"
+            content={`- Slide threshold **left**: Recall increases (more True Positives found), but Precision drops (more False Positives slip through).
+- Slide threshold **right**: Precision increases, but Recall drops.`}
+            className="uppercase"
+          />
         </div>
 
         <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">

@@ -1,4 +1,5 @@
 import React from 'react';
+import InlineMarkdown from '@/components/ui/InlineMarkdown';
 
 interface LearningObjectivesProps {
   objectives: string[] | undefined;
@@ -13,7 +14,7 @@ export default function LearningObjectives({ objectives }: LearningObjectivesPro
       <ol className="list-decimal pl-5 space-y-2 text-on-surface-variant text-[15px] sm:text-base leading-relaxed">
         {objectives.map((obj, i) => (
           <li key={i} className="pl-1">
-            {obj}
+            <InlineMarkdown content={obj} />
           </li>
         ))}
       </ol>

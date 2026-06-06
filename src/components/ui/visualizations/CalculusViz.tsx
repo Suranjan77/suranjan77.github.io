@@ -8,6 +8,7 @@ import {
   SVGFilters,
   AnimatedPointMark,
   PulseRing,
+  VisualizationInstruction,
 } from "../visualizationPrimitives";
 
 const W = 640;
@@ -311,10 +312,11 @@ export default function CalculusViz() {
             RESET LIMIT DISTANCE
           </button>
 
-          <div className="mt-3 text-xs uppercase tracking-wide text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline">
-            <p className="font-bold mb-1 text-primary">Direct Manipulation:</p>
-            Drag the pink <span className="text-pink font-bold">focus x</span> dot along the curve to change where the derivative is evaluated.
-          </div>
+          <VisualizationInstruction
+            title="Direct Manipulation:"
+            content="Drag the pink **focus x** dot along the curve to change where the derivative is evaluated."
+            className="uppercase"
+          />
         </div>
 
         <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">

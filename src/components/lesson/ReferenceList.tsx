@@ -1,5 +1,6 @@
 import React from 'react';
 import { Reference } from '@/data/algorithms_content/learningModuleTypes';
+import InlineMarkdown from '@/components/ui/InlineMarkdown';
 
 interface ReferenceListProps {
   references: Reference[] | undefined;
@@ -47,9 +48,10 @@ export default function ReferenceList({ references }: ReferenceListProps) {
             )}
 
             {ref.description && (
-              <p className="text-sm text-on-surface-variant/90 mt-1 leading-relaxed">
-                {ref.description}
-              </p>
+              <InlineMarkdown
+                content={ref.description}
+                className="mt-1 block text-sm leading-relaxed text-on-surface-variant/90"
+              />
             )}
 
             {(ref.url || ref.doi) && (

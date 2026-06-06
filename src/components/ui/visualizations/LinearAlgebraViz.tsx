@@ -8,6 +8,7 @@ import {
   SVGFilters,
   AnimatedPointMark,
   PulseRing,
+  VisualizationInstruction,
 } from "../visualizationPrimitives";
 
 const W = 640;
@@ -401,10 +402,11 @@ export default function LinearAlgebraViz() {
             {isMorphed ? "WARP BACK TO STANDARD GRID" : "MORPH GRID TO BASIS {a, b}"}
           </button>
 
-          <div className="mt-3 text-xs uppercase tracking-wide text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline">
-            <p className="font-bold mb-1 text-primary">Direct Manipulation:</p>
-            Drag the tips of <span className="text-pink font-bold">vector a</span> and <span className="text-cyan font-bold">basis b</span> to recalculate projection, dot product, and parallelogram area (determinant) live.
-          </div>
+          <VisualizationInstruction
+            title="Direct Manipulation:"
+            content="Drag the tips of **vector a** and **basis b** to recalculate projection, dot product, and parallelogram area (determinant) live."
+            className="uppercase"
+          />
         </div>
 
         <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">

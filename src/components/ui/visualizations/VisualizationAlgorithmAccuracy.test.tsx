@@ -63,7 +63,7 @@ describe("visualization algorithm accuracy", () => {
   });
 
   it("derives confusion-matrix and precision-recall metrics from the threshold", () => {
-    render(<EvaluationMetricsViz />);
+    const { container } = render(<EvaluationMetricsViz />);
 
     expect(screen.getByTestId("metrics-tp")).toHaveTextContent("84");
     expect(screen.getByTestId("metrics-fp")).toHaveTextContent("16");
@@ -72,6 +72,10 @@ describe("visualization algorithm accuracy", () => {
     expect(screen.getByTestId("metrics-precision")).toHaveTextContent("84.0%");
     expect(screen.getByTestId("metrics-recall")).toHaveTextContent("84.0%");
     expect(screen.getByTestId("metrics-f1")).toHaveTextContent("84.0%");
+    expect(screen.getByText("left").tagName).toBe("STRONG");
+    expect(screen.getByText("right").tagName).toBe("STRONG");
+    expect(container.querySelectorAll("ul > li")).toHaveLength(2);
+    expect(container).not.toHaveTextContent("**");
 
     fireEvent.change(screen.getByRole("slider"), { target: { value: "9.0" } });
 

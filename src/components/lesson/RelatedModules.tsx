@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { LearningModule } from '@/data/algorithms_content/learningModuleTypes';
+import InlineMarkdown from '@/components/ui/InlineMarkdown';
 
 interface RelatedModulesProps {
   relatedModules: string[] | undefined;
@@ -29,9 +30,10 @@ export default function RelatedModules({ relatedModules, allModules }: RelatedMo
             <h4 className="font-headline text-sm font-semibold text-on-surface group-hover:text-primary transition-colors">
               {module.title}
             </h4>
-            <p className="mt-1 text-xs text-on-surface-variant/75 line-clamp-2">
-              {module.shortDescription}
-            </p>
+            <InlineMarkdown
+              content={module.shortDescription}
+              className="mt-1 block line-clamp-2 text-xs text-on-surface-variant/75"
+            />
           </Link>
         ))}
       </div>

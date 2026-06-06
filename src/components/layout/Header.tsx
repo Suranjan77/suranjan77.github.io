@@ -3,16 +3,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { clsx } from "clsx";
+import { Menu, X } from "lucide-react";
 import SearchBar from "@/components/SearchBar";
 import { useHydrated } from "@/lib/useHydrated";
 
 const navItems = [
-  { label: "Curriculum", mobileLabel: "Curric", href: "/#curriculum" },
-  { label: "Tracks", mobileLabel: "Tracks", href: "/tracks" },
-  { label: "Playground", mobileLabel: "Lab", href: "/playground" },
-  { label: "GradForge", mobileLabel: "Grad", href: "/gradforge" },
-  { label: "About", mobileLabel: "About", href: "/#philosophy" },
+  { label: "Curriculum", href: "/#curriculum" },
+  { label: "Tracks", href: "/tracks" },
+  { label: "Playground", href: "/playground" },
+  { label: "GradForge", href: "/gradforge" },
+  { label: "About", href: "/#philosophy" },
 ];
 
 function isActiveLink(pathname: string, href: string) {
@@ -26,10 +28,11 @@ function isActiveLink(pathname: string, href: string) {
 export default function Header() {
   const pathname = usePathname();
   const isHydrated = useHydrated();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-30 border-b border-outline bg-background/95">
-      <div className="mx-auto flex w-full flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-8 lg:px-12">
+      <div className="mx-auto flex w-full items-center justify-between gap-4 px-4 py-3 sm:px-8 lg:px-12 lg:py-4">
         <Link href="/" className="flex items-center gap-3">
           <Image
             src="/logo-favicon.svg"
@@ -49,37 +52,91 @@ export default function Header() {
           </span>
         </Link>
 
-        <div className="flex flex-1 items-center justify-end gap-4 sm:gap-6">
+        <button
+          type="button"
+          aria-expanded={menuOpen}
+          aria-controls="mobile-primary-navigation"
+          aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+          onClick={() => setMenuOpen((open) => !open)}
+          className="inline-flex h-10 w-10 items-center justify-center border border-outline bg-surface text-on-surface transition-colors hover:border-primary hover:text-primary lg:hidden"
+        >
+          {menuOpen ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
+        </button>
+
+        <div className="hidden flex-1 items-center justify-end gap-6 lg:flex">
           <SearchBar />
 
-          <nav
-            aria-label="Primary"
-            className="flex max-w-[48vw] items-center gap-5 overflow-x-auto sm:max-w-none sm:gap-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-          {navItems.map((item) => {
-            const active = isHydrated && isActiveLink(pathname, item.href);
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className={clsx(
-                  "relative whitespace-nowrap border-b py-1 font-mono text-xs font-normal uppercase tracking-[0.14em] transition-colors sm:py-0 sm:text-[11px] sm:tracking-[0.22em]",
-                  item.label === "About" && "hidden sm:inline",
-                  active
-                    ? "border-primary text-primary"
-                    : "border-transparent text-on-surface-variant hover:border-outline-dark hover:text-on-surface",
-                )}
-              >
-                <span className="sm:hidden">{item.mobileLabel}</span>
-                <span className="hidden sm:inline">{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
+          <PrimaryNavigation
+            pathname={pathname}
+            isHydrated={isHydrated}
+            onNavigate={() => setMenuOpen(false)}
+          />
+        </div>
       </div>
+
+      <div className="border-t border-outline px-4 py-3 sm:px-8 lg:hidden">
+        <SearchBar />
+      </div>
+
+      <div
+        id="mobile-primary-navigation"
+        className={clsx(
+          "border-t border-outline bg-surface px-4 py-3 sm:px-8 lg:hidden",
+          !menuOpen && "hidden",
+        )}
+      >
+        <PrimaryNavigation
+          pathname={pathname}
+          isHydrated={isHydrated}
+          onNavigate={() => setMenuOpen(false)}
+          mobile
+        />
       </div>
     </header>
+  );
+}
+
+function PrimaryNavigation({
+  pathname,
+  isHydrated,
+  onNavigate,
+  mobile = false,
+}: {
+  pathname: string;
+  isHydrated: boolean;
+  onNavigate: () => void;
+  mobile?: boolean;
+}) {
+  return (
+    <nav
+      aria-label="Primary"
+      className={clsx(
+        mobile ? "grid grid-cols-2 gap-2 sm:grid-cols-5" : "flex items-center gap-6",
+      )}
+    >
+      {navItems.map((item) => {
+        const active = isHydrated && isActiveLink(pathname, item.href);
+
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            aria-current={active ? "page" : undefined}
+            onClick={onNavigate}
+            className={clsx(
+              "font-mono text-[11px] font-normal uppercase tracking-[0.16em] transition-colors",
+              mobile
+                ? "border px-3 py-3 text-center"
+                : "relative whitespace-nowrap border-b border-transparent py-1 tracking-[0.22em]",
+              active
+                ? "border-primary bg-primary-container text-primary"
+                : "border-outline text-on-surface-variant hover:border-primary hover:text-on-surface",
+            )}
+          >
+            {item.label}
+          </Link>
+        );
+      })}
+    </nav>
   );
 }
