@@ -17,6 +17,7 @@ import {
   type TrackId,
 } from "@/data/algorithms_content";
 import { getPrerequisiteModules, getTrackModules } from "@/lib/prerequisiteGraph";
+import { getTrackAnchor } from "@/lib/tracks";
 
 const trackLabels: Record<TrackId, string> = {
   foundations: "Mathematical Foundations",
@@ -107,7 +108,7 @@ export default function Sidebar() {
                   Learning track
                 </p>
                 <Link
-                  href={`/tracks/${primaryTrack}`}
+                  href={`/#${getTrackAnchor(primaryTrack)}`}
                   className="mt-1 block text-sm font-medium text-on-surface transition-colors hover:text-primary"
                 >
                   {trackLabels[primaryTrack]}
@@ -182,7 +183,7 @@ export default function Sidebar() {
 
         <div className="grid grid-cols-4 gap-1">
           <SidebarUtilityLink href="/" label="Home" icon={House} />
-          <SidebarUtilityLink href="/tracks" label="Tracks" icon={Route} />
+          <SidebarUtilityLink href="/#curriculum" label="Tracks" icon={Route} />
           <SidebarUtilityLink
             href="/playground"
             label="Play"

@@ -5,7 +5,7 @@ export const llms: LearningModule = {
   title: "Large Language Models",
   category: "Large Language Models",
   prerequisites: ["transformers"],
-  tracks: ["practitioner"],
+  tracks: ["modern-ai"],
   difficulty: 4,
   relatedModules: ["transformers", "nlp"],
   shortDescription: "Decoder-only Transformer language models trained to predict the next token and then adapted to follow instructions.",

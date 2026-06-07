@@ -11,6 +11,7 @@ interface AlgorithmCardProps {
   active?: boolean;
   onClick?: () => void;
   id?: string;
+  controls?: string;
 }
 
 export default function AlgorithmCard({
@@ -22,13 +23,15 @@ export default function AlgorithmCard({
   active = false,
   onClick,
   id,
+  controls,
 }: AlgorithmCardProps) {
   return (
     <button
       id={id}
       type="button"
       onClick={onClick}
-      aria-pressed={active}
+      aria-expanded={active}
+      aria-controls={controls}
       className={clsx(
         "group flex h-full min-h-[206px] w-full flex-col border border-outline bg-surface px-5 py-5 text-left transition-colors hover:border-primary focus-visible:outline-primary sm:min-h-[220px] sm:px-6 sm:py-6",
         active && "border-primary bg-surface-container-low",

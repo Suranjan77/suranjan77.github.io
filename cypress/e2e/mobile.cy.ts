@@ -28,8 +28,8 @@ describe('Mobile Viewport', () => {
     cy.visit('/');
     cy.get('button[aria-label="Open navigation menu"]').click();
     cy.get('#mobile-primary-navigation').should('be.visible');
-    cy.get('#mobile-primary-navigation').contains('Tracks').click();
-    cy.url().should('include', '/tracks');
+    cy.get('#mobile-primary-navigation').contains('Curriculum').click();
+    cy.location('hash').should('eq', '#curriculum');
   });
 
   it('keeps visualization SVGs within the viewport', () => {

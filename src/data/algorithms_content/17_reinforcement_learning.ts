@@ -5,7 +5,7 @@ export const reinforcementLearning: LearningModule = {
   title: "Reinforcement Learning",
   category: "Reinforcement Learning",
   prerequisites: ["probability-theory"],
-  tracks: ["practitioner"],
+  tracks: ["modern-ai"],
   difficulty: 4,
   relatedModules: ["probability-theory", "neural-networks"],
   shortDescription: "Training autonomous agents to make sequential decisions by trial-and-error to maximize cumulative reward.",

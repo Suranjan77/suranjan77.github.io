@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import CurriculumExplorer from "@/components/ui/CurriculumExplorer";
+import TrackCurriculumExplorer from "@/components/ui/TrackCurriculumExplorer";
 import { algorithms } from "@/data/algorithms";
 
 const interactiveLabs = [
@@ -210,22 +210,10 @@ export default function Home() {
                 Begin Curriculum
               </Link>
               <Link
-                href="/tracks"
+                href="/#curriculum"
                 className="inline-flex min-h-10 items-center justify-center border border-transparent px-8 py-3 font-mono text-[11px] uppercase tracking-[0.18em] text-primary hover:border-outline"
               >
-                Browse Tracks →
-              </Link>
-              <Link
-                href="/playground"
-                className="inline-flex min-h-10 items-center justify-center border border-transparent px-8 py-3 font-mono text-[11px] uppercase tracking-[0.18em] text-primary hover:border-outline"
-              >
-                Open Playground →
-              </Link>
-              <Link
-                href="/gradforge"
-                className="inline-flex min-h-10 items-center justify-center border border-transparent px-8 py-3 font-mono text-[11px] uppercase tracking-[0.18em] text-primary hover:border-outline"
-              >
-                Open GradForge →
+                Explore Learning Tracks →
               </Link>
             </div>
           </div>
@@ -272,17 +260,10 @@ export default function Home() {
               <p className="mb-5 font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
                 Curriculum
               </p>
-              <h2 className="max-w-2xl font-headline text-4xl font-medium leading-tight text-on-surface sm:text-5xl">
-                {algorithms.length} modules, one coherent arc.
-              </h2>
             </div>
-            <p className="pt-8 text-sm font-medium leading-7 text-on-surface-variant lg:text-right">
-              A structured progression from mathematical foundations to modern
-              generative models. Select any module to preview.
-            </p>
           </div>
 
-          <CurriculumExplorer algorithms={filteredAlgorithms} />
+          <TrackCurriculumExplorer algorithms={filteredAlgorithms} />
         </div>
       </section>
 

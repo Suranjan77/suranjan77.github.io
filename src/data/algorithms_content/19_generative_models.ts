@@ -5,7 +5,7 @@ export const generativeModels: LearningModule = {
   title: "Generative Adversarial Networks",
   category: "Generative Models",
   prerequisites: ["neural-networks", "probability-theory"],
-  tracks: ["practitioner"],
+  tracks: ["modern-ai"],
   difficulty: 4,
   relatedModules: ["neural-networks", "probability-theory", "autoencoders"],
   shortDescription: "Training a generator and a discriminator in a minimax game to generate highly realistic, synthetic data.",

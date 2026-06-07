@@ -28,7 +28,7 @@ describe("CurriculumExplorer", () => {
     render(<CurriculumExplorer algorithms={algorithms.slice(0, 6)} />);
 
     expect(screen.getByRole("button", { name: /Calculus/i })).toHaveAttribute(
-      "aria-pressed",
+      "aria-expanded",
       "true",
     );
     expect(screen.getByRole("link", { name: /open full study/i })).toHaveAttribute(
@@ -48,7 +48,7 @@ describe("CurriculumExplorer", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Probability & Statistics/i }));
     expect(screen.getByRole("button", { name: /Probability & Statistics/i })).toHaveAttribute(
-      "aria-pressed",
+      "aria-expanded",
       "true",
     );
 
@@ -63,7 +63,7 @@ describe("CurriculumExplorer", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Linear Algebra/i }));
     expect(screen.getByRole("button", { name: /Linear Algebra/i })).toHaveAttribute(
-      "aria-pressed",
+      "aria-expanded",
       "true",
     );
     expect(screen.getByRole("link", { name: /open full study/i })).toHaveAttribute(

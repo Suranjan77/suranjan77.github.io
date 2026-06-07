@@ -8,9 +8,13 @@ describe('Homepage E2E Tests', () => {
     cy.get('p').should('contain', 'structured curriculum');
   });
 
-  it('lists all modules in the curriculum grid', () => {
-    // There should be a good number of module cards visible
-    cy.get('[id^="card-"]').should('have.length.greaterThan', 30);
+  it('organizes modules into expandable learning tracks', () => {
+    cy.contains('button', 'Mathematical Foundations')
+      .should('have.attr', 'aria-expanded', 'true');
+    cy.contains('button', 'ML Practitioner')
+      .should('have.attr', 'aria-expanded', 'false')
+      .click();
+    cy.get('[id^="card-"]').should('have.length.greaterThan', 15);
   });
 
   it('expands a module card to show preview details when clicked', () => {

@@ -15,7 +15,7 @@ describe('Sidebar', () => {
     expect(screen.getByRole('heading', { name: 'Calculus & Optimisation' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Mathematical Foundations' })).toHaveAttribute(
       'href',
-      '/tracks/foundations',
+      '/#track-foundations',
     );
     expect(screen.getByText('40 modules · 2 interactive labs')).toBeInTheDocument();
   });

@@ -7,10 +7,12 @@ import ReactMarkdown from "react-markdown";
 import { markdownRehypePlugins, markdownRemarkPlugins } from "@/lib/markdown";
 import type { Algorithm } from "@/data/algorithms";
 import { formatLogicContent, getFormulaPreview } from "@/lib/algorithmPresentation";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 import AlgorithmCard from "./AlgorithmCard";
 
 interface CurriculumExplorerProps {
   algorithms: Algorithm[];
+  defaultExpanded?: boolean;
 }
 
 const foundationCategories = new Set([
@@ -106,7 +108,7 @@ function ExpandedPanel({ algorithm }: { algorithm: Algorithm }) {
             </div>
             <div>
               <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">
-                Track
+                Category
               </p>
               <p className="mt-2 text-sm font-medium leading-6 text-on-surface">
                 {algorithm.category}
@@ -201,9 +203,15 @@ function ExpandedPanel({ algorithm }: { algorithm: Algorithm }) {
   );
 }
 
-export default function CurriculumExplorer({ algorithms }: CurriculumExplorerProps) {
+export default function CurriculumExplorer({
+  algorithms,
+  defaultExpanded = true,
+}: CurriculumExplorerProps) {
   const columns = useColumnCount();
-  const [selectedId, setSelectedId] = useState(algorithms[0]?.id ?? "");
+  const reducedMotion = useReducedMotion();
+  const [selectedId, setSelectedId] = useState(
+    defaultExpanded ? (algorithms[0]?.id ?? "") : "",
+  );
   const rows = useMemo(() => chunkAlgorithms(algorithms, columns), [algorithms, columns]);
 
   const handleSelect = (algoId: string) => {
@@ -215,7 +223,10 @@ export default function CurriculumExplorer({ algorithms }: CurriculumExplorerPro
         const el = document.getElementById(`card-${algoId}`);
         if (el) {
           const y = el.getBoundingClientRect().top + window.scrollY - 100;
-          window.scrollTo({ top: y, behavior: "smooth" });
+          window.scrollTo({
+            top: y,
+            behavior: reducedMotion ? "auto" : "smooth",
+          });
         }
       }, 100);
     }
@@ -225,6 +236,9 @@ export default function CurriculumExplorer({ algorithms }: CurriculumExplorerPro
     <div className="space-y-px">
       {rows.map((row) => {
         const selectedInRow = row.find((algorithm) => algorithm.id === selectedId);
+        const panelId = selectedInRow
+          ? `preview-${selectedInRow.id}`
+          : undefined;
 
         return (
           <div key={row.map((algorithm) => algorithm.id).join("-")}>
@@ -239,11 +253,18 @@ export default function CurriculumExplorer({ algorithms }: CurriculumExplorerPro
                   category={foundationCategories.has(algo.category) ? "Foundation" : deepCategories.has(algo.category) ? "Advanced" : "Method"}
                   difficulty={getDifficulty(algo.category)}
                   active={selectedId === algo.id}
+                  controls={
+                    selectedId === algo.id ? `preview-${algo.id}` : undefined
+                  }
                   onClick={() => handleSelect(algo.id)}
                 />
               ))}
             </div>
-            {selectedInRow ? <ExpandedPanel algorithm={selectedInRow} /> : null}
+            {selectedInRow ? (
+              <div id={panelId}>
+                <ExpandedPanel algorithm={selectedInRow} />
+              </div>
+            ) : null}
           </div>
         );
       })}

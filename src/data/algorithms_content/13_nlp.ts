@@ -5,7 +5,7 @@ export const nlp: LearningModule = {
   title: "Natural Language Processing",
   category: "Natural Language Processing",
   prerequisites: ["neural-networks"],
-  tracks: ["practitioner"],
+  tracks: ["modern-ai"],
   difficulty: 3,
   relatedModules: ["neural-networks", "transformers"],
   shortDescription: "Techniques to translate human speech and text into vector mathematics, enabling machines to read, translate, and synthesize language.",

@@ -208,7 +208,10 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         )}
 
         {/* In-Depth Description Section */}
-        <div className="overflow-hidden border border-outline bg-surface-container-low">
+        <div
+          id="depth"
+          className="scroll-mt-44 overflow-hidden border border-outline bg-surface-container-low"
+        >
           <div className="border-b border-outline px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center border border-secondary/30 bg-secondary/12 text-secondary">

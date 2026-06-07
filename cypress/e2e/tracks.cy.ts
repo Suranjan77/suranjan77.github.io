@@ -1,35 +1,25 @@
-describe('Tracks E2E Tests', () => {
-  it('displays all learning tracks and counts modules', () => {
-    cy.visit('/tracks');
-    cy.get('h1').should('contain', 'Curated Learning Tracks');
-    
-    // Check that our 3 standard tracks are present
-    cy.contains('Mathematical Foundations').should('exist');
-    cy.contains('ML Practitioner').should('exist');
-    cy.contains('Modern AI').should('exist');
+describe('Learning Tracks', () => {
+  it('keeps all tracks and rich module previews on the homepage', () => {
+    cy.visit('/#curriculum');
+
+    cy.contains('Mathematical Foundations').should('be.visible');
+    cy.contains('ML Practitioner').should('be.visible');
+    cy.contains('Modern AI Systems').should('be.visible');
+
+    cy.contains('button', 'Modern AI Systems').click();
+    cy.get('#track-modern-ai').within(() => {
+      cy.contains('button', 'Neural Networks').click();
+      cy.contains('Preview').should('be.visible');
+      cy.contains('Key Equation').should('be.visible');
+      cy.contains('Open Full Study').should('be.visible');
+    });
   });
 
-  it('navigates to a track detail page and shows modules in sequence', () => {
-    cy.visit('/tracks');
-    
-    // Click on Foundations track
-    cy.contains('Mathematical Foundations').click();
-    
-    // URL should update
-    cy.url().should('include', '/tracks/foundations');
-    cy.get('h1').should('contain', 'Mathematical Foundations');
-    
-    // Should list modules (e.g. calculus, linear algebra)
-    cy.contains('Calculus').should('exist');
-    cy.contains('Linear Algebra').should('exist');
-    
-    // Click back to tracks
-    cy.contains('Back to Tracks').click();
-    cy.url().should('include', '/tracks');
-  });
-
-  it('shows 404/not-found on an invalid track ID', () => {
-    cy.visit('/tracks/nonexistent-track-id', { failOnStatusCode: false });
-    cy.contains(/not found|404/i).should('exist');
+  it('redirects legacy track URLs to the matching homepage section', () => {
+    cy.visit('/tracks/modern-ai');
+    cy.location('pathname').should('eq', '/');
+    cy.location('hash').should('eq', '#track-modern-ai');
+    cy.contains('button', 'Modern AI Systems')
+      .should('have.attr', 'aria-expanded', 'true');
   });
 });

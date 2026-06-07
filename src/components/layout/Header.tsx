@@ -11,7 +11,6 @@ import { useHydrated } from "@/lib/useHydrated";
 
 const navItems = [
   { label: "Curriculum", href: "/#curriculum" },
-  { label: "Tracks", href: "/tracks" },
   { label: "Playground", href: "/playground" },
   { label: "GradForge", href: "/gradforge" },
   { label: "About", href: "/#philosophy" },
