@@ -32,6 +32,14 @@ import RelatedModules from "./RelatedModules";
 import ModuleNavigation from "./ModuleNavigation";
 import MetadataBar from "./MetadataBar";
 import LessonNavigator from "./LessonNavigator";
+import TLDR from "./TLDR";
+import LearningObjectives from "./LearningObjectives";
+import MathDerivations from "./MathDerivations";
+import PracticeExercises from "./PracticeExercises";
+import ComparisonTable from "./ComparisonTable";
+import WhenToUse from "./WhenToUse";
+import CaseStudy from "./CaseStudy";
+import SelfCheckQuiz from "./SelfCheckQuiz";
 
 interface LessonPageProps {
   module: LearningModule;
@@ -93,7 +101,11 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
 
       {/* Stacked content sections */}
       <section className="relative z-10 mx-auto max-w-6xl space-y-8">
-        
+
+        {/* Quick review and objectives */}
+        <TLDR points={module.tldr} />
+        <LearningObjectives objectives={module.learningObjectives} />
+
         {/* Intuition Section */}
         <div
           id="intuition"
@@ -176,9 +188,19 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
           </div>
         </div>
 
+        {/* Full Derivations (foldable) */}
+        <div id="derivations" className="scroll-mt-44">
+          <MathDerivations sections={module.additionalSections} />
+        </div>
+
         {/* Worked Examples Section */}
         <div id="examples" className="scroll-mt-44">
           <WorkedExamples examples={module.workedExamples} />
+        </div>
+
+        {/* Practice Exercises Section */}
+        <div id="practice" className="scroll-mt-44">
+          <PracticeExercises exercises={module.practiceExercises} />
         </div>
 
         {module.id === "backpropagation" && (
@@ -231,6 +253,12 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
             </div>
           </div>
         </div>
+
+        {/* Method Comparison */}
+        <ComparisonTable comparisons={module.comparisons} />
+
+        {/* When to Use / When Not to Use */}
+        <WhenToUse guidance={module.usageGuidance} />
 
         {/* Implementation / Code Section */}
         <div
@@ -286,8 +314,18 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
           </div>
         </div>
 
+        {/* Real-World Case Studies */}
+        <div id="case-studies" className="scroll-mt-44">
+          <CaseStudy studies={module.caseStudies} />
+        </div>
+
         {/* Misconceptions */}
         <Misconceptions misconceptions={module.misconceptions} />
+
+        {/* Self-Check Quiz */}
+        <div id="quiz" className="scroll-mt-44">
+          <SelfCheckQuiz questions={module.quiz} />
+        </div>
 
         {/* References */}
         <div id="references" className="scroll-mt-44">

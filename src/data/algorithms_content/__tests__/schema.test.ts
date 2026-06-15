@@ -73,3 +73,50 @@ describe('Algorithm schema validation', () => {
     }
   });
 });
+
+describe('Active-learning content structural integrity', () => {
+  const VALID_DIFFICULTIES = ['warm-up', 'core', 'challenge'];
+
+  it('every practice exercise has a valid difficulty and a solution', () => {
+    for (const mod of algorithmsList) {
+      for (const ex of mod.practiceExercises ?? []) {
+        expect(VALID_DIFFICULTIES).toContain(ex.difficulty);
+        expect(ex.prompt).toBeTruthy();
+        expect(ex.solution).toBeTruthy();
+      }
+    }
+  });
+
+  it('every quiz question has 2+ options, exactly-or-more than one correct, and an explanation', () => {
+    for (const mod of algorithmsList) {
+      for (const q of mod.quiz ?? []) {
+        expect(q.question).toBeTruthy();
+        expect(q.options.length).toBeGreaterThanOrEqual(2);
+        expect(q.options.some((o) => o.correct)).toBe(true);
+        expect(q.explanation).toBeTruthy();
+      }
+    }
+  });
+
+  it('every comparison row has one value per method', () => {
+    for (const mod of algorithmsList) {
+      for (const table of mod.comparisons ?? []) {
+        expect(table.methods.length).toBeGreaterThanOrEqual(2);
+        for (const row of table.rows) {
+          expect(row.values.length).toBe(table.methods.length);
+        }
+      }
+    }
+  });
+
+  it('every case study has scenario, approach, and outcome', () => {
+    for (const mod of algorithmsList) {
+      for (const study of mod.caseStudies ?? []) {
+        expect(study.title).toBeTruthy();
+        expect(study.scenario).toBeTruthy();
+        expect(study.approach).toBeTruthy();
+        expect(study.outcome).toBeTruthy();
+      }
+    }
+  });
+});

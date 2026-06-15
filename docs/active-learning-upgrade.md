@@ -208,21 +208,21 @@ modules stay green and migrate incrementally.
 
 ## 10. Work Tracker
 
-### Phase 0 — Infrastructure
+### Phase 0 — Infrastructure ✅ COMPLETE
 - [x] Schema extensions in `learningModuleTypes.ts`
 - [x] `TLDR.tsx`
-- [ ] `MathDerivations.tsx` (foldable)
-- [ ] `PracticeExercises.tsx`
-- [ ] `SelfCheckQuiz.tsx`
-- [ ] `CaseStudy.tsx`
-- [ ] `ComparisonTable.tsx`
-- [ ] `WhenToUse.tsx`
-- [ ] Wire all sections into `LessonPage.tsx` (+ fix orphaned `LearningObjectives`)
-- [ ] Register `practice` / `case-studies` / `quiz` anchors in `LessonNavigator.tsx`
-- [ ] Status-gated rubric assertions in `contentValidation.test.ts`
-- [ ] `ComparisonTable` row/method length assertion in `schema.test.ts`
-- [ ] Unit tests for `PracticeExercises` + `SelfCheckQuiz`
-- [ ] Gate: `tsc --noEmit`, `npm run test`, `npm run build` all green
+- [x] `MathDerivations.tsx` (foldable)
+- [x] `PracticeExercises.tsx`
+- [x] `SelfCheckQuiz.tsx`
+- [x] `CaseStudy.tsx`
+- [x] `ComparisonTable.tsx`
+- [x] `WhenToUse.tsx`
+- [x] Wire all sections into `LessonPage.tsx` (+ fix orphaned `LearningObjectives`)
+- [x] Register `derivations` / `practice` / `case-studies` / `quiz` anchors in `LessonNavigator.tsx`
+- [x] Status-gated rubric assertions in `contentValidation.test.ts`
+- [x] Structural integrity assertions (incl. `ComparisonTable` row/method length) in `schema.test.ts`
+- [x] Unit tests for `PracticeExercises` + `SelfCheckQuiz`
+- [x] Gate: `tsc --noEmit` clean, `npm run lint` clean, 8421 Vitest tests pass, `npm run build` (55 pages) green
 
 ### Phase 1 — Exemplar modules (full rubric, `status: 'published'`)
 - [ ] `3_linear_regression.ts`

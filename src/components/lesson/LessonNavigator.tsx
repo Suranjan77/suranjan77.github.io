@@ -8,9 +8,12 @@ import {
   ArrowRight,
   BookOpen,
   Braces,
+  Briefcase,
   ChartNoAxesCombined,
   ChevronLeft,
   ChevronRight,
+  CircleHelp,
+  Dumbbell,
   FileText,
   Lightbulb,
   List,
@@ -51,10 +54,22 @@ export default function LessonNavigator({
     currentIndex >= 0 ? Math.round(((currentIndex + 1) / modules.length) * 100) : 0;
   const sections = [
     ...coreSections.slice(0, 3),
+    ...(currentModule.additionalSections?.length
+      ? [{ id: "derivations", label: "Derivations", icon: Sigma } as const]
+      : []),
     ...(currentModule.workedExamples?.length
       ? [{ id: "examples", label: "Examples", icon: FileText } as const]
       : []),
+    ...(currentModule.practiceExercises?.length
+      ? [{ id: "practice", label: "Practice", icon: Dumbbell } as const]
+      : []),
     ...coreSections.slice(3),
+    ...(currentModule.caseStudies?.length
+      ? [{ id: "case-studies", label: "Case Studies", icon: Briefcase } as const]
+      : []),
+    ...(currentModule.quiz?.length
+      ? [{ id: "quiz", label: "Quiz", icon: CircleHelp } as const]
+      : []),
     ...(currentModule.references?.length
       ? [{ id: "references", label: "References", icon: List } as const]
       : []),
