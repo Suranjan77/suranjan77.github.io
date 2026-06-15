@@ -225,11 +225,11 @@ modules stay green and migrate incrementally.
 - [x] Gate: `tsc --noEmit` clean, `npm run lint` clean, 8421 Vitest tests pass, `npm run build` (55 pages) green
 
 ### Phase 1 — Exemplar modules (full rubric, `status: 'published'`)
-- [ ] `3_linear_regression.ts`
-- [ ] `0_1_calculus.ts`
-- [ ] `15_transformers.ts`
-- [ ] Cypress spec for new sections + quiz reveal
-- [ ] Full verification suite green
+- [x] `3_linear_regression.ts` — TL;DR, 2 derivations, 4 exercises (3 tiers), OLS/Ridge/Lasso comparison, ISLR Advertising case study, 4 quiz questions, usage guidance
+- [x] `0_1_calculus.ts` — TL;DR, 2 derivations (steepest ascent, GD update), 4 exercises, differentiation-method comparison, AlexNet case study, 4 quiz questions
+- [x] `15_transformers.ts` — TL;DR, 2 derivations (√dₖ scaling, convex-combination), 4 exercises, RNN/CNN/Transformer comparison, "Attention Is All You Need" case study, 4 quiz questions
+- [ ] Cypress spec for new sections + quiz reveal (Cypress binary blocked in this env; spec deferred — covered by Vitest component tests + static-HTML verification)
+- [x] Full verification suite green (tsc, lint, 8441 Vitest tests, build, static-HTML section checks)
 
 ### Phase 2 — Track rollout
 - [ ] Foundations track (remaining modules)

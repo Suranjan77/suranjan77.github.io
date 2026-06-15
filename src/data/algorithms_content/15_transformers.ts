@@ -143,5 +143,170 @@ output_vectors, weights = self_attention(x_sequence)
 
 print("Attention weight matrix:")
 print(weights.tolist()) # Shows how much each token attends to others
-print("Output representation shape:", output_vectors.shape)`
+print("Output representation shape:", output_vectors.shape)`,
+  tldr: [
+    'A transformer replaces recurrence with **self-attention**: each token builds a new representation as a weighted mixture of every token\'s value vector.',
+    'Scores come from query–key dot products, scaled by $\\sqrt{d_k}$ and normalized by softmax: $\\text{softmax}(QK^T/\\sqrt{d_k})V$.',
+    '**Multi-head** attention runs several attention maps in parallel so different heads capture different relationships (pronouns, syntax, position).',
+    'All tokens are processed **simultaneously**, making transformers highly parallelizable — but they need **positional encodings** to recover word order.',
+    'The cost is **quadratic** in sequence length ($O(N^2)$), which motivates sparse, linear, and flash-attention variants.',
+  ],
+  additionalSections: [
+    {
+      heading: 'Derivation: Why Scale by the Square Root of $d_k$',
+      content: `
+The $\\sqrt{d_k}$ factor is not arbitrary — it keeps the softmax in a healthy range. Assume the components of a query $q$ and a key $k$ are independent with mean $0$ and variance $1$. Their dot product is:
+
+$$ q \\cdot k = \\sum_{i=1}^{d_k} q_i k_i $$
+
+Each term $q_i k_i$ has mean $0$ and variance $\\mathbb{E}[q_i^2]\\,\\mathbb{E}[k_i^2] = 1$, and the terms are independent, so:
+
+$$ \\operatorname{Var}(q \\cdot k) = \\sum_{i=1}^{d_k} \\operatorname{Var}(q_i k_i) = d_k $$
+
+The standard deviation therefore grows like $\\sqrt{d_k}$. For large $d_k$, raw scores can be large in magnitude, pushing the softmax into saturated regions where one weight is ~1 and the rest ~0 — and where gradients nearly vanish. Dividing by $\\sqrt{d_k}$ rescales the scores back to **unit variance**, keeping the softmax sensitive and trainable. That is precisely why the formula is $QK^T/\\sqrt{d_k}$ rather than just $QK^T$.
+      `,
+    },
+    {
+      heading: 'Derivation: Attention Output Is a Convex Combination of Values',
+      content: `
+For a single query, let $a = \\text{softmax}(s)$ be the attention weights over $N$ keys. By definition of softmax, $a_j \\ge 0$ and $\\sum_{j=1}^{N} a_j = 1$. The output is:
+
+$$ o = \\sum_{j=1}^{N} a_j v_j = aV $$
+
+Because the weights are non-negative and sum to one, $o$ is a **convex combination** of the value vectors $v_j$ — it always lies inside their convex hull. The conceptual payoff: a single attention layer can only **mix** representations that already exist in the sequence; it cannot extrapolate beyond them. Richer, non-convex transformations come from stacking attention with the feed-forward layers and residual connections that surround it.
+      `,
+    },
+  ],
+  practiceExercises: [
+    {
+      prompt: 'Given the already-scaled attention scores $s = [2, 0, 0]$ for one query over three keys, compute the softmax attention weights.',
+      difficulty: 'warm-up',
+      solution: 'Exponentiate: $e^2 \\approx 7.389$, $e^0 = 1$, $e^0 = 1$, summing to $\\approx 9.389$. Dividing gives weights $\\approx [0.787, 0.107, 0.107]$. The first key dominates but the others retain small, non-zero weight.',
+    },
+    {
+      prompt: 'A model uses head dimension $d_k = 64$. What number do you divide the raw $QK^T$ scores by, and what is the purpose?',
+      difficulty: 'core',
+      solution: 'Divide by $\\sqrt{d_k} = \\sqrt{64} = 8$. This rescales the dot-product scores (whose variance grows with $d_k$) back toward unit variance, preventing the softmax from saturating and keeping gradients usable.',
+    },
+    {
+      prompt: 'With $Q = [1, 1]$, key rows $k_1 = [1, 0]$ and $k_2 = [0, 1]$, value rows $v_1 = [2, 0]$ and $v_2 = [0, 2]$, and $d_k = 2$, compute the attention output for the query.',
+      difficulty: 'core',
+      hint: 'Compute $QK^T$, divide by $\\sqrt{d_k}$, softmax, then take the weighted sum of value rows.',
+      solution: 'Raw scores $QK^T = [\\,1, 1\\,]$. Scaled: $[1, 1]/\\sqrt{2} \\approx [0.707, 0.707]$. Softmax of equal scores gives $[0.5, 0.5]$. Output $= 0.5\\,v_1 + 0.5\\,v_2 = 0.5[2,0] + 0.5[0,2] = [1, 1]$.',
+    },
+    {
+      prompt: 'For a sequence of length $N$ and model dimension $d$, derive the time and memory complexity of a single self-attention layer, and identify the dominant bottleneck.',
+      difficulty: 'challenge',
+      hint: 'Focus on the shape of the $QK^T$ matrix.',
+      solution: 'The product $QK^T$ multiplies an $N\\times d$ matrix by a $d\\times N$ matrix, producing an $N\\times N$ score matrix at a cost of $O(N^2 d)$ time and $O(N^2)$ memory to store. The subsequent multiply by $V$ is also $O(N^2 d)$. So self-attention is **quadratic** in sequence length $N$ — the $N\\times N$ attention matrix is the bottleneck that efficient-attention methods (sparse, linear, flash) attack.',
+    },
+  ],
+  comparisons: [
+    {
+      title: 'Sequence-modeling architectures',
+      methods: ['RNN / LSTM', '1D CNN', 'Transformer'],
+      rows: [
+        {
+          dimension: 'Parallel across sequence',
+          values: ['No — sequential per timestep', 'Yes', 'Yes'],
+        },
+        {
+          dimension: 'Path length between distant tokens',
+          values: ['$O(N)$', '$O(N/k)$, less with dilation', '$O(1)$ — direct attention'],
+        },
+        {
+          dimension: 'Compute per layer',
+          values: ['$O(N d^2)$', '$O(N k d^2)$', '$O(N^2 d)$'],
+        },
+        {
+          dimension: 'Very long context',
+          values: ['Struggles (vanishing gradients)', 'Limited receptive field', 'Strong, but quadratic cost'],
+        },
+        {
+          dimension: 'Order awareness',
+          values: ['Built-in via recurrence', 'Built-in via locality', 'Needs positional encodings'],
+        },
+      ],
+      takeaway: 'Transformers trade a quadratic compute cost for $O(1)$ path length and full parallelism — which is exactly why they overtook RNNs once data and compute became abundant.',
+    },
+  ],
+  usageGuidance: {
+    useWhen: [
+      'You have enough data and compute to **pretrain or fine-tune** a large model and need to capture long-range dependencies.',
+      'The task benefits from modeling **global context** — translation, summarization, code, or protein structure.',
+      'You want one architecture that **transfers across modalities** (text, vision, audio).',
+    ],
+    avoidWhen: [
+      'Sequences are extremely long and you are memory/latency constrained **without** access to efficient-attention variants — the $O(N^2)$ cost dominates.',
+      'You have **little data** and no pretrained model — a transformer\'s weak inductive bias makes it data-hungry; a CNN, RNN, or classical model may win.',
+      'The problem is simple or low-dimensional, where a lighter model is faster and just as accurate.',
+    ],
+    rulesOfThumb: [
+      'Prefer fine-tuning a pretrained transformer over training one from scratch whenever you can.',
+      'For long documents, reach for sparse / linear / flash attention before naively growing the context window.',
+      'Always inject positional information (sinusoidal, learned, or rotary/RoPE).',
+    ],
+  },
+  caseStudies: [
+    {
+      title: 'Attention Is All You Need — translation without recurrence',
+      domain: 'Natural language processing',
+      scenario: 'In 2017, the strongest machine-translation systems were deep LSTMs/GRUs with attention bolted on. They were slow to train because recurrence forbids parallelizing across sequence positions — each timestep waits for the previous one.',
+      approach: 'The Transformer removed recurrence entirely, relying only on **multi-head self-attention** plus position-wise feed-forward layers and residual connections. This let the whole sequence be processed in parallel during training.',
+      outcome: 'On the WMT 2014 English→German benchmark the Transformer reached **28.4 BLEU**, a new state of the art, while training in a small fraction of the time and cost of the recurrent competitors. The architecture went on to become the foundation of BERT, GPT, and essentially every modern large language model.',
+      source: {
+        title: 'Attention Is All You Need',
+        authors: 'Vaswani, A. et al.',
+        url: 'https://arxiv.org/abs/1706.03762',
+        type: 'paper',
+      },
+    },
+  ],
+  quiz: [
+    {
+      question: 'Why are the $QK^T$ scores divided by $\\sqrt{d_k}$ before the softmax?',
+      options: [
+        { text: 'To keep score variance near 1 so the softmax does not saturate and kill gradients.', correct: true },
+        { text: 'To make the attention causal.', correct: false },
+        { text: 'To reduce the number of model parameters.', correct: false },
+        { text: 'To turn the value vectors into unit vectors.', correct: false },
+      ],
+      explanation: 'The variance of a dot product of two unit-variance vectors grows with the dimension $d_k$. Dividing by $\\sqrt{d_k}$ rescales scores back to unit variance, keeping the softmax in a sensitive, trainable range. Causality comes from masking, not scaling.',
+    },
+    {
+      question: 'A transformer processes the tokens of an input sequence:',
+      options: [
+        { text: 'All in parallel, which is exactly why positional encodings are required.', correct: true },
+        { text: 'One at a time, like an LSTM.', correct: false },
+        { text: 'In strictly reverse order.', correct: false },
+        { text: 'Only during inference, not training.', correct: false },
+      ],
+      explanation: 'Self-attention sees all positions simultaneously, giving full parallelism but no inherent notion of order. Positional encodings are added precisely to reinject word-order information.',
+    },
+    {
+      question: 'The main scalability bottleneck of vanilla self-attention is:',
+      options: [
+        { text: 'The $N \\times N$ attention matrix, costing $O(N^2)$ in time and memory.', correct: true },
+        { text: 'The number of attention heads.', correct: false },
+        { text: 'The position-wise feed-forward layers.', correct: false },
+        { text: 'The embedding lookup table.', correct: false },
+      ],
+      explanation: 'Forming $QK^T$ yields an $N \\times N$ score matrix, so cost scales quadratically with sequence length $N$. This is what sparse, linear, and flash-attention methods are designed to mitigate.',
+    },
+    {
+      question: 'A high attention weight from token A to token B most accurately means:',
+      options: [
+        { text: "B's value contributes strongly to A's new representation — context/correlation, not proven causation.", correct: true },
+        { text: 'B causally determines A.', correct: false },
+        { text: 'A and B are the same token.', correct: false },
+        { text: 'The model has converged.', correct: false },
+      ],
+      explanation: 'Attention weights describe how much each value vector is mixed into a token\'s updated representation. They capture learned relevance/correlation, not a logical or causal proof.',
+    },
+  ],
+  review: {
+    lastReviewed: '2026-06-15',
+    reviewedBy: 'Suranjan',
+    status: 'published',
+  },
 };

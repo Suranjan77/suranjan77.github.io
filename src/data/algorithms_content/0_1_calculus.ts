@@ -126,5 +126,162 @@ Neural networks are basically just giant chains of functions: $Output = f_3(f_2(
   ],
 
   codeSnippet: `def numerical_gradient(f, x, h=1e-5):
-    return (f(x + h) - f(x - h)) / (2 * h)`
+    return (f(x + h) - f(x - h)) / (2 * h)`,
+  tldr: [
+    'A **derivative** measures the instantaneous rate of change; in ML it tells us how the loss reacts to a tiny change in one parameter.',
+    'The **gradient** $\\nabla L$ stacks every partial derivative and points in the direction of steepest *ascent* — so we step the opposite way to reduce loss.',
+    'Gradient descent updates $\\mathbf{w} \\leftarrow \\mathbf{w} - \\alpha\\nabla L$; the **learning rate** $\\alpha$ is the key knob — too big diverges, too small crawls.',
+    'The **chain rule** differentiates deeply nested functions, which is exactly what **backpropagation** does through the layers of a neural network.',
+    'Calculus needs reasonably smooth functions; it struggles with saddle points, local minima, and vanishing/exploding gradients.',
+  ],
+  additionalSections: [
+    {
+      heading: 'Derivation: Why the Gradient Points Uphill',
+      content: `
+Why is the gradient specifically the direction of *steepest ascent*? Consider the rate of change of $L$ as we move away from $\\mathbf{w}$ along an arbitrary **unit** direction $\\mathbf{u}$. That rate is the directional derivative:
+
+$$ D_{\\mathbf{u}} L = \\nabla L \\cdot \\mathbf{u} = \\lVert \\nabla L \\rVert \\, \\lVert \\mathbf{u} \\rVert \\cos\\theta = \\lVert \\nabla L \\rVert \\cos\\theta $$
+
+where $\\theta$ is the angle between $\\nabla L$ and $\\mathbf{u}$ (and $\\lVert \\mathbf{u} \\rVert = 1$). This expression is largest when $\\cos\\theta = 1$, i.e. when $\\mathbf{u}$ points the **same way** as $\\nabla L$. Therefore the gradient is the direction of fastest increase, and $-\\nabla L$ is the direction of fastest decrease — which is exactly the direction we step during training.
+      `,
+    },
+    {
+      heading: 'Derivation: The Gradient Descent Update Rule',
+      content: `
+Why does subtracting the gradient actually lower the loss? Let $g = \\nabla L(\\mathbf{w})$ and take a small step $\\Delta\\mathbf{w} = -\\alpha g$. A first-order Taylor expansion gives:
+
+$$ L(\\mathbf{w} - \\alpha g) \\approx L(\\mathbf{w}) + g^T(-\\alpha g) = L(\\mathbf{w}) - \\alpha \\lVert g \\rVert^2 $$
+
+Because $\\lVert g \\rVert^2 \\ge 0$, the predicted change $-\\alpha\\lVert g\\rVert^2$ is non-positive for any $\\alpha > 0$: the loss goes **down** (strictly, unless $g = 0$, meaning we are already at a stationary point). The catch is that this is only a *local linear approximation* — it holds when $\\alpha$ is small enough. If $\\alpha$ is too large, the higher-order terms we dropped dominate and the step can overshoot and *increase* the loss. That is precisely the tension behind learning-rate tuning.
+      `,
+    },
+  ],
+  practiceExercises: [
+    {
+      prompt: 'Differentiate $f(x) = 3x^2 + 2x - 5$.',
+      difficulty: 'warm-up',
+      solution: 'Apply the power rule term by term: $f\'(x) = 6x + 2$. The constant $-5$ vanishes because its rate of change is zero.',
+    },
+    {
+      prompt: 'Use the chain rule to differentiate $f(x) = (2x + 1)^3$.',
+      difficulty: 'core',
+      hint: 'Let $u = 2x + 1$, so $f = u^3$ and $\\frac{df}{dx} = \\frac{df}{du}\\cdot\\frac{du}{dx}$.',
+      solution: '$\\frac{df}{du} = 3u^2$ and $\\frac{du}{dx} = 2$, so $f\'(x) = 3(2x+1)^2 \\cdot 2 = 6(2x+1)^2$.',
+    },
+    {
+      prompt: 'Compute the gradient $\\nabla f$ of $f(w_1, w_2) = w_1^2 w_2 + w_2^3$.',
+      difficulty: 'core',
+      solution: 'Take each partial derivative, holding the other variable fixed. $\\frac{\\partial f}{\\partial w_1} = 2 w_1 w_2$ and $\\frac{\\partial f}{\\partial w_2} = w_1^2 + 3 w_2^2$. So $\\nabla f = [\\,2 w_1 w_2,\\; w_1^2 + 3 w_2^2\\,]$.',
+    },
+    {
+      prompt: 'Minimize $L(w) = w^2$ by gradient descent from $w_0 = 4$ with learning rate $\\alpha = 0.1$. Compute $w_1$ and $w_2$ (two update steps).',
+      difficulty: 'challenge',
+      hint: 'The update rule is $w_{t+1} = w_t - \\alpha L\'(w_t)$, and $L\'(w) = 2w$.',
+      solution: 'Step 1: $L\'(4) = 8$, so $w_1 = 4 - 0.1(8) = 3.2$. Step 2: $L\'(3.2) = 6.4$, so $w_2 = 3.2 - 0.1(6.4) = 2.56$. Each step moves toward the minimum at $w = 0$, with shrinking steps as the gradient itself shrinks.',
+    },
+  ],
+  comparisons: [
+    {
+      title: 'Three ways to compute a derivative',
+      methods: ['Analytical (by hand)', 'Numerical (finite difference)', 'Automatic (autodiff)'],
+      rows: [
+        {
+          dimension: 'How it works',
+          values: ['Apply symbolic rules manually', '$\\frac{f(x+h) - f(x-h)}{2h}$', 'Chain rule applied to elementary operations'],
+        },
+        {
+          dimension: 'Accuracy',
+          values: ['Exact', 'Approximate (truncation + round-off error)', 'Exact to machine precision'],
+        },
+        {
+          dimension: 'Cost for many parameters',
+          values: ['Tedious, often infeasible', 'Expensive: $O(n)$ function evaluations', 'Cheap: one backward pass (reverse mode)'],
+        },
+        {
+          dimension: 'Typical role in ML',
+          values: ['Building intuition and formulas', 'Gradient checking / unit tests', 'Training every modern deep network'],
+        },
+      ],
+      takeaway: 'Autodiff yields exact gradients for the price of a single backward pass, which is why it powers PyTorch, JAX, and TensorFlow; numerical differentiation survives mainly as a sanity check on hand-derived gradients.',
+    },
+  ],
+  usageGuidance: {
+    useWhen: [
+      'Your loss and model are **differentiable** (or differentiable almost everywhere, like ReLU networks) with respect to the parameters.',
+      'The parameter space is large — thousands to billions of weights — where closed-form solutions are infeasible.',
+      'You can obtain gradients cheaply via **automatic differentiation**.',
+    ],
+    avoidWhen: [
+      'The objective is **non-differentiable, discrete, or combinatorial** (e.g. choosing decision-tree splits) — use greedy or discrete search instead.',
+      'There is no usable gradient signal or it is extremely noisy — consider gradient-free methods (evolutionary strategies, Bayesian optimization).',
+      'A cheap **closed-form** solution already exists (e.g. small linear regression) — just solve it directly.',
+    ],
+    rulesOfThumb: [
+      'Tune the learning rate before almost anything else — it is the single most important hyperparameter.',
+      'If the loss diverges to NaN, the learning rate is almost always too high.',
+      'When implementing gradients by hand, verify them with numerical gradient checking.',
+    ],
+  },
+  caseStudies: [
+    {
+      title: 'Backpropagation at scale — the 2012 ImageNet breakthrough',
+      domain: 'Computer vision',
+      scenario: 'Before 2012, image classifiers on the ImageNet benchmark plateaued around a **26% top-5 error** using hand-engineered features. The open question was whether a deep neural network trained purely by gradient descent could do meaningfully better.',
+      approach: 'AlexNet — a deep convolutional network with roughly **60 million parameters** — was trained by stochastic gradient descent with **backpropagation** (the chain rule applied layer by layer) on GPUs, using ReLU activations specifically to keep gradients from vanishing in the deep stack.',
+      outcome: 'Top-5 error fell to about **15.3%**, versus **26.2%** for the next-best entry — a jump of nearly 11 percentage points that launched the modern deep-learning era. The enabling mathematics was nothing more exotic than the chain rule run backwards at scale, with ReLU preserving gradient flow.',
+      source: {
+        title: 'ImageNet Classification with Deep Convolutional Neural Networks',
+        authors: 'Krizhevsky, A., Sutskever, I. and Hinton, G. E.',
+        url: 'https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks',
+        type: 'paper',
+      },
+    },
+  ],
+  quiz: [
+    {
+      question: 'The gradient $\\nabla L$ points in the direction of:',
+      options: [
+        { text: 'Steepest ascent of $L$.', correct: true },
+        { text: 'Steepest descent of $L$.', correct: false },
+        { text: 'The global minimum of $L$.', correct: false },
+        { text: 'Zero curvature.', correct: false },
+      ],
+      explanation: 'The gradient points uphill — the direction in which $L$ increases fastest. That is exactly why gradient *descent* steps in the opposite direction, $-\\nabla L$. It points toward steeper loss locally, not directly at the global minimum.',
+    },
+    {
+      question: 'Why might gradient descent fail to find the global minimum of a loss surface?',
+      options: [
+        { text: 'It can get stuck at local minima or saddle points where the gradient is nearly zero.', correct: true },
+        { text: 'Derivatives do not exist for quadratic functions.', correct: false },
+        { text: 'The learning rate is guaranteed to be too small.', correct: false },
+        { text: 'Gradients computed by autodiff are only approximate.', correct: false },
+      ],
+      explanation: 'In non-convex landscapes the gradient vanishes not only at the global minimum but also at local minima and saddle points, so descent can halt or stall there. Quadratics are perfectly differentiable, and autodiff gradients are exact.',
+    },
+    {
+      question: 'During training the loss suddenly explodes to NaN. The most likely cause is:',
+      options: [
+        { text: 'The learning rate is too large, so updates overshoot and diverge.', correct: true },
+        { text: 'The learning rate is too small.', correct: false },
+        { text: 'The dataset has too many examples.', correct: false },
+        { text: 'The gradient is exactly zero.', correct: false },
+      ],
+      explanation: 'A too-large learning rate makes each step overshoot the minimum; the loss grows, gradients grow, and the values blow up to infinity/NaN. A tiny learning rate would merely make training slow, and a zero gradient would stall — not explode.',
+    },
+    {
+      question: 'Backpropagation is essentially a systematic application of which rule of calculus?',
+      options: [
+        { text: 'The chain rule.', correct: true },
+        { text: 'The fundamental theorem of calculus.', correct: false },
+        { text: "L'Hopital's rule.", correct: false },
+        { text: 'The product rule, exclusively.', correct: false },
+      ],
+      explanation: 'A neural network is a composition of functions, and backpropagation computes the derivative of the final loss with respect to each weight by multiplying local derivatives along the chain — the chain rule applied backwards through the layers.',
+    },
+  ],
+  review: {
+    lastReviewed: '2026-06-15',
+    reviewedBy: 'Suranjan',
+    status: 'published',
+  },
 };
