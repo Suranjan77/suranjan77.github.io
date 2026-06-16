@@ -134,7 +134,7 @@ def update_q(state, action, reward, next_state):
     Q_table[state][action] += alpha * (td_target - Q_table[state][action])
 `,
   tldr: [
-    'An **agent** interacts with an **environment**: at each step it observes a state $s$, takes an action $a$, and receives a reward $r$ plus a next state $s’$ — the goal is to maximize expected **cumulative discounted reward**.',
+    'An **agent** interacts with an **environment**: at each step it observes a state $s$, takes an action $a$, and receives a reward $r$ plus a next state $s^{\\prime}$ — the goal is to maximize expected **cumulative discounted reward**.',
     'A **value function** $V^\\pi(s)$ (or action-value $Q^\\pi(s,a)$) measures expected long-run return from a state under a policy, and satisfies a recursive **Bellman equation**.',
     'Every agent faces the **exploration vs. exploitation** trade-off: it must occasionally try uncertain actions (e.g. via $\\epsilon$-greedy) instead of always exploiting its current best estimate.',
     '**Value-based** methods (Q-learning, DQN) learn $Q$ and act greedily; **policy-based** methods (policy gradient) optimize a parameterized policy directly; **actor-critic** blends both.',
@@ -160,9 +160,9 @@ Substitute the recursive form of the return and use linearity of expectation:
 
 $$ V^\\pi(s) = \\mathbb{E}_\\pi[\\, r_{t+1} + \\gamma G_{t+1} \\mid s_t = s \\,] = \\mathbb{E}_\\pi[\\, r_{t+1} \\mid s_t = s \\,] + \\gamma\\, \\mathbb{E}_\\pi[\\, G_{t+1} \\mid s_t = s \\,] $$
 
-Now apply the **tower property** (law of total expectation), conditioning on the action $a \\sim \\pi(\\cdot \\mid s)$ and the next state $s’ \\sim P(\\cdot \\mid s, a)$. Because the process is Markov, once we know $s’$ the expected future return is exactly $V^\\pi(s’)$, so $\\mathbb{E}_\\pi[\\, G_{t+1} \\mid s_t = s \\,] = \\mathbb{E}_\\pi[\\, V^\\pi(s’) \\mid s_t = s \\,]$. This yields the **Bellman expectation equation**:
+Now apply the **tower property** (law of total expectation), conditioning on the action $a \\sim \\pi(\\cdot \\mid s)$ and the next state $s^{\\prime} \\sim P(\\cdot \\mid s, a)$. Because the process is Markov, once we know $s^{\\prime}$ the expected future return is exactly $V^\\pi(s^{\\prime})$, so $\\mathbb{E}_\\pi[\\, G_{t+1} \\mid s_t = s \\,] = \\mathbb{E}_\\pi[\\, V^\\pi(s^{\\prime}) \\mid s_t = s \\,]$. This yields the **Bellman expectation equation**:
 
-$$ V^\\pi(s) = \\mathbb{E}_\\pi\\!\\left[\\, r + \\gamma\\, V^\\pi(s’) \\mid s \\,\\right] = \\sum_{a} \\pi(a \\mid s) \\sum_{s’} P(s’ \\mid s, a)\\left[\\, R(s,a,s’) + \\gamma\\, V^\\pi(s’) \\,\\right] $$
+$$ V^\\pi(s) = \\mathbb{E}_\\pi\\!\\left[\\, r + \\gamma\\, V^\\pi(s^{\\prime}) \\mid s \\,\\right] = \\sum_{a} \\pi(a \\mid s) \\sum_{s^{\\prime}} P(s^{\\prime} \\mid s, a)\\left[\\, R(s,a,s^{\\prime}) + \\gamma\\, V^\\pi(s^{\\prime}) \\,\\right] $$
 
 **Role of $\\gamma$.** The discount factor weights a reward received $k$ steps in the future by $\\gamma^k$. With $\\gamma$ close to $0$ the agent is myopic, caring almost only about the immediate reward; with $\\gamma$ close to $1$ it is far-sighted, valuing distant rewards nearly as much as immediate ones. Mathematically, $\\gamma < 1$ also guarantees **convergence**: if every reward is bounded by $r_{\\max}$, the geometric series gives $|G_t| \\le \\frac{r_{\\max}}{1 - \\gamma}$, so the infinite-horizon return — and hence $V^\\pi$ — is finite and well defined.
       `,
@@ -172,11 +172,11 @@ $$ V^\\pi(s) = \\mathbb{E}_\\pi\\!\\left[\\, r + \\gamma\\, V^\\pi(s’) \\mid s
       content: `
 The **Bellman optimality equation** for the optimal action-value function $Q^*$ is a fixed-point condition:
 
-$$ Q^*(s,a) = \\mathbb{E}\\!\\left[\\, r + \\gamma \\max_{a’} Q^*(s’, a’) \\mid s, a \\,\\right] = \\sum_{s’} P(s’ \\mid s, a)\\left[\\, R(s,a,s’) + \\gamma \\max_{a’} Q^*(s’,a’) \\,\\right] $$
+$$ Q^*(s,a) = \\mathbb{E}\\!\\left[\\, r + \\gamma \\max_{a^{\\prime}} Q^*(s^{\\prime}, a^{\\prime}) \\mid s, a \\,\\right] = \\sum_{s^{\\prime}} P(s^{\\prime} \\mid s, a)\\left[\\, R(s,a,s^{\\prime}) + \\gamma \\max_{a^{\\prime}} Q^*(s^{\\prime},a^{\\prime}) \\,\\right] $$
 
-If we knew the transition model $P$, we could solve this by **value iteration**, repeatedly applying the right-hand side as an operator. In the **model-free** setting we do not know $P$, so we cannot compute that expectation. Instead we **sample** it: each environment interaction $(s, a, r, s’)$ provides one unbiased draw of the random quantity inside the expectation,
+If we knew the transition model $P$, we could solve this by **value iteration**, repeatedly applying the right-hand side as an operator. In the **model-free** setting we do not know $P$, so we cannot compute that expectation. Instead we **sample** it: each environment interaction $(s, a, r, s^{\\prime})$ provides one unbiased draw of the random quantity inside the expectation,
 
-$$ y = r + \\gamma \\max_{a’} Q(s’, a’), $$
+$$ y = r + \\gamma \\max_{a^{\\prime}} Q(s^{\\prime}, a^{\\prime}), $$
 
 called the **TD target**. We want to drive our estimate $Q(s,a)$ toward the (unknown) mean of $y$. This is exactly the problem **stochastic approximation** (the Robbins–Monro method) solves: to estimate the mean of a noisy signal, nudge the current estimate a small fraction $\\alpha$ of the way toward each new sample,
 
@@ -184,11 +184,11 @@ $$ Q(s,a) \\leftarrow Q(s,a) + \\alpha\\big(\\, y - Q(s,a) \\,\\big). $$
 
 Substituting the TD target gives the **Q-learning update rule**:
 
-$$ Q(s,a) \\leftarrow Q(s,a) + \\alpha\\Big[\\, r + \\gamma \\max_{a’} Q(s’,a’) - Q(s,a) \\,\\Big]. $$
+$$ Q(s,a) \\leftarrow Q(s,a) + \\alpha\\Big[\\, r + \\gamma \\max_{a^{\\prime}} Q(s^{\\prime},a^{\\prime}) - Q(s,a) \\,\\Big]. $$
 
 The bracketed term is the **TD error**: the gap between the sampled target and the current estimate. As $\\alpha \\to 0$ appropriately (with $\\sum \\alpha = \\infty$, $\\sum \\alpha^2 < \\infty$) and every state-action pair is visited infinitely often, $Q$ provably converges to $Q^*$.
 
-**Why it is off-policy.** The target uses $\\max_{a’} Q(s’, a’)$ — the value of the **greedy** action in the next state — regardless of which action the agent actually took there. The agent can collect experience using any **behavior policy** (for example $\\epsilon$-greedy, which explores), yet still learn about the **target policy** that acts greedily. Because the policy being learned differs from the policy generating the data, Q-learning is **off-policy**. (Contrast SARSA, whose target uses $Q(s’, a’)$ for the action $a’$ actually taken next, making it **on-policy**.)
+**Why it is off-policy.** The target uses $\\max_{a^{\\prime}} Q(s^{\\prime}, a^{\\prime})$ — the value of the **greedy** action in the next state — regardless of which action the agent actually took there. The agent can collect experience using any **behavior policy** (for example $\\epsilon$-greedy, which explores), yet still learn about the **target policy** that acts greedily. Because the policy being learned differs from the policy generating the data, Q-learning is **off-policy**. (Contrast SARSA, whose target uses $Q(s^{\\prime}, a^{\\prime})$ for the action $a^{\\prime}$ actually taken next, making it **on-policy**.)
       `,
     },
   ],
@@ -201,10 +201,10 @@ The bracketed term is the **TD error**: the gap between the sampled target and t
       tags: ['conceptual', 'computation'],
     },
     {
-      prompt: 'A Q-table currently holds $Q(s,a) = 3.0$. The agent takes action $a$, receives reward $r = 1$, and lands in state $s’$ where the action-values are $Q(s’, a_1) = 5$ and $Q(s’, a_2) = 2$. With learning rate $\\alpha = 0.1$ and discount $\\gamma = 0.9$, perform one Q-learning update and report the new $Q(s,a)$.',
+      prompt: 'A Q-table currently holds $Q(s,a) = 3.0$. The agent takes action $a$, receives reward $r = 1$, and lands in state $s^{\\prime}$ where the action-values are $Q(s^{\\prime}, a_1) = 5$ and $Q(s^{\\prime}, a_2) = 2$. With learning rate $\\alpha = 0.1$ and discount $\\gamma = 0.9$, perform one Q-learning update and report the new $Q(s,a)$.',
       difficulty: 'core',
-      hint: 'First form the TD target $r + \\gamma \\max_{a’} Q(s’, a’)$, then the TD error, then apply $Q \\leftarrow Q + \\alpha \\times \\text{error}$.',
-      solution: 'The greedy next-state value is $\\max_{a’} Q(s’, a’) = \\max(5, 2) = 5$. TD target $= r + \\gamma \\max_{a’} Q(s’,a’) = 1 + 0.9 \\times 5 = 5.5$. TD error $= 5.5 - 3.0 = 2.5$. Update: $Q(s,a) \\leftarrow 3.0 + 0.1 \\times 2.5 = 3.0 + 0.25 = 3.25$. The estimate moves a small step (10%) toward the target rather than jumping all the way.',
+      hint: 'First form the TD target $r + \\gamma \\max_{a^{\\prime}} Q(s^{\\prime}, a^{\\prime})$, then the TD error, then apply $Q \\leftarrow Q + \\alpha \\times \\text{error}$.',
+      solution: 'The greedy next-state value is $\\max_{a^{\\prime}} Q(s^{\\prime}, a^{\\prime}) = \\max(5, 2) = 5$. TD target $= r + \\gamma \\max_{a^{\\prime}} Q(s^{\\prime},a^{\\prime}) = 1 + 0.9 \\times 5 = 5.5$. TD error $= 5.5 - 3.0 = 2.5$. Update: $Q(s,a) \\leftarrow 3.0 + 0.1 \\times 2.5 = 3.0 + 0.25 = 3.25$. The estimate moves a small step (10%) toward the target rather than jumping all the way.',
       tags: ['computation', 'q-learning'],
     },
     {
@@ -217,7 +217,7 @@ The bracketed term is the **TD error**: the gap between the sampled target and t
     {
       prompt: 'Consider a tiny MDP. From state $s$ a fixed policy always takes one action leading to: state $A$ with probability $0.5$ and reward $4$, or state $B$ with probability $0.5$ and reward $0$. You already estimate $V^\\pi(A) = 10$ and $V^\\pi(B) = 6$. With $\\gamma = 0.9$, perform one Bellman backup to compute $V^\\pi(s)$.',
       difficulty: 'challenge',
-      hint: 'Apply $V^\\pi(s) = \\sum_{s’} P(s’ \\mid s)\\,[\\,R + \\gamma V^\\pi(s’)\\,]$, summing over the two reachable next states.',
+      hint: 'Apply $V^\\pi(s) = \\sum_{s^{\\prime}} P(s^{\\prime} \\mid s)\\,[\\,R + \\gamma V^\\pi(s^{\\prime})\\,]$, summing over the two reachable next states.',
       solution: 'Backup over both branches: $V^\\pi(s) = 0.5\\,[\\,4 + 0.9 \\times 10\\,] + 0.5\\,[\\,0 + 0.9 \\times 6\\,]$. The first branch contributes $0.5 \\times (4 + 9) = 0.5 \\times 13 = 6.5$; the second contributes $0.5 \\times (0 + 5.4) = 0.5 \\times 5.4 = 2.7$. Therefore $V^\\pi(s) = 6.5 + 2.7 = 9.2$.',
       tags: ['derivation', 'bellman'],
     },
@@ -254,7 +254,7 @@ The bracketed term is the **TD error**: the gap between the sampled target and t
         {
           dimension: 'Continuous actions',
           values: [
-            'Awkward — the $\\max_{a’}$ over actions is hard in continuous spaces.',
+            'Awkward — the $\\max_{a^{\\prime}}$ over actions is hard in continuous spaces.',
             'Natural — the policy can output continuous distributions (e.g. a Gaussian).',
             'Natural — the actor handles continuous actions; widely used in robotics control.',
           ],
@@ -297,7 +297,7 @@ The bracketed term is the **TD error**: the gap between the sampled target and t
   ],
   quiz: [
     {
-      question: 'In the Bellman expectation equation $V^\\pi(s) = \\mathbb{E}_\\pi[\\,r + \\gamma V^\\pi(s’)\\,]$, what role does the discount factor $\\gamma$ play?',
+      question: 'In the Bellman expectation equation $V^\\pi(s) = \\mathbb{E}_\\pi[\\,r + \\gamma V^\\pi(s^{\\prime})\\,]$, what role does the discount factor $\\gamma$ play?',
       options: [
         { text: 'It weights future rewards relative to immediate ones and keeps the infinite-horizon return finite when $\\gamma < 1$.', correct: true },
         { text: 'It is the learning rate that controls how fast value estimates are updated.', correct: false },
@@ -309,12 +309,12 @@ The bracketed term is the **TD error**: the gap between the sampled target and t
     {
       question: 'Why is Q-learning considered an **off-policy** algorithm?',
       options: [
-        { text: 'Its target uses $\\max_{a’} Q(s’, a’)$ — the greedy action — regardless of the (possibly exploratory) action the behavior policy actually took.', correct: true },
+        { text: 'Its target uses $\\max_{a^{\\prime}} Q(s^{\\prime}, a^{\\prime})$ — the greedy action — regardless of the (possibly exploratory) action the behavior policy actually took.', correct: true },
         { text: 'Because it never explores and always exploits the best-known action.', correct: false },
-        { text: 'Because it requires the full transition model $P(s’ \\mid s, a)$ to be known in advance.', correct: false },
+        { text: 'Because it requires the full transition model $P(s^{\\prime} \\mid s, a)$ to be known in advance.', correct: false },
         { text: 'Because it can only be applied after a policy has fully converged.', correct: false },
       ],
-      explanation: 'Q-learning learns about the greedy target policy while generating experience with a different behavior policy (e.g. $\\epsilon$-greedy), because its TD target bootstraps from $\\max_{a’} Q(s’,a’)$ rather than the action actually taken. SARSA, which uses the action actually taken, is the on-policy counterpart. Q-learning is also model-free, so it does not need $P$.',
+      explanation: 'Q-learning learns about the greedy target policy while generating experience with a different behavior policy (e.g. $\\epsilon$-greedy), because its TD target bootstraps from $\\max_{a^{\\prime}} Q(s^{\\prime},a^{\\prime})$ rather than the action actually taken. SARSA, which uses the action actually taken, is the on-policy counterpart. Q-learning is also model-free, so it does not need $P$.',
     },
     {
       question: 'An agent rewarded with the discounted return $G_t = \\sum_{k=0}^{\\infty} \\gamma^k r_{t+k+1}$ receives a constant reward of $1$ at every step forever, with $\\gamma = 0.9$. What is $G_t$?',

@@ -190,8 +190,8 @@ In practice this kind of leakage tends to make **validation/test metrics look be
     {
       prompt: 'A feature column has values $X = [5, 15, 25]$. Compute the Min-Max scaled values to the range $[0,1]$.',
       difficulty: 'warm-up',
-      hint: 'Use $X’_i = \\frac{X_i - X_{\\min}}{X_{\\max} - X_{\\min}}$.',
-      solution: '$X_{\\min}=5$, $X_{\\max}=25$, range $=20$. $X’_1 = \\frac{5-5}{20}=0.0$, $X’_2=\\frac{15-5}{20}=0.5$, $X’_3=\\frac{25-5}{20}=1.0$. Result: $[0.0, 0.5, 1.0]$.',
+      hint: 'Use $X^{\\prime}_i = \\frac{X_i - X_{\\min}}{X_{\\max} - X_{\\min}}$.',
+      solution: '$X_{\\min}=5$, $X_{\\max}=25$, range $=20$. $X^{\\prime}_1 = \\frac{5-5}{20}=0.0$, $X^{\\prime}_2=\\frac{15-5}{20}=0.5$, $X^{\\prime}_3=\\frac{25-5}{20}=1.0$. Result: $[0.0, 0.5, 1.0]$.',
       tags: ['scaling', 'computation'],
     },
     {
@@ -223,7 +223,7 @@ In practice this kind of leakage tends to make **validation/test metrics look be
       rows: [
         {
           dimension: 'Formula',
-          values: ['$z = \\frac{x-\\mu}{\\sigma}$', '$x’ = \\frac{x - x_{\\min}}{x_{\\max}-x_{\\min}}$', '$x’ = \\frac{x - Q_2}{Q_3 - Q_1}$'],
+          values: ['$z = \\frac{x-\\mu}{\\sigma}$', '$x^{\\prime} = \\frac{x - x_{\\min}}{x_{\\max}-x_{\\min}}$', '$x^{\\prime} = \\frac{x - Q_2}{Q_3 - Q_1}$'],
         },
         {
           dimension: 'Output range',
