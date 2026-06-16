@@ -1094,7 +1094,7 @@ export default function AlgorithmSimulator() {
           </div>
 
           <div className="mt-10 space-y-4 border-t border-outline pt-8">
-            <h4 className="font-headline text-xl font-bold uppercase text-on-surface">
+            <h4 className="font-headline text-xl font-medium text-on-surface">
               Core Mathematics
             </h4>
 

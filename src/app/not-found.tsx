@@ -21,13 +21,13 @@ export default function NotFound() {
           <div className="mt-9 flex flex-wrap gap-4">
             <Link
               href="/"
-              className="border border-on-surface bg-on-surface px-6 py-3 font-mono text-[13px] uppercase tracking-[0.08em] text-background hover:bg-primary"
+              className="border border-accent bg-accent px-6 py-3 text-[15px] font-medium tracking-tight text-on-accent hover:bg-accent-hover hover:border-accent-hover"
             >
               Home
             </Link>
             <Link
               href="/#curriculum"
-              className="border border-outline bg-surface px-6 py-3 font-mono text-[13px] uppercase tracking-[0.08em] text-on-surface hover:border-primary hover:text-primary"
+              className="border border-outline bg-surface px-6 py-3 text-[15px] font-medium tracking-tight text-on-surface hover:border-primary hover:text-primary"
             >
               Learning Tracks
             </Link>

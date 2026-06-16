@@ -1225,7 +1225,7 @@ export default function GradForgeLab() {
         <section className="bg-surface p-5">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
+              <p className="text-sm text-on-surface-variant">
                 {lesson.subtitle}
               </p>
               <h2 className="mt-1 font-headline text-3xl font-medium text-on-surface">
@@ -1245,7 +1245,7 @@ export default function GradForgeLab() {
               <button
                 type="button"
                 onClick={advanceStep}
-                className="inline-flex h-9 w-9 items-center justify-center border border-on-surface bg-on-surface text-background hover:bg-primary"
+                className="inline-flex h-9 w-9 items-center justify-center border border-accent bg-accent text-on-accent hover:bg-accent-hover hover:border-accent-hover"
                 aria-label="Step forward"
                 title="Step forward"
               >
@@ -1543,7 +1543,7 @@ export default function GradForgeLab() {
                   setIsPlaying(false);
                   setRunMessage("Reset to the lesson source.");
                 }}
-                className="inline-flex items-center gap-2 border border-outline bg-surface-container-lowest px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant hover:border-primary"
+                className="inline-flex items-center gap-2 border border-outline bg-surface-container-lowest px-3 py-2 text-[13px] font-medium tracking-tight text-on-surface-variant hover:border-primary"
               >
                 <RotateCcw size={13} />
                 Reset
@@ -1551,7 +1551,7 @@ export default function GradForgeLab() {
               <button
                 type="button"
                 onClick={runEditorCode}
-                className="inline-flex items-center gap-2 border border-on-surface bg-on-surface px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-background hover:bg-primary"
+                className="inline-flex items-center gap-2 border border-accent bg-accent px-3 py-2 text-[13px] font-medium tracking-tight text-on-accent hover:bg-accent-hover hover:border-accent-hover"
               >
                 <Play size={13} />
                 Run Trace
@@ -1605,7 +1605,7 @@ export default function GradForgeLab() {
                 type="button"
                 onClick={() => setImplTab(id as keyof typeof pythonImplementations)}
                 className={clsx(
-                  "bg-surface px-2 py-2 font-mono text-[12px] uppercase tracking-[0.08em]",
+                  "bg-surface px-2 py-2 text-[13px] font-medium tracking-tight",
                   implTab === id
                     ? "text-primary"
                     : "text-on-surface-variant hover:text-on-surface",
@@ -1653,7 +1653,7 @@ export default function GradForgeLab() {
             ))}
           </div>
           {quizChoice && (
-            <p className="mt-3 font-mono text-[13px] uppercase tracking-[0.08em] text-primary">
+            <p className="mt-3 text-sm font-medium leading-6 text-primary">
               {quizChoice === lesson.quiz.answer
                 ? "Correct: the gradient trace keeps every path."
                 : `Answer: ${lesson.quiz.answer}`}
@@ -1692,7 +1692,7 @@ export default function GradForgeLab() {
             <button
               type="button"
               onClick={() => selectLesson(Math.max(lessonIndex - 1, 0))}
-              className="inline-flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant hover:text-primary"
+              className="inline-flex items-center gap-2 text-[13px] font-medium tracking-tight text-on-surface-variant hover:text-primary"
             >
               <ChevronLeft size={13} />
               Previous
@@ -1700,7 +1700,7 @@ export default function GradForgeLab() {
             <button
               type="button"
               onClick={() => selectLesson(Math.min(lessonIndex + 1, lessons.length - 1))}
-              className="inline-flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant hover:text-primary"
+              className="inline-flex items-center gap-2 text-[13px] font-medium tracking-tight text-on-surface-variant hover:text-primary"
             >
               Next
               <ChevronRight size={13} />

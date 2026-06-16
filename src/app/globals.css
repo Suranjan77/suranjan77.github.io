@@ -45,6 +45,13 @@
     --color-error-container: #EAD7D3;
     --color-on-error: #F5F2EC;
     --color-on-error-container: #3B1713;
+    /* Warm rust — the single primary-action accent (distinct from the olive
+       primary used for links/active states and the muted error terracotta). */
+    --color-accent: #B0573E;
+    --color-accent-hover: #98472F;
+    --color-accent-container: #EFDBD0;
+    --color-on-accent: #FAF8F2;
+    --color-on-accent-container: #5A2616;
     --color-success: #556B4A;
     --color-warning: #927A4B;
     --color-cyan: #556B4A;

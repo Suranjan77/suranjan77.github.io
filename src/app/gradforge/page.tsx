@@ -28,7 +28,7 @@ export default function GradForgePage() {
         <div className="mx-auto max-w-[1360px]">
           <nav
             aria-label="Breadcrumb"
-            className="mb-8 flex flex-wrap items-center gap-2 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant"
+            className="mb-8 flex flex-wrap items-center gap-2 text-sm text-on-surface-variant"
           >
             <Link href="/" className="transition-colors hover:text-primary">Home</Link>
             <span className="text-outline-dark">/</span>
@@ -87,20 +87,20 @@ export default function GradForgePage() {
           <div className="flex flex-col gap-4 border-b border-outline px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-7">
             <div>
               <h2 className="font-headline text-xl font-medium text-on-surface">Autograd Workspace</h2>
-              <p className="mt-1 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
+              <p className="mt-1 text-sm text-on-surface-variant">
                 Code · graph · reverse pass · verification
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Link
                 href="/algorithms/backpropagation"
-                className="border border-outline bg-surface-container px-4 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface transition-colors hover:border-primary hover:text-primary"
+                className="border border-outline bg-surface-container px-4 py-2 text-sm font-medium tracking-tight text-on-surface transition-colors hover:border-primary hover:text-primary"
               >
                 Read Backpropagation
               </Link>
               <Link
                 href="/playground"
-                className="border border-outline bg-surface px-4 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant transition-colors hover:border-primary hover:text-primary"
+                className="border border-outline bg-surface px-4 py-2 text-sm font-medium tracking-tight text-on-surface-variant transition-colors hover:border-primary hover:text-primary"
               >
                 Neural Playground
               </Link>
@@ -154,7 +154,7 @@ export default function GradForgePage() {
             </p>
             <Link
               href="/algorithms/backpropagation"
-              className="mt-7 inline-flex border border-on-primary/50 px-4 py-2 font-mono text-[12px] uppercase tracking-[0.08em] transition-colors hover:bg-on-primary hover:text-primary"
+              className="mt-7 inline-flex border border-on-primary/50 px-4 py-2 text-sm font-medium tracking-tight transition-colors hover:bg-on-primary hover:text-primary"
             >
               Open the lesson →
             </Link>

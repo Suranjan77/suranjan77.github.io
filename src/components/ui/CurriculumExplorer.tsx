@@ -186,14 +186,14 @@ function ExpandedPanel({ algorithm }: { algorithm: Algorithm }) {
 
       <div className="grid gap-px border-t border-outline bg-border sm:grid-cols-[1fr_auto]">
         <div className="bg-surface-container-low px-5 py-4 sm:px-7">
-          <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
+          <p className="text-sm font-medium leading-6 text-on-surface-variant">
             Continue when ready for intuition, math, code, and interactive diagrams.
           </p>
         </div>
         <div className="bg-surface px-5 py-4 sm:px-7">
           <Link
             href={`/algorithms/${algorithm.id}`}
-            className="inline-flex w-full justify-center border border-on-surface bg-on-surface px-5 py-3 font-mono text-[12px] uppercase tracking-[0.08em] text-background hover:bg-primary sm:w-auto"
+            className="inline-flex w-full justify-center border border-accent bg-accent px-5 py-3 text-[15px] font-medium tracking-tight text-on-accent hover:bg-accent-hover hover:border-accent-hover sm:w-auto"
           >
             Open Full Study
           </Link>

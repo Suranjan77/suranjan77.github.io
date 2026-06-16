@@ -205,7 +205,7 @@ export default function Home() {
             <div className="mt-9 flex flex-col gap-4 sm:flex-row">
               <Link
                 href="/algorithms/calculus"
-                className="inline-flex min-h-10 items-center justify-center border border-on-surface bg-on-surface px-8 py-3 text-[15px] font-medium tracking-tight text-background hover:bg-primary hover:border-primary"
+                className="inline-flex min-h-10 items-center justify-center border border-accent bg-accent px-8 py-3 text-[15px] font-medium tracking-tight text-on-accent hover:bg-accent-hover hover:border-accent-hover"
               >
                 Begin Curriculum
               </Link>
@@ -297,7 +297,7 @@ export default function Home() {
             </ul>
             <Link
               href="/playground"
-              className="mt-10 inline-flex min-h-10 items-center justify-center border border-on-surface bg-on-surface px-8 py-3 text-[15px] font-medium tracking-tight text-background hover:bg-primary hover:border-primary"
+              className="mt-10 inline-flex min-h-10 items-center justify-center border border-accent bg-accent px-8 py-3 text-[15px] font-medium tracking-tight text-on-accent hover:bg-accent-hover hover:border-accent-hover"
             >
               Open Playground →
             </Link>
