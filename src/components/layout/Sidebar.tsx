@@ -215,10 +215,11 @@ function SidebarUtilityLink({
   return (
     <Link
       href={href}
-      className="flex flex-col items-center gap-1.5 border border-transparent px-1 py-2 font-mono text-[12px] uppercase tracking-[0.06em] text-on-surface-variant transition-colors hover:border-outline hover:bg-surface-container-low hover:text-primary"
+      aria-label={label}
+      title={label}
+      className="flex items-center justify-center border border-transparent py-2.5 text-on-surface-variant transition-colors hover:border-outline hover:bg-surface-container-low hover:text-primary"
     >
-      <Icon size={15} strokeWidth={1.7} aria-hidden="true" />
-      {label}
+      <Icon size={18} strokeWidth={1.7} aria-hidden="true" />
     </Link>
   );
 }

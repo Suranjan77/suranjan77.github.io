@@ -205,13 +205,13 @@ export default function Home() {
             <div className="mt-9 flex flex-col gap-4 sm:flex-row">
               <Link
                 href="/algorithms/calculus"
-                className="inline-flex min-h-10 items-center justify-center border border-on-surface bg-on-surface px-8 py-3 font-mono text-[13px] uppercase tracking-[0.08em] text-background hover:bg-primary"
+                className="inline-flex min-h-10 items-center justify-center border border-on-surface bg-on-surface px-8 py-3 text-[15px] font-medium tracking-tight text-background hover:bg-primary hover:border-primary"
               >
                 Begin Curriculum
               </Link>
               <Link
                 href="/#curriculum"
-                className="inline-flex min-h-10 items-center justify-center border border-transparent px-8 py-3 font-mono text-[13px] uppercase tracking-[0.08em] text-primary hover:border-outline"
+                className="inline-flex min-h-10 items-center justify-center border border-transparent px-8 py-3 text-[15px] font-medium tracking-tight text-primary underline-offset-[6px] decoration-1 hover:underline"
               >
                 Explore Learning Tracks →
               </Link>
@@ -297,7 +297,7 @@ export default function Home() {
             </ul>
             <Link
               href="/playground"
-              className="mt-10 inline-flex min-h-10 items-center justify-center border border-on-surface bg-on-surface px-8 py-3 font-mono text-[13px] uppercase tracking-[0.08em] text-background hover:bg-primary"
+              className="mt-10 inline-flex min-h-10 items-center justify-center border border-on-surface bg-on-surface px-8 py-3 text-[15px] font-medium tracking-tight text-background hover:bg-primary hover:border-primary"
             >
               Open Playground →
             </Link>

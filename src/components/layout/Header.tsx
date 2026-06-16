@@ -123,13 +123,17 @@ function PrimaryNavigation({
             aria-current={active ? "page" : undefined}
             onClick={onNavigate}
             className={clsx(
-              "font-mono text-[13px] font-normal uppercase tracking-[0.1em] transition-colors",
+              "transition-colors",
               mobile
-                ? "border px-3 py-3 text-center"
-                : "relative whitespace-nowrap border-b border-transparent py-1 tracking-[0.12em]",
+                ? "border px-3 py-3 text-center text-sm font-medium tracking-tight"
+                : "relative whitespace-nowrap py-1 text-[15px] font-medium tracking-tight underline-offset-[6px] decoration-1 hover:underline",
               active
-                ? "border-primary bg-primary-container text-primary"
-                : "border-outline text-on-surface-variant hover:border-primary hover:text-on-surface",
+                ? mobile
+                  ? "border-primary bg-primary-container text-primary"
+                  : "text-primary underline"
+                : mobile
+                  ? "border-outline text-on-surface-variant"
+                  : "text-on-surface-variant hover:text-on-surface",
             )}
           >
             {item.label}

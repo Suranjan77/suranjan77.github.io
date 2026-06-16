@@ -3,30 +3,17 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import {
-  BookOpen,
-  Braces,
-  Briefcase,
-  ChartNoAxesCombined,
-  ChevronLeft,
-  ChevronRight,
-  CircleHelp,
-  Dumbbell,
-  FileText,
-  Lightbulb,
-  List,
-  Sigma,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { LearningModule } from "@/data/algorithms_content/learningModuleTypes";
 import { getTrackModules } from "@/lib/prerequisiteGraph";
 import { getTrackAnchor, learningTracks } from "@/lib/tracks";
 
 const coreSections = [
-  { id: "intuition", label: "Intuition", icon: Lightbulb },
-  { id: "visualization", label: "Diagram", icon: ChartNoAxesCombined },
-  { id: "mathematics", label: "Mathematics", icon: Sigma },
-  { id: "depth", label: "In Depth", icon: BookOpen },
-  { id: "implementation", label: "Code", icon: Braces },
+  { id: "intuition", label: "Intuition" },
+  { id: "visualization", label: "Diagram" },
+  { id: "mathematics", label: "Mathematics" },
+  { id: "depth", label: "In Depth" },
+  { id: "implementation", label: "Code" },
 ] as const;
 
 export default function LessonNavigator({
@@ -53,23 +40,23 @@ export default function LessonNavigator({
   const sections = [
     ...coreSections.slice(0, 3),
     ...(currentModule.additionalSections?.length
-      ? [{ id: "derivations", label: "Derivations", icon: Sigma } as const]
+      ? [{ id: "derivations", label: "Derivations" } as const]
       : []),
     ...(currentModule.workedExamples?.length
-      ? [{ id: "examples", label: "Examples", icon: FileText } as const]
+      ? [{ id: "examples", label: "Examples" } as const]
       : []),
     ...(currentModule.practiceExercises?.length
-      ? [{ id: "practice", label: "Practice", icon: Dumbbell } as const]
+      ? [{ id: "practice", label: "Practice" } as const]
       : []),
     ...coreSections.slice(3),
     ...(currentModule.caseStudies?.length
-      ? [{ id: "case-studies", label: "Case Studies", icon: Briefcase } as const]
+      ? [{ id: "case-studies", label: "Case Studies" } as const]
       : []),
     ...(currentModule.quiz?.length
-      ? [{ id: "quiz", label: "Quiz", icon: CircleHelp } as const]
+      ? [{ id: "quiz", label: "Quiz" } as const]
       : []),
     ...(currentModule.references?.length
-      ? [{ id: "references", label: "References", icon: List } as const]
+      ? [{ id: "references", label: "References" } as const]
       : []),
   ];
   const sectionIds = sections.map(({ id }) => id);
@@ -125,7 +112,7 @@ export default function LessonNavigator({
         <div className="border-x border-outline bg-surface px-4 py-3 sm:px-5">
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[12px] tracking-[0.02em] text-on-surface-variant">
                 {track && primaryTrack ? (
                   <Link
                     href={`/#${getTrackAnchor(primaryTrack)}`}
@@ -201,32 +188,22 @@ export default function LessonNavigator({
           className="overflow-x-auto border-x border-t border-outline bg-surface-container-low"
         >
           <div className="flex min-w-max items-stretch">
-            <span className="hidden items-center border-r border-outline px-5 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant sm:flex">
+            <span className="hidden items-center border-r border-outline px-5 font-mono text-[12px] tracking-[0.02em] text-on-surface-variant sm:flex">
               On this page
             </span>
-            {sections.map(({ id, label, icon: Icon }, index) => (
+            {sections.map(({ id, label }) => (
               <a
                 key={id}
                 href={`#${id}`}
                 aria-label={label}
                 aria-current={activeSection === id ? "location" : undefined}
                 onClick={() => setActiveSection(id)}
-                className={`group inline-flex min-h-10 items-center gap-2 border-r border-outline px-3.5 font-mono text-[13px] uppercase tracking-[0.06em] transition-colors ${
+                className={`inline-flex min-h-10 items-center border-b-2 px-4 text-sm font-medium tracking-tight transition-colors ${
                   activeSection === id
-                    ? "bg-primary text-on-primary"
-                    : "text-on-surface-variant hover:bg-primary-container hover:text-primary"
+                    ? "border-primary text-primary"
+                    : "border-transparent text-on-surface-variant hover:text-on-surface"
                 }`}
               >
-                <span
-                  className={
-                    activeSection === id
-                      ? "text-on-primary/70"
-                      : "text-outline-dark group-hover:text-primary"
-                  }
-                >
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <Icon size={13} strokeWidth={1.7} aria-hidden="true" />
                 {label}
               </a>
             ))}
