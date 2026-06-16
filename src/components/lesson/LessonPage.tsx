@@ -109,7 +109,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         {/* Intuition Section */}
         <div
           id="intuition"
-          className="scroll-mt-44 overflow-hidden border border-outline bg-surface-container-low"
+          className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
         >
           <div className="border-b border-outline px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
@@ -134,7 +134,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         {/* Interactive Visualization Section */}
         <div
           id="visualization"
-          className="scroll-mt-44 overflow-hidden border border-outline bg-surface-container-low"
+          className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
         >
           <div className="border-b border-outline bg-surface-container px-6 py-5 sm:px-8">
             <div className="flex items-center gap-3">
@@ -166,7 +166,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         {/* Mathematics Section */}
         <div
           id="mathematics"
-          className="scroll-mt-44 overflow-hidden border border-outline bg-surface-container-low"
+          className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
         >
           <div className="border-b border-outline px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
@@ -189,17 +189,17 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         </div>
 
         {/* Full Derivations (foldable) */}
-        <div id="derivations" className="scroll-mt-44">
+        <div id="derivations" className="scroll-mt-32 lg:scroll-mt-48">
           <MathDerivations sections={module.additionalSections} />
         </div>
 
         {/* Worked Examples Section */}
-        <div id="examples" className="scroll-mt-44">
+        <div id="examples" className="scroll-mt-32 lg:scroll-mt-48">
           <WorkedExamples examples={module.workedExamples} />
         </div>
 
         {/* Practice Exercises Section */}
-        <div id="practice" className="scroll-mt-44">
+        <div id="practice" className="scroll-mt-32 lg:scroll-mt-48">
           <PracticeExercises exercises={module.practiceExercises} />
         </div>
 
@@ -232,7 +232,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         {/* In-Depth Description Section */}
         <div
           id="depth"
-          className="scroll-mt-44 overflow-hidden border border-outline bg-surface-container-low"
+          className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
         >
           <div className="border-b border-outline px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
@@ -263,7 +263,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         {/* Implementation / Code Section */}
         <div
           id="implementation"
-          className="scroll-mt-44 overflow-hidden border border-outline bg-surface-container-low"
+          className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
         >
           <div className="border-b border-outline px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
@@ -315,7 +315,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         </div>
 
         {/* Real-World Case Studies */}
-        <div id="case-studies" className="scroll-mt-44">
+        <div id="case-studies" className="scroll-mt-32 lg:scroll-mt-48">
           <CaseStudy studies={module.caseStudies} />
         </div>
 
@@ -323,12 +323,12 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         <Misconceptions misconceptions={module.misconceptions} />
 
         {/* Self-Check Quiz */}
-        <div id="quiz" className="scroll-mt-44">
+        <div id="quiz" className="scroll-mt-32 lg:scroll-mt-48">
           <SelfCheckQuiz questions={module.quiz} />
         </div>
 
         {/* References */}
-        <div id="references" className="scroll-mt-44">
+        <div id="references" className="scroll-mt-32 lg:scroll-mt-48">
           <ReferenceList references={module.references} />
         </div>
 

@@ -4,8 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-  ArrowLeft,
-  ArrowRight,
   BookOpen,
   Braces,
   Briefcase,
@@ -124,78 +122,78 @@ export default function LessonNavigator({
       className="z-20 -mx-4 mb-8 border-y border-outline bg-background/95 sm:-mx-8 lg:sticky lg:top-[73px] lg:-mx-12"
     >
       <div className="mx-auto max-w-6xl">
-        <div className="grid border-x border-outline bg-surface lg:grid-cols-[minmax(0,1fr)_minmax(330px,0.8fr)]">
-          <div className="min-w-0 p-4 sm:p-5">
-            <div className="flex items-start justify-between gap-5">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
-                  {track && primaryTrack ? (
-                    <Link
-                      href={`/#${getTrackAnchor(primaryTrack)}`}
-                      className="text-primary hover:underline"
-                    >
-                      {track.title}
-                    </Link>
-                  ) : (
-                    <span>Curriculum</span>
-                  )}
-                  <span aria-hidden="true" className="text-outline-dark">
-                    /
-                  </span>
-                  <span>
-                    Module {currentIndex + 1} of {modules.length}
-                  </span>
-                </div>
-                <p className="mt-2 truncate font-headline text-lg font-medium text-on-surface sm:text-xl">
-                  {currentModule.title}
-                </p>
+        <div className="border-x border-outline bg-surface px-4 py-3 sm:px-5">
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
+                {track && primaryTrack ? (
+                  <Link
+                    href={`/#${getTrackAnchor(primaryTrack)}`}
+                    className="text-primary hover:underline"
+                  >
+                    {track.title}
+                  </Link>
+                ) : (
+                  <span>Curriculum</span>
+                )}
+                <span aria-hidden="true" className="text-outline-dark">
+                  /
+                </span>
+                <span>
+                  Module {currentIndex + 1} of {modules.length}
+                </span>
               </div>
-              <span className="hidden shrink-0 font-mono text-[12px] text-on-surface-variant sm:block">
-                {progress}% complete
+              <p className="mt-1 truncate font-headline text-base font-medium text-on-surface sm:text-lg">
+                {currentModule.title}
+              </p>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-3">
+              <span className="hidden font-mono text-[12px] text-on-surface-variant sm:block">
+                {progress}%
               </span>
+              <div className="hidden items-center gap-1.5 lg:flex">
+                <CompactModuleLink module={previous} direction="previous" />
+                <CompactModuleLink module={next} direction="next" />
+              </div>
             </div>
+          </div>
 
-            <div
-              className="mt-4 h-px bg-outline"
-              role="progressbar"
-              aria-label="Track progress"
-              aria-valuemin={0}
-              aria-valuemax={modules.length}
-              aria-valuenow={Math.max(currentIndex + 1, 0)}
+          <div className="mt-3 flex items-center gap-2 lg:hidden">
+            <label htmlFor="lesson-module-select" className="sr-only">
+              Choose a module in this track
+            </label>
+            <select
+              id="lesson-module-select"
+              value={currentModule.id}
+              onChange={(event) =>
+                router.push(`/algorithms/${event.target.value}`)
+              }
+              className="h-10 min-w-0 flex-1 border border-outline bg-background px-3 text-sm font-medium text-on-surface focus:border-primary focus:outline-none"
             >
-              <div
-                className="h-px bg-primary"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-
-            <div className="mt-4 flex items-center gap-2 lg:hidden">
-              <label htmlFor="lesson-module-select" className="sr-only">
-                Choose a module in this track
-              </label>
-              <select
-                id="lesson-module-select"
-                value={currentModule.id}
-                onChange={(event) =>
-                  router.push(`/algorithms/${event.target.value}`)
-                }
-                className="h-10 min-w-0 flex-1 border border-outline bg-background px-3 text-sm font-medium text-on-surface focus:border-primary focus:outline-none"
-              >
-                {modules.map((module, index) => (
-                  <option key={module.id} value={module.id}>
-                    {index + 1}. {module.title}
-                  </option>
-                ))}
-              </select>
-              <CompactModuleLink module={previous} direction="previous" />
-              <CompactModuleLink module={next} direction="next" />
-            </div>
+              {modules.map((module, index) => (
+                <option key={module.id} value={module.id}>
+                  {index + 1}. {module.title}
+                </option>
+              ))}
+            </select>
+            <CompactModuleLink module={previous} direction="previous" />
+            <CompactModuleLink module={next} direction="next" />
           </div>
+        </div>
 
-          <div className="hidden border-l border-outline lg:grid lg:grid-cols-2">
-            <ModuleLink module={previous} direction="previous" />
-            <ModuleLink module={next} direction="next" />
-          </div>
+        <div
+          className="h-1 border-x border-outline bg-surface-container-high"
+          role="progressbar"
+          aria-label="Track progress"
+          aria-valuemin={0}
+          aria-valuemax={modules.length}
+          aria-valuenow={Math.max(currentIndex + 1, 0)}
+        >
+          <div
+            className="h-1 bg-primary"
+            style={{ width: `${progress}%` }}
+          />
         </div>
 
         <nav
@@ -213,7 +211,7 @@ export default function LessonNavigator({
                 aria-label={label}
                 aria-current={activeSection === id ? "location" : undefined}
                 onClick={() => setActiveSection(id)}
-                className={`group inline-flex min-h-11 items-center gap-2 border-r border-outline px-4 font-mono text-[13px] uppercase tracking-[0.06em] transition-colors ${
+                className={`group inline-flex min-h-10 items-center gap-2 border-r border-outline px-3.5 font-mono text-[13px] uppercase tracking-[0.06em] transition-colors ${
                   activeSection === id
                     ? "bg-primary text-on-primary"
                     : "text-on-surface-variant hover:bg-primary-container hover:text-primary"
@@ -236,49 +234,6 @@ export default function LessonNavigator({
         </nav>
       </div>
     </div>
-  );
-}
-
-function ModuleLink({
-  module,
-  direction,
-}: {
-  module: LearningModule | null;
-  direction: "previous" | "next";
-}) {
-  const isPrevious = direction === "previous";
-  const label = isPrevious ? "Previous module" : "Next module";
-
-  if (!module) {
-    return (
-      <div
-        aria-label={`No ${direction} module`}
-        className="flex min-h-28 items-center justify-center bg-surface-container-low px-5 font-mono text-[12px] uppercase tracking-[0.08em] text-outline-dark"
-      >
-        {isPrevious ? "Start of track" : "End of track"}
-      </div>
-    );
-  }
-
-  return (
-    <Link
-      href={`/algorithms/${module.id}`}
-      aria-label={`${label}: ${module.title}`}
-      className={`group flex min-h-28 flex-col justify-center gap-2 px-5 transition-colors hover:bg-primary-container ${
-        isPrevious
-          ? "border-r border-outline text-left"
-          : "items-end text-right"
-      }`}
-    >
-      <span className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
-        {isPrevious && <ArrowLeft size={13} aria-hidden="true" />}
-        {label}
-        {!isPrevious && <ArrowRight size={13} aria-hidden="true" />}
-      </span>
-      <span className="line-clamp-2 font-headline text-sm font-medium leading-5 text-on-surface group-hover:text-primary">
-        {module.title}
-      </span>
-    </Link>
   );
 }
 
