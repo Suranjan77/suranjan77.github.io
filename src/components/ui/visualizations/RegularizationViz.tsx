@@ -115,8 +115,8 @@ export default function RegularizationViz() {
               ))}
               <line x1={scaleX(0)} x2={scaleX(0)} y1={plot.top} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
               <line x1={plot.left} x2={plot.right} y1={scaleY(0)} y2={scaleY(0)} stroke={COLORS.border} strokeWidth={1.5} />
-              <text x={plot.right - 18} y={scaleY(0) + 14} fill={COLORS.muted} fontSize={10} fontWeight={800}>w1</text>
-              <text x={scaleX(0) + 8} y={plot.top + 8} fill={COLORS.muted} fontSize={10} fontWeight={800}>w2</text>
+              <text x={plot.right - 18} y={scaleY(0) + 14} fill={COLORS.muted} fontSize={12} fontWeight={800}>w1</text>
+              <text x={scaleX(0) + 8} y={plot.top + 8} fill={COLORS.muted} fontSize={12} fontWeight={800}>w2</text>
             </g>
 
             {/* Constraint Boundary region */}
@@ -163,7 +163,7 @@ export default function RegularizationViz() {
             >
               <circle cx={scaleX(ols.x)} cy={scaleY(ols.y)} r={8} fill={COLORS.pink} stroke={COLORS.bg} strokeWidth={1.5} />
               <circle cx={scaleX(ols.x)} cy={scaleY(ols.y)} r={2} fill={COLORS.bg} />
-              <text x={scaleX(ols.x) + 12} y={scaleY(ols.y) - 6} fill={COLORS.pink} fontSize={9} fontWeight={900} stroke={COLORS.bg} strokeWidth={2.5} paintOrder="stroke">OLS w_hat</text>
+              <text x={scaleX(ols.x) + 12} y={scaleY(ols.y) - 6} fill={COLORS.pink} fontSize={12} fontWeight={900} stroke={COLORS.bg} strokeWidth={2.5} paintOrder="stroke">OLS w_hat</text>
             </g>
 
             {/* Regularized Solution point (w*) */}
@@ -173,7 +173,7 @@ export default function RegularizationViz() {
               {(regSol.x === 0 || regSol.y === 0) && regType === "L1" && (
                 <circle cx={scaleX(regSol.x)} cy={scaleY(regSol.y)} r={15} fill="none" stroke={COLORS.yellow} strokeWidth={1.5} strokeDasharray="3 2" className="animate-pulse" />
               )}
-              <text x={scaleX(regSol.x) - 34} y={scaleY(regSol.y) - 10} fill={COLORS.yellow} fontSize={9} fontWeight={900} stroke={COLORS.bg} strokeWidth={2.5} paintOrder="stroke">Regularized w*</text>
+              <text x={scaleX(regSol.x) - 34} y={scaleY(regSol.y) - 10} fill={COLORS.yellow} fontSize={12} fontWeight={900} stroke={COLORS.bg} strokeWidth={2.5} paintOrder="stroke">Regularized w*</text>
             </g>
 
             {/* Connector dashed line OLS -> Regularized */}
@@ -191,29 +191,29 @@ export default function RegularizationViz() {
             {/* Side Weights Bar indicators (Right panel) */}
             <g transform="translate(420, 80)">
               <rect width={170} height={200} fill="rgba(250,248,242,0.85)" stroke={COLORS.border} rx={2} />
-              <text x={85} y={24} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={800}>REGULARIZED WEIGHTS</text>
+              <text x={85} y={24} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>REGULARIZED WEIGHTS</text>
 
               {/* w1 Bar */}
               <g transform="translate(20, 50)">
-                <text x={0} y={15} fill={COLORS.muted} fontSize={11} fontWeight={800}>w1*:</text>
+                <text x={0} y={15} fill={COLORS.muted} fontSize={12} fontWeight={800}>w1*:</text>
                 <rect x={36} y={0} width={Math.abs(regSol.x) * 20} height={20} fill={regSol.x === 0 ? COLORS.pink : COLORS.cyan} fillOpacity={0.85} />
                 <text x={42 + Math.abs(regSol.x) * 20} y={15} fill={COLORS.muted} fontSize={11} fontWeight={800}>
                   {regSol.x.toFixed(2)}
                 </text>
                 {regSol.x === 0 && (
-                  <text x={42} y={15} fill={COLORS.pink} fontSize={9} fontWeight={900}>SPARSE (0)</text>
+                  <text x={42} y={15} fill={COLORS.pink} fontSize={12} fontWeight={900}>SPARSE (0)</text>
                 )}
               </g>
 
               {/* w2 Bar */}
               <g transform="translate(20, 110)">
-                <text x={0} y={15} fill={COLORS.muted} fontSize={11} fontWeight={800}>w2*:</text>
+                <text x={0} y={15} fill={COLORS.muted} fontSize={12} fontWeight={800}>w2*:</text>
                 <rect x={36} y={0} width={Math.abs(regSol.y) * 20} height={20} fill={regSol.y === 0 ? COLORS.pink : COLORS.cyan} fillOpacity={0.85} />
                 <text x={42 + Math.abs(regSol.y) * 20} y={15} fill={COLORS.muted} fontSize={11} fontWeight={800}>
                   {regSol.y.toFixed(2)}
                 </text>
                 {regSol.y === 0 && (
-                  <text x={42} y={15} fill={COLORS.pink} fontSize={9} fontWeight={900}>SPARSE (0)</text>
+                  <text x={42} y={15} fill={COLORS.pink} fontSize={12} fontWeight={900}>SPARSE (0)</text>
                 )}
               </g>
             </g>
@@ -233,7 +233,7 @@ export default function RegularizationViz() {
                 aria-label={type === "L1" ? "L1 Lasso (Diamond)" : "L2 Ridge (Circle)"}
                 key={type}
                 onClick={() => setRegType(type)}
-                className={`py-2 text-[9px] font-bold uppercase tracking-wider cursor-pointer border ${
+                className={`py-2 text-[12px] font-bold uppercase tracking-wider cursor-pointer border ${
                   regType === type
                     ? "bg-primary border-primary text-on-primary"
                     : "bg-surface hover:bg-surface-container border-outline text-on-surface-variant"

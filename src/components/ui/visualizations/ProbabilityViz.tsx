@@ -224,7 +224,7 @@ export default function ProbabilityViz() {
               })}
 
               <text x={plot.right + 12} y={plot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>Bin</text>
-              <text x={plot.left - 8} y={plot.top - 12} textAnchor="end" fill={COLORS.muted} fontSize={11} fontWeight={700}>Probability</text>
+              <text x={plot.left - 8} y={plot.top - 12} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={700}>Probability</text>
             </g>
 
             {/* Render Bars */}
@@ -309,21 +309,21 @@ export default function ProbabilityViz() {
               {/* Total Samples */}
               <g transform="translate(440, 44)">
                 <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>TOTAL TRIALS (n)</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>TOTAL TRIALS (n)</text>
                 <text data-testid="probability-total-trials" x={12} y={36} fill={COLORS.pink} fontSize={16} fontWeight={800}>{n}</text>
               </g>
 
               {/* Total Variation Distance */}
               <g transform="translate(440, 102)">
                 <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>TOTAL VARIATION DISTANCE</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>TOTAL VARIATION DISTANCE</text>
                 <text x={12} y={36} fill={COLORS.cyan} fontSize={15} fontWeight={800}>{n > 0 ? tvd.toFixed(4) : "1.0000"}</text>
               </g>
 
               {/* TVD Gauge */}
               <g transform="translate(440, 160)">
                 <rect width={166} height={178} fill="rgba(250,248,242,0.6)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={9} fontWeight={800}>CONVERGENCE METER (TVD)</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={800}>CONVERGENCE METER (TVD)</text>
 
                 {/* Vertical Gauge */}
                 <rect x={20} y={30} width={20} height={120} fill={COLORS.grid} rx={2} />
@@ -344,16 +344,16 @@ export default function ProbabilityViz() {
                   );
                 })()}
 
-                <text x={48} y={44} fill={COLORS.muted} fontSize={9} fontWeight={600}>TVD = Σ|p_emp - p_th|/2</text>
+                <text x={48} y={44} fill={COLORS.muted} fontSize={12} fontWeight={600}>TVD = Σ|p_emp - p_th|/2</text>
                 <foreignObject x={44} y={54} width={115} height={50}>
-                  <div className="font-sans text-[9px] font-medium leading-snug" style={{ color: COLORS.muted }}>
+                  <div className="font-sans text-[12px] font-medium leading-snug" style={{ color: COLORS.muted }}>
                     Each spin represents one sampled trial event.
                   </div>
                 </foreignObject>
 
                 {tvd < 0.05 && n > 200 && (
                   <g>
-                    <text x={48} y={114} fill={COLORS.cyan} fontSize={9} fontWeight={800}>CONVERGED</text>
+                    <text x={48} y={114} fill={COLORS.cyan} fontSize={12} fontWeight={800}>CONVERGED</text>
                     <text x={48} y={126} fill={COLORS.muted} fontSize={7}>Law of Large Numbers</text>
                   </g>
                 )}
@@ -387,7 +387,7 @@ export default function ProbabilityViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
+            <label className="block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
               AUTO-SAMPLER SPEED:
             </label>
             <div className="grid grid-cols-4 gap-1 border border-outline p-1 bg-surface-container-low">
@@ -395,7 +395,7 @@ export default function ProbabilityViz() {
                 <button aria-label="Visualization action"
                   key={mode}
                   onClick={() => setAutoPlayMode(mode)}
-                  className={`py-1 text-[9px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
+                  className={`py-1 text-[12px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
                     autoPlayMode === mode
                       ? "bg-primary text-on-primary"
                       : "hover:bg-outline-variant text-on-surface-variant"
@@ -410,7 +410,7 @@ export default function ProbabilityViz() {
           <button aria-label="RESET SIMULATION & SCATTER"
             onClick={handleReset}
             disabled={n === 0}
-            className="w-full flex h-8 items-center justify-center border border-outline bg-surface hover:bg-surface-container text-on-surface-variant text-[10px] active:scale-[0.98] transition-all tracking-wider cursor-pointer disabled:opacity-50"
+            className="w-full flex h-8 items-center justify-center border border-outline bg-surface hover:bg-surface-container text-on-surface-variant text-[12px] active:scale-[0.98] transition-all tracking-wider cursor-pointer disabled:opacity-50"
           >
             RESET SIMULATION & SCATTER
           </button>

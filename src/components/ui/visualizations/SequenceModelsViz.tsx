@@ -139,7 +139,7 @@ export default function SequenceModelsViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[11px]" htmlFor="seq-mode-select">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="seq-mode-select">
               Select RNN Scenario
             </label>
             <select
@@ -158,7 +158,7 @@ export default function SequenceModelsViz() {
 
         {/* Diagnostics */}
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[11px]">Analysis</div>
+          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Analysis</div>
           <p className="text-xs leading-relaxed text-on-surface-variant">
             {mode === "vanishing" && (
               "Under Vanishing gradients, weights are small. As the error signal flows backward through timesteps, it gets multiplied by the weight repeatedly and decays to near zero at timestep 1. The model cannot learn long-term relationships."

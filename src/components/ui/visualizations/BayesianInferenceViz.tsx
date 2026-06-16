@@ -342,7 +342,7 @@ export default function BayesianInferenceViz() {
               {/* Prior Parameters */}
               <g transform="translate(440, 44)">
                 <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>PRIOR (Beta)</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>PRIOR (Beta)</text>
                 <text x={12} y={36} fill={COLORS.cyan} fontSize={14} fontWeight={800}>
                   α={alpha.toFixed(1)}, β={beta.toFixed(1)}
                 </text>
@@ -351,7 +351,7 @@ export default function BayesianInferenceViz() {
               {/* Observed Success rate */}
               <g transform="translate(440, 102)">
                 <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>BATCH DATA (k/n)</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>BATCH DATA (k/n)</text>
                 <text x={12} y={36} fill={COLORS.yellow} fontSize={14} fontWeight={800}>
                   {k} / {n} successes ({((k / n) * 100).toFixed(0)}%)
                 </text>
@@ -360,7 +360,7 @@ export default function BayesianInferenceViz() {
               {/* Posterior Parameters */}
               <g transform="translate(440, 160)">
                 <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>POSTERIOR (Beta)</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>POSTERIOR (Beta)</text>
                 <text x={12} y={36} fill={COLORS.pink} fontSize={14} fontWeight={800}>
                   α={postAlpha.toFixed(1)}, β={postBeta.toFixed(1)}
                 </text>
@@ -369,12 +369,12 @@ export default function BayesianInferenceViz() {
               {/* Iteration count and controls */}
               <g transform="translate(440, 218)">
                 <rect width={166} height={102} fill="rgba(250,248,242,0.6)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={800}>BAYESIAN ITERATION</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={800}>BAYESIAN ITERATION</text>
                 <text x={12} y={38} fill={COLORS.pink} fontSize={20} fontWeight={800}>
                   #{iteration}
                 </text>
                 <foreignObject x={8} y={44} width={150} height={50}>
-                  <div className="font-sans text-[9px] font-medium leading-snug" style={{ color: COLORS.muted }}>
+                  <div className="font-sans text-[12px] font-medium leading-snug" style={{ color: COLORS.muted }}>
                     Each iteration feeds the previous posterior as the new prior.
                   </div>
                 </foreignObject>
@@ -392,7 +392,7 @@ export default function BayesianInferenceViz() {
 
           <StepIndicator steps={steps} currentStep={currentStep} />
           
-          <div className="my-3 min-h-[50px] text-[10px] text-on-surface-variant leading-relaxed bg-surface-container-low p-2.5 border border-outline font-sans">
+          <div className="my-3 min-h-[50px] text-[12px] text-on-surface-variant leading-relaxed bg-surface-container-low p-2.5 border border-outline font-sans">
             {stepTexts[currentStep]}
           </div>
 
@@ -408,7 +408,7 @@ export default function BayesianInferenceViz() {
         </div>
 
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-2 block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant">
+          <div className="mb-2 block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant">
             Adjust Current Batch (k/n):
           </div>
           <div className="flex items-center justify-between gap-2 bg-surface-container p-2 border border-outline mb-3">

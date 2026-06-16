@@ -179,7 +179,7 @@ export default function BiasVarianceViz() {
 
             {/* LEFT PANEL: Fit Curve and Points */}
             <g>
-              <text x={leftPlot.left + leftPlot.width / 2} y={leftPlot.top - 14} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={800}>POLYNOMIAL MODEL FIT</text>
+              <text x={leftPlot.left + leftPlot.width / 2} y={leftPlot.top - 14} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>POLYNOMIAL MODEL FIT</text>
               {ticks.map((tick) => (
                 <g key={`l-tick-${tick}`}>
                   <line x1={scaleLeftX(tick)} x2={scaleLeftX(tick)} y1={leftPlot.top} y2={leftPlot.bottom} stroke={COLORS.grid} strokeWidth={1} />
@@ -188,8 +188,8 @@ export default function BiasVarianceViz() {
               ))}
               <line x1={leftPlot.left} x2={leftPlot.left} y1={leftPlot.top} y2={leftPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
               <line x1={leftPlot.left} x2={leftPlot.right} y1={leftPlot.bottom} y2={leftPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
-              <text x={leftPlot.right + 10} y={leftPlot.bottom + 4} fill={COLORS.muted} fontSize={9} fontWeight={700}>x</text>
-              <text x={leftPlot.left - 8} y={leftPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={9} fontWeight={700}>y</text>
+              <text x={leftPlot.right + 10} y={leftPlot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>x</text>
+              <text x={leftPlot.left - 8} y={leftPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={700}>y</text>
 
               {/* Ghost fits (Semi-transparent variance visualizations) */}
               <path d={ghostPath1} fill="none" stroke={COLORS.cyan} strokeWidth={1.5} strokeDasharray="3 3" opacity={0.35} />
@@ -208,7 +208,7 @@ export default function BiasVarianceViz() {
 
             {/* RIGHT PANEL: Train vs Validation Error */}
             <g>
-              <text x={rightPlot.left + rightPlot.width / 2} y={rightPlot.top - 14} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={800}>ERROR VS COMPLEXITY</text>
+              <text x={rightPlot.left + rightPlot.width / 2} y={rightPlot.top - 14} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>ERROR VS COMPLEXITY</text>
               
               {/* Grid guides */}
               {[1, 2, 3, 4, 5, 6, 7].map((deg) => (
@@ -221,8 +221,8 @@ export default function BiasVarianceViz() {
               <line x1={rightPlot.left} x2={rightPlot.left} y1={rightPlot.top} y2={rightPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
               <line x1={rightPlot.left} x2={rightPlot.right} y1={rightPlot.bottom} y2={rightPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
               
-              <text x={rightPlot.right + 10} y={rightPlot.bottom + 4} fill={COLORS.muted} fontSize={9} fontWeight={700}>Degree</text>
-              <text x={rightPlot.left - 8} y={rightPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={9} fontWeight={700}>Error</text>
+              <text x={rightPlot.right + 10} y={rightPlot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>Degree</text>
+              <text x={rightPlot.left - 8} y={rightPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={700}>Error</text>
 
               {/* Train Error Curve (Cyan) */}
               <path d={trainErrPath} fill="none" stroke={COLORS.cyan} strokeWidth={2.5} />
@@ -249,7 +249,7 @@ export default function BiasVarianceViz() {
           </div>
 
           <div className="mb-4">
-            <span className="block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
+            <span className="block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
               POLYNOMIAL DEGREE:
             </span>
             <input aria-label="BiasVariance input"
@@ -261,7 +261,7 @@ export default function BiasVarianceViz() {
               onChange={(e) => setComplexity(parseInt(e.target.value))}
               className="w-full accent-primary"
             />
-            <div className="flex justify-between text-[9px] text-on-surface-variant font-bold mt-1">
+            <div className="flex justify-between text-[12px] text-on-surface-variant font-bold mt-1">
               <span>Degree 1 (Linear)</span>
               <span className="text-primary font-bold">d = {complexity}</span>
               <span>Degree 7 (High Var)</span>

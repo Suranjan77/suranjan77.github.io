@@ -66,7 +66,7 @@ export default function AIInferenceViz() {
           role="img"
           aria-label="AI inference memory and throughput calculator"
         >
-          <div className="mb-4 font-mono text-[11px] font-bold uppercase tracking-wider text-primary">
+          <div className="mb-4 font-mono text-[12px] font-bold uppercase tracking-wider text-primary">
             GPU Memory (VRAM) Allocation Calculator
           </div>
 
@@ -83,7 +83,7 @@ export default function AIInferenceViz() {
               <div className="w-full bg-grid h-8 rounded overflow-hidden flex relative border border-outline">
                 {/* Weights Segment */}
                 <div
-                  className="bg-cyan h-full transition-all duration-300 flex items-center justify-center text-[10px] text-white font-bold"
+                  className="bg-cyan h-full transition-all duration-300 flex items-center justify-center text-[12px] text-white font-bold"
                   style={{ width: `${Math.min(100, (results.weightMemGB / vramLimit) * 100)}%` }}
                   title={`Weights: ${results.weightMemGB.toFixed(1)} GB`}
                 >
@@ -92,7 +92,7 @@ export default function AIInferenceViz() {
                 
                 {/* KV Cache Segment */}
                 <div
-                  className="bg-pink h-full transition-all duration-300 flex items-center justify-center text-[10px] text-white font-bold"
+                  className="bg-pink h-full transition-all duration-300 flex items-center justify-center text-[12px] text-white font-bold"
                   style={{ width: `${Math.min(100 - (results.weightMemGB / vramLimit) * 100, (results.kvCacheMemGB / vramLimit) * 100)}%` }}
                   title={`KV Cache: ${results.kvCacheMemGB.toFixed(1)} GB`}
                 >
@@ -100,7 +100,7 @@ export default function AIInferenceViz() {
                 </div>
 
                 {results.totalMemGB > vramLimit && (
-                  <div className="absolute right-2 top-0 bottom-0 flex items-center text-[10px] font-bold text-pink animate-pulse">
+                  <div className="absolute right-2 top-0 bottom-0 flex items-center text-[12px] font-bold text-pink animate-pulse">
                     OUT OF MEMORY
                   </div>
                 )}
@@ -109,17 +109,17 @@ export default function AIInferenceViz() {
 
             <div className="grid grid-cols-2 gap-4 border-t border-outline pt-4">
               <div className="bg-surface-container p-3 rounded border border-outline">
-                <div className="text-muted text-[10px] uppercase font-bold">Weights footprint</div>
+                <div className="text-muted text-[12px] uppercase font-bold">Weights footprint</div>
                 <div className="text-xl font-bold text-cyan">{results.weightMemGB.toFixed(2)} GB</div>
-                <div className="text-[9px] text-on-surface-variant leading-snug mt-1">
+                <div className="text-[12px] text-on-surface-variant leading-snug mt-1">
                   Parameters × precision size. (e.g. {paramsBillion}B × {precision === "fp16" ? "2" : precision === "int8" ? "1" : "0.5"} bytes)
                 </div>
               </div>
 
               <div className="bg-surface-container p-3 rounded border border-outline">
-                <div className="text-muted text-[10px] uppercase font-bold">KV Cache Size</div>
+                <div className="text-muted text-[12px] uppercase font-bold">KV Cache Size</div>
                 <div className="text-xl font-bold text-pink">{results.kvCacheMemGB.toFixed(2)} GB</div>
-                <div className="text-[9px] text-on-surface-variant leading-snug mt-1">
+                <div className="text-[12px] text-on-surface-variant leading-snug mt-1">
                   Grows linearly with sequence length ({seqLength}) and batch size ({batchSize}).
                 </div>
               </div>
@@ -131,12 +131,12 @@ export default function AIInferenceViz() {
       <div className="flex min-w-0 flex-col gap-3">
         {/* Sliders */}
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between font-bold uppercase tracking-wide text-primary text-[11px]">
+          <div className="mb-3 flex items-center justify-between font-bold uppercase tracking-wide text-primary text-[12px]">
             <span>Model Inputs</span>
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[10px]" htmlFor="inf-params-slider">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="inf-params-slider">
               Parameters ({paramsBillion} Billion)
             </label>
             <input
@@ -153,7 +153,7 @@ export default function AIInferenceViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[10px]" htmlFor="inf-precision-select">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="inf-precision-select">
               Precision Format
             </label>
             <select
@@ -170,7 +170,7 @@ export default function AIInferenceViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[10px]" htmlFor="inf-seq-slider">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="inf-seq-slider">
               Sequence Length ({seqLength})
             </label>
             <input
@@ -187,7 +187,7 @@ export default function AIInferenceViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[10px]" htmlFor="inf-batch-slider">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="inf-batch-slider">
               Batch Size ({batchSize})
             </label>
             <input
@@ -206,10 +206,10 @@ export default function AIInferenceViz() {
 
         {/* Throughput Output */}
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[11px]">Serving Throughput</div>
+          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Serving Throughput</div>
           <div className="text-2xl font-bold text-cyan">{results.estimatedThroughput.toFixed(0)}</div>
-          <div className="text-[10px] text-muted font-bold">TOKENS / SECOND</div>
-          <p className="mt-2 text-[10px] leading-snug font-sans text-on-surface-variant">
+          <div className="text-[12px] text-muted font-bold">TOKENS / SECOND</div>
+          <p className="mt-2 text-[12px] leading-snug font-sans text-on-surface-variant">
             *Throughput measures the total volume of generated text tokens processed per second across the GPU. Small batch sizes yield fast single-user speeds, while large batch sizes maximize overall system efficiency.
           </p>
         </div>

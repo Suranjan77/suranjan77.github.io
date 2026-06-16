@@ -142,9 +142,9 @@ export default function EnsembleViz() {
               <line x1={leftPlot.left} x2={leftPlot.left} y1={leftPlot.top} y2={leftPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
               <line x1={leftPlot.left} x2={leftPlot.right} y1={leftPlot.bottom} y2={leftPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
 
-              <text x={leftPlot.right + 8} y={leftPlot.bottom + 4} fill={COLORS.muted} fontSize={10} fontWeight={700}>x1</text>
-              <text x={leftPlot.left - 8} y={leftPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={10} fontWeight={700}>x2</text>
-              <text x={leftPlot.left + 5} y={leftPlot.top - 8} fill={COLORS.muted} fontSize={9} fontWeight={800}>VOTING HEATMAP</text>
+              <text x={leftPlot.right + 8} y={leftPlot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>x1</text>
+              <text x={leftPlot.left - 8} y={leftPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={700}>x2</text>
+              <text x={leftPlot.left + 5} y={leftPlot.top - 8} fill={COLORS.muted} fontSize={12} fontWeight={800}>VOTING HEATMAP</text>
 
               {/* Render Weak Stumps */}
               {stumps.slice(0, learnerCount).map((stump, idx) => {
@@ -200,7 +200,7 @@ export default function EnsembleViz() {
             <g>
               {/* Plot boundary */}
               <rect x={rightPlot.left} y={rightPlot.top} width={rightPlot.width} height={rightPlot.height} fill="none" stroke={COLORS.border} strokeDasharray="3 3" />
-              <text x={rightPlot.left + 8} y={rightPlot.top - 8} fill={COLORS.muted} fontSize={9} fontWeight={800}>TRAINING ERROR PROFILE</text>
+              <text x={rightPlot.left + 8} y={rightPlot.top - 8} fill={COLORS.muted} fontSize={12} fontWeight={800}>TRAINING ERROR PROFILE</text>
 
               {/* Error ticks */}
               {rightTicksErr.map((tick) => {
@@ -257,7 +257,7 @@ export default function EnsembleViz() {
           </div>
 
           <div className="mb-3">
-            <span className="block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
+            <span className="block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
               Weak Learners (Stumps):
             </span>
             <div className="flex items-center gap-2 bg-surface-container p-2 border border-outline">
@@ -288,7 +288,7 @@ export default function EnsembleViz() {
         </div>
 
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-2 block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant">
+          <div className="mb-2 block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant">
             CURRENT ENSEMBLE SUMMARY
           </div>
           <div className="bg-surface-container p-3 border border-outline space-y-1.5 text-xs">

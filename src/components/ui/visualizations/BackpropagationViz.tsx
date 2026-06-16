@@ -122,7 +122,7 @@ export default function BackpropagationViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[11px]" htmlFor="bp-slider-x">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="bp-slider-x">
               Input x ({x})
             </label>
             <input
@@ -139,7 +139,7 @@ export default function BackpropagationViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[11px]" htmlFor="bp-slider-y">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="bp-slider-y">
               Input y ({y})
             </label>
             <input
@@ -156,7 +156,7 @@ export default function BackpropagationViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[11px]" htmlFor="bp-slider-z">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="bp-slider-z">
               Input z ({z})
             </label>
             <input
@@ -175,7 +175,7 @@ export default function BackpropagationViz() {
 
         {/* Analytical Derivatives */}
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[11px]">Calculated Gradients</div>
+          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Calculated Gradients</div>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div>df/dx = z:</div>
             <div className="font-bold text-right text-pink">{results.df_dx}</div>

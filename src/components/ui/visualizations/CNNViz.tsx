@@ -134,7 +134,7 @@ export default function CNNViz() {
 
             {/* Input Grid (6x6) */}
             <g>
-              <text x={inputStart.x + 3 * cellSize} y={inputStart.y - 14} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={800}>INPUT IMAGE (6x6)</text>
+              <text x={inputStart.x + 3 * cellSize} y={inputStart.y - 14} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>INPUT IMAGE (6x6)</text>
               {inputGrid.map((row, rIdx) =>
                 row.map((val, cIdx) => {
                   const isOverlapping =
@@ -203,7 +203,7 @@ export default function CNNViz() {
 
             {/* Output Feature Map Grid (4x4) */}
             <g>
-              <text x={outputStart.x + 2 * outCellSize} y={outputStart.y - 14} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={800}>FEATURE MAP (4x4)</text>
+              <text x={outputStart.x + 2 * outCellSize} y={outputStart.y - 14} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>FEATURE MAP (4x4)</text>
               {featureMap.map((val, idx) => {
                 const r = Math.floor(idx / 4);
                 const c = idx % 4;
@@ -269,7 +269,7 @@ export default function CNNViz() {
                   setSelectedKernel(kKey);
                   handleReset();
                 }}
-                className={`py-2 text-[9px] font-bold uppercase tracking-wider cursor-pointer border ${
+                className={`py-2 text-[12px] font-bold uppercase tracking-wider cursor-pointer border ${
                   selectedKernel === kKey
                     ? "bg-primary border-primary text-on-primary"
                     : "bg-surface hover:bg-surface-container border-outline text-on-surface-variant"
@@ -281,8 +281,8 @@ export default function CNNViz() {
           </div>
 
           <div className="mb-3 flex flex-col gap-1.5 p-2.5 border border-outline bg-surface-container-low">
-            <span className="font-bold text-[9px] uppercase tracking-wide text-primary">Active Kernel Weights:</span>
-            <div className="grid grid-cols-3 gap-1 w-28 text-center text-[10px] font-bold">
+            <span className="font-bold text-[12px] uppercase tracking-wide text-primary">Active Kernel Weights:</span>
+            <div className="grid grid-cols-3 gap-1 w-28 text-center text-[12px] font-bold">
               {kernel.map((row, rIdx) =>
                 row.map((w, cIdx) => (
                   <div key={`${rIdx}-${cIdx}`} className="bg-surface p-1 border border-outline text-on-surface">
@@ -293,7 +293,7 @@ export default function CNNViz() {
             </div>
           </div>
 
-          <div className="my-3 min-h-[46px] text-[10px] text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline font-sans">
+          <div className="my-3 min-h-[46px] text-[12px] text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline font-sans">
             Moving kernel window scans image pixels. In-place multiplication values are calculated and summed up to generate the feature map cell value.
           </div>
 
@@ -310,7 +310,7 @@ export default function CNNViz() {
 
         <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">
           <span className="font-mono text-xs sm:text-sm font-bold uppercase tracking-wide text-primary">Pythonic Code Snippet</span>
-          <pre className="mt-2 text-[10px] bg-surface-container p-2.5 rounded border border-outline font-mono overflow-x-auto text-primary leading-tight">
+          <pre className="mt-2 text-[12px] bg-surface-container p-2.5 rounded border border-outline font-mono overflow-x-auto text-primary leading-tight">
 {`# 2D Conv loop element
 for r in range(out_h):
     for c in range(out_w):

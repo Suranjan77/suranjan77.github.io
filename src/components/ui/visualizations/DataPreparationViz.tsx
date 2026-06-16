@@ -254,13 +254,13 @@ export default function DataPreparationViz() {
             <g transform="translate(45, 335)">
               <rect width={530} height={50} fill="rgba(250,248,242,0.85)" stroke={COLORS.border} rx={2} />
               <circle cx={20} cy={25} r={5} fill={COLORS.cyan} />
-              <text x={32} y={29} fontSize={10} fill={COLORS.muted} fontWeight={600}>Training Set</text>
+              <text x={32} y={29} fontSize={12} fill={COLORS.muted} fontWeight={600}>Training Set</text>
               
               <circle cx={130} cy={25} r={5} fill={COLORS.pink} />
-              <text x={142} y={29} fontSize={10} fill={COLORS.muted} fontWeight={600}>Test Set</text>
+              <text x={142} y={29} fontSize={12} fill={COLORS.muted} fontWeight={600}>Test Set</text>
               
               <circle cx={230} cy={25} r={5} fill={COLORS.yellow} />
-              <text x={242} y={29} fontSize={10} fill={COLORS.muted} fontWeight={600}>Imputed (Missing)</text>
+              <text x={242} y={29} fontSize={12} fill={COLORS.muted} fontWeight={600}>Imputed (Missing)</text>
 
               {dataLeakage && (
                 <text x={370} y={29} fontSize={10} fill={COLORS.pink} fontWeight={800}>
@@ -279,7 +279,7 @@ export default function DataPreparationViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[11px]" htmlFor="scaling-select">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="scaling-select">
               Scaling Transformation
             </label>
             <select
@@ -329,7 +329,7 @@ export default function DataPreparationViz() {
         </div>
 
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[11px]">Insights</div>
+          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Insights</div>
           <div className="text-xs font-sans text-on-surface-variant leading-relaxed">
             {scalingMethod === "none" && "Features have wildly different ranges (X goes to 1500, Y only to 20). Distance measurements would be dominated by X."}
             {scalingMethod === "minmax" && "Min-Max scales all coordinates strictly into a [0, 1] box. Outliers compress normal variance."}

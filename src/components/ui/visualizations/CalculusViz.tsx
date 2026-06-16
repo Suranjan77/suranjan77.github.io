@@ -172,11 +172,11 @@ export default function CalculusViz() {
                 <g opacity={Math.min(1, (h - 0.3) * 2)}>
                   {/* dx label line */}
                   <line x1={scaleX(focusX)} y1={scaleY(fy)} x2={scaleX(sec)} y2={scaleY(fy)} stroke={COLORS.muted} strokeWidth={1} strokeDasharray="3 3" />
-                  <text x={scaleX(focusX + h / 2)} y={scaleY(fy) + 14} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={700}>h</text>
+                  <text x={scaleX(focusX + h / 2)} y={scaleY(fy) + 14} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={700}>h</text>
 
                   {/* dy label line */}
                   <line x1={scaleX(sec)} y1={scaleY(fy)} x2={scaleX(sec)} y2={scaleY(sy)} stroke={COLORS.muted} strokeWidth={1} strokeDasharray="3 3" />
-                  <text x={scaleX(sec) + 8} y={scaleY(fy + (sy - fy) / 2)} textAnchor="start" fill={COLORS.muted} fontSize={10} fontWeight={700}>f(x+h)-f(x)</text>
+                  <text x={scaleX(sec) + 8} y={scaleY(fy + (sy - fy) / 2)} textAnchor="start" fill={COLORS.muted} fontSize={12} fontWeight={700}>f(x+h)-f(x)</text>
                 </g>
               )}
 
@@ -227,7 +227,7 @@ export default function CalculusViz() {
               {/* Lens physical border */}
               <circle cx={lensCx} cy={lensCy} r={lensRadius} fill="none" stroke={COLORS.border} strokeWidth={2} />
               <circle cx={lensCx} cy={lensCy} r={lensRadius + 1} fill="none" stroke="#000" strokeOpacity={0.08} strokeWidth={1} />
-              <text x={lensCx} y={lensCy - lensRadius - 6} textAnchor="middle" fill={COLORS.muted} fontSize={9} fontWeight={800} letterSpacing="0.05em">LOCAL LINEARITY</text>
+              <text x={lensCx} y={lensCy - lensRadius - 6} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800} letterSpacing="0.05em">LOCAL LINEARITY</text>
             </g>
 
             {/* SVG In-Plot Stats */}
@@ -235,14 +235,14 @@ export default function CalculusViz() {
               {/* Secant Slope Readout */}
               <g transform="translate(440, 44)">
                 <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>SECANT SLOPE (Δy/Δx)</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>SECANT SLOPE (Δy/Δx)</text>
                 <text x={12} y={36} fill={COLORS.yellow} fontSize={15} fontWeight={800}>{h > 0.002 ? secantSlope.toFixed(3) : "—"}</text>
               </g>
 
               {/* Tangent Slope Readout */}
               <g transform="translate(440, 102)">
                 <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>TANGENT SLOPE (f&apos;(x))</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>TANGENT SLOPE (f&apos;(x))</text>
                 <text x={12} y={36} fill={COLORS.pink} fontSize={15} fontWeight={800}>{exactSlope.toFixed(3)}</text>
               </g>
 
@@ -273,12 +273,12 @@ export default function CalculusViz() {
                   );
                 })()}
 
-                <text x={56} y={44} fill={COLORS.muted} fontSize={10} fontWeight={700}>SLOPE ERROR</text>
+                <text x={56} y={44} fill={COLORS.muted} fontSize={12} fontWeight={700}>SLOPE ERROR</text>
                 <text x={56} y={64} fill={COLORS.pink} fontSize={16} fontWeight={800}>
                   {h > 0.002 ? Math.abs(secantSlope - exactSlope).toFixed(4) : "0.0000"}
                 </text>
                 <foreignObject x={52} y={72} width={105} height={70}>
-                  <div className="font-sans text-[9px] font-medium leading-snug opacity-80" style={{ color: COLORS.muted }}>
+                  <div className="font-sans text-[12px] font-medium leading-snug opacity-80" style={{ color: COLORS.muted }}>
                     As h → 0, secant slope converges to tangent slope.
                   </div>
                 </foreignObject>
@@ -307,7 +307,7 @@ export default function CalculusViz() {
           <button aria-label="RESET LIMIT DISTANCE"
             onClick={() => setH(4.0)}
             disabled={h === 4.0 && !isAnimating}
-            className="w-full flex h-8 items-center justify-center border border-outline bg-surface hover:bg-surface-container text-on-surface-variant text-[10px] active:scale-[0.98] transition-all tracking-wider cursor-pointer disabled:opacity-50"
+            className="w-full flex h-8 items-center justify-center border border-outline bg-surface hover:bg-surface-container text-on-surface-variant text-[12px] active:scale-[0.98] transition-all tracking-wider cursor-pointer disabled:opacity-50"
           >
             RESET LIMIT DISTANCE
           </button>

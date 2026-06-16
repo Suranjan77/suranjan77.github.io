@@ -134,7 +134,7 @@ export default function EmbeddingsTokenizationViz() {
 
           {/* Tokenization display */}
           <div className="relative border border-outline bg-surface overflow-hidden rounded p-4 min-h-[120px]">
-            <div className="mb-2 font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
+            <div className="mb-2 font-mono text-[12px] font-bold uppercase tracking-wider text-primary">
               Tokenized Output (Click words to compare embeddings)
             </div>
             
@@ -159,7 +159,7 @@ export default function EmbeddingsTokenizationViz() {
                     aria-label={`Token ${token.text} with ID ${token.id}`}
                   >
                     <span className="font-bold font-sans">{token.text}</span>
-                    <span className="text-[9px] text-muted font-mono">ID: {token.id}</span>
+                    <span className="text-[12px] text-muted font-mono">ID: {token.id}</span>
                   </button>
                 );
               })}
@@ -173,7 +173,7 @@ export default function EmbeddingsTokenizationViz() {
               role="img"
               aria-label="Tokenization and embedding comparison"
             >
-              <div className="mb-3 font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
+              <div className="mb-3 font-mono text-[12px] font-bold uppercase tracking-wider text-primary">
                 Semantic Embedding Space Comparison
               </div>
 
@@ -228,7 +228,7 @@ export default function EmbeddingsTokenizationViz() {
       <div className="flex min-w-0 flex-col gap-3">
         {/* Comparison Output */}
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[11px]">Cosine Similarity</div>
+          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Cosine Similarity</div>
           
           {selectedTokens.length < 2 ? (
             <div className="text-muted italic text-xs">Select two tokens from the box to compute similarity.</div>
@@ -245,7 +245,7 @@ export default function EmbeddingsTokenizationViz() {
                 </span>
               </div>
               
-              <div className="bg-grid p-2.5 rounded text-[11px] leading-snug font-sans text-on-surface-variant">
+              <div className="bg-grid p-2.5 rounded text-[12px] leading-snug font-sans text-on-surface-variant">
                 {similarityInfo && similarityInfo.similarity > 0.7 && (
                   "High similarity: These tokens are semantically related (like 'cat' and 'dog'). Their vectors point in very similar directions."
                 )}
@@ -262,7 +262,7 @@ export default function EmbeddingsTokenizationViz() {
 
         {/* Diagnostic presets */}
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[11px]">Preset Pairs to Try</div>
+          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Preset Pairs to Try</div>
           <div className="flex flex-col gap-2">
             <button aria-label="cat vs dog (Related)"
               onClick={() => setSelectedTokens(["cat", "dog"])}

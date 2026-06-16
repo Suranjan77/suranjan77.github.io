@@ -296,19 +296,19 @@ export default function LinearRegressionViz() {
               {/* Sum of Squared Errors (SSE) */}
               <g transform="translate(440, 44)">
                 <rect width={166} height={54} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={21} fill={COLORS.muted} fontSize={9} fontWeight={700}>SUM OF SQUARES (SSE)</text>
+                <text x={12} y={21} fill={COLORS.muted} fontSize={12} fontWeight={700}>SUM OF SQUARES (SSE)</text>
                 <text data-testid="linear-regression-sse" x={12} y={41} fill={COLORS.pink} fontSize={16} fontWeight={800}>{sse.toFixed(3)}</text>
               </g>
 
               {/* Slope and Intercept */}
               <g transform="translate(440, 110)">
                 <rect width={166} height={68} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={9} fontWeight={700}>FITTED LINE FORMULA</text>
-                <text data-testid="linear-regression-formula" x={12} y={38} fill={COLORS.muted} fontSize={11} fontWeight={800}>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>FITTED LINE FORMULA</text>
+                <text data-testid="linear-regression-formula" x={12} y={39} fill={COLORS.muted} fontSize={12} fontWeight={800}>
                   y = <tspan fill={COLORS.pink}>{m.toFixed(2)}</tspan> · x + <tspan fill={COLORS.pink}>{c.toFixed(2)}</tspan>
                 </text>
-                <foreignObject x={8} y={44} width={150} height={30}>
-                  <div className="font-sans text-[9px] font-medium leading-snug" style={{ color: COLORS.muted }}>
+                <foreignObject x={8} y={46} width={150} height={28}>
+                  <div className="font-sans text-[12px] font-medium leading-snug" style={{ color: COLORS.muted }}>
                     OLS ideal: y = 0.70 · x + 1.81
                   </div>
                 </foreignObject>
@@ -316,8 +316,8 @@ export default function LinearRegressionViz() {
 
               {/* Optimization SSE bar gauge */}
               <g transform="translate(440, 190)">
-                <rect width={166} height={142} fill="rgba(250,248,242,0.6)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={9} fontWeight={800}>SSE METER</text>
+                <rect width={166} height={150} fill="rgba(250,248,242,0.6)" stroke={COLORS.border} rx={2} />
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={800}>SSE METER</text>
 
                 {/* Gauge */}
                 <rect x={20} y={30} width={20} height={90} fill={COLORS.grid} rx={2} />
@@ -339,12 +339,12 @@ export default function LinearRegressionViz() {
                   );
                 })()}
 
-                <text x={50} y={44} fill={COLORS.muted} fontSize={9} fontWeight={600}>FIT DISTANCE:</text>
+                <text x={50} y={44} fill={COLORS.muted} fontSize={12} fontWeight={600}>FIT DISTANCE:</text>
                 <text x={50} y={60} fill={COLORS.muted} fontSize={13} fontWeight={800}>
                   {sse.toFixed(1)} / 13.1
                 </text>
-                <foreignObject x={45} y={66} width={115} height={70}>
-                  <div className="font-sans text-[9px] font-medium leading-snug" style={{ color: COLORS.muted }}>
+                <foreignObject x={45} y={68} width={115} height={80}>
+                  <div className="font-sans text-[12px] font-medium leading-snug" style={{ color: COLORS.muted }}>
                     Residual squares show each point&apos;s squared error contribution.
                   </div>
                 </foreignObject>

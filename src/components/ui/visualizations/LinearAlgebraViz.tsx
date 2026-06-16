@@ -344,7 +344,7 @@ export default function LinearAlgebraViz() {
               {/* Dot Product */}
               <g transform="translate(440, 44)">
                 <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>DOT PRODUCT (a · b)</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>DOT PRODUCT (a · b)</text>
                 <text x={12} y={36} fill={isOrthogonal ? COLORS.pink : COLORS.muted} fontSize={15} fontWeight={800}>
                   {dotProd.toFixed(2)} {isOrthogonal && " (ORTHO!)"}
                 </text>
@@ -353,14 +353,14 @@ export default function LinearAlgebraViz() {
               {/* Projection Scalar */}
               <g transform="translate(440, 102)">
                 <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>PROJECTION SCALAR (p)</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>PROJECTION SCALAR (p)</text>
                 <text x={12} y={36} fill={COLORS.yellow} fontSize={15} fontWeight={800}>{projScalar.toFixed(2)}</text>
               </g>
 
               {/* Determinant Area */}
               <g transform="translate(440, 160)">
                 <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>DETERMINANT AREA</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>DETERMINANT AREA</text>
                 <text x={12} y={36} fill={isCollinear ? COLORS.yellow : COLORS.muted} fontSize={15} fontWeight={800}>
                   {area.toFixed(2)} {isCollinear && " (COLLINEAR)"}
                 </text>
@@ -369,9 +369,9 @@ export default function LinearAlgebraViz() {
               {/* Coordinate basis tracker */}
               <g transform="translate(440, 218)">
                 <rect width={166} height={120} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>COORDINATES OF P(4,3)</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>COORDINATES OF P(4,3)</text>
 
-                <text x={12} y={40} fill={COLORS.muted} fontSize={9} fontWeight={600}>CURRENT GRID BASIS:</text>
+                <text x={12} y={40} fill={COLORS.muted} fontSize={12} fontWeight={600}>CURRENT GRID BASIS:</text>
                 <text x={12} y={55} fill={COLORS.pink} fontSize={11} fontWeight={800}>
                   u = ({u.x.toFixed(1)}, {u.y.toFixed(1)})
                 </text>
@@ -379,7 +379,7 @@ export default function LinearAlgebraViz() {
                   v = ({v.x.toFixed(1)}, {v.y.toFixed(1)})
                 </text>
 
-                <text x={12} y={92} fill={COLORS.muted} fontSize={9} fontWeight={600}>COORDINATE VALUE [c1, c2]:</text>
+                <text x={12} y={92} fill={COLORS.muted} fontSize={12} fontWeight={600}>COORDINATE VALUE [c1, c2]:</text>
                 <text x={12} y={108} fill={COLORS.pink} fontSize={13} fontWeight={800}>
                   [{c1.toFixed(2)}, {c2.toFixed(2)}]
                 </text>

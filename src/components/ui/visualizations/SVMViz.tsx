@@ -265,21 +265,21 @@ export default function SVMViz() {
               {/* Margin width */}
               <g transform="translate(440, 44)">
                 <rect width={166} height={54} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={21} fill={COLORS.muted} fontSize={9} fontWeight={700}>MARGIN WIDTH (2/||w||)</text>
+                <text x={12} y={21} fill={COLORS.muted} fontSize={12} fontWeight={700}>MARGIN WIDTH (2/||w||)</text>
                 <text x={12} y={41} fill={COLORS.yellow} fontSize={16} fontWeight={800}>{(marginSize * 2).toFixed(3)}</text>
               </g>
 
               {/* Support Vectors count */}
               <g transform="translate(440, 110)">
                 <rect width={166} height={54} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={21} fill={COLORS.muted} fontSize={9} fontWeight={700}>SUPPORT VECTORS</text>
+                <text x={12} y={21} fill={COLORS.muted} fontSize={12} fontWeight={700}>SUPPORT VECTORS</text>
                 <text x={12} y={41} fill={COLORS.pink} fontSize={15} fontWeight={800}>2 (Active)</text>
               </g>
 
               {/* SVM soft penalty status */}
               <g transform="translate(440, 178)">
                 <rect width={166} height={154} fill="rgba(250,248,242,0.6)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={9} fontWeight={800}>SOFT PENALTY (C)</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={800}>SOFT PENALTY (C)</text>
 
                 {/* Vertical slider representation */}
                 <rect x={20} y={30} width={20} height={100} fill={COLORS.grid} rx={2} />
@@ -294,12 +294,12 @@ export default function SVMViz() {
                   transition={{ duration: 0.1 }}
                 />
 
-                <text x={50} y={44} fill={COLORS.muted} fontSize={9} fontWeight={600}>C VALUE:</text>
+                <text x={50} y={44} fill={COLORS.muted} fontSize={12} fontWeight={600}>C VALUE:</text>
                 <text x={50} y={60} fill={COLORS.muted} fontSize={14} fontWeight={800}>
                   {cFactor.toFixed(2)}
                 </text>
                 <foreignObject x={45} y={68} width={115} height={70}>
-                  <div className="font-sans text-[9px] font-medium leading-snug opacity-80" style={{ color: COLORS.muted }}>
+                  <div className="font-sans text-[12px] font-medium leading-snug opacity-80" style={{ color: COLORS.muted }}>
                     Low C makes margin wider. High C forces strict separation.
                   </div>
                 </foreignObject>
@@ -316,7 +316,7 @@ export default function SVMViz() {
           </div>
 
           <div className="mb-3">
-            <span className="block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
+            <span className="block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
               Soft-Margin Penalty (C):
             </span>
             <input aria-label="SVM input"

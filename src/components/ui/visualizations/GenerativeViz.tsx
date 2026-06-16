@@ -149,7 +149,7 @@ export default function GenerativeViz() {
 
             {/* LEFT PLOT: Latent Space Map */}
             <g>
-              <text x={plot.left + plot.width / 2} y={plot.top - 14} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={800}>2D LATENT SPACE (z)</text>
+              <text x={plot.left + plot.width / 2} y={plot.top - 14} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>2D LATENT SPACE (z)</text>
               
               {/* Grid ticks */}
               {ticks.map((tick) => (
@@ -168,8 +168,8 @@ export default function GenerativeViz() {
               {/* Axes */}
               <line x1={plot.left} x2={plot.left} y1={plot.top} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
               <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
-              <text x={plot.right + 8} y={plot.bottom + 4} fill={COLORS.muted} fontSize={9} fontWeight={700}>z1</text>
-              <text x={plot.left - 8} y={plot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={9} fontWeight={700}>z2</text>
+              <text x={plot.right + 8} y={plot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>z1</text>
+              <text x={plot.left - 8} y={plot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={700}>z2</text>
 
               {/* Single Point Mode representation */}
               {mode === "single" && (
@@ -212,7 +212,7 @@ export default function GenerativeViz() {
             {/* RIGHT PLOT: Generated Output Frame */}
             <g>
               <rect x={340} y={plot.top} width={250} height={plot.height} fill="none" stroke={COLORS.border} strokeDasharray="3 3" />
-              <text x={350} y={plot.top + 16} fill={COLORS.muted} fontSize={9} fontWeight={800}>GENERATED MANIFOLD SHAPE</text>
+              <text x={350} y={plot.top + 16} fill={COLORS.muted} fontSize={12} fontWeight={800}>GENERATED MANIFOLD SHAPE</text>
 
               {/* Shaded Shape with Gaussian Blur Filter applied */}
               <g filter="url(#generative-blur)">
@@ -258,7 +258,7 @@ export default function GenerativeViz() {
                   setMode(mKey);
                   setIsInterpolating(false);
                 }}
-                className={`py-2 text-[9px] font-bold uppercase tracking-wider cursor-pointer border ${
+                className={`py-2 text-[12px] font-bold uppercase tracking-wider cursor-pointer border ${
                   mode === mKey
                     ? "bg-primary border-primary text-on-primary"
                     : "bg-surface hover:bg-surface-container border-outline text-on-surface-variant"
@@ -273,7 +273,7 @@ export default function GenerativeViz() {
             <button aria-label="RUN INTERPOLATION WALKER"
               onClick={handleInterpolate}
               disabled={isInterpolating}
-              className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer mb-2 text-[10px]"
+              className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer mb-2 text-[12px]"
             >
               RUN INTERPOLATION WALKER
             </button>

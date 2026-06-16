@@ -180,7 +180,7 @@ export default function MCMCViz() {
               ))}
               <line x1={plot.left} x2={plot.left} y1={plot.top} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
               <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
-              <text x={plot.right + 12} y={plot.bottom + 4} fill={COLORS.muted} fontSize={11} fontWeight={700}>x</text>
+              <text x={plot.right + 12} y={plot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>x</text>
             </g>
 
             {/* Target Density Mountain (shaded area) */}
@@ -334,7 +334,7 @@ export default function MCMCViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
+            <label className="block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
               SAMPLING SPEED:
             </label>
             <div className="grid grid-cols-2 gap-1 border border-outline p-1 bg-surface-container-low">
@@ -343,7 +343,7 @@ export default function MCMCViz() {
                   aria-label={spd === "slow" ? "Slow (Visual)" : "Fast (Math)"}
                   key={spd}
                   onClick={() => setStepSpeed(spd)}
-                  className={`py-1 text-[9px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
+                  className={`py-1 text-[12px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
                     stepSpeed === spd
                       ? "bg-primary text-on-primary"
                       : "hover:bg-outline-variant text-on-surface-variant"
@@ -356,13 +356,13 @@ export default function MCMCViz() {
           </div>
 
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-[9px] font-bold uppercase tracking-wide text-on-surface-variant">
+            <span className="text-[12px] font-bold uppercase tracking-wide text-on-surface-variant">
               Show Trace Overlay:
             </span>
             <button
               aria-label={showTrace ? "ON" : "OFF"}
               onClick={() => setShowTrace(!showTrace)}
-              className={`px-3 py-1 border text-[9px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
+              className={`px-3 py-1 border text-[12px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
                 showTrace ? "bg-cyan/20 border-cyan text-cyan" : "bg-surface"
               }`}
             >
@@ -373,14 +373,14 @@ export default function MCMCViz() {
           <button aria-label="RESET SAMPLER & SAMPLES"
             onClick={handleReset}
             disabled={totalSamples === 0}
-            className="w-full flex h-8 items-center justify-center border border-outline bg-surface hover:bg-surface-container text-on-surface-variant text-[10px] active:scale-[0.98] transition-all tracking-wider cursor-pointer disabled:opacity-50"
+            className="w-full flex h-8 items-center justify-center border border-outline bg-surface hover:bg-surface-container text-on-surface-variant text-[12px] active:scale-[0.98] transition-all tracking-wider cursor-pointer disabled:opacity-50"
           >
             RESET SAMPLER & SAMPLES
           </button>
         </div>
 
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-2 block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant">
+          <div className="mb-2 block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant">
             MCMC RUN STATUS
           </div>
           <div className="bg-surface-container p-3 border border-outline space-y-1 text-xs">

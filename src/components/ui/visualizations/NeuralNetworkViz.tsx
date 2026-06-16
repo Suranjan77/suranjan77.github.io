@@ -252,7 +252,7 @@ export default function NeuralNetworkViz() {
                 stroke={COLORS.border}
                 strokeWidth={2}
               />
-              <text x={layerX.input} y={inputY[0] + 4} textAnchor="middle" fill={isAtOrPast(0) ? "#FFF" : COLORS.muted} fontSize={10} fontWeight={800}>x1</text>
+              <text x={layerX.input} y={inputY[0] + 4} textAnchor="middle" fill={isAtOrPast(0) ? "#FFF" : COLORS.muted} fontSize={12} fontWeight={800}>x1</text>
               <text x={layerX.input - 28} y={inputY[0] + 4} textAnchor="end" fill={COLORS.muted} fontSize={10} fontWeight={700}>{x1.toFixed(2)}</text>
 
               {/* x2 */}
@@ -264,7 +264,7 @@ export default function NeuralNetworkViz() {
                 stroke={COLORS.border}
                 strokeWidth={2}
               />
-              <text x={layerX.input} y={inputY[1] + 4} textAnchor="middle" fill={isAtOrPast(0) ? "#FFF" : COLORS.muted} fontSize={10} fontWeight={800}>x2</text>
+              <text x={layerX.input} y={inputY[1] + 4} textAnchor="middle" fill={isAtOrPast(0) ? "#FFF" : COLORS.muted} fontSize={12} fontWeight={800}>x2</text>
               <text x={layerX.input - 28} y={inputY[1] + 4} textAnchor="end" fill={COLORS.muted} fontSize={10} fontWeight={700}>{x2.toFixed(2)}</text>
 
               {/* Bias */}
@@ -276,7 +276,7 @@ export default function NeuralNetworkViz() {
                 stroke={COLORS.border}
                 strokeWidth={2}
               />
-              <text x={layerX.input} y={inputY[2] + 4} textAnchor="middle" fill={isAtOrPast(0) ? "#FFF" : COLORS.muted} fontSize={9} fontWeight={800}>BIAS</text>
+              <text x={layerX.input} y={inputY[2] + 4} textAnchor="middle" fill={isAtOrPast(0) ? "#FFF" : COLORS.muted} fontSize={12} fontWeight={800}>BIAS</text>
               <text x={layerX.input - 28} y={inputY[2] + 4} textAnchor="end" fill={COLORS.muted} fontSize={10} fontWeight={700}>+1.00</text>
             </g>
 
@@ -291,7 +291,7 @@ export default function NeuralNetworkViz() {
                 stroke={COLORS.border}
                 strokeWidth={2}
               />
-              <text x={layerX.hidden} y={hiddenY[0] + 4} textAnchor="middle" fill={isAtOrPast(1) ? "#FFF" : COLORS.muted} fontSize={10} fontWeight={800}>h1</text>
+              <text x={layerX.hidden} y={hiddenY[0] + 4} textAnchor="middle" fill={isAtOrPast(1) ? "#FFF" : COLORS.muted} fontSize={12} fontWeight={800}>h1</text>
               {isAtOrPast(1) && (
                 <text x={layerX.hidden} y={hiddenY[0] + 32} textAnchor="middle" fill={COLORS.muted} fontSize={9} fontWeight={700} stroke={COLORS.bg} strokeWidth={2.5} paintOrder="stroke">
                   a={h1_a.toFixed(2)}
@@ -307,7 +307,7 @@ export default function NeuralNetworkViz() {
                 stroke={COLORS.border}
                 strokeWidth={2}
               />
-              <text x={layerX.hidden} y={hiddenY[1] + 4} textAnchor="middle" fill={isAtOrPast(1) ? "#FFF" : COLORS.muted} fontSize={10} fontWeight={800}>h2</text>
+              <text x={layerX.hidden} y={hiddenY[1] + 4} textAnchor="middle" fill={isAtOrPast(1) ? "#FFF" : COLORS.muted} fontSize={12} fontWeight={800}>h2</text>
               {isAtOrPast(1) && (
                 <text x={layerX.hidden} y={hiddenY[1] + 32} textAnchor="middle" fill={COLORS.muted} fontSize={9} fontWeight={700} stroke={COLORS.bg} strokeWidth={2.5} paintOrder="stroke">
                   a={h2_a.toFixed(2)}
@@ -323,7 +323,7 @@ export default function NeuralNetworkViz() {
                 stroke={COLORS.border}
                 strokeWidth={2}
               />
-              <text x={layerX.hidden} y={hiddenY[2] + 4} textAnchor="middle" fill={isAtOrPast(1) ? "#FFF" : COLORS.muted} fontSize={10} fontWeight={800}>h3</text>
+              <text x={layerX.hidden} y={hiddenY[2] + 4} textAnchor="middle" fill={isAtOrPast(1) ? "#FFF" : COLORS.muted} fontSize={12} fontWeight={800}>h3</text>
               {isAtOrPast(1) && (
                 <text x={layerX.hidden} y={hiddenY[2] + 32} textAnchor="middle" fill={COLORS.muted} fontSize={9} fontWeight={700} stroke={COLORS.bg} strokeWidth={2.5} paintOrder="stroke">
                   a={h3_a.toFixed(2)}
@@ -341,7 +341,7 @@ export default function NeuralNetworkViz() {
                 stroke={COLORS.border}
                 strokeWidth={2.5}
               />
-              <text x={layerX.output} y={196} textAnchor="middle" fill={isAtOrPast(2) ? "#FFF" : COLORS.muted} fontSize={10} fontWeight={900}>ŷ (pred)</text>
+              <text x={layerX.output} y={196} textAnchor="middle" fill={isAtOrPast(2) ? "#FFF" : COLORS.muted} fontSize={11} fontWeight={900}>ŷ (pred)</text>
               <text x={layerX.output} y={210} textAnchor="middle" fill={isAtOrPast(2) ? "#FFF" : COLORS.muted} fontSize={9} fontWeight={800}>{yhat.toFixed(2)}</text>
             </g>
 
@@ -352,7 +352,7 @@ export default function NeuralNetworkViz() {
                 
                 {/* Target box */}
                 <rect x={520} y={160} width={76} height={80} fill="none" stroke={COLORS.border} strokeWidth={1} />
-                <text x={558} y={180} textAnchor="middle" fill={COLORS.muted} fontSize={9} fontWeight={800}>TARGET y</text>
+                <text x={558} y={180} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>TARGET y</text>
                 <text x={558} y={206} textAnchor="middle" fill={COLORS.pink} fontSize={20} fontWeight={900}>{target.toFixed(1)}</text>
                 <text x={558} y={230} textAnchor="middle" fill={COLORS.muted} fontSize={8} fontWeight={700}>Loss: {loss.toFixed(4)}</text>
 
@@ -370,9 +370,9 @@ export default function NeuralNetworkViz() {
             )}
 
             {/* Titles on SVG */}
-            <text x={layerX.input} y={56} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={800}>INPUTS</text>
-            <text x={layerX.hidden} y={56} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={800}>HIDDEN (ReLU)</text>
-            <text x={layerX.output} y={56} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={800}>OUTPUT (tanh)</text>
+            <text x={layerX.input} y={56} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>INPUTS</text>
+            <text x={layerX.hidden} y={56} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>HIDDEN (ReLU)</text>
+            <text x={layerX.output} y={56} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>OUTPUT (tanh)</text>
           </svg>
         </div>
       </div>
@@ -435,7 +435,7 @@ export default function NeuralNetworkViz() {
 
           <StepIndicator steps={steps} currentStep={currentStep} />
 
-          <div className="my-3 min-h-[46px] text-[10px] text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline font-sans">
+          <div className="my-3 min-h-[46px] text-[12px] text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline font-sans">
             {currentStep === 0 && "Step 1: Raw inputs are set. Adjust values above to change signals."}
             {currentStep === 1 && "Step 2: Forward pass computes hidden node activations via w·x and ReLU."}
             {currentStep === 2 && "Step 3: Output layer calculates tanh activation. Target is evaluated to measure Loss."}
@@ -455,7 +455,7 @@ export default function NeuralNetworkViz() {
 
         <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">
           <span className="font-mono text-xs sm:text-sm font-bold uppercase tracking-wide text-primary">Pythonic Code Snippet</span>
-          <pre className="mt-2 text-[10px] bg-surface-container p-2.5 rounded border border-outline font-mono overflow-x-auto text-primary leading-tight">
+          <pre className="mt-2 text-[12px] bg-surface-container p-2.5 rounded border border-outline font-mono overflow-x-auto text-primary leading-tight">
 {`# Backpropagation weight update step
 loss = 0.5 * (target - yhat) ** 2
 dyhat = -(target - yhat) * (1 - yhat**2)

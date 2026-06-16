@@ -73,7 +73,7 @@ export default function RAGViz() {
             {/* Step 1: User Query Box */}
             <g transform="translate(10, 30)">
               <rect width="110" height="80" fill={COLORS.bg} stroke={COLORS.border} strokeWidth={1.5} />
-              <text x={55} y={20} textAnchor="middle" fontSize={10} fontWeight={800} fill={COLORS.muted}>1. USER QUERY</text>
+              <text x={55} y={20} textAnchor="middle" fontSize={12} fontWeight={800} fill={COLORS.muted}>1. USER QUERY</text>
               <text x={10} y={40} fontSize={8} fontWeight={700} fill={COLORS.cyan}>&quot;{pipelineState.query.slice(0, 18)}...&quot;</text>
             </g>
 
@@ -86,7 +86,7 @@ export default function RAGViz() {
                 stroke={failureMode === "irrelevant_retrieval" ? COLORS.pink : COLORS.border}
                 strokeWidth={failureMode === "irrelevant_retrieval" ? 2.5 : 1.5}
               />
-              <text x={45} y={20} textAnchor="middle" fontSize={10} fontWeight={800} fill={COLORS.muted}>2. RETRIEVER</text>
+              <text x={45} y={20} textAnchor="middle" fontSize={12} fontWeight={800} fill={COLORS.muted}>2. RETRIEVER</text>
               <text x={45} y={45} textAnchor="middle" fontSize={8} fontWeight={700} fill={failureMode === "irrelevant_retrieval" ? COLORS.pink : COLORS.cyan}>
                 {failureMode === "irrelevant_retrieval" ? "BAD MATCH" : "COSINE SEARCH"}
               </text>
@@ -101,7 +101,7 @@ export default function RAGViz() {
                 stroke={failureMode === "bad_chunking" ? COLORS.pink : COLORS.border}
                 strokeWidth={failureMode === "bad_chunking" ? 2.5 : 1.5}
               />
-              <text x={45} y={20} textAnchor="middle" fontSize={10} fontWeight={800} fill={COLORS.muted}>3. INDEX</text>
+              <text x={45} y={20} textAnchor="middle" fontSize={12} fontWeight={800} fill={COLORS.muted}>3. INDEX</text>
               <text x={45} y={45} textAnchor="middle" fontSize={8} fontWeight={700} fill={failureMode === "bad_chunking" ? COLORS.pink : COLORS.cyan}>
                 {failureMode === "bad_chunking" ? "BAD CHUNKING" : "FACT CHUNKS"}
               </text>
@@ -110,7 +110,7 @@ export default function RAGViz() {
             {/* Step 4: Prompt Context Construction Box */}
             <g transform="translate(190, 170)">
               <rect width="360" height="80" fill={COLORS.bg} stroke={COLORS.border} strokeWidth={1.5} />
-              <text x={180} y={20} textAnchor="middle" fontSize={10} fontWeight={800} fill={COLORS.muted}>4. CONTEXT INJECTION (PROMPT TEMPLATE)</text>
+              <text x={180} y={20} textAnchor="middle" fontSize={12} fontWeight={800} fill={COLORS.muted}>4. CONTEXT INJECTION (PROMPT TEMPLATE)</text>
               <text x={10} y={40} fontSize={8} fontWeight={700} fill={COLORS.cyan}>
                 {pipelineState.promptContext.split("\n")[0].slice(0, 75)}...
               </text>
@@ -128,7 +128,7 @@ export default function RAGViz() {
                 stroke={failureMode === "hallucination" ? COLORS.pink : COLORS.border}
                 strokeWidth={failureMode === "hallucination" ? 2.5 : 1.5}
               />
-              <text x={180} y={20} textAnchor="middle" fontSize={10} fontWeight={800} fill={COLORS.muted}>
+              <text x={180} y={20} textAnchor="middle" fontSize={11} fontWeight={800} fill={COLORS.muted}>
                 5. LLM GENERATION {failureMode === "hallucination" && "— HALLUCINATION"}
               </text>
               
@@ -141,7 +141,7 @@ export default function RAGViz() {
               </text>
             </g>
 
-            <text x={320} y={420} fill={COLORS.muted} fontSize={10} fontWeight={600} textAnchor="middle">
+            <text x={320} y={420} fill={COLORS.muted} fontSize={12} fontWeight={600} textAnchor="middle">
               RAG pipeline: Query → Semantic Search → Context Prompt → LLM Response
             </text>
           </svg>
@@ -193,7 +193,7 @@ export default function RAGViz() {
 
         {/* Diagnosis log */}
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[11px]">Pipeline Diagnostic</div>
+          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Pipeline Diagnostic</div>
           <p className="text-xs leading-relaxed text-on-surface-variant">
             {failureMode === "none" && (
               "The retriever pulls correct information from the index. The prompt contains grounded, accurate facts. The LLM produces a verified response."

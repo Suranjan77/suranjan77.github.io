@@ -282,28 +282,28 @@ export default function MaximumLikelihoodViz() {
               {/* Current Mean mu */}
               <g transform="translate(440, 24)">
                 <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>MODEL PARAMETER (μ)</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>MODEL PARAMETER (μ)</text>
                 <text x={12} y={36} fill={COLORS.pink} fontSize={15} fontWeight={800}>{mu.toFixed(3)}</text>
               </g>
 
               {/* Optimal Mean MLE */}
               <g transform="translate(440, 82)">
                 <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>OPTIMAL MEAN (x̄)</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>OPTIMAL MEAN (x̄)</text>
                 <text x={12} y={36} fill={COLORS.cyan} fontSize={15} fontWeight={800}>{mleMean.toFixed(3)}</text>
               </g>
 
               {/* Log Likelihood value */}
               <g transform="translate(440, 140)">
                 <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={10} fontWeight={700}>LOG-LIKELIHOOD SCORE</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>LOG-LIKELIHOOD SCORE</text>
                 <text x={12} y={36} fill={COLORS.yellow} fontSize={15} fontWeight={800}>{currentLogL.toFixed(3)}</text>
               </g>
 
               {/* Gradient ascent diagnostic panel */}
               <g transform="translate(440, 198)">
                 <rect width={166} height={134} fill="rgba(250,248,242,0.6)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={9} fontWeight={800}>OPTIMIZATION STATUS</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={800}>OPTIMIZATION STATUS</text>
                 
                 {/* Visual meter */}
                 <rect x={20} y={30} width={20} height={80} fill={COLORS.grid} rx={2} />
@@ -326,19 +326,19 @@ export default function MaximumLikelihoodViz() {
                   );
                 })()}
 
-                <text x={50} y={44} fill={COLORS.muted} fontSize={9} fontWeight={600}>CONVERGENCE:</text>
+                <text x={50} y={44} fill={COLORS.muted} fontSize={12} fontWeight={600}>CONVERGENCE:</text>
                 <text x={50} y={60} fill={Math.abs(mu - mleMean) < 0.05 ? COLORS.cyan : COLORS.muted} fontSize={14} fontWeight={800}>
                   {(Math.max(0, 1 - Math.abs(mu - mleMean) / 4) * 100).toFixed(0)}%
                 </text>
 
                 <foreignObject x={46} y={70} width={115} height={60}>
-                  <div className="font-sans text-[9px] font-medium leading-snug" style={{ color: COLORS.muted }}>
+                  <div className="font-sans text-[12px] font-medium leading-snug" style={{ color: COLORS.muted }}>
                     Gradient pulls μ toward the peak of log-likelihood.
                   </div>
                 </foreignObject>
 
                 {Math.abs(mu - mleMean) < 0.05 && (
-                  <text x={50} y={114} fill={COLORS.cyan} fontSize={9} fontWeight={800}>CONVERGED</text>
+                  <text x={50} y={114} fill={COLORS.cyan} fontSize={12} fontWeight={800}>CONVERGED</text>
                 )}
               </g>
             </g>

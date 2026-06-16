@@ -266,7 +266,7 @@ export default function GMMEMViz() {
                 }
               }}
               disabled={isPlaying}
-              className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer disabled:opacity-50 text-[11px]"
+              className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer disabled:opacity-50 text-[12px]"
               aria-label="Perform one step of the EM algorithm iteration"
             >
               RUN NEXT {emStep === "E" ? "M-STEP" : "E-STEP"}
@@ -274,7 +274,7 @@ export default function GMMEMViz() {
 
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className={`w-full flex h-9 items-center justify-center border border-outline font-bold tracking-wider cursor-pointer active:scale-[0.98] transition-all text-[11px] ${
+              className={`w-full flex h-9 items-center justify-center border border-outline font-bold tracking-wider cursor-pointer active:scale-[0.98] transition-all text-[12px] ${
                 isPlaying
                   ? "bg-warning/20 border-warning hover:bg-warning/30 text-warning"
                   : "bg-cyan text-white hover:bg-cyan/90"
@@ -286,7 +286,7 @@ export default function GMMEMViz() {
 
             <button
               onClick={resetEM}
-              className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer text-[11px]"
+              className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer text-[12px]"
               aria-label="Reset GMM parameters to initial state"
             >
               RESET SOLVER
@@ -296,7 +296,7 @@ export default function GMMEMViz() {
 
         {/* Model parameters output */}
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[11px]">GMM Parameters</div>
+          <div className="font-bold text-primary mb-2 uppercase text-[12px]">GMM Parameters</div>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="font-bold" style={{ color: COLORS.cyan }}>Component A (Cyan)</div>
             <div className="font-bold" style={{ color: COLORS.pink }}>Component B (Pink)</div>
@@ -310,7 +310,7 @@ export default function GMMEMViz() {
             <div>Weight: {(activeState.weights[0] * 100).toFixed(0)}%</div>
             <div>Weight: {(activeState.weights[1] * 100).toFixed(0)}%</div>
           </div>
-          <p className="mt-3 text-[10px] leading-snug text-on-surface-variant font-sans">
+          <p className="mt-3 text-[12px] leading-snug text-on-surface-variant font-sans">
             *E-step estimates soft responsibilities (assignment probabilities). M-step updates weights, means, and variances based on those weights.
           </p>
         </div>
