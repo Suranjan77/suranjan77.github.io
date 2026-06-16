@@ -125,5 +125,216 @@ def train_step(real_data, noise):
     # 2. Train Generator
     loss_G = criterion(D(fake_data), torch.ones(fake_data.size(0), 1))
     # Optimize G...
-`
+`,
+  tldr: [
+    'GANs pit a **generator** against a **discriminator** in a minimax game; at equilibrium the generator’s distribution matches the real data distribution.',
+    'The optimal discriminator for a fixed generator is $D^*(x) = \\frac{p_{data}(x)}{p_{data}(x) + p_g(x)}$, and plugging it back in reveals the GAN objective is minimizing the **Jensen-Shannon divergence** between $p_{data}$ and $p_g$.',
+    'Diffusion models instead define a fixed **forward noising process** that gradually destroys structure, then train a network to **reverse** it step by step, denoising pure noise back into data.',
+    'GAN training is a fragile **saddle-point** search (two networks chasing a moving target), while diffusion training is a stable **regression** problem (predict the noise), at the cost of needing many sampling steps.',
+    'Mode collapse, vanishing gradients, and non-convergence are the classic GAN failure modes; diffusion models trade training instability for slow, multi-step sampling.',
+  ],
+  additionalSections: [
+    {
+      heading: 'Derivation: The Optimal Discriminator and the Jensen-Shannon Connection',
+      content: `
+Start from the minimax value function:
+
+$$ V(D, G) = \\mathbb{E}_{x \\sim p_{data}}[\\log D(x)] + \\mathbb{E}_{z \\sim p_z}[\\log(1 - D(G(z)))] $$
+
+Rewrite the second expectation as an integral over the generator’s induced distribution $p_g$ (the distribution of $G(z)$ when $z \\sim p_z$), so both terms become integrals over $x$:
+
+$$ V(D, G) = \\int_x p_{data}(x) \\log D(x)\\, dx + \\int_x p_g(x) \\log(1 - D(x))\\, dx $$
+
+**Step 1 — Optimal discriminator for a fixed generator.** For each fixed $x$, we want to choose $D(x) = y \\in [0,1]$ to maximize the pointwise integrand $a \\log y + b \\log(1-y)$, where $a = p_{data}(x)$ and $b = p_g(x)$. Taking the derivative with respect to $y$ and setting it to zero:
+
+$$ \\frac{a}{y} - \\frac{b}{1-y} = 0 \\quad \\Longrightarrow \\quad y^* = \\frac{a}{a+b} $$
+
+So the optimal discriminator is:
+
+$$ D^*(x) = \\frac{p_{data}(x)}{p_{data}(x) + p_g(x)} $$
+
+This matches the intuition: if the generator perfectly matches the data ($p_g = p_{data}$), the best the discriminator can do is output $D^*(x) = 0.5$ everywhere — pure guessing.
+
+**Step 2 — Plugging $D^*$ back in.** Substitute $D^*$ into $V(D, G)$ and simplify using $p_{data} + p_g$ in the denominator of both terms:
+
+$$ V(D^*, G) = \\mathbb{E}_{x \\sim p_{data}}\\left[\\log \\frac{p_{data}(x)}{p_{data}(x)+p_g(x)}\\right] + \\mathbb{E}_{x \\sim p_g}\\left[\\log \\frac{p_g(x)}{p_{data}(x)+p_g(x)}\\right] $$
+
+Multiply and divide each fraction by 2 to expose the average distribution $m = (p_{data}+p_g)/2$:
+
+$$ V(D^*, G) = -\\log 4 + \\mathrm{KL}\\!\\left(p_{data} \\,\\Big\\|\\, m\\right) + \\mathrm{KL}\\!\\left(p_g \\,\\Big\\|\\, m\\right) $$
+
+The sum of the two KL terms is, by definition, twice the **Jensen-Shannon divergence**:
+
+$$ V(D^*, G) = -\\log 4 + 2 \\cdot \\mathrm{JSD}(p_{data} \\| p_g) $$
+
+Since the JSD is always non-negative and equals zero **only** when the two distributions are identical, the global minimum over $G$ of $V(D^*, G)$ is $-\\log 4$, achieved exactly when $p_g = p_{data}$. This is the formal justification for the intuition that adversarial training pushes the generator’s distribution to match the true data distribution — the discriminator acts as a learned, ever-improving proxy for a statistical distance between $p_{data}$ and $p_g$.
+      `,
+    },
+    {
+      heading: 'Derivation: Diffusion Forward and Reverse Processes',
+      content: `
+Diffusion models take a very different route to generation: instead of an adversarial game, they define a fixed, hand-specified **forward (noising) process** and learn to invert it.
+
+**Step 1 — The forward process.** Starting from a real data sample $x_0 \\sim p_{data}$, the forward process adds a small amount of Gaussian noise at each of $T$ timesteps, governed by a variance schedule $\\beta_1, \\dots, \\beta_T \\in (0,1)$:
+
+$$ q(x_t \\mid x_{t-1}) = \\mathcal{N}\\!\\left(x_t;\\, \\sqrt{1-\\beta_t}\\, x_{t-1},\\, \\beta_t I\\right) $$
+
+This says: $x_t$ is a slightly shrunk, slightly noised version of $x_{t-1}$. Because each step is Gaussian and the process is Markov, the marginal distribution of $x_t$ given the original $x_0$ also has a closed form. Defining $\\alpha_t = 1 - \\beta_t$ and $\\bar{\\alpha}_t = \\prod_{s=1}^t \\alpha_s$, one can show by repeated substitution (the reparameterization trick applied $t$ times) that:
+
+$$ q(x_t \\mid x_0) = \\mathcal{N}\\!\\left(x_t;\\, \\sqrt{\\bar{\\alpha}_t}\\, x_0,\\, (1-\\bar{\\alpha}_t) I\\right) $$
+
+so we can jump directly from $x_0$ to any noise level $x_t$ in one step: $x_t = \\sqrt{\\bar{\\alpha}_t}\\, x_0 + \\sqrt{1-\\bar{\\alpha}_t}\\, \\epsilon$, with $\\epsilon \\sim \\mathcal{N}(0, I)$. As $T \\to \\infty$ with a well-chosen schedule, $\\bar{\\alpha}_T \\to 0$ and $x_T$ becomes indistinguishable from pure Gaussian noise, regardless of $x_0$.
+
+**Step 2 — Why the reverse process can be learned.** The forward process is fixed and requires no learning — it is just an algebraic recipe for adding noise. Generation requires the **reverse** process $p_\\theta(x_{t-1} \\mid x_t)$, which removes noise step by step, starting from $x_T \\sim \\mathcal{N}(0, I)$ and ending at a sample $x_0$ that looks like real data. Crucially, for small enough $\\beta_t$, the true reverse conditional $q(x_{t-1} \\mid x_t, x_0)$ is *also* Gaussian (a standard fact about Gaussian Markov chains), so it is reasonable to model the learned reverse step as Gaussian too:
+
+$$ p_\\theta(x_{t-1} \\mid x_t) = \\mathcal{N}\\!\\left(x_{t-1};\\, \\mu_\\theta(x_t, t),\\, \\Sigma_\\theta(x_t, t)\\right) $$
+
+**Step 3 — The training objective.** Rather than predicting $x_{t-1}$ directly, it turns out to be far more stable to train a network $\\epsilon_\\theta(x_t, t)$ to predict the **noise** $\\epsilon$ that was added to produce $x_t$ from $x_0$. The training objective reduces (after simplifying the variational bound) to a simple regression loss:
+
+$$ \\mathcal{L}_{simple}(\\theta) = \\mathbb{E}_{t,\\, x_0,\\, \\epsilon}\\Big[\\big\\lVert \\epsilon - \\epsilon_\\theta(\\sqrt{\\bar{\\alpha}_t}\\, x_0 + \\sqrt{1-\\bar{\\alpha}_t}\\, \\epsilon,\\; t)\\big\\rVert^2\\Big] $$
+
+This is equivalent to learning the **score** (gradient of the log-density) of progressively noised versions of the data distribution. Because each individual denoising step only has to undo a *small* amount of Gaussian noise, the network’s job at every step is simple and well-conditioned — unlike a GAN generator, which must produce a fully realistic sample in one forward pass while satisfying an adversary. Sampling then proceeds by starting at $x_T \\sim \\mathcal{N}(0, I)$ and iteratively applying the learned reverse step for $t = T, T-1, \\dots, 1$, each time using $\\epsilon_\\theta$ to estimate and partially remove noise. Repeating many small, easy denoising steps is why diffusion sampling is stable and produces high-quality samples, at the cost of requiring many network evaluations (often tens to thousands, depending on the sampler) instead of a single forward pass.
+      `,
+    },
+  ],
+  practiceExercises: [
+    {
+      prompt: 'A discriminator outputs $D(x) = 0.7$ for a real sample and $D(G(z)) = 0.4$ for a fake sample. Using $L_D = -\\log D(x) - \\log(1 - D(G(z)))$, compute the discriminator loss.',
+      difficulty: 'warm-up',
+      hint: 'Plug the two probabilities directly into the formula and evaluate each log term separately.',
+      solution: '$L_D = -\\log(0.7) - \\log(1 - 0.4) = -\\log(0.7) - \\log(0.6) \\approx 0.357 + 0.511 = 0.868$. Compare this to the worked example in the lesson ($D(x)=0.9$, $D(G(z))=0.2$, loss $\\approx 0.328$): a weaker discriminator (closer to 0.5 on both real and fake inputs) produces a higher loss, reflecting that it is doing a worse job separating real from fake.',
+      tags: ['computation'],
+    },
+    {
+      prompt: 'During training, a generator for a digit-generation task (digits 0-9) starts producing only the digit "1" with high confidence, regardless of the input noise $z$. Explain what is happening and why the discriminator does not immediately stop this behavior.',
+      difficulty: 'core',
+      hint: 'Think about what the generator is actually optimizing — fooling the *current* discriminator, not maximizing diversity.',
+      solution: 'This is **mode collapse**: the generator has found a single output (or a narrow region of outputs) that reliably fools the current discriminator, and since its objective is only to minimize $\\log(1-D(G(z)))$ — i.e. to fool $D$ — it has no direct incentive to produce diverse samples. The discriminator does not immediately punish this because, against a discriminator that has only ever seen this one convincing fake digit, "1" may genuinely look indistinguishable from real "1"s; the discriminator would need to learn that *all* outputs being identical is itself suspicious, but it only ever sees one fake at a time per minibatch comparison, not the aggregate diversity of $G$. Mitigations include minibatch discrimination (letting $D$ compare samples within a batch), unrolled GANs, or switching to a Wasserstein loss with gradient penalty, which provides a smoother, more informative gradient signal that discourages collapse.',
+      tags: ['conceptual', 'failure-modes'],
+    },
+    {
+      prompt: 'Explain why GAN training is described as finding a **saddle point** rather than simply minimizing a loss function, and why this makes standard convergence guarantees from convex optimization inapplicable.',
+      difficulty: 'core',
+      hint: 'Consider what happens to $V(D,G)$ when you move along the $D$ direction versus the $G$ direction.',
+      solution: 'The value function $V(D, G)$ is being **maximized** with respect to $D$ and **minimized** with respect to $G$ simultaneously: $\\min_G \\max_D V(D, G)$. A solution to this is a saddle point — a point that is a local maximum along the $D$ axis and a local minimum along the $G$ axis — not a single minimum of one fixed function. Standard convergence proofs (e.g. gradient descent converging on a convex loss) assume a single, static objective being minimized by one set of parameters. Here, every gradient step on $G$ changes the loss landscape that $D$ is trying to climb, and every step on $D$ changes the landscape $G$ is trying to descend. Each player is chasing a moving target, so gradient updates derived for convex minimization (descent guarantees, fixed Lipschitz constants, etc.) do not transfer; in practice this manifests as oscillation, cycling, or failure to converge, which is why GAN training is empirically much less stable than training a single network against a fixed loss (as in supervised learning or diffusion models).',
+      tags: ['conceptual', 'optimization'],
+    },
+    {
+      prompt: 'A diffusion model is trained with $T = 1000$ timesteps. At inference, a practitioner switches to a faster sampler that only takes $T_{sample} = 20$ steps using the same trained noise-prediction network $\\epsilon_\\theta$. What trade-off does this introduce, and why is it possible at all?',
+      difficulty: 'challenge',
+      hint: 'Think about what changes between training and sampling: is $\\epsilon_\\theta$ retrained for 20 steps, or just queried differently?',
+      solution: 'It is possible because $\\epsilon_\\theta(x_t, t)$ was trained to predict the noise in $x_t$ for (effectively) any noise level $t$, not to perform one specific fixed-size denoising step — the network learns an estimate of the score/noise as a continuous-ish function of the noise level. Samplers like DDIM exploit this by taking larger jumps between noise levels at inference time, using the same trained network, skipping most of the original 1000 timesteps. The trade-off is a **quality-versus-speed** one: each large jump is a coarser approximation of the true reverse process (which was derived assuming small per-step Gaussian transitions), so fewer steps generally means each remaining step has to remove a larger, less Gaussian-like chunk of noise, increasing approximation error and typically reducing sample fidelity or introducing artifacts compared to using more steps. In practice, modern fast samplers can get $T_{sample}$ down to 20-50 steps with only a modest quality loss relative to the full 1000, but pushing too far (e.g. 1-4 steps) usually requires a model specifically distilled for few-step sampling rather than just truncating the original schedule.',
+      tags: ['conceptual', 'sampling'],
+    },
+  ],
+  comparisons: [
+    {
+      title: 'GAN vs VAE vs Diffusion Model',
+      methods: ['GAN', 'VAE', 'Diffusion Model'],
+      rows: [
+        {
+          dimension: 'Training stability',
+          values: ['Unstable — adversarial saddle-point search, prone to mode collapse and non-convergence', 'Stable — single, well-defined loss (reconstruction + KL) being minimized', 'Stable — simple denoising regression loss at each step'],
+        },
+        {
+          dimension: 'Sample quality (images)',
+          values: ['Historically sharpest, most photorealistic samples', 'Tends to produce blurrier samples due to the reconstruction objective and Gaussian decoder assumption', 'State-of-the-art fidelity, often surpassing GANs (e.g. Stable Diffusion, Imagen)'],
+        },
+        {
+          dimension: 'Sampling speed',
+          values: ['Fast — a single forward pass through $G$', 'Fast — a single decoder forward pass', 'Slow — requires many iterative denoising steps (tens to thousands), though distillation/fast samplers narrow this gap'],
+        },
+        {
+          dimension: 'Likelihood estimation',
+          values: ['No tractable likelihood — cannot directly score how probable a given sample is', 'Tractable lower bound on log-likelihood (the ELBO)', 'Tractable (approximate) likelihood via the variational bound, generally tighter than VAE'],
+        },
+        {
+          dimension: 'Latent space structure',
+          values: ['Latent space is learned implicitly; interpolation is often smooth but not principled', 'Explicit, regularized continuous latent space designed for smooth interpolation', 'No single compact latent code; generation unfolds across the noise trajectory $x_T \\to x_0$'],
+        },
+      ],
+      takeaway: 'Choose GANs when you need fast, single-pass sampling and the sharpest possible images and can tolerate finicky training; choose VAEs when you need a stable, principled latent space and tractable likelihoods with modest sample quality; choose diffusion models when sample quality and training stability both matter most and you can afford slower, multi-step sampling.',
+    },
+  ],
+  usageGuidance: {
+    useWhen: [
+      'You need **fast, single-pass** sample generation at inference time (e.g. real-time image synthesis) and can invest in stabilizing adversarial training.',
+      'You want the **sharpest possible** generated images/audio and have enough data and compute to tune a GAN variant (StyleGAN, WGAN-GP) carefully.',
+      'You need smooth **latent-space interpolation or manipulation** (e.g. face attribute editing) and a GAN’s implicit latent structure is sufficient.',
+      'You are comparing against diffusion or autoregressive baselines and need a strong, well-understood adversarial baseline.',
+    ],
+    avoidWhen: [
+      'Training stability and reproducibility matter more than peak sample sharpness — prefer diffusion models or VAEs.',
+      'You need a **tractable likelihood** or principled uncertainty estimates over generated samples — GANs provide neither; use VAEs or diffusion models instead.',
+      'You have limited compute/engineering budget to babysit adversarial training (tuning learning rate ratios, avoiding mode collapse) — a diffusion model’s simpler loss is often easier to get working.',
+      'Inference-time latency is not critical but sample quality and diversity are paramount — diffusion models are usually the safer default today.',
+    ],
+    rulesOfThumb: [
+      'If training oscillates or the generator collapses, try a Wasserstein loss with gradient penalty (WGAN-GP) or spectral normalization before tuning learning rates further.',
+      'Monitor the discriminator’s accuracy: if it pins to ~100% the generator’s gradients vanish; if it stays near 50% too early, it may be too weak to provide useful signal.',
+      'For diffusion models, more timesteps generally improve sample quality but increase sampling cost — use fast samplers (DDIM, distillation) when latency matters.',
+    ],
+  },
+  caseStudies: [
+    {
+      title: 'StyleGAN: photorealistic synthetic faces',
+      domain: 'Computer vision / synthetic media',
+      scenario: 'NVIDIA researchers wanted a GAN architecture capable of generating high-resolution (1024x1024) human face images with fine, controllable detail (hair strands, pores, freckles) and smoothly disentangled attributes like pose, identity, and style — far beyond what earlier DCGAN-style architectures could produce.',
+      approach: 'StyleGAN introduced a mapping network that transforms the latent code $z$ into an intermediate latent space $w$, then injects style information at multiple resolutions via adaptive instance normalization (AdaIN), combined with progressive growing of the generator and discriminator from low to high resolution during training.',
+      outcome: 'StyleGAN (and its successor StyleGAN2) produced face images judged photorealistic by human evaluators at rates close to indistinguishable from real photographs in user studies, popularizing sites like "This Person Does Not Exist." It also enabled fine-grained semantic editing (changing age, expression, or lighting) by manipulating the learned $w$-space, demonstrating that adversarial training can yield not just realism but a structured, controllable latent representation.',
+      source: {
+        title: 'A Style-Based Generator Architecture for Generative Adversarial Networks',
+        authors: 'Karras, T., Laine, S. and Aila, T.',
+        url: 'https://arxiv.org/abs/1812.04948',
+        type: 'paper',
+      },
+    },
+  ],
+  quiz: [
+    {
+      question: 'At the global optimum of the GAN minimax game (assuming infinite capacity and an optimal discriminator at every step), what is the value of $V(D^*, G^*)$?',
+      options: [
+        { text: '$-\\log 4$, achieved when $p_g = p_{data}$ and the Jensen-Shannon divergence is zero.', correct: true },
+        { text: '$0$, because the discriminator and generator losses cancel exactly.', correct: false },
+        { text: '$+\\infty$, because the generator keeps improving forever.', correct: false },
+        { text: 'It depends on the architecture of $G$ and cannot be determined analytically.', correct: false },
+      ],
+      explanation: 'Substituting the optimal discriminator $D^*(x) = p_{data}(x)/(p_{data}(x)+p_g(x))$ back into the value function shows $V(D^*, G) = -\\log 4 + 2\\,\\mathrm{JSD}(p_{data}\\|p_g)$. Since JSD is non-negative and zero only when the distributions match, the global minimum over $G$ is exactly $-\\log 4$, attained when $p_g = p_{data}$.',
+    },
+    {
+      question: 'In the diffusion model forward process $q(x_t \\mid x_{t-1}) = \\mathcal{N}(x_t; \\sqrt{1-\\beta_t}\\,x_{t-1}, \\beta_t I)$, what happens as $t$ increases from $0$ to a large $T$ with a well-chosen schedule?',
+      options: [
+        { text: '$x_t$ progressively loses structure and approaches an isotropic Gaussian distribution, independent of $x_0$.', correct: true },
+        { text: '$x_t$ converges back to the exact original sample $x_0$.', correct: false },
+        { text: '$x_t$ becomes deterministic with zero variance.', correct: false },
+        { text: '$x_t$ oscillates between the data distribution and noise.', correct: false },
+      ],
+      explanation: 'Each forward step shrinks the signal slightly (by $\\sqrt{1-\\beta_t}$) and adds a bit of Gaussian noise. Compounding this over many steps, $\\bar{\\alpha}_T \\to 0$, so $x_T$ is essentially pure noise $\\mathcal{N}(0, I)$ regardless of the starting $x_0$ — this is exactly what makes it possible to start sampling from pure noise at inference time.',
+    },
+    {
+      question: 'Why is GAN training fundamentally harder to reason about with standard optimization theory than training a diffusion model’s denoising network?',
+      options: [
+        { text: 'GAN training searches for a saddle point of a two-player game whose loss landscape changes every step, while diffusion training minimizes a single fixed regression loss.', correct: true },
+        { text: 'GANs use more parameters than diffusion models, making optimization slower.', correct: false },
+        { text: 'Diffusion models do not use gradient descent at all.', correct: false },
+        { text: 'GANs cannot be trained with backpropagation.', correct: false },
+      ],
+      explanation: 'GANs require solving $\\min_G \\max_D V(D,G)$, a saddle-point problem where $D$ and $G$ are each other’s moving targets, so classic convex minimization guarantees do not apply. Diffusion models instead train $\\epsilon_\\theta$ against a fixed noise-prediction regression target, which behaves like ordinary supervised learning and is comparatively stable.',
+    },
+    {
+      question: 'A team wants to both generate high-quality images and obtain a meaningful estimate of how likely a given image is under the trained model. Which model family is best suited, and why?',
+      options: [
+        { text: 'Diffusion model or VAE, because both provide a tractable (or boundable) likelihood, unlike a vanilla GAN.', correct: true },
+        { text: 'GAN, because the discriminator output directly gives the likelihood of any input image.', correct: false },
+        { text: 'Any of the three are equally suited since all generative models compute exact likelihoods.', correct: false },
+        { text: 'None of these models can estimate likelihoods; only autoregressive models can.', correct: false },
+      ],
+      explanation: 'Vanilla GANs have no mechanism to assign a probability/density to an arbitrary input — the discriminator score is not a calibrated likelihood. VAEs provide a tractable evidence lower bound (ELBO) on log-likelihood, and diffusion models provide an analogous (typically tighter) variational bound, making either a better fit than a GAN when likelihood estimates are required alongside sample quality.',
+    },
+  ],
+  review: {
+    lastReviewed: '2026-06-15',
+    reviewedBy: 'Suranjan',
+    status: 'published',
+  },
 };
