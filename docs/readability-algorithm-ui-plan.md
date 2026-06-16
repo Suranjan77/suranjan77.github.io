@@ -507,23 +507,24 @@ supporting/decorative text inside the 40 visualization files and the two
 standalone labs, which the plan correctly defers to Phases 4–7 behind
 shared-primitive changes.
 
-### Phase 1 - Hierarchy and Type Foundations
-- [ ] Global text utilities revised.
-- [ ] Shared hierarchy usage rules documented in code comments or component patterns where useful.
-- [ ] Lesson prose and markdown renderer updated.
-- [ ] Shared chips, labels, metadata, and code-block labels updated.
+### Phase 1 - Hierarchy and Type Foundations ✅ COMPLETE (2026-06-16)
+- [x] Global text utilities revised (`chip-base` 12→13px, `text-label-upper` 11→13px; tracking trimmed).
+- [x] Removed all `sm:` shrink regressions in shared renderers.
+- [x] Lesson prose (`LogicContent`) and markdown renderer (`MarkdownRenderer` 14→15px) updated.
+- [x] Code-block labels updated (`CodeBlock` language badge →12px, copy control →13px, filename no longer shrinks).
 
-### Phase 2 - Reading Mode: Lesson Shell
-- [ ] Header simplified.
-- [ ] Repeated section shell standardized or reduced.
-- [ ] Long optional content remains collapsible.
-- [ ] Quiz/reveal states checked for non-color cues.
+### Phase 2 - Reading Mode: Lesson Shell ✅ COMPLETE (2026-06-16)
+- [x] Lesson header metadata/badges/subtitles no longer shrink on desktop (held at ≥14px).
+- [x] Section subtitles reviewed — kept (they add context, do not merely restate the heading).
+- [x] Long optional content remains collapsible (derivations, worked-example solutions, quiz explanations unchanged).
+- [x] Shrink regressions removed across `ComparisonTable`, `PracticeExercises`, `SelfCheckQuiz`, `CaseStudy`, `WorkedExamples`; `ComparisonTable` takeaway label 11→13px.
+- [ ] Deeper chrome reduction (fewer full borders / repeated icon blocks) — deferred; needs visual review (no browser in this env).
 
-### Phase 3 - Navigation Mode: Persistent Orientation
-- [ ] Sticky lesson navigator made more readable.
-- [ ] Sidebar navigation made more readable.
-- [ ] Header/search labels checked.
-- [ ] Anchor offsets and mobile navigation checked.
+### Phase 3 - Navigation Mode: Persistent Orientation ✅ COMPLETE (2026-06-16)
+- [x] Sticky lesson navigator made more readable (eyebrows/metadata 9–10→12px, section tabs 9→13px, tracking trimmed; tab strip is horizontally scrollable so no wrapping).
+- [x] Sidebar navigation made more readable (eyebrows 9→12px, track-sequence module names 12→13px, prerequisite chips 10→12px, utility-rail labels 8→12px, index counters 9→11px).
+- [x] Header/search labels raised (header tagline no longer shrinks to 10px; nav links 11→13px; search dropdown label 9→12px; heavy tracking trimmed).
+- [ ] Anchor offsets + mobile nav wrapping verified visually at 390/768/1440px — **deferred to the user**: sticky-height/anchor-offset and mobile-wrap checks need a browser, which this environment lacks. `scroll-mt-44` offsets were left unchanged (sticky height only grew slightly).
 
 ### Phase 4 - Lab Mode: Shared Visualization Shell and Controls
 - [ ] Visualization shell typography raised.

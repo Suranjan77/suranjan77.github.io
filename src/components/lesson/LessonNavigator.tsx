@@ -128,7 +128,7 @@ export default function LessonNavigator({
           <div className="min-w-0 p-4 sm:p-5">
             <div className="flex items-start justify-between gap-5">
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[9px] uppercase tracking-[0.18em] text-on-surface-variant">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
                   {track && primaryTrack ? (
                     <Link
                       href={`/#${getTrackAnchor(primaryTrack)}`}
@@ -150,7 +150,7 @@ export default function LessonNavigator({
                   {currentModule.title}
                 </p>
               </div>
-              <span className="hidden shrink-0 font-mono text-[10px] text-on-surface-variant sm:block">
+              <span className="hidden shrink-0 font-mono text-[12px] text-on-surface-variant sm:block">
                 {progress}% complete
               </span>
             </div>
@@ -203,7 +203,7 @@ export default function LessonNavigator({
           className="overflow-x-auto border-x border-t border-outline bg-surface-container-low"
         >
           <div className="flex min-w-max items-stretch">
-            <span className="hidden items-center border-r border-outline px-5 font-mono text-[9px] uppercase tracking-[0.18em] text-on-surface-variant sm:flex">
+            <span className="hidden items-center border-r border-outline px-5 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant sm:flex">
               On this page
             </span>
             {sections.map(({ id, label, icon: Icon }, index) => (
@@ -213,7 +213,7 @@ export default function LessonNavigator({
                 aria-label={label}
                 aria-current={activeSection === id ? "location" : undefined}
                 onClick={() => setActiveSection(id)}
-                className={`group inline-flex min-h-11 items-center gap-2 border-r border-outline px-4 font-mono text-[9px] uppercase tracking-[0.14em] transition-colors ${
+                className={`group inline-flex min-h-11 items-center gap-2 border-r border-outline px-4 font-mono text-[13px] uppercase tracking-[0.06em] transition-colors ${
                   activeSection === id
                     ? "bg-primary text-on-primary"
                     : "text-on-surface-variant hover:bg-primary-container hover:text-primary"
@@ -253,7 +253,7 @@ function ModuleLink({
     return (
       <div
         aria-label={`No ${direction} module`}
-        className="flex min-h-28 items-center justify-center bg-surface-container-low px-5 font-mono text-[9px] uppercase tracking-[0.16em] text-outline-dark"
+        className="flex min-h-28 items-center justify-center bg-surface-container-low px-5 font-mono text-[12px] uppercase tracking-[0.08em] text-outline-dark"
       >
         {isPrevious ? "Start of track" : "End of track"}
       </div>
@@ -270,7 +270,7 @@ function ModuleLink({
           : "items-end text-right"
       }`}
     >
-      <span className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.16em] text-on-surface-variant">
+      <span className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
         {isPrevious && <ArrowLeft size={13} aria-hidden="true" />}
         {label}
         {!isPrevious && <ArrowRight size={13} aria-hidden="true" />}

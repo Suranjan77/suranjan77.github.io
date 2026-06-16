@@ -45,7 +45,7 @@ export default function Header() {
             <p className="font-headline text-xl font-medium leading-none tracking-normal text-on-surface">
               ML Learn
             </p>
-            <p className="mt-1 font-mono text-xs font-normal uppercase tracking-[0.16em] text-on-surface-variant sm:text-[10px] sm:tracking-[0.32em]">
+            <p className="mt-1 font-mono text-xs font-normal uppercase tracking-[0.12em] text-on-surface-variant">
               Learning AI & ML
             </p>
           </span>
@@ -123,10 +123,10 @@ function PrimaryNavigation({
             aria-current={active ? "page" : undefined}
             onClick={onNavigate}
             className={clsx(
-              "font-mono text-[11px] font-normal uppercase tracking-[0.16em] transition-colors",
+              "font-mono text-[13px] font-normal uppercase tracking-[0.1em] transition-colors",
               mobile
                 ? "border px-3 py-3 text-center"
-                : "relative whitespace-nowrap border-b border-transparent py-1 tracking-[0.22em]",
+                : "relative whitespace-nowrap border-b border-transparent py-1 tracking-[0.12em]",
               active
                 ? "border-primary bg-primary-container text-primary"
                 : "border-outline text-on-surface-variant hover:border-primary hover:text-on-surface",
