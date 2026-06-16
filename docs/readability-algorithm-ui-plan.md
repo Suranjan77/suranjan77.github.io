@@ -473,12 +473,39 @@ The plan is strong if it stays disciplined: audit, establish hierarchy and type 
 
 ## 11. Work Tracker
 
-### Phase 0 - Audit, Mode Map, and Regression Loop
-- [ ] Tiny text class audit completed.
-- [ ] Findings classified as essential, supporting, or decorative.
-- [ ] Surfaces mapped to reading, navigation, or lab mode.
-- [ ] Baseline screenshots or notes captured.
-- [ ] Reusable audit command documented.
+### Phase 0 - Audit, Mode Map, and Regression Loop ✅ COMPLETE (2026-06-16)
+- [x] Tiny text class audit completed.
+- [x] Findings classified as essential, supporting, or decorative.
+- [x] Surfaces mapped to reading, navigation, or lab mode.
+- [x] Baseline notes captured (see findings below; live screenshots deferred — no browser in this env).
+- [x] Reusable audit command documented (see §7 Phase 0).
+
+#### Audit results (baseline)
+
+Run of the documented audit command: **552 matches across 75 files** —
+`text-xs` ×183, `text-[8–13px]` ×260, heavy `tracking-[≥0.14em]` ×84,
+`sm:`-breakpoint **shrink** regressions ×14, `prose-sm` ×1.
+
+**Classification & mode map:**
+
+| Surface (mode) | Finding | Class | Priority |
+|---|---|---|---|
+| Lesson shell + active-learning components (`LessonPage`, `TLDR`, `LearningObjectives`, `ComparisonTable`, `WhenToUse`, `PracticeExercises`, `SelfCheckQuiz`, `CaseStudy`, `Misconceptions`, `WorkedExamples`, `ReferenceList`) — **reading** | `text-[15px] sm:text-sm` and `text-sm sm:text-xs`: prose/metadata **shrinks on larger screens** (direct gate violation) | Essential | **High (Phase 1/2)** |
+| Shared renderers (`LogicContent`, `CodeBlock`) — **reading** | `sm:text-base`/`sm:text-sm`/`sm:text-xs` shrink modifiers on prose, headings, code header | Essential | **High (Phase 1)** |
+| `globals.css` utilities | `chip-base` 12px, `text-label-upper` ~11px (below 13px nav/label target); `text-mono-sm` 14px (OK) | Essential/Supporting | **High (Phase 1)** |
+| `Sidebar.tsx`, `LessonNavigator.tsx` — **navigation** | 13 / (navigator) tiny mono metadata + heavy uppercase tracking | Essential/Supporting | Medium (Phase 3) |
+| Visualization "Mental model" / code-snippet labels (`text-xs sm:text-sm`) across ~40 `visualizations/*.tsx` — **lab** | Base 12px label that grows to 14px on desktop; tiny stat/legend text | Supporting | Medium (Phase 4–6) |
+| `AlgorithmSimulator` (35), `GradForgeLab` (32), `playground`/`gradforge` pages — **lab** | Highest tiny-text density; dense stat/control labels | Mixed | Lower (Phase 7) |
+| Axis ticks, compact indices, ornaments in viz | small but non-primary | Decorative | Retain (exception list) |
+
+**Key takeaway:** the most clear-cut, highest-leverage fixes are the
+`sm:` **shrink regressions** concentrated in the lesson/reading surfaces
+(several of them in the recently-added active-learning components), plus
+raising the two shared `globals.css` label utilities — exactly the
+Phase 1 / Phase 2 scope. The long tail (≈90% of raw matches) is
+supporting/decorative text inside the 40 visualization files and the two
+standalone labs, which the plan correctly defers to Phases 4–7 behind
+shared-primitive changes.
 
 ### Phase 1 - Hierarchy and Type Foundations
 - [ ] Global text utilities revised.
