@@ -106,5 +106,195 @@ y = np.array([0, 0, 0, 1, 1, 1])
 # Initialize and fit Decision Tree
 dt = DecisionTreeClassifier(max_depth=2, random_state=42)
 dt.fit(X, y)
-print(f"Decision Tree Class for coordinate [7, 7]: {dt.predict([[7, 7]])[0]}")`
+print(f"Decision Tree Class for coordinate [7, 7]: {dt.predict([[7, 7]])[0]}")`,
+  tldr: [
+    'A decision tree recursively partitions feature space with **axis-aligned** splits, asking one feature-threshold question per node until it reaches a leaf prediction.',
+    'Each split is chosen **greedily** to minimize child impurity, measured by **Gini impurity** $1 - \\sum_i p_i^2$ or **entropy** $-\\sum_i p_i \\log_2 p_i$.',
+    '**Information gain** is the drop in impurity from parent to the weighted average of the children; the algorithm picks the split with the largest gain.',
+    'Trees are highly **interpretable** and need no feature scaling, but a deep, unpruned tree **overfits** by memorizing noise and is **high-variance**.',
+    'Control overfitting with depth limits, minimum-samples constraints, or pruning; for raw accuracy, prefer **ensembles** (Random Forest, Gradient Boosting).',
+  ],
+  additionalSections: [
+    {
+      heading: 'Impurity Measures: Gini and Entropy Defined',
+      content: `
+At a node holding a set $D$ of labeled examples, let $p_i$ be the fraction of examples in class $i$ (so $\\sum_i p_i = 1$). We need a number that is **small when the node is pure** (one class dominates) and **large when classes are evenly mixed**.
+
+**Gini impurity** is the probability that two independent draws from the node's label distribution disagree — equivalently, the chance of mislabeling a random example if we label it by sampling from the same distribution:
+
+$$ Gini(D) = \\sum_{i=1}^{c} p_i (1 - p_i) = 1 - \\sum_{i=1}^{c} p_i^2 $$
+
+For a pure node ($p_1 = 1$) it is $0$; for a balanced binary node ($p_1 = p_2 = 0.5$) it is $1 - (0.25 + 0.25) = 0.5$, its maximum for two classes.
+
+**Entropy** measures the average information (in bits) needed to encode the class of a random example:
+
+$$ H(D) = - \\sum_{i=1}^{c} p_i \\log_2(p_i) $$
+
+It is $0$ for a pure node and $1$ bit for a balanced binary node ($-0.5\\log_2 0.5 - 0.5\\log_2 0.5 = 1$), its maximum for two classes. Both metrics share the same shape: minimized at purity, maximized at a uniform mix. Gini is slightly cheaper (no logarithm) and is the CART default, while entropy/information gain is the ID3/C4.5 default; in practice they rarely produce different trees.
+      `,
+    },
+    {
+      heading: 'Worked Split: Computing Information Gain',
+      content: `
+A parent node $D$ contains $10$ examples: $5$ positive and $5$ negative. We evaluate a candidate split on the feature "$age < 30$".
+
+**Step 1 — parent impurity.** With $p_+ = p_- = 0.5$:
+
+$$ Gini(D) = 1 - (0.5^2 + 0.5^2) = 1 - 0.5 = 0.5 $$
+
+**Step 2 — apply the split.** The condition sends examples into two children:
+
+$$ D_L = \\{4\\text{ positive},\\, 1\\text{ negative}\\}, \\qquad D_R = \\{1\\text{ positive},\\, 4\\text{ negative}\\} $$
+
+**Step 3 — child impurities.** For $D_L$, $p_+ = 0.8$, $p_- = 0.2$:
+
+$$ Gini(D_L) = 1 - (0.8^2 + 0.2^2) = 1 - (0.64 + 0.04) = 0.32 $$
+
+By symmetry $Gini(D_R) = 0.32$ as well.
+
+**Step 4 — weighted child impurity.** Each child has $5$ of the $10$ examples:
+
+$$ Gini_{split} = \\frac{5}{10}(0.32) + \\frac{5}{10}(0.32) = 0.32 $$
+
+**Step 5 — information gain.** The impurity drop from parent to children:
+
+$$ Gain = Gini(D) - Gini_{split} = 0.5 - 0.32 = 0.18 $$
+
+A positive gain of $0.18$ means the split makes the node meaningfully purer. The tree compares this gain against every other candidate feature and threshold, and **greedily** keeps the one with the largest gain. If we had used entropy instead, the parent entropy would be $1$ bit, each child entropy $-0.8\\log_2 0.8 - 0.2\\log_2 0.2 \\approx 0.722$, weighted child entropy $0.722$, giving an information gain of $1 - 0.722 = 0.278$ bits — a different scale, but the same ordering of which split is best.
+      `,
+    },
+  ],
+  practiceExercises: [
+    {
+      prompt: 'A leaf node contains 6 examples of class A and 2 of class B. Compute its Gini impurity.',
+      difficulty: 'warm-up',
+      hint: 'Use $Gini = 1 - \\sum_i p_i^2$ with $p_A = 6/8$ and $p_B = 2/8$.',
+      solution: 'The proportions are $p_A = 6/8 = 0.75$ and $p_B = 2/8 = 0.25$. Then $Gini = 1 - (0.75^2 + 0.25^2) = 1 - (0.5625 + 0.0625) = 1 - 0.625 = 0.375$.',
+    },
+    {
+      prompt: 'A node with 8 examples (4 positive, 4 negative) is split into $D_L = \\{3\\text{ pos}, 1\\text{ neg}\\}$ and $D_R = \\{1\\text{ pos}, 3\\text{ neg}\\}$. Compute the information gain using Gini impurity.',
+      difficulty: 'core',
+      hint: 'First get the parent Gini, then each child Gini, then weight the children by their fraction of examples.',
+      solution: 'Parent: $p_+ = p_- = 0.5$, so $Gini(D) = 1 - (0.25 + 0.25) = 0.5$. Each child has 4 examples with proportions $0.75/0.25$: $Gini(D_L) = Gini(D_R) = 1 - (0.75^2 + 0.25^2) = 1 - 0.625 = 0.375$. Weighted child Gini $= \\frac{4}{8}(0.375) + \\frac{4}{8}(0.375) = 0.375$. Information gain $= 0.5 - 0.375 = 0.125$.',
+    },
+    {
+      prompt: 'A node of 8 examples (4 positive, 4 negative) can be split two ways. Split X yields children $\\{4\\text{ pos}, 0\\text{ neg}\\}$ and $\\{0\\text{ pos}, 4\\text{ neg}\\}$. Split Y yields $\\{3\\text{ pos}, 1\\text{ neg}\\}$ and $\\{1\\text{ pos}, 3\\text{ neg}\\}$. Which split should the tree choose, and why?',
+      difficulty: 'core',
+      solution: 'Parent $Gini = 0.5$. Split X produces two **pure** children, each with $Gini = 1 - (1^2 + 0^2) = 0$, so weighted child Gini $= 0$ and gain $= 0.5 - 0 = 0.5$. Split Y (from the previous exercise) has weighted child Gini $= 0.375$ and gain $= 0.125$. The tree chooses **Split X** because it has the larger information gain ($0.5 > 0.125$) — it perfectly separates the classes.',
+    },
+    {
+      prompt: 'Explain why a decision tree grown to full depth on a noisy dataset can reach 100% training accuracy yet generalize poorly. Reference impurity and variance in your answer.',
+      difficulty: 'challenge',
+      hint: 'Think about what happens to leaf size and impurity as the tree keeps splitting.',
+      solution: 'An unrestricted tree keeps splitting until every leaf is pure ($Gini = 0$, $entropy = 0$), which in the limit means one (or a few same-class) training points per leaf. Such leaves carve the feature space into tiny axis-aligned regions that fit not just the signal but also the **noise** in the training labels, so training accuracy approaches 100%. Because these fine partitions are determined by individual points, a small change in the data would relocate them — this is the tree high variance. On unseen data those memorized boundaries do not transfer, so test accuracy drops. The fixes constrain capacity: limit max depth, require a minimum number of samples per split/leaf, or prune back low-gain branches.',
+    },
+  ],
+  comparisons: [
+    {
+      title: 'Single Decision Tree vs Random Forest vs Gradient Boosting',
+      methods: ['Single Decision Tree', 'Random Forest', 'Gradient Boosting'],
+      rows: [
+        {
+          dimension: 'Bias / variance',
+          values: ['Low bias, **high variance**', 'Low bias, variance reduced by averaging', 'Bias reduced sequentially, variance controlled by shrinkage'],
+        },
+        {
+          dimension: 'Interpretability',
+          values: ['High — readable if/else rules', 'Moderate — needs feature-importance summaries', 'Low — many additive trees, needs SHAP/importances'],
+        },
+        {
+          dimension: 'Overfitting tendency',
+          values: ['High if unpruned', 'Low — bagging averages out noise', 'Moderate — overfits if too many trees or high learning rate'],
+        },
+        {
+          dimension: 'Training cost',
+          values: ['Cheapest — one tree', 'Moderate — many trees, but **parallelizable**', 'Higher — trees built **sequentially**'],
+        },
+        {
+          dimension: 'Typical accuracy',
+          values: ['Baseline', 'Strong, robust out of the box', 'Often **state of the art** on tabular data when tuned'],
+        },
+      ],
+      takeaway: 'Use a single tree when you need transparent rules; reach for Random Forest for a robust low-variance default, and Gradient Boosting when you want top tabular accuracy and can afford tuning.',
+    },
+  ],
+  usageGuidance: {
+    useWhen: [
+      'You need an **interpretable** model whose decisions can be read off as explicit if/else rules (e.g. explaining a loan denial).',
+      'The data has **mixed feature types** (numerical and categorical) and you want to skip feature scaling and most preprocessing.',
+      'You want to capture **non-linear interactions** automatically without manually engineering them.',
+    ],
+    avoidWhen: [
+      'You need the **highest possible accuracy** on tabular data — a single tree is usually beaten by Random Forest or Gradient Boosting.',
+      'The true relationship is **smooth or linear** — axis-aligned splits approximate it as a clumsy staircase, so linear models do better.',
+      'The dataset is **small or noisy** and a deep tree would memorize it — at minimum, constrain depth or prune.',
+    ],
+    rulesOfThumb: [
+      'Always limit complexity: set a max depth or a minimum number of samples per leaf to fight overfitting.',
+      'Do not bother scaling features — splits are threshold-based and scale-invariant.',
+      'If accuracy matters more than interpretability, jump straight to an ensemble of trees.',
+    ],
+  },
+  caseStudies: [
+    {
+      title: 'CART on the UCI German credit-risk benchmark',
+      domain: 'Credit risk / finance',
+      scenario: 'A lender wants to classify loan applicants as **good** or **bad** credit risks from 20 attributes (account status, loan duration, credit history, employment, etc.) on the 1,000-record UCI German Credit dataset. The model must be **auditable**: a regulator may ask why any individual applicant was declined.',
+      approach: 'Train a CART classification tree using Gini impurity to choose splits, then control overfitting by limiting tree depth and pruning low-information branches (cost-complexity pruning, as described in Breiman et al.). The fitted tree is read as a small set of human-legible rules, e.g. "if checking-account status is negative and loan duration exceeds 24 months, flag as high risk."',
+      outcome: 'A pruned single tree typically lands around **70-73% classification accuracy** on held-out data on this benchmark — modestly below a Random Forest (roughly **76-78%**) — but delivers **explicit decision rules** an analyst can audit and a regulator can review. The case illustrates the core practitioner trade-off: a single tree trades a few points of accuracy for transparency, and ensembles recover that accuracy at the cost of interpretability.',
+      source: {
+        title: 'Classification and Regression Trees',
+        authors: 'Breiman, L., Friedman, J., Stone, C.J. and Olshen, R.A.',
+        url: 'https://www.routledge.com',
+        type: 'textbook',
+      },
+    },
+  ],
+  quiz: [
+    {
+      question: 'What does Gini impurity (or entropy) measure at a tree node?',
+      options: [
+        { text: 'How mixed the class labels are — it is $0$ for a pure node and maximal for an evenly balanced node.', correct: true },
+        { text: 'The number of examples that reach the node.', correct: false },
+        { text: 'The depth of the node within the tree.', correct: false },
+        { text: 'The prediction error on the test set.', correct: false },
+      ],
+      explanation: 'Both Gini impurity and entropy quantify class **disorder** at a node from the label proportions $p_i$. They equal $0$ when one class dominates (pure) and are largest when classes are evenly mixed. They depend only on the label distribution, not on node count, depth, or test error.',
+    },
+    {
+      question: 'Why does a fully grown, unpruned decision tree tend to overfit?',
+      options: [
+        { text: 'It keeps splitting until leaves are pure, carving tiny regions that fit noise as well as signal.', correct: true },
+        { text: 'It applies too much regularization to the splits.', correct: false },
+        { text: 'It scales features incorrectly before splitting.', correct: false },
+        { text: 'It always uses entropy instead of Gini.', correct: false },
+      ],
+      explanation: 'Without depth or sample constraints, the tree splits until every leaf is pure, often isolating individual training points. Those fine, axis-aligned regions memorize label noise, giving near-perfect training accuracy but poor generalization. Trees use no regularization or scaling by default, and the impurity metric chosen is not the cause.',
+    },
+    {
+      question: 'Decision trees choose splits "greedily." What does that mean?',
+      options: [
+        { text: 'At each node they pick the split with the highest immediate information gain, without checking whether it is globally optimal.', correct: true },
+        { text: 'They search every possible whole-tree structure and keep the best one.', correct: false },
+        { text: 'They always split on the feature with the most categories.', correct: false },
+        { text: 'They prefer splits that maximize the number of leaves.', correct: false },
+      ],
+      explanation: 'Tree learning is greedy: at each node it selects the locally best split (largest information gain) and never backtracks. Finding the globally optimal tree is NP-hard, so the greedy heuristic is used instead — which is why the result may be suboptimal overall.',
+    },
+    {
+      question: 'Why are decision tree decision boundaries described as "axis-aligned"?',
+      options: [
+        { text: 'Each split thresholds a single feature, so boundaries are perpendicular to that feature axis, producing a staircase pattern.', correct: true },
+        { text: 'Trees rotate the feature space to align with the data principal axes.', correct: false },
+        { text: 'Boundaries are always diagonal lines through the origin.', correct: false },
+        { text: 'Trees can only be used on data with exactly two axes.', correct: false },
+      ],
+      explanation: 'A split such as "$x_1 < 5$" is a cut perpendicular to the $x_1$ axis; chaining such cuts produces rectangular, axis-aligned regions. This is why a tree approximates a smooth or diagonal boundary as a **staircase** and needs many splits to do so.',
+    },
+  ],
+  review: {
+    lastReviewed: '2026-06-15',
+    reviewedBy: 'Suranjan',
+    status: 'published',
+  },
 };
