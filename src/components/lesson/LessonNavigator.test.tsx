@@ -71,9 +71,9 @@ describe("LessonNavigator", () => {
       '<div id="intuition"></div><div id="visualization"></div><div id="mathematics"></div>';
 
     // @ts-expect-error mocking global/window IntersectionObserver
-    window.IntersectionObserver = mockObserver as any;
+    window.IntersectionObserver = mockObserver as any; // eslint-disable-line @typescript-eslint/no-explicit-any
     // @ts-expect-error mocking global/window IntersectionObserver
-    global.IntersectionObserver = mockObserver as any;
+    global.IntersectionObserver = mockObserver as any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
     const currentModule = algorithmsList.find(
       (module) => module.id === "linear-algebra",
@@ -94,9 +94,9 @@ describe("LessonNavigator", () => {
     // Restore the original IntersectionObserver after the test.
     if (originalIntersectionObserver === undefined) {
       // @ts-expect-error cleanup
-      delete (window as any).IntersectionObserver;
+      delete (window as any).IntersectionObserver; // eslint-disable-line @typescript-eslint/no-explicit-any
       // @ts-expect-error cleanup
-      delete (global as any).IntersectionObserver;
+      delete (global as any).IntersectionObserver; // eslint-disable-line @typescript-eslint/no-explicit-any
     } else {
       window.IntersectionObserver = originalIntersectionObserver;
       // @ts-expect-error mocking global/window IntersectionObserver

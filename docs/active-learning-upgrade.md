@@ -234,5 +234,9 @@ modules stay green and migrate incrementally.
 ### Phase 2 — Track rollout
 - [x] Foundations track — all 8 modules published: `0_1_calculus`, `0_2_linear_algebra`, `0_3_probability_theory`, `1_maximum_likelihood`, `2_bayesian`, `22_statistics_estimation`, `23_gradient_descent` (plus `calculus` from Phase 1)
 - [x] Practitioner track — all 16 modules published: `3_linear_regression` (Phase 1), `3b_logistic_regression`, `4a_knn`, `4b_decision_trees`, `5_clustering`, `6_svm`, `7_ensemble`, `8_dimensionality`, `9_mcmc`, `18_bias_variance`, `20_regularization`, `21_evaluation_metrics`, `24_data_preparation`, `25_naive_bayes`, `26_model_selection`, `27_gmm_em`, `28_anomaly_detection`
-- [ ] Modern-AI track (remaining 15 modules — prioritize depth, gap #8): `10_neural_networks`, `11_cnn`, `12_computer_vision`, `13_nlp`, `14_autoencoders`, `16_llms`, `17_reinforcement_learning`, `19_generative_models`, `29_backpropagation`, `30_sequence_models`, `31_embeddings_tokenization`, `32_rag`, `33_fine_tuning`, `34_llm_evaluation_safety`, `35_ai_inference` (plus `15_transformers` already published from Phase 1)
+- [x] Modern-AI track — all 16 modules published: `10_neural_networks`, `11_cnn`, `12_computer_vision`, `13_nlp`, `14_autoencoders`, `15_transformers` (Phase 1), `16_llms`, `17_reinforcement_learning`, `19_generative_models`, `29_backpropagation`, `30_sequence_models`, `31_embeddings_tokenization`, `32_rag`, `33_fine_tuning`, `34_llm_evaluation_safety`, `35_ai_inference`
+
+### Phase 2 — COMPLETE ✅
+- [x] **All 40 modules are now `status: 'published'`** and meet the full active-learning rubric (TL;DR, ≥1 derivation, ≥3 practice exercises across ≥2 tiers, comparison table, usage guidance, ≥1 quantified case study, 3–5 quiz questions).
+- [x] Final verification suite green: `tsc --noEmit` clean, `npm run lint` clean, 8695 Vitest tests pass, `npm run build` (55 static pages) green with no KaTeX warnings.
 ```
