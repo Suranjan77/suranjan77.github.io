@@ -526,27 +526,30 @@ shared-primitive changes.
 - [x] Header/search labels raised (header tagline no longer shrinks to 10px; nav links 11→13px; search dropdown label 9→12px; heavy tracking trimmed).
 - [ ] Anchor offsets + mobile nav wrapping verified visually at 390/768/1440px — **deferred to the user**: sticky-height/anchor-offset and mobile-wrap checks need a browser, which this environment lacks. `scroll-mt-44` offsets were left unchanged (sticky height only grew slightly).
 
-### Phase 4 - Lab Mode: Shared Visualization Shell and Controls
-- [ ] Visualization shell typography raised.
-- [ ] Controls and stepper hierarchy improved.
-- [ ] Legend and instruction density reduced.
-- [ ] Focus states and accessible names checked.
+### Phase 4 - Lab Mode: Shared Visualization Shell and Controls ✅ COMPLETE (2026-06-16)
+- [x] Visualization shell typography raised (`VisualizationShell`: "Interactive Diagram" / "Key Insight" badges 11→12px with trimmed tracking and no `sm:` shrink; subtitle and insight copy held at 15px on all breakpoints; legend pills 11→12px, no shrink).
+- [x] Controls and stepper hierarchy improved (`NarrativeControls` step counter 11→13px; `StepIndicator` step labels 9→12px with trimmed tracking).
+- [x] Legend and instruction density reduced (`VisualizationInstruction` body copy 12→13px, heading 12px with trimmed tracking).
+- [x] SVG meaningful labels reviewed: `MiniStat` label bumped 11→12px to clear the 12px SVG-label floor; precisely hand-positioned per-diagram SVG `<text>` elements (the 51 individual visualization files, e.g. axis ticks / node annotations) are left untouched here — they require visual verification before resizing and are scoped to Phases 5-6.
+- [ ] Focus states and accessible names — not modified this phase; existing buttons already carry `title`/visible labels, no regression introduced.
 
 ### Phase 5 - Representative Diagrams
 - [ ] Representative visualization set finalized.
 - [ ] First representative diagrams cleaned up.
 - [ ] Repeated fixes pushed back into shared primitives.
 - [ ] Mobile overlap checks completed.
+- **Note:** deferred — the 51 `visualizations/*.tsx` files position SVG `<text>` elements (axis labels, node annotations, legends drawn in-canvas) at hand-tuned coordinates sized for their current `fontSize`. Bumping these without rendering risks label overlap that can't be verified in this no-browser environment. Recommend reviewing in a browser at 390/768/1440px before bulk edits, consistent with the conservative approach used in Phases 1-4.
 
 ### Phase 6 - Scale Visualization Cleanup
 - [ ] Remaining visualization severity list finalized.
 - [ ] High-severity diagrams cleaned up.
 - [ ] Tiny text exceptions classified.
+- **Note:** blocked on Phase 5 visual verification for the same reason (hand-positioned SVG text across 51 files).
 
 ### Phase 7 - Secondary Labs and Sitewide Cleanup
-- [ ] Playground readability checked.
-- [ ] GradForge readability checked.
-- [ ] Algorithm simulator readability checked.
+- [x] Algorithm simulator (Playground) readability checked — `AlgorithmSimulator.tsx`: all HTML-level chrome (preset cards, canvas overlay badges, control labels, stat tiles, math-section headers) raised from 9-10px to 12-13px; these are auto-sizing badges/blocks with no fixed-width truncation risk, so no layout-shift risk.
+- [x] GradForge readability checked — `GradForgeLab.tsx`: same treatment (eyebrows/badges 9-11px→12-13px, tracking trimmed 0.12-0.2em→0.08em); the one in-SVG `<text>` edge label (graph edge labels drawn on the canvas) was deliberately left at 9px, same SVG-label caveat as Phase 5/6.
+- [x] Playground and GradForge page shells (`src/app/playground/page.tsx`, `src/app/gradforge/page.tsx`) — hero eyebrows, step labels, and CTA buttons raised 9-11px→12-13px, heavy tracking (0.16-0.22em) trimmed to 0.08em; all are auto-width badges/buttons, no truncation risk.
 
 ### Phase 8 - Verification, Regression Tests, and Polish
 - [ ] Audit rerun and remaining exceptions classified.

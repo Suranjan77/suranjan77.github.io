@@ -1184,12 +1184,12 @@ export default function GradForgeLab() {
     >
       <div className="grid border-b border-outline bg-border lg:grid-cols-[310px_minmax(0,1fr)_330px]">
         <section className="bg-surface p-5 lg:border-r lg:border-outline">
-          <div className="mb-4 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-primary">
+          <div className="mb-4 flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.08em] text-primary">
             <BookOpen size={14} aria-hidden="true" />
             Guided Lessons
           </div>
           <div className="mb-3 border border-outline bg-surface-container-low p-3 text-xs leading-5 text-on-surface-variant">
-            <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.16em] text-primary">
+            <p className="mb-1 font-mono text-[12px] uppercase tracking-[0.08em] text-primary">
               Start here
             </p>
             Load a preset, step through its trace, then modify the Python
@@ -1208,7 +1208,7 @@ export default function GradForgeLab() {
                     : "border-outline bg-surface-container-lowest hover:border-outline-dark",
                 )}
               >
-                <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">
+                <span className="font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
                   Module 0{index + 1}
                 </span>
                 <span className="mt-1 block font-headline text-xl font-medium text-on-surface">
@@ -1225,7 +1225,7 @@ export default function GradForgeLab() {
         <section className="bg-surface p-5">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
+              <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
                 {lesson.subtitle}
               </p>
               <h2 className="mt-1 font-headline text-3xl font-medium text-on-surface">
@@ -1395,15 +1395,15 @@ export default function GradForgeLab() {
                     zIndex: active || selected ? 10 : 1,
                   }}
                 >
-                  <div className="font-mono text-[11px] font-semibold text-on-surface">
+                  <div className="font-mono text-[13px] font-semibold text-on-surface">
                     {labelParts[0]}
                   </div>
                   {labelParts[1] && (
-                    <div className="font-mono text-[9px] text-on-surface-variant">
+                    <div className="font-mono text-[12px] text-on-surface-variant">
                       {labelParts[1].slice(0, 14)}
                     </div>
                   )}
-                  <div className="mt-1 flex gap-2 font-mono text-[9px] uppercase tracking-wider">
+                  <div className="mt-1 flex gap-2 font-mono text-[12px] uppercase tracking-wider">
                     <span className="text-on-surface-variant">data {formatNumber(node.data)}</span>
                     <span className="text-primary">grad {formatNumber(grad)}</span>
                   </div>
@@ -1411,7 +1411,7 @@ export default function GradForgeLab() {
               );
             })}
 
-            <div className="absolute left-4 top-4 border border-outline bg-surface/95 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em] text-on-surface-variant">
+            <div className="absolute left-4 top-4 border border-outline bg-surface/95 px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
               Phase: <span className="text-primary">{step.phase}</span>
             </div>
           </div>
@@ -1427,7 +1427,7 @@ export default function GradForgeLab() {
                 className="w-full accent-[var(--color-primary)]"
                 aria-label="Execution timeline"
               />
-              <div className="shrink-0 font-mono text-[11px] uppercase tracking-[0.16em] text-on-surface-variant">
+              <div className="shrink-0 font-mono text-[13px] uppercase tracking-[0.08em] text-on-surface-variant">
                 {stepIndex + 1}/{lesson.trace.length}
               </div>
             </div>
@@ -1438,7 +1438,7 @@ export default function GradForgeLab() {
                   type="button"
                   onClick={() => setStepIndex(index)}
                   className={clsx(
-                    "min-h-10 border px-2 py-2 font-mono text-[9px] uppercase tracking-[0.12em]",
+                    "min-h-10 border px-2 py-2 font-mono text-[12px] uppercase tracking-[0.08em]",
                     index === stepIndex
                       ? "border-primary bg-primary text-on-primary"
                       : "border-outline bg-surface text-on-surface-variant hover:border-outline-dark",
@@ -1452,12 +1452,12 @@ export default function GradForgeLab() {
         </section>
 
         <section className="bg-surface p-5 lg:border-l lg:border-outline">
-          <div className="mb-4 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-primary">
+          <div className="mb-4 flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.08em] text-primary">
             <Info size={14} />
             Maths Inspector
           </div>
           <div className="border border-outline bg-surface-container-lowest p-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
+            <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
               Selected Node
             </p>
             <h3 className="mt-1 font-headline text-2xl font-medium text-on-surface">
@@ -1471,7 +1471,7 @@ export default function GradForgeLab() {
                 ["parents", selectedNode.parents.join(", ") || "none"],
               ].map(([label, value]) => (
                 <div key={label} className="bg-surface px-3 py-3">
-                  <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-on-surface-variant">
+                  <dt className="font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
                     {label}
                   </dt>
                   <dd className="mt-1 font-mono text-sm text-on-surface">{value}</dd>
@@ -1482,10 +1482,10 @@ export default function GradForgeLab() {
 
           <div className="mt-4 border border-outline bg-surface-container-lowest p-4">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
+              <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
                 Math Lens
               </p>
-              <span className="font-mono text-[10px] text-primary">Level {lens}</span>
+              <span className="font-mono text-[12px] text-primary">Level {lens}</span>
             </div>
             <input
               type="range"
@@ -1505,7 +1505,7 @@ export default function GradForgeLab() {
           </div>
 
           <div className="mt-4 border border-outline bg-surface-container-lowest p-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
+            <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
               Explain This Gradient
             </p>
             <ul className="mt-3 space-y-2 text-sm leading-6 text-on-surface-variant">
@@ -1525,7 +1525,7 @@ export default function GradForgeLab() {
       <div className="grid border-b border-outline bg-border lg:grid-cols-[minmax(0,1fr)_420px]">
         <section className="bg-surface p-5 lg:border-r lg:border-outline">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-primary">
+            <div className="flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.08em] text-primary">
               <Braces size={14} />
               Python Editor
             </div>
@@ -1543,7 +1543,7 @@ export default function GradForgeLab() {
                   setIsPlaying(false);
                   setRunMessage("Reset to the lesson source.");
                 }}
-                className="inline-flex items-center gap-2 border border-outline bg-surface-container-lowest px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em] text-on-surface-variant hover:border-primary"
+                className="inline-flex items-center gap-2 border border-outline bg-surface-container-lowest px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant hover:border-primary"
               >
                 <RotateCcw size={13} />
                 Reset
@@ -1551,7 +1551,7 @@ export default function GradForgeLab() {
               <button
                 type="button"
                 onClick={runEditorCode}
-                className="inline-flex items-center gap-2 border border-on-surface bg-on-surface px-3 py-2 font-mono text-[10px] uppercase tracking-[0.16em] text-background hover:bg-primary"
+                className="inline-flex items-center gap-2 border border-on-surface bg-on-surface px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-background hover:bg-primary"
               >
                 <Play size={13} />
                 Run Trace
@@ -1567,7 +1567,7 @@ export default function GradForgeLab() {
           />
           <p
             className={clsx(
-              "mt-3 border px-3 py-2 font-mono text-[11px] leading-5",
+              "mt-3 border px-3 py-2 font-mono text-[13px] leading-5",
               runMessage.startsWith("Unsupported") ||
                 runMessage.startsWith("Unknown") ||
                 runMessage.startsWith("Add at least")
@@ -1581,7 +1581,7 @@ export default function GradForgeLab() {
             {step.updates.map((update, index) => (
               <div
                 key={`${step.phase}-${step.activeNode}-update-${index}-${update}`}
-                className="border border-outline bg-surface-container-lowest px-3 py-3 font-mono text-[11px] leading-5 text-on-surface-variant"
+                className="border border-outline bg-surface-container-lowest px-3 py-3 font-mono text-[13px] leading-5 text-on-surface-variant"
               >
                 {update}
               </div>
@@ -1590,7 +1590,7 @@ export default function GradForgeLab() {
         </section>
 
         <section className="bg-surface p-5">
-          <div className="mb-4 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-primary">
+          <div className="mb-4 flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.08em] text-primary">
             <GitBranch size={14} />
             Python Engine Notes
           </div>
@@ -1605,7 +1605,7 @@ export default function GradForgeLab() {
                 type="button"
                 onClick={() => setImplTab(id as keyof typeof pythonImplementations)}
                 className={clsx(
-                  "bg-surface px-2 py-2 font-mono text-[10px] uppercase tracking-[0.14em]",
+                  "bg-surface px-2 py-2 font-mono text-[12px] uppercase tracking-[0.08em]",
                   implTab === id
                     ? "text-primary"
                     : "text-on-surface-variant hover:text-on-surface",
@@ -1626,7 +1626,7 @@ export default function GradForgeLab() {
 
       <div className="grid bg-border lg:grid-cols-[minmax(0,1fr)_420px]">
         <section className="bg-surface p-5 lg:border-r lg:border-outline">
-          <div className="mb-4 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-primary">
+          <div className="mb-4 flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.08em] text-primary">
             <Bug size={14} />
             Prediction Task
           </div>
@@ -1653,7 +1653,7 @@ export default function GradForgeLab() {
             ))}
           </div>
           {quizChoice && (
-            <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.14em] text-primary">
+            <p className="mt-3 font-mono text-[13px] uppercase tracking-[0.08em] text-primary">
               {quizChoice === lesson.quiz.answer
                 ? "Correct: the gradient trace keeps every path."
                 : `Answer: ${lesson.quiz.answer}`}
@@ -1662,7 +1662,7 @@ export default function GradForgeLab() {
         </section>
 
         <section className="bg-surface p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-primary">
+          <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-primary">
             Finite Difference Check
           </p>
           <div className="mt-4 grid gap-px border border-outline bg-border">
@@ -1681,7 +1681,7 @@ export default function GradForgeLab() {
                 key={label}
                 className="flex items-center justify-between gap-4 bg-surface-container-lowest px-4 py-3"
               >
-                <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">
+                <span className="font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
                   {label}
                 </span>
                 <span className="font-mono text-sm text-on-surface">{value}</span>
@@ -1692,7 +1692,7 @@ export default function GradForgeLab() {
             <button
               type="button"
               onClick={() => selectLesson(Math.max(lessonIndex - 1, 0))}
-              className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-on-surface-variant hover:text-primary"
+              className="inline-flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant hover:text-primary"
             >
               <ChevronLeft size={13} />
               Previous
@@ -1700,7 +1700,7 @@ export default function GradForgeLab() {
             <button
               type="button"
               onClick={() => selectLesson(Math.min(lessonIndex + 1, lessons.length - 1))}
-              className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-on-surface-variant hover:text-primary"
+              className="inline-flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant hover:text-primary"
             >
               Next
               <ChevronRight size={13} />
