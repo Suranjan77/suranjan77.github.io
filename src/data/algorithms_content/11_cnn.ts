@@ -136,5 +136,211 @@ class SimpleCNN(nn.Module):
 model = SimpleCNN()
 fake_images = torch.randn(4, 3, 32, 32) # Batch of 4 images
 logits = model(fake_images)
-print(f"Output shape: {logits.shape}") # Expect [4, 10]`
+print(f"Output shape: {logits.shape}") # Expect [4, 10]`,
+  tldr: [
+    'A CNN slides small, learned **kernels** across an input grid instead of connecting every pixel to every neuron, so each output unit only looks at a local **receptive field**.',
+    '**Weight sharing** means the same kernel is reused at every spatial position, which slashes parameter count and gives the network **translation equivariance**.',
+    'Output spatial size follows $O = \\left\\lfloor \\frac{W - K + 2P}{S} \\right\\rfloor + 1$ — padding and stride are knobs you tune to control how much the map shrinks.',
+    'Stacking convolutions grows the **effective receptive field** layer by layer, letting early layers see edges and later layers see whole objects.',
+    'CNNs trade a strong spatial **inductive bias** for data efficiency on grid-like data (images, audio, video) compared to architectures with fewer built-in assumptions, like Vision Transformers.',
+    'Pooling or strided convolutions downsample feature maps, compounding the receptive-field growth while keeping compute manageable.',
+  ],
+  additionalSections: [
+    {
+      heading: 'Derivation: Output Spatial Dimensions',
+      content: `
+A convolutional layer slides a $K \\times K$ kernel across a $W \\times W$ input (assume square for simplicity; rectangular inputs apply the formula per axis independently).
+
+### Setting up the count
+
+Without padding, the kernel’s top-left corner can sit at positions $0, 1, 2, \\dots$ as long as the whole $K \\times K$ window still fits inside the input. The last valid position is $W - K$, so there are $W - K + 1$ valid positions when the stride is $1$.
+
+Zero-padding adds $P$ extra rows/columns on **each** side, effectively growing the input to size $W + 2P$ before the kernel slides over it. That gives $W + 2P - K + 1$ valid positions at stride $1$.
+
+A stride of $S$ means the kernel only stops at every $S$-th position, so we divide the number of valid steps by $S$ and floor the result (a partial step that does not align is simply discarded):
+
+$$ O = \\left\\lfloor \\frac{W - K + 2P}{S} \\right\\rfloor + 1 $$
+
+### Worked example
+
+Take a $32 \\times 32$ input, a $5 \\times 5$ kernel, padding $P = 2$, and stride $S = 1$:
+
+$$ O = \\left\\lfloor \\frac{32 - 5 + 2(2)}{1} \\right\\rfloor + 1 = \\left\\lfloor \\frac{32 - 5 + 4}{1} \\right\\rfloor + 1 = \\lfloor 31 \\rfloor + 1 = 32 $$
+
+The output is still $32 \\times 32$ — this is exactly “same” padding: $P = \\lfloor K/2 \\rfloor = 2$ for an odd kernel keeps spatial size unchanged at stride $1$, which is why $P=2$ was chosen here rather than some other value.
+
+### Why padding and stride are chosen the way they are
+
+Padding controls whether spatial size shrinks (“valid” padding, $P=0$) or is preserved (“same” padding, $P = \\lfloor K/2 \\rfloor$ for odd $K$). Preserving spatial size lets you stack many layers without the feature map vanishing to $1\\times1$ before the network is deep enough to build rich features, and it also keeps border pixels from being under-represented relative to central ones.
+
+Stride controls how aggressively you downsample while convolving. $S=1$ keeps maximum spatial resolution and is typical for early layers that need to preserve fine detail; $S=2$ halves resolution each layer (similar to a pooling step fused into the convolution itself) and is common in deeper layers or modern architectures that replace explicit pooling with strided convolutions, since it reduces both compute and memory while still being fully differentiable.
+      `,
+    },
+    {
+      heading: 'Derivation: Parameter Sharing and Translation Equivariance',
+      content: `
+### Counting parameters in a dense layer
+
+Suppose the input is a $32 \\times 32 \\times 3$ image (the standard CIFAR-style RGB image) and we want $64$ output features using a **fully connected** layer. Every output unit attaches a unique weight to every input pixel-channel, plus one bias per output unit:
+
+$$ \\text{params}_{\\text{dense}} = (32 \\cdot 32 \\cdot 3) \\cdot 64 + 64 = 3{,}072 \\cdot 64 + 64 = 196{,}608 + 64 = 196{,}672 $$
+
+This count scales with the **product** of input size and output size — it explodes quickly as images get larger, and it learns a completely independent set of weights for every spatial position, even though the same edge or texture pattern can appear anywhere in the image.
+
+### Counting parameters in a convolutional layer
+
+Now use a convolutional layer with a $3 \\times 3$ kernel, $3$ input channels, and $64$ output channels (i.e. $64$ kernels), producing $64$ feature maps that cover the *entire* spatial extent of the input:
+
+$$ \\text{params}_{\\text{conv}} = (3 \\cdot 3 \\cdot 3) \\cdot 64 + 64 = 27 \\cdot 64 + 64 = 1{,}728 + 64 = 1{,}792 $$
+
+That is roughly **110x fewer parameters** than the dense layer ($196{,}672 / 1{,}792 \\approx 109.8$), even though the convolution still produces a comparably rich set of $64$ feature maps spanning the whole image. The reason: the same $3\\times3\\times3$ kernel weights are **reused** (shared) at every one of the $32\\times32$ output positions, rather than learning a brand-new weight for each position.
+
+### Why sharing implies translation equivariance
+
+Because the identical kernel $K$ is convolved across all spatial locations, shifting the input by some offset $(\\Delta i, \\Delta j)$ shifts the output feature map by the same offset, rather than producing a different response:
+
+$$ \\text{Conv}(\\text{Shift}_{\\Delta i, \\Delta j}(X))_{i,j} = \\text{Conv}(X)_{i-\\Delta i, j-\\Delta j} $$
+
+This property — **translation equivariance** — is exactly what parameter sharing buys you: a learned “vertical edge” detector fires on vertical edges wherever they occur in the image, instead of having to be independently re-learned at every pixel location the way a dense layer would require. It is also the structural assumption that fails when spatial position is itself meaningful (e.g. a fixed-format form where “name” always appears in the top-left) — in that setting, the bias that helps CNNs generalize on natural images can actually hurt.
+      `,
+    },
+  ],
+  practiceExercises: [
+    {
+      prompt: 'A convolutional layer takes a $28 \\times 28$ input, uses a $3 \\times 3$ kernel, no padding ($P=0$), and stride $S=1$. What is the output spatial size?',
+      difficulty: 'warm-up',
+      hint: 'Use $O = \\lfloor (W - K + 2P)/S \\rfloor + 1$.',
+      solution: '$O = \\lfloor (28 - 3 + 0)/1 \\rfloor + 1 = \\lfloor 25 \\rfloor + 1 = 26$. The output is $26 \\times 26$ — without padding, the spatial size shrinks by $K-1 = 2$ pixels.',
+    },
+    {
+      prompt: 'A convolutional layer has input channels $C_{in} = 16$, kernel size $3 \\times 3$, and $C_{out} = 32$ output channels (with bias). How many learnable parameters does this layer have?',
+      difficulty: 'warm-up',
+      hint: 'Each output channel has its own $3\\times3\\times C_{in}$ kernel plus one bias term.',
+      solution: 'Each of the $32$ output kernels has $3 \\cdot 3 \\cdot 16 = 144$ weights, plus $1$ bias: $145$ parameters per output channel. Total: $32 \\cdot 145 = 4{,}640$ parameters.',
+    },
+    {
+      prompt: 'Manually convolve (cross-correlate, no flipping, as CNN libraries do) the $3\\times3$ input $\\begin{pmatrix}1 & 2 & 0\\\\ 0 & 1 & 2\\\\ 2 & 0 & 1\\end{pmatrix}$ with the $2\\times2$ kernel $\\begin{pmatrix}1 & 0\\\\ 0 & 1\\end{pmatrix}$, stride $1$, no padding. Report the resulting $2\\times2$ output.',
+      difficulty: 'core',
+      hint: 'Slide the kernel over the four valid $2\\times2$ windows and take the element-wise product sum at each position.',
+      solution: 'Top-left window $\\begin{pmatrix}1&2\\\\0&1\\end{pmatrix}$: $1\\cdot1 + 2\\cdot0 + 0\\cdot0 + 1\\cdot1 = 2$. Top-right window $\\begin{pmatrix}2&0\\\\1&2\\end{pmatrix}$: $2\\cdot1 + 0\\cdot0 + 1\\cdot0 + 2\\cdot1 = 4$. Bottom-left window $\\begin{pmatrix}0&1\\\\2&0\\end{pmatrix}$: $0\\cdot1 + 1\\cdot0 + 2\\cdot0 + 0\\cdot1 = 0$. Bottom-right window $\\begin{pmatrix}1&2\\\\0&1\\end{pmatrix}$: $1\\cdot1 + 2\\cdot0 + 0\\cdot0 + 1\\cdot1 = 2$. Output: $\\begin{pmatrix}2 & 4\\\\ 0 & 2\\end{pmatrix}$.',
+      tags: ['derivation', 'conceptual'],
+    },
+    {
+      prompt: 'You stack four convolutional layers, each with a $3\\times3$ kernel and stride $1$ (no pooling). What is the receptive field — in terms of original input pixels — seen by a single unit in the output of the fourth layer? Then explain qualitatively how adding a stride-$2$ pooling layer after every conv layer would change the growth rate.',
+      difficulty: 'challenge',
+      hint: 'Each additional $3\\times3$, stride-1 layer grows the receptive field by $K - 1 = 2$ pixels per side relative to the previous layer’s receptive field.',
+      solution: 'A single $3\\times3$ layer has a receptive field of $3$. Each subsequent $3\\times3$, stride-1 layer adds $K-1=2$ to the receptive field (one pixel of context on each side), so after $n$ layers the receptive field is $1 + n(K-1) = 1 + 4(2) = 9$ pixels (i.e. $9\\times9$) — receptive field grows **linearly** with depth when stride is $1$. If a stride-$2$ pooling (or strided convolution) layer follows each conv layer, every subsequent layer’s receptive field gets multiplied by the accumulated downsampling factor, so growth becomes **exponential** in depth rather than linear — this is exactly why deep CNNs use occasional downsampling to cover large input regions without needing an impractically large number of layers.',
+      tags: ['conceptual', 'derivation'],
+    },
+  ],
+  comparisons: [
+    {
+      title: 'Fully Connected Network vs CNN vs Vision Transformer (ViT)',
+      methods: ['Fully Connected Network', 'CNN', 'Vision Transformer (ViT)'],
+      rows: [
+        {
+          dimension: 'Parameter count (on images)',
+          values: ['Very high — scales with input size $\\times$ output size', 'Low — kernels are shared across all spatial positions', 'Moderate-to-high — depends on patch size and embedding dimension, but no spatial weight sharing like convolution'],
+        },
+        {
+          dimension: 'Inductive bias',
+          values: ['None — must learn every spatial relationship from scratch', 'Strong: locality + translation equivariance built in', 'Weak/minimal — mostly learns spatial relationships via attention and positional embeddings'],
+        },
+        {
+          dimension: 'Data efficiency',
+          values: ['Poor on raw pixels — needs huge data to learn spatial structure', 'Good — strong bias lets it learn from comparatively modest datasets', 'Poor at small scale — typically needs large-scale pretraining to match or beat CNNs'],
+        },
+        {
+          dimension: 'Long-range dependencies',
+          values: ['Possible in principle, but parameter-inefficient', 'Limited per-layer; requires depth or large kernels to grow receptive field', 'Strong — self-attention connects any two patches in one layer'],
+        },
+        {
+          dimension: 'Typical use case',
+          values: ['Tabular data, or as the final classifier head', 'Image/audio/video tasks, especially with limited data or compute', 'Large-scale vision tasks with abundant data/pretraining and a need for global context'],
+        },
+      ],
+      takeaway: 'CNNs sit between unstructured fully connected networks and ViTs: they trade ViT’s flexibility for a strong spatial prior that makes them far more data- and parameter-efficient on grid-like data, especially when large-scale pretraining is not available.',
+    },
+  ],
+  usageGuidance: {
+    useWhen: [
+      'Your data has a **grid-like spatial or temporal structure** (images, spectrograms, video frames, sensor grids) where nearby values are correlated.',
+      'You need a **data-efficient** model and cannot rely on massive pretraining corpora the way Vision Transformers typically do.',
+      'You want **translation-aware** features, e.g. detecting an object or pattern regardless of where it appears in the frame.',
+      'Inference needs to run on **constrained hardware** (mobile/embedded) where a parameter-efficient architecture matters.',
+    ],
+    avoidWhen: [
+      'The input has **no meaningful spatial locality** (e.g. shuffled tabular features) — convolution’s locality assumption buys you nothing.',
+      'You need to model **long-range global dependencies** across the whole input in a single layer — attention-based architectures do this more directly.',
+      'You have **very large labeled datasets and compute** and the absolute best accuracy matters more than data efficiency — a well-pretrained Vision Transformer may outperform CNNs.',
+      'Spatial position itself is semantically meaningful and should **not** be treated as interchangeable (e.g. fixed-layout forms) — translation equivariance becomes a liability rather than a benefit.',
+    ],
+    rulesOfThumb: [
+      'Start with “same” padding ($P = \\lfloor K/2 \\rfloor$ for odd $K$) and stride 1 in early layers to preserve resolution while learning features.',
+      'Prefer small kernels (3x3) stacked deep over a single large kernel — it is more parameter-efficient and gives a comparable receptive field.',
+      'Use strided convolutions or pooling deliberately to grow receptive field exponentially rather than relying on depth alone.',
+    ],
+  },
+  caseStudies: [
+    {
+      title: 'AlexNet and the 2012 ImageNet breakthrough',
+      domain: 'Computer vision / image classification',
+      scenario: 'The ImageNet Large Scale Visual Recognition Challenge (ILSVRC) 2012 required classifying images into 1,000 categories across roughly 1.2 million training images. Prior winning approaches relied on hand-engineered features (e.g. SIFT) combined with classical classifiers, and progress had plateaued.',
+      approach: 'Krizhevsky, Sutskever, and Hinton trained “AlexNet,” an 8-layer CNN (5 convolutional layers plus 3 fully connected layers) with ReLU activations, dropout regularization, and data augmentation, trained on GPUs using stacked small-stride convolutions and max pooling to progressively build hierarchical features from raw pixels.',
+      outcome: 'AlexNet achieved a top-5 test error of **15.3%**, compared to **26.2%** for the second-place entry that used traditional hand-engineered features — a dramatic margin that is widely credited with triggering the deep learning boom in computer vision over the following decade.',
+      source: {
+        title: 'ImageNet Classification with Deep Convolutional Neural Networks',
+        authors: 'Krizhevsky, A., Sutskever, I. and Hinton, G. E.',
+        url: 'https://papers.nips.cc',
+        type: 'paper',
+      },
+    },
+  ],
+  quiz: [
+    {
+      question: 'A $30\\times30$ input is convolved with a $4\\times4$ kernel, padding $P=1$, stride $S=2$. What is the output spatial size?',
+      options: [
+        { text: '$O = \\lfloor (30-4+2)/2 \\rfloor + 1 = 15$', correct: true },
+        { text: '$O = 30$', correct: false },
+        { text: '$O = \\lfloor (30-4)/2 \\rfloor = 13$', correct: false },
+        { text: '$O = 28$', correct: false },
+      ],
+      explanation: 'Using $O = \\lfloor (W - K + 2P)/S \\rfloor + 1 = \\lfloor (30 - 4 + 2)/2 \\rfloor + 1 = \\lfloor 28/2 \\rfloor + 1 = 14 + 1 = 15$.',
+    },
+    {
+      question: 'Why does a convolutional layer have far fewer parameters than a fully connected layer mapping the same input to the same number of output feature maps?',
+      options: [
+        { text: 'The same kernel weights are reused (shared) at every spatial position instead of learning a unique weight per position.', correct: true },
+        { text: 'Convolutional layers do not use biases.', correct: false },
+        { text: 'Convolutional layers only look at half of the input pixels.', correct: false },
+        { text: 'Convolutional layers use a smaller learning rate.', correct: false },
+      ],
+      explanation: 'Parameter sharing is the key mechanism: a $3\\times3\\times C_{in}$ kernel is convolved across all spatial locations rather than each output position getting its own independent set of weights, which is what a dense layer would require. This is unrelated to bias terms, partial input coverage, or learning rate.',
+    },
+    {
+      question: 'What does "translation equivariance" mean in the context of CNNs?',
+      options: [
+        { text: 'Shifting the input produces a correspondingly shifted output feature map, because the same kernel is applied everywhere.', correct: true },
+        { text: 'The model’s output is completely unchanged no matter where a pattern appears in the input.', correct: false },
+        { text: 'The kernel rotates to match the orientation of the input pattern.', correct: false },
+        { text: 'Training loss stays constant across epochs.', correct: false },
+      ],
+      explanation: 'Translation equivariance means shift-in implies shift-out: if you translate the input, the resulting feature map translates by the same amount. This is different from translation **invariance** (output completely unchanged regardless of position), which pooling layers approximate by discarding some positional information.',
+    },
+    {
+      question: 'Compared to a Vision Transformer (ViT) trained from scratch on a small dataset, why does a CNN typically perform better?',
+      options: [
+        { text: 'The CNN’s built-in locality and weight-sharing biases let it learn useful spatial features from less data, while ViTs rely on large-scale pretraining to learn similar structure from data alone.', correct: true },
+        { text: 'CNNs always have more parameters than ViTs.', correct: false },
+        { text: 'ViTs cannot be trained with backpropagation.', correct: false },
+        { text: 'CNNs do not require labeled data.', correct: false },
+      ],
+      explanation: 'ViTs have minimal built-in spatial inductive bias and must learn locality and translation structure purely from data (typically via large-scale pretraining); CNNs encode that structure architecturally via convolution, making them more data-efficient at small scale. Both can be trained with backpropagation, and both typically still need labeled data (or self-supervised objectives) to learn useful representations.',
+    },
+  ],
+  review: {
+    lastReviewed: '2026-06-15',
+    reviewedBy: 'Suranjan',
+    status: 'published',
+  },
 };

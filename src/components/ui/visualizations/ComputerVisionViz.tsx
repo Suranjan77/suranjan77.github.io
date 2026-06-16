@@ -124,7 +124,7 @@ export default function ComputerVisionViz() {
 
             {/* PAINT CANVAS (6x6) */}
             <g>
-              <text x={canvasStart.x + 3 * (cellW + spacing) - spacing} y={canvasStart.y - 16} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={800}>PAINT CANVAS</text>
+              <text x={canvasStart.x + 3 * (cellW + spacing) - spacing} y={canvasStart.y - 16} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>PAINT CANVAS</text>
               {grid.map((row, rIdx) =>
                 row.map((val, cIdx) => (
                   <rect
@@ -146,7 +146,7 @@ export default function ComputerVisionViz() {
 
             {/* KERNEL MATRIX EDITOR (3x3) */}
             <g>
-              <text x={kernelStart.x + 1.5 * (kernelCellW + spacing) - spacing} y={kernelStart.y - 16} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={800}>KERNEL (Sobel)</text>
+              <text x={kernelStart.x + 1.5 * (kernelCellW + spacing) - spacing} y={kernelStart.y - 16} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>KERNEL (Sobel)</text>
               {kernel.map((w, idx) => {
                 const kr = Math.floor(idx / 3);
                 const kc = idx % 3;
@@ -182,7 +182,7 @@ export default function ComputerVisionViz() {
 
             {/* FILTER OUTPUT (4x4) */}
             <g>
-              <text x={outStart.x + 2 * (outCellW + spacing) - spacing} y={outStart.y - 16} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={800}>CONVOLVED OUTPUT</text>
+              <text x={outStart.x + 2 * (outCellW + spacing) - spacing} y={outStart.y - 16} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>CONVOLVED OUTPUT</text>
               {outputGrid.map((row, rIdx) =>
                 row.map((val, cIdx) => {
                   const isEdge = Math.abs(val) >= edgeThreshold;
@@ -256,7 +256,7 @@ export default function ComputerVisionViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
+            <label className="block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
               EDGE GLOW THRESHOLD:
             </label>
             <input aria-label="ComputerVision input"
@@ -268,7 +268,7 @@ export default function ComputerVisionViz() {
               onChange={(e) => setEdgeThreshold(parseFloat(e.target.value))}
               className="w-full accent-primary"
             />
-            <div className="flex justify-between text-[9px] text-on-surface-variant font-bold mt-1">
+            <div className="flex justify-between text-[12px] text-on-surface-variant font-bold mt-1">
               <span>0.5 (low)</span>
               <span>Active: {edgeThreshold.toFixed(1)}</span>
               <span>4.0 (high)</span>
@@ -276,12 +276,12 @@ export default function ComputerVisionViz() {
           </div>
 
           <div className="flex items-center justify-between mt-3">
-            <span className="text-[9px] font-bold uppercase tracking-wide text-on-surface-variant">
+            <span className="text-[12px] font-bold uppercase tracking-wide text-on-surface-variant">
               Edge Filter Isolation:
             </span>
             <button aria-label="ISOLATE ALL CELLS"
               onClick={() => setShowEdgeOnly(!showEdgeOnly)}
-              className={`px-3 py-1 border text-[9px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
+              className={`px-3 py-1 border text-[12px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
                 showEdgeOnly ? "bg-cyan/20 border-cyan text-cyan" : "bg-surface"
               }`}
             >

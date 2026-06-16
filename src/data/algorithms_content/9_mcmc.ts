@@ -123,5 +123,193 @@ for _ in range(n_iterations):
         
     samples.append(current_x)
 
-print(f"We took {len(samples)} steps to map the mountain!")`
+print(f"We took {len(samples)} steps to map the mountain!")`,
+  tldr: [
+    'MCMC approximates a hard target distribution $p(x)$ by simulating a **Markov chain** whose stationary distribution is exactly $p(x)$; after warm-up, the visited states behave like (correlated) samples from $p$.',
+    'It shines when you can evaluate $p(x)$ only **up to a normalizing constant** — typical of Bayesian posteriors $p(\\theta \\mid D) \\propto p(D \\mid \\theta)\\,p(\\theta)$ whose evidence integral is intractable.',
+    'The **Metropolis-Hastings** acceptance ratio $A = \\min\\left(1, \\frac{p(x\')\\,q(x \\mid x\')}{p(x)\\,q(x\' \\mid x)}\\right)$ uses only **ratios** of $p$, so the unknown normalizer cancels.',
+    'Correctness comes from **detailed balance**: the constructed transition leaves $p$ invariant, so the chain converges to the target regardless of where it starts.',
+    'Practical use requires discarding **burn-in**, monitoring convergence ($\\hat{R}$, trace plots), and remembering that successive draws are **autocorrelated**, so the effective sample size is far below the raw count.',
+  ],
+  additionalSections: [
+    {
+      heading: 'Deriving the Metropolis-Hastings Acceptance Ratio',
+      content: `
+We want a Markov chain whose stationary distribution is the target $p(x)$. A *sufficient* condition for $p$ to be stationary is **detailed balance** (reversibility): for every pair of states the probability flux in each direction must match,
+
+$$ p(x)\\,T(x' \\mid x) = p(x')\\,T(x \\mid x') $$
+
+where $T(x' \\mid x)$ is the chain's transition kernel. If this holds, summing both sides over $x$ gives $\\sum_x p(x)\\,T(x' \\mid x) = p(x')\\sum_x T(x \\mid x') = p(x')$, i.e. one application of the kernel maps $p$ to itself — $p$ is **invariant**.
+
+Metropolis-Hastings factors the transition into a **proposal** $q(x' \\mid x)$ followed by an **accept/reject** step with acceptance probability $A(x' \\mid x)$, so for $x' \\neq x$,
+
+$$ T(x' \\mid x) = q(x' \\mid x)\\,A(x' \\mid x) $$
+
+Plugging this into detailed balance and rearranging gives a single requirement on the acceptance probabilities:
+
+$$ \\frac{A(x' \\mid x)}{A(x \\mid x')} = \\frac{p(x')\\,q(x \\mid x')}{p(x)\\,q(x' \\mid x)} $$
+
+The Metropolis-Hastings choice that satisfies this — while keeping each $A \\le 1$ and accepting as often as possible — is
+
+$$ A(x' \\mid x) = \\min\\left(1, \\; \\frac{p(x')\\,q(x \\mid x')}{p(x)\\,q(x' \\mid x)}\\right) $$
+
+Notice that $p$ appears **only as the ratio** $p(x')/p(x)$. If $p(x) = \\tilde{p}(x)/Z$ for some unknown constant $Z$, the $Z$ cancels: $p(x')/p(x) = \\tilde{p}(x')/\\tilde{p}(x)$. This is the crux of why MCMC works for Bayesian posteriors — we never need the intractable evidence $Z = \\int \\tilde{p}(x)\\,dx$. When the proposal is **symmetric**, $q(x' \\mid x) = q(x \\mid x')$, the proposal terms cancel too and we recover the original Metropolis ratio $A = \\min\\left(1, \\frac{p(x')}{p(x)}\\right)$.
+      `,
+    },
+    {
+      heading: 'From Samples to Estimates: Burn-in and Effective Sample Size',
+      content: `
+Once the chain has reached its stationary distribution, we approximate a posterior expectation by a simple average over the retained draws:
+
+$$ \\mathbb{E}_{p}[f(x)] \\approx \\frac{1}{N}\\sum_{t=1}^{N} f(x_t) $$
+
+Two practical corrections stand between you and a trustworthy estimate. First, **burn-in (warm-up)**: the chain starts at an arbitrary point that may sit in a low-probability region, so the early states are *not* distributed according to $p$. We discard the first $B$ samples and average only over the rest.
+
+Second, **autocorrelation**: because $x_{t+1}$ is proposed from $x_t$, consecutive draws are correlated. The variance of the Monte Carlo estimate is inflated relative to i.i.d. sampling, captured by the **effective sample size**
+
+$$ \\text{ESS} = \\frac{N}{1 + 2\\sum_{k=1}^{\\infty}\\rho_k} $$
+
+where $\\rho_k$ is the lag-$k$ autocorrelation. A chain of $N = 10{,}000$ draws with strong autocorrelation may have an ESS of only a few hundred — which is why mixing quality, not raw iteration count, governs estimate precision.
+      `,
+    },
+  ],
+  practiceExercises: [
+    {
+      prompt: 'A Metropolis sampler uses a **symmetric** Gaussian proposal. The target is $p(x) \\propto e^{-x^2/2}$. The current state is $x = 0$ and the proposed state is $x\' = 1$. Compute the acceptance probability $A$.',
+      difficulty: 'warm-up',
+      hint: 'For a symmetric proposal the $q$ terms cancel, so $A = \\min\\left(1, p(x\')/p(x)\\right)$, and only ratios of the unnormalized density matter.',
+      solution: 'The unnormalized density ratio is $\\frac{p(x\')}{p(x)} = \\frac{e^{-1^2/2}}{e^{-0^2/2}} = e^{-1/2} \\approx 0.607$. Since the proposed state is less probable, $A = \\min(1, 0.607) = 0.607$. The move is accepted with about a $60.7\\%$ probability.',
+    },
+    {
+      prompt: 'Continuing the previous problem, the acceptance probability was $A \\approx 0.607$. You draw $u \\sim \\text{Uniform}(0,1)$ and obtain $u = 0.82$. Do you accept or reject the proposed move, and what is the next state?',
+      difficulty: 'warm-up',
+      solution: 'The rule is: accept if $u < A$. Here $u = 0.82$ is **not** less than $A = 0.607$, so the move is **rejected**. The chain stays put: the next recorded state is the current state $x = 0$. (Note: a rejection still produces a recorded sample — the previous state is counted again.)',
+    },
+    {
+      prompt: 'A target is specified only up to a constant: $\\tilde{p}(x) = e^{-x^2}$, with the true normalized density $p(x) = \\tilde{p}(x)/Z$ where $Z = \\int e^{-x^2}\\,dx = \\sqrt{\\pi}$. Using a symmetric proposal, show that the Metropolis acceptance probability for moving from $x=1$ to $x\'=0$ is identical whether you use $\\tilde{p}$ or $p$.',
+      difficulty: 'core',
+      hint: 'Write out the ratio with $Z$ included and see what happens.',
+      solution: 'Using the normalized density: $\\frac{p(0)}{p(1)} = \\frac{e^{-0}/Z}{e^{-1}/Z} = \\frac{e^{0}}{e^{-1}} = e^{1} \\approx 2.718$. Using the unnormalized density: $\\frac{\\tilde{p}(0)}{\\tilde{p}(1)} = \\frac{e^{0}}{e^{-1}} = e^{1} \\approx 2.718$. The $Z = \\sqrt{\\pi}$ cancels in the ratio. Both give $A = \\min(1, e^{1}) = \\min(1, 2.718) = 1$ — the move to the higher-density state is always accepted. This cancellation is exactly why MCMC needs only an unnormalized density.',
+    },
+    {
+      prompt: 'Explain what "burn-in" is, why it is necessary, and how you would decide how many samples to discard.',
+      difficulty: 'core',
+      solution: 'Burn-in (or warm-up) is the initial portion of an MCMC chain that is discarded before computing any estimates. It is necessary because the chain is initialized at an arbitrary starting point that is generally **not** drawn from the target distribution $p$; the early states therefore reflect the starting location rather than the stationary distribution, and including them biases the estimates. You decide how much to discard by inspecting **trace plots** (looking for where the chain stops drifting and settles into a stable band) and convergence diagnostics such as the Gelman-Rubin statistic $\\hat{R}$ (which should be close to $1$, e.g. $< 1.01$, once multiple chains have mixed). A common heuristic is to discard the first 25-50% of each chain.',
+    },
+    {
+      prompt: 'A chain of $N = 20{,}000$ post-burn-in draws has lag-$k$ autocorrelations that sum to $\\sum_{k=1}^{\\infty}\\rho_k = 49.5$. Compute the effective sample size and explain what it means for the precision of your posterior mean estimate.',
+      difficulty: 'challenge',
+      hint: 'Use $\\text{ESS} = \\frac{N}{1 + 2\\sum_k \\rho_k}$.',
+      solution: 'The denominator is $1 + 2(49.5) = 1 + 99 = 100$. So $\\text{ESS} = 20{,}000 / 100 = 200$. Although you stored $20{,}000$ draws, the strong positive autocorrelation means the chain carries only as much information as **200 independent draws**. The Monte Carlo standard error of the posterior mean scales like $1/\\sqrt{\\text{ESS}} = 1/\\sqrt{200} \\approx 0.071$, not $1/\\sqrt{20{,}000} \\approx 0.007$ — roughly a $10\\times$ worse precision than the raw count would suggest. The fix is better mixing (tuned proposals, HMC) or thinning, not merely running longer.',
+    },
+  ],
+  comparisons: [
+    {
+      title: 'MCMC vs Variational Inference vs Exact/Conjugate Inference',
+      methods: ['MCMC (Metropolis-Hastings)', 'Variational Inference', 'Exact / Conjugate'],
+      rows: [
+        {
+          dimension: 'Asymptotic accuracy',
+          values: ['Exact in the limit of infinite samples', 'Approximate — biased by the chosen variational family', 'Exact (closed form)'],
+        },
+        {
+          dimension: 'Speed',
+          values: ['Slow — many serial iterations', 'Fast — cast as an optimization problem', 'Instant once the formula is derived'],
+        },
+        {
+          dimension: 'Scalability to high dimensions / big data',
+          values: ['Poor — mixing degrades and cost grows', 'Good — scales with stochastic gradient methods', 'N/A — only special models qualify'],
+        },
+        {
+          dimension: 'Gives the true posterior?',
+          values: ['Yes (asymptotically, as samples)', 'No — an approximation, often under-dispersed', 'Yes — the exact posterior'],
+        },
+        {
+          dimension: 'Requires only an unnormalized density?',
+          values: ['Yes — normalizer cancels', 'Yes — uses the unnormalized joint via the ELBO', 'No — relies on a known conjugate form'],
+        },
+      ],
+      takeaway: 'Use exact/conjugate inference whenever the model admits it; otherwise trade accuracy for speed — MCMC for asymptotically exact (but slow) posteriors, variational inference for fast (but approximate) ones.',
+    },
+  ],
+  usageGuidance: {
+    useWhen: [
+      'The posterior is **analytically intractable** (no conjugate form) and you need full uncertainty quantification, not just a point estimate.',
+      'You can evaluate the target only **up to a normalizing constant** — e.g. an unnormalized Bayesian posterior $p(\\theta)\\,p(D \\mid \\theta)$.',
+      'The posterior may be **skewed, correlated, or multi-modal**, so a Gaussian approximation would be misleading.',
+    ],
+    avoidWhen: [
+      'The model has a **conjugate / closed-form** posterior — exact inference is faster and exact.',
+      'You face **very high-dimensional** parameter spaces or massive datasets where MCMC mixes too slowly — consider variational inference or stochastic-gradient methods.',
+      'You need an answer in **real time / under a tight latency budget** — MCMC requires many serial iterations and convergence checks.',
+    ],
+    rulesOfThumb: [
+      'Always run **multiple chains** from dispersed starts and check Gelman-Rubin $\\hat{R} < 1.01$ before trusting results.',
+      'For random-walk Metropolis, tune the proposal so the acceptance rate lands near the theoretically optimal $\\approx 23\\%$ (in high dimensions).',
+      'Report **effective sample size**, not raw iteration count, as the measure of estimate precision.',
+      'When mixing is poor or dimension is high, switch from random-walk Metropolis to gradient-based samplers like Hamiltonian Monte Carlo / NUTS.',
+    ],
+  },
+  caseStudies: [
+    {
+      title: 'Optimal scaling of random-walk Metropolis',
+      domain: 'Computational statistics / Bayesian inference',
+      scenario: 'A practitioner sampling a high-dimensional posterior with random-walk Metropolis must choose the variance of the Gaussian proposal. Too small a step and the chain crawls (high acceptance but tiny moves); too large and almost every proposal is rejected (the chain stalls). The question is what acceptance rate to target.',
+      approach: 'Roberts, Gelman and Gilks (1997) analyzed the diffusion limit of random-walk Metropolis as the dimension $d \\to \\infty$ for product targets, deriving the proposal scaling that maximizes the efficiency (effective sample size per iteration) of the resulting chain.',
+      outcome: 'They showed the asymptotically optimal acceptance rate is $\\approx 0.234$ (about **23.4%**), achieved by scaling the proposal standard deviation like $2.38/\\sqrt{d}$. Tuning a sampler toward this $\\approx 23\\%$ acceptance target is now a standard practitioner rule of thumb that directly maximizes effective sample size per unit cost.',
+      source: {
+        title: 'Weak convergence and optimal scaling of random walk Metropolis algorithms (Annals of Applied Probability, 1997)',
+        authors: 'Roberts, G.O., Gelman, A. and Gilks, W.R.',
+        url: 'https://projecteuclid.org/journals/annals-of-applied-probability/volume-7/issue-1',
+        type: 'paper',
+      },
+    },
+  ],
+  quiz: [
+    {
+      question: 'Why is MCMC particularly useful for Bayesian posterior inference?',
+      options: [
+        { text: 'It only needs the posterior up to a normalizing constant, because the intractable evidence integral cancels in the acceptance ratio.', correct: true },
+        { text: 'It computes the exact normalizing constant (the evidence) in closed form.', correct: false },
+        { text: 'It is faster than every other inference method in all settings.', correct: false },
+        { text: 'It guarantees independent samples at every step.', correct: false },
+      ],
+      explanation: 'The Metropolis-Hastings acceptance ratio depends on $p$ only through the ratio $p(x\')/p(x)$, so an unknown normalizing constant $Z$ cancels. This is exactly what lets MCMC handle Bayesian posteriors whose evidence integral $Z = \\int p(\\theta)p(D \\mid \\theta)\\,d\\theta$ is intractable. MCMC does not compute $Z$, is not universally fastest, and produces correlated rather than independent samples.',
+    },
+    {
+      question: 'What property guarantees that the Metropolis-Hastings chain leaves the target distribution $p$ invariant?',
+      options: [
+        { text: 'Detailed balance: $p(x)\\,T(x\' \\mid x) = p(x\')\\,T(x \\mid x\')$ for the transition kernel.', correct: true },
+        { text: 'The proposal distribution must equal the target distribution.', correct: false },
+        { text: 'The acceptance probability must always equal exactly $1$.', correct: false },
+        { text: 'Samples must be drawn independently and identically distributed.', correct: false },
+      ],
+      explanation: 'Metropolis-Hastings is constructed so its transition kernel satisfies detailed balance with respect to $p$. Detailed balance is a sufficient condition for $p$ to be the stationary (invariant) distribution: summing the balance equation over the current state shows one application of the kernel maps $p$ to itself. The proposal need not match the target, acceptance is typically below $1$, and the samples are deliberately correlated.',
+    },
+    {
+      question: 'What is the purpose of the "burn-in" (warm-up) period in MCMC?',
+      options: [
+        { text: 'To discard early samples drawn before the chain has reached its stationary distribution.', correct: true },
+        { text: 'To increase the autocorrelation between successive samples.', correct: false },
+        { text: 'To compute the normalizing constant of the target.', correct: false },
+        { text: 'To make every proposed move guaranteed to be accepted.', correct: false },
+      ],
+      explanation: 'The chain starts at an arbitrary point that is generally not distributed according to the target $p$, so the initial states are biased toward the starting location. Discarding this burn-in period removes those non-stationary samples so that estimates are computed only over draws that approximate $p$. It does not compute $Z$, does not force acceptance, and aims to reduce (not increase) bias.',
+    },
+    {
+      question: 'Why can a chain of 50,000 stored MCMC draws behave like far fewer independent samples?',
+      options: [
+        { text: 'Successive draws are autocorrelated, so the effective sample size is much smaller than the raw count.', correct: true },
+        { text: 'MCMC always throws away exactly 90% of its samples automatically.', correct: false },
+        { text: 'The normalizing constant shrinks the number of usable samples.', correct: false },
+        { text: 'Stored samples are always perfectly independent, so 50,000 is the effective count.', correct: false },
+      ],
+      explanation: 'Because each state is proposed from the previous one, consecutive draws are positively correlated. The effective sample size $\\text{ESS} = N / (1 + 2\\sum_k \\rho_k)$ can be orders of magnitude below $N$ when autocorrelation is strong, inflating the Monte Carlo error. Precision is therefore governed by ESS, not the raw number of stored draws.',
+    },
+  ],
+  review: {
+    lastReviewed: '2026-06-15',
+    reviewedBy: 'Suranjan',
+    status: 'published',
+  },
 };

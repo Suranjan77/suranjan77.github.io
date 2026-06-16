@@ -45,6 +45,13 @@
     --color-error-container: #EAD7D3;
     --color-on-error: #F5F2EC;
     --color-on-error-container: #3B1713;
+    /* Warm rust — the single primary-action accent (distinct from the olive
+       primary used for links/active states and the muted error terracotta). */
+    --color-accent: #B0573E;
+    --color-accent-hover: #98472F;
+    --color-accent-container: #EFDBD0;
+    --color-on-accent: #FAF8F2;
+    --color-on-accent-container: #5A2616;
     --color-success: #556B4A;
     --color-warning: #927A4B;
     --color-cyan: #556B4A;
@@ -168,10 +175,10 @@
     padding: 0.35rem 0.75rem;
     border: 1px solid var(--color-outline);
     border-radius: 2px;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-family: var(--font-mono);
     text-transform: uppercase;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
     line-height: 1.4;
 }
 
@@ -220,9 +227,9 @@
 
 @utility text-label-upper {
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: 0.8125rem;
     font-weight: 400;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--color-on-surface-variant);
 }

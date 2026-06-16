@@ -338,7 +338,7 @@ export default function StatisticsViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[11px]" htmlFor="sample-size-slider">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="sample-size-slider">
               Sample Size (N: {sampleSize})
             </label>
             <input
@@ -356,7 +356,7 @@ export default function StatisticsViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[11px]" htmlFor="bootstrap-samples-slider">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="bootstrap-samples-slider">
               Bootstrap Resamples ({numBootstrapSamples})
             </label>
             <input
@@ -374,7 +374,7 @@ export default function StatisticsViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[11px]" htmlFor="statistic-select">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="statistic-select">
               Statistic of Interest
             </label>
             <select
@@ -394,7 +394,7 @@ export default function StatisticsViz() {
             <button
               onClick={() => setSeed(prev => prev + 1)}
               disabled={animatingStep}
-              className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer disabled:opacity-50 text-[11px]"
+              className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer disabled:opacity-50 text-[12px]"
               aria-label="Generate new sample data using random seed"
             >
               REGENERATE DATA (NEW SEED)
@@ -405,7 +405,7 @@ export default function StatisticsViz() {
             <button
               onClick={runBootstrapStep}
               disabled={animatingStep}
-              className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer disabled:opacity-50 text-[11px]"
+              className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer disabled:opacity-50 text-[12px]"
               aria-label="Perform one step of bootstrap resampling with animation"
             >
               {animatingStep ? "SAMPLING..." : "SAMPLE 1 STEP (ANIMATE)"}
@@ -414,7 +414,7 @@ export default function StatisticsViz() {
             <button
               onClick={runFullBootstrap}
               disabled={animatingStep}
-              className="w-full flex h-9 items-center justify-center border border-outline bg-cyan text-white hover:bg-cyan/90 active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer disabled:opacity-50 text-[11px]"
+              className="w-full flex h-9 items-center justify-center border border-outline bg-cyan text-white hover:bg-cyan/90 active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer disabled:opacity-50 text-[12px]"
               aria-label="Run full bootstrap simulation instantly"
             >
               RUN FULL BOOTSTRAP INSTANTLY
@@ -424,7 +424,7 @@ export default function StatisticsViz() {
 
         {/* Confidence Interval outputs */}
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[11px]">Estimation Outputs</div>
+          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Estimation Outputs</div>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div>Sample {statisticType}:</div>
             <div className="font-bold text-right text-cyan">{originalStatValue.toFixed(3)}</div>

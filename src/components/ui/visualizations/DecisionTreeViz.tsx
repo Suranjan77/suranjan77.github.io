@@ -249,9 +249,9 @@ export default function DecisionTreeViz() {
               {/* Border Axes */}
               <line x1={leftPlot.left} x2={leftPlot.left} y1={leftPlot.top} y2={leftPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
               <line x1={leftPlot.left} x2={leftPlot.right} y1={leftPlot.bottom} y2={leftPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
-              <text x={leftPlot.right + 8} y={leftPlot.bottom + 4} fill={COLORS.muted} fontSize={10} fontWeight={700}>x1 (Feature 1)</text>
-              <text x={leftPlot.left - 8} y={leftPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={10} fontWeight={700}>x2</text>
-              <text x={leftPlot.left + 5} y={leftPlot.top - 8} fill={COLORS.muted} fontSize={9} fontWeight={800}>FEATURE PARTITION</text>
+              <text x={leftPlot.right + 8} y={leftPlot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>x1 (Feature 1)</text>
+              <text x={leftPlot.left - 8} y={leftPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={700}>x2</text>
+              <text x={leftPlot.left + 5} y={leftPlot.top - 8} fill={COLORS.muted} fontSize={12} fontWeight={800}>FEATURE PARTITION</text>
 
               {/* Data points */}
               {basePoints.map((p) => (
@@ -271,7 +271,7 @@ export default function DecisionTreeViz() {
             <g>
               {/* Tree boundary box */}
               <rect x={315} y={leftPlot.top} width={295} height={leftPlot.height} fill="none" stroke={COLORS.border} strokeDasharray="3 3" />
-              <text x={325} y={leftPlot.top + 16} fill={COLORS.muted} fontSize={9} fontWeight={800}>DECISION TREE</text>
+              <text x={325} y={leftPlot.top + 16} fill={COLORS.muted} fontSize={12} fontWeight={800}>DECISION TREE</text>
 
               {/* Tree connection lines */}
               {/* Root -> Left */}
@@ -352,7 +352,7 @@ export default function DecisionTreeViz() {
                 <>
                   <g>
                     <rect x={nodes.nodeL.x - 36} y={nodes.nodeL.y - 12} width={72} height={24} fill="rgba(250,248,242,0.95)" stroke={animStep === 1 ? COLORS.yellow : COLORS.border} strokeWidth={animStep === 1 ? 2.5 : 1} rx={2} />
-                    <text x={nodes.nodeL.x} y={nodes.nodeL.y + 4} fill={COLORS.muted} fontSize={9} fontWeight={800} textAnchor="middle">x2 &lt; 4.5</text>
+                    <text x={nodes.nodeL.x} y={nodes.nodeL.y + 4} fill={COLORS.muted} fontSize={12} fontWeight={800} textAnchor="middle">x2 &lt; 4.5</text>
                   </g>
 
                   {/* Level 2 Leaves */}
@@ -413,7 +413,7 @@ export default function DecisionTreeViz() {
 
         {query && (
           <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-            <div className="mb-2 block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant">
+            <div className="mb-2 block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant">
               DECISION TRACE
             </div>
             <div className="bg-surface-container p-3 border border-outline space-y-1.5 text-xs">

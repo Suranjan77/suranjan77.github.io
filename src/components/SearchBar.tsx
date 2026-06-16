@@ -69,7 +69,7 @@ export default function SearchBar() {
         <div className="absolute right-0 top-full z-50 mt-1.5 max-h-80 w-full min-w-[280px] overflow-y-auto border border-outline bg-surface p-2 shadow-lg backdrop-blur-md">
           {results.length > 0 ? (
             <div className="space-y-1">
-              <p className="px-2 pb-1 pt-0.5 font-mono text-[9px] uppercase tracking-[0.16em] text-on-surface-variant">
+              <p className="px-2 pb-1 pt-0.5 font-mono text-[12px] uppercase tracking-[0.1em] text-on-surface-variant">
                 Matching Modules
               </p>
               {results.map(({ module }) => (

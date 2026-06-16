@@ -32,6 +32,14 @@ import RelatedModules from "./RelatedModules";
 import ModuleNavigation from "./ModuleNavigation";
 import MetadataBar from "./MetadataBar";
 import LessonNavigator from "./LessonNavigator";
+import TLDR from "./TLDR";
+import LearningObjectives from "./LearningObjectives";
+import MathDerivations from "./MathDerivations";
+import PracticeExercises from "./PracticeExercises";
+import ComparisonTable from "./ComparisonTable";
+import WhenToUse from "./WhenToUse";
+import CaseStudy from "./CaseStudy";
+import SelfCheckQuiz from "./SelfCheckQuiz";
 
 interface LessonPageProps {
   module: LearningModule;
@@ -47,7 +55,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
     <div className="relative px-4 py-6 sm:px-8 sm:py-8 lg:px-12">
       <section className="relative z-10 mx-auto max-w-6xl">
         {/* Breadcrumb Navigation */}
-        <nav className="mb-6 flex flex-wrap items-center gap-2 text-[15px] text-on-surface-variant/70 sm:mb-8 sm:text-sm">
+        <nav className="mb-6 flex flex-wrap items-center gap-2 text-[15px] text-on-surface-variant/70 sm:mb-8">
           <Link href="/" className="transition-colors hover:text-primary">
             Home
           </Link>
@@ -64,7 +72,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         {/* Header Jumbotron */}
         <div className="mb-8 border border-outline bg-surface-container-low p-5 sm:mb-10 sm:p-8 lg:p-10">
           <div className="mb-4 flex flex-wrap items-center gap-3">
-            <div className={`inline-flex items-center px-4 py-2 text-sm font-medium tracking-wide sm:py-1.5 sm:text-xs ${accent.badge}`}>
+            <div className={`inline-flex items-center px-4 py-2 text-sm font-medium tracking-wide sm:py-1.5 ${accent.badge}`}>
               {categoryLabel}
             </div>
           </div>
@@ -93,11 +101,15 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
 
       {/* Stacked content sections */}
       <section className="relative z-10 mx-auto max-w-6xl space-y-8">
-        
+
+        {/* Quick review and objectives */}
+        <TLDR points={module.tldr} />
+        <LearningObjectives objectives={module.learningObjectives} />
+
         {/* Intuition Section */}
         <div
           id="intuition"
-          className="scroll-mt-44 overflow-hidden border border-outline bg-surface-container-low"
+          className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
         >
           <div className="border-b border-outline px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
@@ -108,7 +120,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
                 <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
                   Intuition
                 </h2>
-                <p className="text-sm text-on-surface-variant/70 sm:text-xs">
+                <p className="text-sm text-on-surface-variant/70">
                   How to think conceptually about this topic
                 </p>
               </div>
@@ -122,7 +134,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         {/* Interactive Visualization Section */}
         <div
           id="visualization"
-          className="scroll-mt-44 overflow-hidden border border-outline bg-surface-container-low"
+          className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
         >
           <div className="border-b border-outline bg-surface-container px-6 py-5 sm:px-8">
             <div className="flex items-center gap-3">
@@ -133,7 +145,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
                 <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
                   Interactive Diagram
                 </h2>
-                <p className="text-sm text-on-surface-variant/70 sm:text-xs">
+                <p className="text-sm text-on-surface-variant/70">
                   Test the intuition above by changing the model parameters
                 </p>
               </div>
@@ -154,7 +166,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         {/* Mathematics Section */}
         <div
           id="mathematics"
-          className="scroll-mt-44 overflow-hidden border border-outline bg-surface-container-low"
+          className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
         >
           <div className="border-b border-outline px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
@@ -165,7 +177,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
                 <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
                   The Mathematics
                 </h2>
-                <p className="text-sm text-on-surface-variant/70 sm:text-xs">
+                <p className="text-sm text-on-surface-variant/70">
                   Formal formulations, equations, and derivations
                 </p>
               </div>
@@ -176,9 +188,19 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
           </div>
         </div>
 
+        {/* Full Derivations (foldable) */}
+        <div id="derivations" className="scroll-mt-32 lg:scroll-mt-48">
+          <MathDerivations sections={module.additionalSections} />
+        </div>
+
         {/* Worked Examples Section */}
-        <div id="examples" className="scroll-mt-44">
+        <div id="examples" className="scroll-mt-32 lg:scroll-mt-48">
           <WorkedExamples examples={module.workedExamples} />
+        </div>
+
+        {/* Practice Exercises Section */}
+        <div id="practice" className="scroll-mt-32 lg:scroll-mt-48">
+          <PracticeExercises exercises={module.practiceExercises} />
         </div>
 
         {module.id === "backpropagation" && (
@@ -210,7 +232,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         {/* In-Depth Description Section */}
         <div
           id="depth"
-          className="scroll-mt-44 overflow-hidden border border-outline bg-surface-container-low"
+          className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
         >
           <div className="border-b border-outline px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
@@ -221,7 +243,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
                 <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
                   In Depth
                 </h2>
-                <p className="text-sm text-on-surface-variant/70 sm:text-xs">
+                <p className="text-sm text-on-surface-variant/70">
                   Detailed explanations, contexts, and details
                 </p>
               </div>
@@ -232,10 +254,16 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
           </div>
         </div>
 
+        {/* Method Comparison */}
+        <ComparisonTable comparisons={module.comparisons} />
+
+        {/* When to Use / When Not to Use */}
+        <WhenToUse guidance={module.usageGuidance} />
+
         {/* Implementation / Code Section */}
         <div
           id="implementation"
-          className="scroll-mt-44 overflow-hidden border border-outline bg-surface-container-low"
+          className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
         >
           <div className="border-b border-outline px-6 py-5 sm:px-8">
             <div className="mb-2 flex items-center gap-3">
@@ -246,7 +274,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
                 <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
                   Implementation
                 </h2>
-                <p className="text-sm text-on-surface-variant/70 sm:text-xs">
+                <p className="text-sm text-on-surface-variant/70">
                   Reference code implementation
                 </p>
               </div>
@@ -286,11 +314,21 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
           </div>
         </div>
 
+        {/* Real-World Case Studies */}
+        <div id="case-studies" className="scroll-mt-32 lg:scroll-mt-48">
+          <CaseStudy studies={module.caseStudies} />
+        </div>
+
         {/* Misconceptions */}
         <Misconceptions misconceptions={module.misconceptions} />
 
+        {/* Self-Check Quiz */}
+        <div id="quiz" className="scroll-mt-32 lg:scroll-mt-48">
+          <SelfCheckQuiz questions={module.quiz} />
+        </div>
+
         {/* References */}
-        <div id="references" className="scroll-mt-44">
+        <div id="references" className="scroll-mt-32 lg:scroll-mt-48">
           <ReferenceList references={module.references} />
         </div>
 

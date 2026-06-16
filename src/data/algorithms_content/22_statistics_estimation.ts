@@ -142,5 +142,183 @@ export function bootstrapMeanSE(
   const stats = calculateSampleStats(bootstrapMeans);
   return stats.stdDev; // Standard error of the bootstrapped mean
 }`,
-  relatedModules: ["probability-theory", "maximum-likelihood", "bayesian-inference"]
+  relatedModules: ["probability-theory", "maximum-likelihood", "bayesian-inference"],
+  tldr: [
+    'A **point estimator** is a function of the sample (a random variable) used to guess an unknown population parameter; its **standard error** is the standard deviation of its sampling distribution.',
+    'The **sample mean** is an unbiased estimator of $\\mu$ with variance $\\sigma^2/n$, so its standard error is $\\sigma/\\sqrt{n}$ — uncertainty shrinks only as $\\sqrt{n}$.',
+    'Sample variance divides by $n-1$ (**Bessel’s correction**) instead of $n$ precisely so that $\\mathbb{E}[S^2] = \\sigma^2$, correcting the downward bias from using $\\bar{X}$ in place of the true $\\mu$.',
+    'A **95% confidence interval** is a statement about the procedure: across many samples, 95% of such intervals cover the true parameter. It is **not** a 95% probability that this particular interval contains $\\mu$.',
+    'Estimators trade off **bias** and **variance**; mean squared error decomposes as $\\text{MSE} = \\text{bias}^2 + \\text{variance}$, so a slightly biased estimator can beat an unbiased one.',
+  ],
+  additionalSections: [
+    {
+      heading: 'Derivation: The Sample Mean is Unbiased with Variance $\\sigma^2/n$',
+      content: `
+Let $X_1, \\dots, X_n$ be i.i.d. with $\\mathbb{E}[X_i] = \\mu$ and $\\operatorname{Var}(X_i) = \\sigma^2$. The estimator is $\\bar{X} = \\frac{1}{n}\\sum_{i=1}^n X_i$.
+
+**Unbiasedness.** By linearity of expectation:
+
+$$ \\mathbb{E}[\\bar{X}] = \\mathbb{E}\\!\\left[\\frac{1}{n}\\sum_{i=1}^n X_i\\right] = \\frac{1}{n}\\sum_{i=1}^n \\mathbb{E}[X_i] = \\frac{1}{n}\\cdot n\\mu = \\mu $$
+
+So the sample mean is **unbiased**: on average it equals the population mean.
+
+**Variance.** Because the $X_i$ are independent, the variance of a sum is the sum of variances, and constants pull out squared:
+
+$$ \\operatorname{Var}(\\bar{X}) = \\operatorname{Var}\\!\\left(\\frac{1}{n}\\sum_{i=1}^n X_i\\right) = \\frac{1}{n^2}\\sum_{i=1}^n \\operatorname{Var}(X_i) = \\frac{1}{n^2}\\cdot n\\sigma^2 = \\frac{\\sigma^2}{n} $$
+
+Taking the square root gives the **standard error** $SE = \\sigma/\\sqrt{n}$. The crucial consequence: to halve the standard error you must **quadruple** the sample size, since uncertainty falls only as $\\sqrt{n}$.
+      `,
+    },
+    {
+      heading: 'Derivation: Why Sample Variance Divides by $n-1$ (Bessel’s Correction)',
+      content: `
+A natural-looking variance estimator divides the squared deviations by $n$. We show this version is biased and that dividing by $n-1$ fixes it. Start from the algebraic identity, for any constant $\\mu$:
+
+$$ \\sum_{i=1}^n (X_i - \\bar{X})^2 = \\sum_{i=1}^n (X_i - \\mu)^2 - n(\\bar{X} - \\mu)^2 $$
+
+Take expectations of each term. Using $\\mathbb{E}[(X_i - \\mu)^2] = \\sigma^2$ and the result above that $\\mathbb{E}[(\\bar{X} - \\mu)^2] = \\operatorname{Var}(\\bar{X}) = \\sigma^2/n$:
+
+$$ \\mathbb{E}\\!\\left[\\sum_{i=1}^n (X_i - \\bar{X})^2\\right] = n\\sigma^2 - n\\cdot\\frac{\\sigma^2}{n} = (n-1)\\sigma^2 $$
+
+Dividing by $n$ would give $\\frac{n-1}{n}\\sigma^2 < \\sigma^2$ — a systematic **underestimate**. Dividing instead by $n-1$ yields an unbiased estimator:
+
+$$ \\mathbb{E}[S^2] = \\mathbb{E}\\!\\left[\\frac{1}{n-1}\\sum_{i=1}^n (X_i - \\bar{X})^2\\right] = \\sigma^2 $$
+
+Intuitively, the deviations are taken around $\\bar{X}$ (which is itself fit to the data and sits closer to the points than the unknown $\\mu$ does), so we lose one **degree of freedom**; dividing by $n-1$ compensates for it.
+      `,
+    },
+  ],
+  practiceExercises: [
+    {
+      prompt: 'Compute the sample mean $\\bar{x}$ and the (Bessel-corrected) sample variance $s^2$ of the dataset $\\{2, 4, 4, 6, 9\\}$.',
+      difficulty: 'warm-up',
+      hint: 'Use $\\bar{x} = \\frac{1}{n}\\sum x_i$ and $s^2 = \\frac{1}{n-1}\\sum (x_i - \\bar{x})^2$ with $n = 5$.',
+      solution: 'Mean: $\\bar{x} = (2+4+4+6+9)/5 = 25/5 = 5$. Squared deviations: $(2-5)^2 = 9$, $(4-5)^2 = 1$, $(4-5)^2 = 1$, $(6-5)^2 = 1$, $(9-5)^2 = 16$, summing to $28$. Sample variance $s^2 = 28/(5-1) = 28/4 = 7$, and the sample standard deviation is $s = \\sqrt{7} \\approx 2.65$.',
+    },
+    {
+      prompt: 'A sample of $n = 64$ measurements has standard deviation $s = 12$. Compute the standard error of the mean.',
+      difficulty: 'warm-up',
+      solution: 'The standard error of the mean is $SE = s/\\sqrt{n} = 12/\\sqrt{64} = 12/8 = 1.5$. Note this is much smaller than the spread of individual data points ($s = 12$): the mean of many observations is far more stable than any single observation.',
+    },
+    {
+      prompt: 'A sample of $n = 49$ light bulbs has mean lifetime $\\bar{x} = 1200$ hours with sample standard deviation $s = 140$ hours. Construct an approximate 95% confidence interval for the population mean lifetime.',
+      difficulty: 'core',
+      hint: 'With $n$ moderately large, use $z^* = 1.96$ and the interval $\\bar{x} \\pm z^* \\cdot s/\\sqrt{n}$.',
+      solution: 'Standard error: $SE = s/\\sqrt{n} = 140/\\sqrt{49} = 140/7 = 20$ hours. Margin of error: $ME = z^* \\cdot SE = 1.96 \\times 20 = 39.2$ hours. The 95% confidence interval is $1200 \\pm 39.2 = [1160.8,\\ 1239.2]$ hours. Interpretation: the procedure that generated this interval covers the true mean 95% of the time.',
+    },
+    {
+      prompt: 'Consider estimating the population variance $\\sigma^2$ with the divide-by-$n$ estimator $\\hat{\\sigma}^2 = \\frac{1}{n}\\sum (X_i - \\bar{X})^2$. Is it biased? If so, in which direction, and what is its expected value?',
+      difficulty: 'challenge',
+      hint: 'Recall that $\\mathbb{E}\\big[\\sum (X_i - \\bar{X})^2\\big] = (n-1)\\sigma^2$.',
+      solution: 'Yes, it is biased. Since $\\mathbb{E}\\big[\\sum (X_i - \\bar{X})^2\\big] = (n-1)\\sigma^2$, we get $\\mathbb{E}[\\hat{\\sigma}^2] = \\frac{1}{n}(n-1)\\sigma^2 = \\frac{n-1}{n}\\sigma^2$. Because $\\frac{n-1}{n} < 1$, this estimator systematically **underestimates** $\\sigma^2$ (a downward bias of $-\\sigma^2/n$). The bias vanishes as $n \\to \\infty$, so it is asymptotically unbiased, but for finite $n$ the $n-1$ divisor is preferred when unbiasedness matters.',
+    },
+  ],
+  comparisons: [
+    {
+      title: 'Point Estimate vs Confidence Interval',
+      methods: ['Point Estimate', 'Confidence Interval'],
+      rows: [
+        {
+          dimension: 'What it reports',
+          values: ['A single best-guess value, e.g. $\\bar{x} = 172$', 'A range $[L, U]$ plus a confidence level, e.g. $[170.4, 173.6]$ at 95%'],
+        },
+        {
+          dimension: 'Conveys uncertainty?',
+          values: ['No — gives no sense of precision on its own', 'Yes — width reflects sample size and variability'],
+        },
+        {
+          dimension: 'Effect of larger $n$',
+          values: ['Becomes more accurate but looks identical in form', 'Interval narrows in proportion to $1/\\sqrt{n}$'],
+        },
+        {
+          dimension: 'Correct interpretation',
+          values: ['The realized value of an estimator (ideally unbiased)', 'A coverage claim about the procedure, not a probability for this specific interval'],
+        },
+        {
+          dimension: 'Use it when',
+          values: ['You need one number to act on or feed downstream', 'You must communicate or reason about uncertainty'],
+        },
+      ],
+      takeaway: 'A point estimate answers "what is our best guess?"; a confidence interval answers "how sure are we?" Report both — a point estimate without an interval hides the uncertainty.',
+    },
+  ],
+  usageGuidance: {
+    useWhen: [
+      'You need to **quantify uncertainty** around a sample statistic — error bars on an accuracy score, a polling result, or an A/B-test lift.',
+      'Samples are (approximately) **i.i.d.** and the sample size is large enough for the Central Limit Theorem to make $\\bar{X}$ roughly normal.',
+      'You want a **distribution-free** estimate of a standard error for an awkward statistic (median, ratio, correlation) — reach for the **bootstrap**.',
+    ],
+    avoidWhen: [
+      'Observations are **strongly dependent** (time series, clustered, or autocorrelated data) — naive standard errors will be far too small.',
+      'The sample is **tiny or non-representative** — confidence intervals and bootstrap estimates become unreliable and badly biased.',
+      'You are tempted to run **many tests and report only the significant ones** (p-hacking) — nominal error rates no longer hold without correction.',
+    ],
+    rulesOfThumb: [
+      'Standard error scales as $1/\\sqrt{n}$: to halve it, quadruple the data.',
+      'Use the t-distribution (not z) when $\\sigma$ is unknown and $n$ is small (roughly $n < 30$); the two converge for large $n$.',
+      'Prefer 1000+ bootstrap resamples for a stable standard error, and many more (10000+) for stable interval endpoints.',
+    ],
+  },
+  caseStudies: [
+    {
+      title: 'The margin of error in a political poll',
+      domain: 'Survey statistics / polling',
+      scenario: 'A national poll surveys $n = 1000$ randomly sampled likely voters and finds that $52\\%$ support a candidate. The reported headline includes the familiar phrase "margin of error of about plus or minus 3 percentage points."',
+      approach: 'For a proportion $\\hat{p}$, the standard error is $SE = \\sqrt{\\hat{p}(1-\\hat{p})/n}$, which is largest near $\\hat{p} = 0.5$. The 95% margin of error is $1.96 \\times SE$. The worst-case ($\\hat{p}=0.5$) gives $SE = \\sqrt{0.25/1000} \\approx 0.0158$, so $ME \\approx 1.96 \\times 0.0158 \\approx 0.031$.',
+      outcome: 'The margin of error is about $\\pm 3.1\\%$, yielding a 95% confidence interval of roughly $[48.9\\%,\\ 55.1\\%]$ for true support. Because the interval includes $50\\%$, the poll cannot confidently declare a lead. The general rule of thumb falls out directly: $1/\\sqrt{n} = 1/\\sqrt{1000} \\approx 3.2\\%$, which is why $n \\approx 1000$ is the industry-standard sample size for a roughly $\\pm 3\\%$ poll.',
+      source: {
+        title: 'All of Statistics: A Concise Course in Statistical Inference',
+        authors: 'Larry Wasserman',
+        url: 'https://link.springer.com/book/10.1007/978-0-387-21736-9',
+        type: 'textbook',
+      },
+    },
+  ],
+  quiz: [
+    {
+      question: 'A study reports a 95% confidence interval of $[170.4, 173.6]$ cm for the mean height. Which interpretation is correct?',
+      options: [
+        { text: 'If we repeated the sampling procedure many times, about 95% of the intervals so constructed would contain the true mean.', correct: true },
+        { text: 'There is a 95% probability that the true mean lies between 170.4 and 173.6 cm.', correct: false },
+        { text: '95% of individual people have heights between 170.4 and 173.6 cm.', correct: false },
+        { text: 'The sample mean has a 95% chance of falling in this interval.', correct: false },
+      ],
+      explanation: 'The true mean is a fixed constant, so this specific interval either contains it or not — there is no probability attached to this realized interval. The 95% is a property of the **procedure**: across many samples, 95% of the intervals it produces cover the parameter. It says nothing about the spread of individuals or the sample mean.',
+    },
+    {
+      question: 'Why does the sample variance $S^2$ divide by $n - 1$ rather than $n$?',
+      options: [
+        { text: 'Dividing by $n-1$ makes $\\mathbb{E}[S^2] = \\sigma^2$, correcting the downward bias from measuring deviations around $\\bar{X}$ instead of the unknown $\\mu$.', correct: true },
+        { text: 'Dividing by $n-1$ always makes the variance larger, which is safer.', correct: false },
+        { text: 'It is required so that the standard deviation is never zero.', correct: false },
+        { text: 'Because one data point is always discarded as an outlier.', correct: false },
+      ],
+      explanation: 'Deviations are taken around the sample mean $\\bar{X}$, which is fit to the data and lies closer to the points than the true $\\mu$. This makes the sum of squared deviations too small in expectation, $(n-1)\\sigma^2$ rather than $n\\sigma^2$. Dividing by $n-1$ (one lost degree of freedom) exactly removes the bias.',
+    },
+    {
+      question: 'What is the difference between the standard deviation and the standard error of the mean?',
+      options: [
+        { text: 'Standard deviation measures the spread of individual observations; standard error measures the spread of the sample mean and equals $\\sigma/\\sqrt{n}$.', correct: true },
+        { text: 'They are two names for the same quantity.', correct: false },
+        { text: 'Standard error measures spread of the data; standard deviation measures spread of the mean.', correct: false },
+        { text: 'Standard error is always larger than the standard deviation.', correct: false },
+      ],
+      explanation: 'The standard deviation $\\sigma$ describes variability among individual data points. The standard error $\\sigma/\\sqrt{n}$ describes variability of the **estimator** (the sample mean) and shrinks as $n$ grows. Since $\\sqrt{n} \\geq 1$, the standard error is never larger than the standard deviation.',
+    },
+    {
+      question: 'Estimator A is unbiased with variance 10. Estimator B has a small bias but variance 2, giving a lower mean squared error. Which statement is true?',
+      options: [
+        { text: 'B can be preferable: MSE decomposes as $\\text{bias}^2 + \\text{variance}$, so a slightly biased, low-variance estimator can beat an unbiased one.', correct: true },
+        { text: 'A is always better because unbiased estimators are optimal by definition.', correct: false },
+        { text: 'B is invalid because a useful estimator must be unbiased.', correct: false },
+        { text: 'Bias and variance cannot be traded off against each other.', correct: false },
+      ],
+      explanation: 'Mean squared error equals $\\text{bias}^2 + \\text{variance}$, so reducing variance can lower overall error even at the cost of some bias. Unbiasedness is not the sole criterion for a good estimator — this bias-variance tradeoff underlies techniques like regularization and shrinkage.',
+    },
+  ],
+  review: {
+    lastReviewed: '2026-06-15',
+    reviewedBy: 'Suranjan',
+    status: 'published',
+  },
 };

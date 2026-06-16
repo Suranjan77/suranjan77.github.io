@@ -740,7 +740,7 @@ export default function AlgorithmSimulator() {
           className="rounded border border-outline bg-surface-container p-4 text-left transition hover:border-primary/35"
         >
           <div className="font-mono text-sm font-bold tracking-wide text-primary">Load XOR dataset</div>
-          <div className="mt-2 text-xs font-medium leading-5 text-on-surface-variant">
+          <div className="mt-2 text-[13px] font-medium leading-5 text-on-surface-variant">
             Non‑linear pattern requiring a hidden layer.
           </div>
         </button>
@@ -751,7 +751,7 @@ export default function AlgorithmSimulator() {
           className="rounded border border-outline bg-surface-container p-4 text-left transition hover:border-primary/35"
         >
           <div className="font-mono text-sm font-bold tracking-wide text-secondary">Load Linear dataset</div>
-          <div className="mt-2 text-xs font-medium leading-5 text-on-surface-variant">
+          <div className="mt-2 text-[13px] font-medium leading-5 text-on-surface-variant">
             Simple linear separation for model verification.
           </div>
         </button>
@@ -762,7 +762,7 @@ export default function AlgorithmSimulator() {
           className="rounded border border-outline bg-surface-container p-4 text-left transition hover:border-primary/35"
         >
           <div className="font-mono text-sm font-bold tracking-wide text-tertiary">Load Rings dataset</div>
-          <div className="mt-2 text-xs font-medium leading-5 text-on-surface-variant">
+          <div className="mt-2 text-[13px] font-medium leading-5 text-on-surface-variant">
             Concentric boundary to assess hidden‑unit capacity.
           </div>
         </button>
@@ -773,7 +773,7 @@ export default function AlgorithmSimulator() {
           className="rounded border border-outline bg-surface-container-high p-4 text-left transition hover:border-primary/35"
         >
           <div className="font-mono text-sm font-bold tracking-wide text-on-surface">Clear canvas</div>
-          <div className="mt-2 text-xs font-medium leading-5 text-on-surface-variant">
+          <div className="mt-2 text-[13px] font-medium leading-5 text-on-surface-variant">
             Remove all samples and construct a custom dataset.
           </div>
         </button>
@@ -788,16 +788,16 @@ export default function AlgorithmSimulator() {
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
 
         {/* Informative Overlays (Brutalist style) */}
-        <div className="absolute left-4 top-4 border border-outline bg-surface-container-low/90 px-3 py-2 font-mono text-[10px] font-semibold tracking-wide text-on-surface">
+        <div className="absolute left-4 top-4 border border-outline bg-surface-container-low/90 px-3 py-2 font-mono text-[12px] font-semibold tracking-wide text-on-surface">
           Neural Playground: Click to add data points
         </div>
 
-        <div className="absolute right-4 top-4 border border-outline bg-surface-container-low/90 px-3 py-2 font-mono text-[10px] font-semibold tracking-wide text-on-surface">
+        <div className="absolute right-4 top-4 border border-outline bg-surface-container-low/90 px-3 py-2 font-mono text-[12px] font-semibold tracking-wide text-on-surface">
           {hasTrained ? "Boundary Actively Updating" : "Random Initial Weights"}
         </div>
 
         {/* Legend / Info block */}
-        <div className="absolute bottom-4 left-4 flex flex-wrap items-center gap-4 border border-outline bg-surface-container-low/90 px-4 py-2 font-mono text-[10px] font-semibold tracking-wide text-on-surface">
+        <div className="absolute bottom-4 left-4 flex flex-wrap items-center gap-4 border border-outline bg-surface-container-low/90 px-4 py-2 font-mono text-[12px] font-semibold tracking-wide text-on-surface">
           <span className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 bg-primary" />
             Class A
@@ -818,7 +818,7 @@ export default function AlgorithmSimulator() {
         <div className="rounded border border-outline bg-surface-container-low p-6">
           <div className="mb-6 flex items-start justify-between gap-4 border-b border-outline pb-4">
             <div>
-              <div className="inline-block border border-primary/30 bg-primary/10 px-2.5 py-1 font-mono text-xs font-semibold tracking-wide text-primary">
+              <div className="inline-block border border-primary/30 bg-primary/10 px-2.5 py-1 font-mono text-[13px] font-semibold tracking-wide text-primary">
                 Step 1
               </div>
               <h4 className="mt-3 font-headline text-2xl font-semibold tracking-normal text-on-surface">
@@ -837,7 +837,7 @@ export default function AlgorithmSimulator() {
                 </span>
               </p>
             </div>
-            <div className="rounded border border-outline bg-surface-container px-3 py-1 font-mono text-[10px] tracking-wide text-on-surface-variant">
+            <div className="rounded border border-outline bg-surface-container px-3 py-1 font-mono text-[12px] tracking-wide text-on-surface-variant">
               Topology: 2 → {hiddenUnits} → 1
             </div>
           </div>
@@ -873,7 +873,7 @@ export default function AlgorithmSimulator() {
 
           <div className="mt-8 grid grid-cols-3 gap-4 border-t border-outline pt-6">
             <div className="rounded border border-outline bg-surface-container p-4">
-              <div className="font-mono text-[10px] font-bold tracking-wide text-on-surface-variant">
+              <div className="font-mono text-[12px] font-bold tracking-wide text-on-surface-variant">
                 Total Samples
               </div>
               <div className="mt-2 font-headline text-3xl font-semibold text-on-surface">
@@ -881,7 +881,7 @@ export default function AlgorithmSimulator() {
               </div>
             </div>
             <div className="rounded border border-outline bg-surface-container p-4 accent-left-primary">
-              <div className="font-mono text-[10px] font-bold tracking-wide text-on-surface-variant">
+              <div className="font-mono text-[12px] font-bold tracking-wide text-on-surface-variant">
                 Class A
               </div>
               <div className="mt-2 font-headline text-3xl font-semibold text-primary">
@@ -889,7 +889,7 @@ export default function AlgorithmSimulator() {
               </div>
             </div>
             <div className="rounded border border-outline bg-surface-container p-4 accent-left-error">
-              <div className="font-mono text-[10px] font-bold tracking-wide text-on-surface-variant">
+              <div className="font-mono text-[12px] font-bold tracking-wide text-on-surface-variant">
                 Class B
               </div>
               <div className="mt-2 font-headline text-3xl font-semibold text-error">
@@ -903,7 +903,7 @@ export default function AlgorithmSimulator() {
         <div className="rounded border border-outline bg-surface-container-low p-6">
           <div className="mb-6 flex items-start justify-between gap-4 border-b border-outline pb-4">
             <div>
-              <div className="inline-block border border-secondary/30 bg-secondary/10 px-2.5 py-1 font-mono text-xs font-semibold tracking-wide text-secondary">
+              <div className="inline-block border border-secondary/30 bg-secondary/10 px-2.5 py-1 font-mono text-[13px] font-semibold tracking-wide text-secondary">
                 Step 2
               </div>
               <h4 className="mt-3 font-headline text-2xl font-semibold tracking-normal text-on-surface">
@@ -913,14 +913,14 @@ export default function AlgorithmSimulator() {
                 Set capabilities, then run backpropagation to warp the canvas space.
               </p>
             </div>
-            <div className="rounded border border-outline bg-surface-container px-3 py-1 font-mono text-[10px] tracking-wide text-on-surface-variant">
+            <div className="rounded border border-outline bg-surface-container px-3 py-1 font-mono text-[12px] tracking-wide text-on-surface-variant">
               Engine Ready
             </div>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             <div className="rounded border border-outline bg-surface-container px-4 py-3 accent-left-primary">
-              <label className="mb-2 flex justify-between font-mono text-xs font-bold tracking-wide text-on-surface">
+              <label className="mb-2 flex justify-between font-mono text-[13px] font-bold tracking-wide text-on-surface">
                 Capacity (Nodes) <span className="text-primary">{hiddenUnits}</span>
               </label>
               <input
@@ -940,11 +940,11 @@ export default function AlgorithmSimulator() {
                 }}
                 className="w-full accent-primary"
               />
-              <p className="mt-2 text-xs text-on-surface-variant">Controls how much the decision boundary can bend.</p>
+              <p className="mt-2 text-[13px] text-on-surface-variant">Controls how much the decision boundary can bend.</p>
             </div>
 
             <div className="rounded border border-outline bg-surface-container px-4 py-3 accent-left-tertiary">
-              <label className="mb-2 flex justify-between font-mono text-xs font-bold tracking-wide text-on-surface">
+              <label className="mb-2 flex justify-between font-mono text-[13px] font-bold tracking-wide text-on-surface">
                 Pacing (LR) <span className="text-tertiary">{learningRate.toFixed(2)}</span>
               </label>
               <input
@@ -958,11 +958,11 @@ export default function AlgorithmSimulator() {
                 }
                 className="w-full accent-tertiary"
               />
-              <p className="mt-2 text-xs text-on-surface-variant">How fast the mathematical gradient is traversed.</p>
+              <p className="mt-2 text-[13px] text-on-surface-variant">How fast the mathematical gradient is traversed.</p>
             </div>
 
             <div className="rounded border border-outline bg-surface-container px-4 py-3 accent-left-secondary">
-              <label className="mb-2 flex justify-between font-mono text-xs font-bold tracking-wide text-on-surface">
+              <label className="mb-2 flex justify-between font-mono text-[13px] font-bold tracking-wide text-on-surface">
                 Penalty (L2) <span className="text-secondary">{regularization.toFixed(4)}</span>
               </label>
               <input
@@ -976,11 +976,11 @@ export default function AlgorithmSimulator() {
                 }
                 className="w-full accent-secondary"
               />
-              <p className="mt-2 text-xs text-on-surface-variant">Stops extreme overfitting by limiting weight sizes.</p>
+              <p className="mt-2 text-[13px] text-on-surface-variant">Stops extreme overfitting by limiting weight sizes.</p>
             </div>
 
             <div className="rounded border border-outline bg-surface-container px-4 py-3 accent-left-primary">
-              <label className="mb-2 flex justify-between font-mono text-xs font-bold tracking-wide text-on-surface">
+              <label className="mb-2 flex justify-between font-mono text-[13px] font-bold tracking-wide text-on-surface">
                 Activation <span className="text-primary uppercase">{activation}</span>
               </label>
               <select
@@ -995,11 +995,11 @@ export default function AlgorithmSimulator() {
                 <option value="relu">ReLU (Linear)</option>
                 <option value="sigmoid">Sigmoid (Soft)</option>
               </select>
-              <p className="mt-2 text-xs text-on-surface-variant">Non-linear squashing function.</p>
+              <p className="mt-2 text-[13px] text-on-surface-variant">Non-linear squashing function.</p>
             </div>
 
             <div className="rounded border border-outline bg-surface-container px-4 py-3 accent-left-tertiary">
-              <label className="mb-2 flex justify-between font-mono text-xs font-bold tracking-wide text-on-surface">
+              <label className="mb-2 flex justify-between font-mono text-[13px] font-bold tracking-wide text-on-surface">
                 Momentum <span className="text-tertiary">{momentum.toFixed(2)}</span>
               </label>
               <input
@@ -1011,7 +1011,7 @@ export default function AlgorithmSimulator() {
                 onChange={(event) => setMomentum(Number(event.target.value))}
                 className="w-full accent-tertiary"
               />
-              <p className="mt-2 text-xs text-on-surface-variant">Accelerates gradients in consistent directions.</p>
+              <p className="mt-2 text-[13px] text-on-surface-variant">Accelerates gradients in consistent directions.</p>
             </div>
           </div>
 
@@ -1053,53 +1053,53 @@ export default function AlgorithmSimulator() {
 
           <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="rounded border border-outline bg-surface-container p-4">
-              <div className="font-mono text-[10px] font-bold tracking-wide text-on-surface-variant">
+              <div className="font-mono text-[12px] font-bold tracking-wide text-on-surface-variant">
                 Epoch
               </div>
               <div className="mt-2 font-headline text-3xl font-semibold text-on-surface">
                 {metrics.epoch}
               </div>
-              <div className="mt-1 text-xs text-on-surface-variant">Training cycles</div>
+              <div className="mt-1 text-[13px] text-on-surface-variant">Training cycles</div>
             </div>
 
             <div className="rounded border border-outline bg-surface-container p-4 accent-left-tertiary">
-              <div className="font-mono text-[10px] font-bold tracking-wide text-on-surface-variant">
+              <div className="font-mono text-[12px] font-bold tracking-wide text-on-surface-variant">
                 Loss
               </div>
               <div className="mt-2 font-headline text-3xl font-semibold text-on-surface">
                 {metrics.loss.toFixed(3)}
               </div>
-              <div className="mt-1 text-xs text-tertiary">Goal: Approach 0.0</div>
+              <div className="mt-1 text-[13px] text-tertiary">Goal: Approach 0.0</div>
             </div>
 
             <div className="rounded border border-outline bg-surface-container p-4 accent-left-secondary">
-              <div className="font-mono text-[10px] font-bold tracking-wide text-on-surface-variant">
+              <div className="font-mono text-[12px] font-bold tracking-wide text-on-surface-variant">
                 Accuracy
               </div>
               <div className="mt-2 font-headline text-3xl font-semibold text-on-surface">
                 {(metrics.accuracy * 100).toFixed(0)}%
               </div>
-              <div className="mt-1 text-xs text-secondary">Correctly split dots</div>
+              <div className="mt-1 text-[13px] text-secondary">Correctly split dots</div>
             </div>
 
             <div className="rounded border border-outline bg-surface-container p-4 accent-left-primary">
-              <div className="font-mono text-[10px] font-bold tracking-wide text-on-surface-variant">
+              <div className="font-mono text-[12px] font-bold tracking-wide text-on-surface-variant">
                 ‖W‖
               </div>
               <div className="mt-2 font-headline text-3xl font-semibold text-on-surface">
                 {weightNorm.toFixed(2)}
               </div>
-              <div className="mt-1 text-xs text-primary">Overfitting penalty size</div>
+              <div className="mt-1 text-[13px] text-primary">Overfitting penalty size</div>
             </div>
           </div>
 
           <div className="mt-10 space-y-4 border-t border-outline pt-8">
-            <h4 className="font-headline text-xl font-bold uppercase text-on-surface">
+            <h4 className="font-headline text-xl font-medium text-on-surface">
               Core Mathematics
             </h4>
 
             <div className="rounded border border-outline bg-surface-container px-4 py-3">
-              <h5 className="font-mono text-xs font-bold tracking-wide text-on-surface">
+              <h5 className="font-mono text-[13px] font-bold tracking-wide text-on-surface">
                 Architecture
               </h5>
               <p className="mt-2 text-sm leading-7 text-on-surface-variant">
@@ -1117,7 +1117,7 @@ export default function AlgorithmSimulator() {
             </div>
 
             <div className="rounded border border-outline bg-surface-container px-4 py-3">
-              <h5 className="font-mono text-xs font-bold tracking-wide text-on-surface">
+              <h5 className="font-mono text-[13px] font-bold tracking-wide text-on-surface">
                 Forward Pass
               </h5>
               <p className="mt-2 text-sm leading-7 text-on-surface-variant">
@@ -1131,7 +1131,7 @@ export default function AlgorithmSimulator() {
             </div>
 
             <div className="rounded border border-outline bg-surface-container px-4 py-3">
-              <h5 className="font-mono text-xs font-bold tracking-wide text-on-surface">
+              <h5 className="font-mono text-[13px] font-bold tracking-wide text-on-surface">
                 Loss &amp; Gradient Descent
               </h5>
               <p className="mt-2 text-sm leading-7 text-on-surface-variant">

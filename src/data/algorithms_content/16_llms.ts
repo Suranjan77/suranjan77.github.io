@@ -141,5 +141,204 @@ output_indices = generate_tokens(None, prompt, temperature=0.8, max_new_tokens=3
 generated_words = [vocab[idx] for idx in output_indices]
 
 print("Prompt tokens: ['the', 'dog']")
-print("Full generated sequence:", " ".join(generated_words))`
+print("Full generated sequence:", " ".join(generated_words))`,
+  tldr: [
+    'An LLM is an **autoregressive** model that predicts the next token given all previous tokens: $p(x_{1:n}) = \\prod_t p(x_t \\mid x_{<t})$.',
+    'Training minimizes the **cross-entropy / negative log-likelihood** of the next token; the exponentiated loss is **perplexity**, the model’s effective branching factor.',
+    'Performance improves predictably with **scale** — more parameters, data, and compute — following empirical **power-law scaling laws** $L(N) \\propto N^{-\\alpha}$.',
+    'New **emergent abilities** (in-context learning, multi-step reasoning, tool use) appear as scale grows, without being explicitly trained for.',
+    'The dominant recipe is **pretraining** on a huge unlabeled corpus, then **fine-tuning** (instruction tuning + RLHF/DPO) to align behavior with human intent.',
+  ],
+  additionalSections: [
+    {
+      heading: 'Derivation: The Autoregressive Language-Modeling Objective',
+      content: `
+We want a model of the joint probability of a token sequence $x_{1:n} = (x_1, x_2, \\ldots, x_n)$. Directly modeling this joint distribution is intractable — a vocabulary of size $V$ and length $n$ implies $V^n$ possible sequences. The **chain rule of probability** lets us factor any joint distribution into a product of conditionals exactly, with no approximation:
+
+$$ p(x_1, x_2, \\ldots, x_n) = p(x_1)\\, p(x_2 \\mid x_1)\\, p(x_3 \\mid x_1, x_2) \\cdots p(x_n \\mid x_1, \\ldots, x_{n-1}) = \\prod_{t=1}^{n} p(x_t \\mid x_{<t}) $$
+
+where $x_{<t}$ denotes all tokens before position $t$. A decoder-only Transformer with parameters $\\theta$ models each factor $p_\\theta(x_t \\mid x_{<t})$ with a causal (left-to-right) attention mask, so position $t$ can only attend to earlier positions.
+
+**From likelihood to loss.** Given a corpus, maximum-likelihood estimation maximizes the probability the model assigns to the observed data. Taking logs turns the product into a sum, and we minimize the **negative** log-likelihood, averaged over the $N$ predicted tokens:
+
+$$ \\mathcal{L}(\\theta) = -\\frac{1}{N}\\sum_{t=1}^{N} \\log p_\\theta(x_t \\mid x_{<t}) $$
+
+This is exactly the **cross-entropy** between the one-hot empirical distribution of the true next token and the model’s predicted distribution: for a single step the target puts all mass on the true token $x_t$, so $H(\\text{target}, p_\\theta) = -\\log p_\\theta(x_t \\mid x_{<t})$.
+
+**Connection to perplexity.** Perplexity is the exponentiated average cross-entropy:
+
+$$ \\text{PPL} = \\exp\\!\\left( \\frac{1}{N}\\sum_{t=1}^{N} -\\log p_\\theta(x_t \\mid x_{<t}) \\right) = \\exp(\\mathcal{L}(\\theta)) $$
+
+Intuitively, perplexity is the **effective branching factor** — the average number of equally likely tokens the model is choosing among at each step. A model with $\\text{PPL} = 1$ is perfectly certain and always correct; a model that assigns uniform probability over a vocabulary of size $V$ has $\\text{PPL} = V$. Lowering cross-entropy by a constant multiplicatively shrinks perplexity, which is why tiny loss improvements can correspond to meaningful gains in predictive quality.
+      `,
+    },
+    {
+      heading: 'Explanation: Neural Scaling Laws',
+      content: `
+A striking empirical finding (Kaplan et al. 2020; Hoffmann et al. 2022) is that the cross-entropy loss of a Transformer language model falls as a smooth **power law** in each of three resources — the number of non-embedding parameters $N$, the dataset size $D$ (tokens), and the training compute $C$ — as long as the other two are not the bottleneck:
+
+$$ L(N) \\approx \\left(\\frac{N_c}{N}\\right)^{\\alpha_N}, \\qquad L(D) \\approx \\left(\\frac{D_c}{D}\\right)^{\\alpha_D}, \\qquad L(C) \\approx \\left(\\frac{C_c}{C}\\right)^{\\alpha_C} $$
+
+On a log-log plot these are straight lines: $\\log L = -\\alpha \\log N + \\text{const}$. The exponents are small — Kaplan et al. report roughly $\\alpha_N \\approx 0.076$ for parameters and $\\alpha_D \\approx 0.095$ for data — which is precisely why scaling is *expensive*.
+
+**Worked example: how much more to halve the loss?** Suppose loss scales as $L \\propto N^{-\\alpha}$ with $\\alpha = 0.076$ (ignoring the irreducible-loss floor for simplicity). To cut the loss in half we need a parameter multiplier $k$ such that:
+
+$$ \\frac{L(kN)}{L(N)} = k^{-\\alpha} = \\frac{1}{2} \\;\\Longrightarrow\\; k = 2^{1/\\alpha} = 2^{1/0.076} \\approx 2^{13.2} \\approx 9{,}500 $$
+
+So halving the loss by adding parameters alone demands on the order of **10,000x more parameters** — a brutal return curve. With the data exponent $\\alpha_D \\approx 0.095$, halving the loss via data alone needs $k = 2^{1/0.095} \\approx 2^{10.5} \\approx 1{,}500$x more tokens. The practical lesson, formalized by the **Chinchilla** compute-optimal analysis, is that for a fixed compute budget you should grow parameters and training tokens *together* (roughly in equal proportion) rather than pouring all compute into a giant model trained on too little data.
+      `,
+    },
+  ],
+  practiceExercises: [
+    {
+      prompt: 'A language model assigns the following probabilities to the true next token at each of 3 positions: $0.5, 0.25, 0.5$. Compute the perplexity of the model on this sequence.',
+      difficulty: 'warm-up',
+      hint: 'Perplexity is $\\exp$ of the average negative log-probability: $\\text{PPL} = \\exp\\!\\left(-\\frac{1}{N}\\sum_t \\log p_t\\right)$.',
+      solution: 'Average negative log-likelihood $= -\\frac{1}{3}(\\ln 0.5 + \\ln 0.25 + \\ln 0.5) = -\\frac{1}{3}(-0.693 - 1.386 - 0.693) = -\\frac{1}{3}(-2.772) = 0.924$. Then $\\text{PPL} = e^{0.924} \\approx 2.52$. Equivalently, using base-2 the per-token cross-entropy is $\\frac{1}{3}(1 + 2 + 1) = 1.33$ bits, so $\\text{PPL} = 2^{1.33} \\approx 2.52$ — the model is on average about as uncertain as choosing among 2.5 equally likely tokens.',
+      tags: ['core-metric', 'computation'],
+    },
+    {
+      prompt: 'At one position a model outputs logits $[2.0, 1.0, 0.0]$ over a 3-token vocabulary, and the **true** next token is the second one. Compute the next-token cross-entropy loss at this position (temperature $1.0$, natural log).',
+      difficulty: 'core',
+      hint: 'Cross-entropy at this step is $-\\log p(\\text{true token})$ where $p$ comes from the softmax of the logits.',
+      solution: 'Softmax denominator: $e^{2} + e^{1} + e^{0} = 7.389 + 2.718 + 1.000 = 11.107$. Probability of the true (second) token: $p = e^{1}/11.107 = 2.718/11.107 \\approx 0.245$. Cross-entropy loss $= -\\ln(0.245) \\approx 1.407$ nats. (Had the true token been the first, the loss would have been $-\\ln(0.665) \\approx 0.408$ — lower, because the model already favored it.)',
+      tags: ['loss', 'softmax'],
+    },
+    {
+      prompt: 'A Transformer’s self-attention cost scales quadratically with sequence length. If processing a 2,000-token context costs $X$ FLOPs in the attention layers, roughly how much do the attention layers cost for an 8,000-token context, and why does this matter for long-context use?',
+      difficulty: 'core',
+      solution: 'Attention compute scales as $O(n^2)$ in sequence length $n$. Going from $n = 2{,}000$ to $n = 8{,}000$ is a $4\\times$ increase in length, so attention cost grows by $4^2 = 16\\times$, to roughly $16X$. (Memory for the attention matrix also grows $\\sim 16\\times$.) This quadratic blow-up is why naively quadrupling the context window is far more than 4x as expensive, and motivates techniques like FlashAttention, sparse/sliding-window attention, and KV-cache management for long-context serving.',
+      tags: ['context-window', 'compute', 'conceptual'],
+    },
+    {
+      prompt: 'You can either (a) train a model with 10x more parameters or (b) train your current model on 10x more data. Loss scales as $L \\propto N^{-0.076}$ in parameters and $L \\propto D^{-0.095}$ in data. Which single intervention reduces loss more, and what does this suggest about compute-optimal training?',
+      difficulty: 'challenge',
+      hint: 'Compare the loss multipliers $10^{-0.076}$ and $10^{-0.095}$; smaller means a bigger loss reduction.',
+      solution: 'Parameters: $10^{-0.076} \\approx 0.839$, i.e. a $\\sim 16\\%$ loss reduction. Data: $10^{-0.095} \\approx 0.804$, i.e. a $\\sim 20\\%$ loss reduction. With these exponents the 10x data intervention reduces loss slightly more than 10x parameters. More importantly, neither should be scaled alone: the Chinchilla result shows that under a fixed compute budget the optimal strategy grows $N$ and $D$ together in roughly equal proportion — a model that is too large for its token budget (over-parameterized and under-trained) wastes compute. The takeaway is to balance model size against data, not to maximize parameters in isolation.',
+      tags: ['scaling-laws', 'reasoning', 'compute-optimal'],
+    },
+  ],
+  comparisons: [
+    {
+      title: 'Three stages of building an aligned LLM',
+      methods: ['Pretraining', 'Supervised Fine-tuning', 'RLHF'],
+      rows: [
+        {
+          dimension: 'Objective',
+          values: [
+            'Next-token cross-entropy (self-supervised NLL)',
+            'Next-token cross-entropy on curated prompt-response pairs',
+            'Maximize a learned reward (human preference) with a KL penalty to stay near the SFT policy',
+          ],
+        },
+        {
+          dimension: 'Data type',
+          values: [
+            'Massive **unlabeled** web text and code (trillions of tokens)',
+            'Smaller **labeled** demonstrations of desired instruction-following',
+            'Human **preference comparisons** (ranked pairs of responses) used to train a reward model',
+          ],
+        },
+        {
+          dimension: 'What it changes',
+          values: [
+            'Builds broad world knowledge and a general next-token predictor',
+            'Teaches the model the **format** and **behavior** of following instructions',
+            'Shifts the response **distribution** toward human-preferred (helpful, honest, harmless) outputs',
+          ],
+        },
+        {
+          dimension: 'Relative cost',
+          values: [
+            'Highest — dominates total compute (huge data + long training runs)',
+            'Low — thousands to millions of examples, short training',
+            'Moderate — needs human labeling plus reward-model and RL training loops',
+          ],
+        },
+      ],
+      takeaway: 'Pretraining creates raw capability at enormous cost; SFT cheaply teaches instruction-following; RLHF then aligns the model’s output distribution with human preferences. Each stage builds on the previous one rather than replacing it.',
+    },
+  ],
+  usageGuidance: {
+    useWhen: [
+      'The task is **open-ended language work** — drafting, summarizing, rewriting, translating, or answering questions — where flexible natural-language input and output are valuable.',
+      'You need **few-shot or zero-shot** adaptation to a new task without collecting a labeled dataset or training a model.',
+      'The problem benefits from broad **world knowledge** or code synthesis, and approximate, reviewable answers are acceptable.',
+      'You can pair the model with **retrieval, tools, or verification** to ground its outputs when accuracy matters.',
+    ],
+    avoidWhen: [
+      'You need **guaranteed factual correctness** or deterministic outputs without a verification/grounding layer — LLMs optimize plausibility, not truth.',
+      'The task is a **narrow, well-defined** prediction problem (e.g. tabular classification) where a small, cheap, auditable model would be more accurate and far less costly.',
+      'Latency, **cost**, or privacy constraints rule out large-model inference, and a smaller specialized model suffices.',
+      'Decisions are **high-stakes and unsupervised** (medical, legal, financial) where hallucinations or bias could cause real harm without human review.',
+    ],
+    rulesOfThumb: [
+      'Use **low temperature** (or greedy decoding) for factual/extractive tasks and higher temperature only for creative generation.',
+      'Ground factual queries with **retrieval (RAG)** instead of relying on parametric memory, especially for recent or niche information.',
+      'Measure quality with **task-specific evals**, not vibes — perplexity alone does not capture instruction-following or safety.',
+      'Right-size the model: try the **smallest** model that passes your evals before reaching for the largest.',
+    ],
+  },
+  caseStudies: [
+    {
+      title: 'GPT-3: scale unlocks few-shot in-context learning',
+      domain: 'Natural language processing',
+      scenario: 'Before GPT-3, adapting a language model to a new task typically required fine-tuning on a task-specific labeled dataset. Brown et al. (2020) asked whether simply scaling up an autoregressive Transformer would let a *single frozen* model perform new tasks from only a natural-language description and a handful of in-context examples — no gradient updates.',
+      approach: 'They pretrained a 175-billion-parameter decoder-only Transformer on roughly 300 billion tokens of filtered web text, books, and Wikipedia, using the standard next-token cross-entropy objective. They then evaluated the same frozen weights across dozens of benchmarks in **zero-shot**, **one-shot**, and **few-shot** settings, supplying task examples purely in the prompt context.',
+      outcome: 'GPT-3 (175B parameters, about 100x larger than its 1.5B-parameter predecessor GPT-2) achieved strong few-shot performance on many tasks, in some cases approaching fine-tuned baselines, and demonstrated that **in-context learning** strengthens systematically with scale. On the LAMBADA word-prediction benchmark, few-shot accuracy reached roughly **86%**. The work established few-shot prompting as a practical paradigm and is a canonical demonstration of an emergent capability appearing with scale.',
+      source: {
+        title: 'Language Models are Few-Shot Learners',
+        authors: 'Brown, T. B. et al.',
+        url: 'https://arxiv.org/abs/2005.14165',
+        type: 'paper',
+      },
+    },
+  ],
+  quiz: [
+    {
+      question: 'Which identity justifies factorizing a language model’s joint probability as $p(x_{1:n}) = \\prod_t p(x_t \\mid x_{<t})$?',
+      options: [
+        { text: 'The chain rule of probability, which holds exactly for any joint distribution.', correct: true },
+        { text: 'An independence assumption that the tokens are i.i.d.', correct: false },
+        { text: 'Bayes’ theorem applied to the prior over vocabularies.', correct: false },
+        { text: 'The central limit theorem for long sequences.', correct: false },
+      ],
+      explanation: 'The chain rule decomposes any joint distribution into a product of conditionals with no approximation. It is *not* an independence assumption — quite the opposite, each factor conditions on all previous tokens. The autoregressive model simply parameterizes those conditionals.',
+    },
+    {
+      question: 'A model achieves an average per-token cross-entropy of $1.386$ nats on a test set. What is its perplexity?',
+      options: [
+        { text: '$e^{1.386} \\approx 4$.', correct: true },
+        { text: '$1.386$ — perplexity equals cross-entropy.', correct: false },
+        { text: '$\\log(1.386) \\approx 0.33$.', correct: false },
+        { text: '$1/1.386 \\approx 0.72$.', correct: false },
+      ],
+      explanation: 'Perplexity is the exponential of the average cross-entropy: $\\text{PPL} = e^{1.386} \\approx 4$. Intuitively the model is, on average, as uncertain as if choosing uniformly among 4 tokens.',
+    },
+    {
+      question: 'Neural scaling laws state that loss falls as a power law $L \\propto N^{-\\alpha}$ with a small exponent (e.g. $\\alpha \\approx 0.08$). What does the *smallness* of $\\alpha$ imply?',
+      options: [
+        { text: 'Each additional halving of the loss requires an enormous (orders-of-magnitude) increase in scale.', correct: true },
+        { text: 'Loss can be driven to exactly zero with modest additional compute.', correct: false },
+        { text: 'Doubling the parameters roughly doubles model quality.', correct: false },
+        { text: 'Scale has essentially no effect on loss.', correct: false },
+      ],
+      explanation: 'A small exponent means diminishing returns: to halve the loss you need a multiplier $k = 2^{1/\\alpha}$, which for $\\alpha \\approx 0.08$ is on the order of thousands. Scale reliably helps, but at steep, predictable cost — and the loss approaches an irreducible floor rather than zero.',
+    },
+    {
+      question: 'In the standard pretraining + fine-tuning recipe, what is the primary role of RLHF (relative to pretraining)?',
+      options: [
+        { text: 'To shift the model’s output distribution toward human-preferred responses, after broad capability is already learned.', correct: true },
+        { text: 'To teach the model basic grammar and world knowledge from scratch.', correct: false },
+        { text: 'To compress the model so it runs faster at inference.', correct: false },
+        { text: 'To replace the next-token objective with a retrieval database.', correct: false },
+      ],
+      explanation: 'Pretraining (self-supervised next-token prediction on massive text) builds broad capability and knowledge. RLHF comes later and aligns the model’s behavior with human preferences (helpfulness, honesty, harmlessness) by optimizing a learned reward with a KL penalty. It is an alignment step, not a knowledge-acquisition or compression step.',
+    },
+  ],
+  review: {
+    lastReviewed: '2026-06-15',
+    reviewedBy: 'Suranjan',
+    status: 'published',
+  },
 };

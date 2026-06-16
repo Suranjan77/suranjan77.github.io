@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { algorithmsList } from "@/data/algorithms_content";
 import LessonNavigator from "./LessonNavigator";
 
@@ -53,6 +53,48 @@ describe("LessonNavigator", () => {
           link.getAttribute("href") === "/algorithms/probability-theory",
       ),
     );
+  });
+
+  it("initializes scroll tracking for lesson sections", () => {
+    const observe = vi.fn();
+    const disconnect = vi.fn();
+    const mockObserver = vi.fn();
+    mockObserver.mockImplementation(function (this: Record<string, unknown>) {
+      this.observe = observe;
+      this.disconnect = disconnect;
+    });
+
+    const originalIntersectionObserver = window.IntersectionObserver;
+    document.body.innerHTML =
+      '<div id="intuition"></div><div id="visualization"></div><div id="mathematics"></div>';
+
+    window.IntersectionObserver = mockObserver as unknown as typeof IntersectionObserver;
+    global.IntersectionObserver = mockObserver as unknown as typeof IntersectionObserver;
+
+    const currentModule = algorithmsList.find(
+      (module) => module.id === "linear-algebra",
+    );
+    expect(currentModule).toBeDefined();
+
+    render(
+      <LessonNavigator
+        currentModule={currentModule!}
+        allModules={algorithmsList}
+      />,
+    );
+
+    expect(mockObserver).toHaveBeenCalled();
+    expect(observe).toHaveBeenCalled();
+    expect(disconnect).not.toHaveBeenCalled();
+
+    // Restore the original IntersectionObserver after the test.
+    if (originalIntersectionObserver === undefined) {
+      delete (window as { IntersectionObserver?: unknown }).IntersectionObserver;
+      delete (global as { IntersectionObserver?: unknown }).IntersectionObserver;
+    } else {
+      window.IntersectionObserver = originalIntersectionObserver;
+      global.IntersectionObserver = originalIntersectionObserver;
+    }
   });
 
   it("navigates when a different track module is selected", () => {

@@ -134,7 +134,7 @@ export default function EvaluationMetricsViz() {
 
             {/* LEFT PLOT: overlapping class distributions */}
             <g>
-              <text x={leftPlot.left + leftPlot.width / 2} y={leftPlot.top - 14} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={800}>CLASSIFIER SCORE DISTRIBUTIONS</text>
+              <text x={leftPlot.left + leftPlot.width / 2} y={leftPlot.top - 14} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>CLASSIFIER SCORE DISTRIBUTIONS</text>
               
               {/* Shaded classification regions */}
               <path d={tnShaded} fill={COLORS.pink} fillOpacity={0.1} />
@@ -150,11 +150,11 @@ export default function EvaluationMetricsViz() {
               <line x1={leftPlot.left} x2={leftPlot.left} y1={leftPlot.top} y2={leftPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
               <line x1={leftPlot.left} x2={leftPlot.right} y1={leftPlot.bottom} y2={leftPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
               
-              <text x={leftPlot.left + 50} y={scaleLeftY(2.2)} fill={COLORS.pink} fontSize={9} fontWeight={900}>NEGATIVES (0)</text>
-              <text x={leftPlot.left + 160} y={scaleLeftY(2.2)} fill={COLORS.cyan} fontSize={9} fontWeight={900}>POSITIVES (1)</text>
+              <text x={leftPlot.left + 50} y={scaleLeftY(2.2)} fill={COLORS.pink} fontSize={12} fontWeight={900}>NEGATIVES (0)</text>
+              <text x={leftPlot.left + 160} y={scaleLeftY(2.2)} fill={COLORS.cyan} fontSize={12} fontWeight={900}>POSITIVES (1)</text>
 
-              <text x={leftPlot.right + 10} y={leftPlot.bottom + 4} fill={COLORS.muted} fontSize={9} fontWeight={700}>Score</text>
-              <text x={leftPlot.left - 8} y={leftPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={9} fontWeight={700}>Density</text>
+              <text x={leftPlot.right + 10} y={leftPlot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>Score</text>
+              <text x={leftPlot.left - 8} y={leftPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={700}>Density</text>
 
               {/* Draggable Threshold Line */}
               <g
@@ -178,7 +178,7 @@ export default function EvaluationMetricsViz() {
 
             {/* RIGHT PLOT: ROC Curve */}
             <g>
-              <text x={rightPlot.left + rightPlot.width / 2} y={rightPlot.top - 14} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={800}>ROC CURVE</text>
+              <text x={rightPlot.left + rightPlot.width / 2} y={rightPlot.top - 14} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>ROC CURVE</text>
               
               {/* Diagonal baseline */}
               <line x1={scaleRightX(0)} y1={scaleRightY(0)} x2={scaleRightX(1)} y2={scaleRightY(1)} stroke={COLORS.grid} strokeWidth={1} strokeDasharray="3 3" />
@@ -186,8 +186,8 @@ export default function EvaluationMetricsViz() {
               <line x1={rightPlot.left} x2={rightPlot.left} y1={rightPlot.top} y2={rightPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
               <line x1={rightPlot.left} x2={rightPlot.right} y1={rightPlot.bottom} y2={rightPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
               
-              <text x={rightPlot.right + 10} y={rightPlot.bottom + 4} fill={COLORS.muted} fontSize={9} fontWeight={700}>FPR</text>
-              <text x={rightPlot.left - 8} y={rightPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={9} fontWeight={700}>TPR</text>
+              <text x={rightPlot.right + 10} y={rightPlot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>FPR</text>
+              <text x={rightPlot.left - 8} y={rightPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={700}>TPR</text>
 
               {/* ROC Curve path */}
               <path d={rocPath} fill="none" stroke={COLORS.cyan} strokeWidth={2.5} />
@@ -204,7 +204,7 @@ export default function EvaluationMetricsViz() {
               {/* Confusion Matrix */}
               <g>
                 <rect width={250} height={100} fill="none" stroke={COLORS.border} strokeDasharray="3 3" />
-                <text x={12} y={16} fill={COLORS.muted} fontSize={9} fontWeight={800}>CONFUSION MATRIX (N=200)</text>
+                <text x={12} y={16} fill={COLORS.muted} fontSize={12} fontWeight={800}>CONFUSION MATRIX (N=200)</text>
 
                 {/* TP */}
                 <rect x={12} y={26} width={50} height={30} fill="rgba(85,107,74,0.1)" stroke={COLORS.grid} />
@@ -231,13 +231,13 @@ export default function EvaluationMetricsViz() {
               <g transform="translate(310, 0)">
                 <rect width={220} height={100} fill="rgba(250,248,242,0.85)" stroke={COLORS.border} rx={2} />
                 
-                <text x={12} y={22} fill={COLORS.muted} fontSize={8} fontWeight={800}>PRECISION:</text>
+                <text x={12} y={22} fill={COLORS.muted} fontSize={12} fontWeight={800}>PRECISION:</text>
                 <text data-testid="metrics-precision" x={12} y={42} fill={COLORS.pink} fontSize={14} fontWeight={900}>{(precision * 100).toFixed(1)}%</text>
 
-                <text x={110} y={22} fill={COLORS.muted} fontSize={8} fontWeight={800}>RECALL (TPR):</text>
+                <text x={110} y={22} fill={COLORS.muted} fontSize={12} fontWeight={800}>RECALL (TPR):</text>
                 <text data-testid="metrics-recall" x={110} y={42} fill={COLORS.cyan} fontSize={14} fontWeight={900}>{(tpr * 100).toFixed(1)}%</text>
 
-                <text x={12} y={70} fill={COLORS.muted} fontSize={8} fontWeight={800}>F1 SCORE:</text>
+                <text x={12} y={70} fill={COLORS.muted} fontSize={12} fontWeight={800}>F1 SCORE:</text>
                 <text data-testid="metrics-f1" x={12} y={90} fill={COLORS.yellow} fontSize={14} fontWeight={900}>{(f1 * 100).toFixed(1)}%</text>
               </g>
             </g>
@@ -252,7 +252,7 @@ export default function EvaluationMetricsViz() {
           </div>
 
           <div className="mb-4">
-            <span className="block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
+            <span className="block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
               SLIDE THRESHOLD:
             </span>
             <input aria-label="EvaluationMetrics input"
@@ -264,7 +264,7 @@ export default function EvaluationMetricsViz() {
               onChange={(e) => setThreshold(parseFloat(e.target.value))}
               className="w-full accent-primary"
             />
-            <div className="flex justify-between text-[9px] text-on-surface-variant font-bold mt-1">
+            <div className="flex justify-between text-[12px] text-on-surface-variant font-bold mt-1">
               <span>T = 1.0 (Recall focus)</span>
               <span className="text-primary font-bold">T = {threshold.toFixed(1)}</span>
               <span>T = 9.0 (Precision focus)</span>

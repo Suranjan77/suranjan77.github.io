@@ -176,9 +176,9 @@ export default function LogisticRegressionViz() {
               <line x1={leftPlot.left} x2={leftPlot.left} y1={leftPlot.top} y2={leftPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
               <line x1={leftPlot.left} x2={leftPlot.right} y1={leftPlot.bottom} y2={leftPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
 
-              <text x={leftPlot.right + 8} y={leftPlot.bottom + 4} fill={COLORS.muted} fontSize={10} fontWeight={700}>x1</text>
-              <text x={leftPlot.left - 8} y={leftPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={10} fontWeight={700}>x2</text>
-              <text x={leftPlot.left + 5} y={leftPlot.top - 8} fill={COLORS.muted} fontSize={9} fontWeight={800}>FEATURE SPACE</text>
+              <text x={leftPlot.right + 8} y={leftPlot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>x1</text>
+              <text x={leftPlot.left - 8} y={leftPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={700}>x2</text>
+              <text x={leftPlot.left + 5} y={leftPlot.top - 8} fill={COLORS.muted} fontSize={12} fontWeight={800}>FEATURE SPACE</text>
 
               {/* Draggable Decision Boundary Line */}
               <g
@@ -218,9 +218,9 @@ export default function LogisticRegressionViz() {
               <line x1={rightPlot.left} x2={rightPlot.left} y1={rightPlot.top} y2={rightPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
               <line x1={rightPlot.left} x2={rightPlot.right} y1={rightPlot.bottom} y2={rightPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
 
-              <text x={rightPlot.right + 8} y={rightPlot.bottom + 4} fill={COLORS.muted} fontSize={10} fontWeight={700}>Score z</text>
-              <text x={rightPlot.left - 8} y={rightPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={10} fontWeight={700}>Prob p</text>
-              <text x={rightPlot.left + 5} y={rightPlot.top - 8} fill={COLORS.muted} fontSize={9} fontWeight={800}>SIGMOID LINK</text>
+              <text x={rightPlot.right + 8} y={rightPlot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>Score z</text>
+              <text x={rightPlot.left - 8} y={rightPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={700}>Prob p</text>
+              <text x={rightPlot.left + 5} y={rightPlot.top - 8} fill={COLORS.muted} fontSize={12} fontWeight={800}>SIGMOID LINK</text>
 
               {/* Sigmoid curve (yellow) */}
               <path d={sigmoidPath} fill="none" stroke={COLORS.yellow} strokeWidth={3} />
@@ -334,7 +334,7 @@ export default function LogisticRegressionViz() {
               {/* Classification accuracy */}
               <g transform="translate(440, 344)">
                 <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={9} fontWeight={700}>CLASSIFICATION ACCURACY</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>CLASSIFICATION ACCURACY</text>
                 <text data-testid="logistic-accuracy" x={12} y={36} fill={accuracy > 0.8 ? COLORS.cyan : COLORS.muted} fontSize={15} fontWeight={800}>
                   {(accuracy * 100).toFixed(0)}% ({correctCount}/{basePoints.length})
                 </text>

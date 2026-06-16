@@ -42,6 +42,56 @@ export interface ReviewMetadata {
   status: 'draft' | 'reviewed' | 'published';
 }
 
+// --- Active-learning content types (all optional on LearningModule) ---
+
+export type ExerciseDifficulty = 'warm-up' | 'core' | 'challenge';
+
+export interface PracticeExercise {
+  prompt: string;                 // markdown + KaTeX
+  difficulty: ExerciseDifficulty;
+  hint?: string;                  // optional progressive scaffold (markdown + KaTeX)
+  solution: string;               // collapsible (markdown + KaTeX)
+  tags?: string[];                // e.g. ['derivation', 'coding', 'conceptual']
+}
+
+export interface QuizOption {
+  text: string;                   // inline markdown
+  correct: boolean;
+}
+
+export interface QuizQuestion {
+  question: string;               // markdown + KaTeX
+  options: QuizOption[];          // 3-5 options, at least one correct
+  explanation: string;            // shown after answering (markdown + KaTeX)
+}
+
+export interface CaseStudy {
+  title: string;
+  domain?: string;                // e.g. 'Healthcare', 'Ad ranking'
+  scenario: string;               // markdown — real-world setup with real numbers
+  approach: string;               // markdown — how the method was applied
+  outcome: string;                // markdown — quantified result / lesson learned
+  source?: Reference;             // reuse existing Reference type for citation
+}
+
+export interface ComparisonRow {
+  dimension: string;              // e.g. 'Training cost', 'Interpretability'
+  values: string[];               // one inline-markdown cell per method
+}
+
+export interface ComparisonTable {
+  title?: string;
+  methods: string[];              // column headers, e.g. ['SVM', 'Neural Net']
+  rows: ComparisonRow[];          // each row.values.length must equal methods.length
+  takeaway?: string;              // markdown summary line under the table
+}
+
+export interface UsageGuidance {
+  useWhen: string[];              // markdown bullets
+  avoidWhen: string[];            // markdown bullets
+  rulesOfThumb?: string[];        // optional quick heuristics
+}
+
 export type TrackId = 'foundations' | 'practitioner' | 'modern-ai';
 export type Difficulty = 1 | 2 | 3 | 4;
 
@@ -73,4 +123,12 @@ export interface LearningModule {
   misconceptions?: Misconception[];
   references?: Reference[];
   review?: ReviewMetadata;
+
+  // --- Active-learning additions (all optional, backward compatible) ---
+  practiceExercises?: PracticeExercise[];
+  quiz?: QuizQuestion[];
+  caseStudies?: CaseStudy[];
+  comparisons?: ComparisonTable[];
+  usageGuidance?: UsageGuidance;
+  tldr?: string[];                 // 3-6 bullet quick-review summary points
 }

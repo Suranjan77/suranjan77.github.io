@@ -153,5 +153,191 @@ export class LoRALayer {
     return hBase.map((val, idx) => val + scale * hLora[idx]);
   }
 }`,
-  relatedModules: ["llms", "transformers", "neural-networks"]
+  relatedModules: ["llms", "transformers", "neural-networks"],
+  tldr: [
+    'Fine-tuning adapts a pretrained model to a specific task or style by continuing training on new, narrower data.',
+    '**Full fine-tuning** updates every weight — maximally expressive but memory-hungry and storage-heavy (a full model copy per task).',
+    '**Parameter-efficient fine-tuning (PEFT)** like **LoRA** freezes the base model and trains a tiny set of new parameters, cutting trainable params by $100\\times$ to $1000\\times$.',
+    '**Catastrophic forgetting** is the main risk: aggressively updating all weights on a narrow distribution can erase general capabilities.',
+    '**Instruction tuning** fine-tunes on (instruction, response) pairs so a base model learns to follow natural-language commands rather than merely continue text.',
+  ],
+  additionalSections: [
+    {
+      heading: 'Derivation: LoRA (Low-Rank Adaptation) and Its Parameter Savings',
+      content: `
+Fine-tuning normally updates a weight matrix $W \\in \\mathbb{R}^{d \\times k}$ to $W + \\Delta W$, where the full update $\\Delta W$ has $d \\times k$ free parameters. LoRA’s key idea is to **freeze** $W$ and constrain the update to be **low-rank**:
+
+$$ \\Delta W = BA, \\qquad B \\in \\mathbb{R}^{d \\times r}, \\quad A \\in \\mathbb{R}^{r \\times k}, \\quad r \\ll \\min(d, k) $$
+
+During the forward pass the adapted layer computes:
+
+$$ h = W x + \\Delta W x = W x + B A x $$
+
+Only $A$ and $B$ are trained; $W$ stays fixed. The number of trainable parameters drops from $d \\times k$ to $r(d + k)$.
+
+**Concrete example.** Take a square projection with $d = k = 4096$ and rank $r = 8$.
+
+- Full update: $d \\times k = 4096 \\times 4096 = 16{,}777{,}216 \\approx 16.8$M parameters.
+- LoRA update: $r(d + k) = 8 \\times (4096 + 4096) = 8 \\times 8192 = 65{,}536 \\approx 65.5$K parameters.
+
+That is a reduction by a factor of $16{,}777{,}216 / 65{,}536 = 256\\times$. Across an entire model this routinely yields a $100\\times$ to $1000\\times$ cut in trainable parameters, and the saved LoRA weights are only a few megabytes per task instead of a full multi-gigabyte checkpoint.
+
+**Why is a low-rank update enough?** The *intrinsic dimension* argument: empirically, the update a model needs to adapt to a downstream task lives in a subspace whose dimension is far smaller than the full parameter count. Aghajanyan et al. showed large pretrained models can be fine-tuned within a surprisingly low-dimensional reparameterization. If the *change* in weights $\\Delta W$ has low intrinsic rank, then factoring it as $BA$ loses almost nothing while slashing the parameter budget. At inference, $BA$ can even be merged back into $W$, so LoRA adds **zero** extra latency once deployed.
+      `,
+    },
+    {
+      heading: 'Catastrophic Forgetting During Fine-tuning',
+      content: `
+A pretrained LLM stores broad general capabilities — grammar, world knowledge, reasoning — distributed across all of its weights. **Catastrophic forgetting** is what happens when fine-tuning on a narrow task distribution overwrites those weights and degrades the model’s general competence, even on things it used to do well.
+
+The mechanism is straightforward. Gradient descent on a narrow dataset pushes weights toward whatever minimizes loss on *that* data. Because the new distribution covers only a sliver of what the model originally handled, the gradients carry no signal to *preserve* unrelated abilities. Large updates on a small, repetitive dataset move weights far from the pretrained solution, and the previously encoded knowledge is partially erased. Over many epochs the model can collapse into parroting the fine-tuning data while losing fluency and breadth elsewhere.
+
+Several techniques mitigate it:
+
+- **Low learning rate.** Small steps keep the fine-tuned weights in a neighborhood of the pretrained solution, so general capabilities are perturbed only gently. This is why fine-tuning learning rates are often $10\\times$ to $100\\times$ smaller than pretraining ones.
+- **Fewer epochs / early stopping.** The longer you train on narrow data, the more the model specializes and forgets. One to a few epochs is often enough; stopping early limits drift.
+- **LoRA’s implicit regularization.** Because the base weights $W$ are **frozen** and only the small low-rank $BA$ is learned, the original knowledge encoded in $W$ literally cannot be overwritten. The adaptation is confined to a tiny additive correction, which acts as a strong structural regularizer against forgetting. Keeping the LoRA rank $r$ small further limits how far the model can move.
+- **Replaying general data.** Mixing some general-purpose examples back into the fine-tuning set reminds the model of its original distribution and counteracts forgetting directly.
+      `,
+    },
+  ],
+  practiceExercises: [
+    {
+      prompt: 'A transformer layer has a weight matrix of size $d = k = 2048$. Using LoRA with rank $r = 16$, how many trainable parameters does the adapter add, and how does that compare to full fine-tuning of that matrix?',
+      difficulty: 'warm-up',
+      hint: 'LoRA adds $r(d + k)$ parameters; full fine-tuning trains $d \\times k$.',
+      solution: 'LoRA: $r(d + k) = 16 \\times (2048 + 2048) = 16 \\times 4096 = 65{,}536$ parameters. Full fine-tuning: $d \\times k = 2048 \\times 2048 = 4{,}194{,}304$ parameters. The ratio is $4{,}194{,}304 / 65{,}536 = 64\\times$ fewer trainable parameters with LoRA.',
+      tags: ['computation', 'lora'],
+    },
+    {
+      prompt: 'You apply LoRA with rank $r = 8$ to the query and value projections of every transformer block. The model has 32 blocks, and each projection is a $4096 \\times 4096$ matrix. What is the total number of trainable LoRA parameters?',
+      difficulty: 'core',
+      hint: 'Count adapters: 2 projections per block, 32 blocks. Each adapter has $r(d + k)$ params.',
+      solution: 'Per adapter: $r(d + k) = 8 \\times (4096 + 4096) = 65{,}536$ params. Number of adapters: $2 \\text{ projections} \\times 32 \\text{ blocks} = 64$. Total: $64 \\times 65{,}536 = 4{,}194{,}304 \\approx 4.19$M trainable parameters. For a model with billions of parameters, this is well under $0.1\\%$ of the total — which is exactly why LoRA fits on a single consumer GPU.',
+      tags: ['computation', 'lora'],
+    },
+    {
+      prompt: 'During fine-tuning a colleague sets the learning rate very high to "make training faster." After a few hundred steps the model produces fluent answers on the fine-tuning task but has become incoherent on everything else. Explain what happened in terms of catastrophic forgetting.',
+      difficulty: 'core',
+      solution: 'A high learning rate produces large gradient steps that move the weights far from the pretrained solution. Because the fine-tuning data covers only a narrow distribution, those large updates optimize for that slice while carrying no signal to preserve unrelated capabilities. The weights that encoded general knowledge get overwritten — catastrophic forgetting. The fix is a much smaller learning rate (keeping weights near the pretrained neighborhood), fewer epochs, and/or LoRA so the base weights stay frozen and cannot be clobbered.',
+      tags: ['conceptual', 'forgetting'],
+    },
+    {
+      prompt: 'You must ship 50 customer-specific variants of a 7B-parameter model, and inference latency budget is tight. Would you choose full fine-tuning or LoRA for each customer, and why? Address both storage and latency.',
+      difficulty: 'challenge',
+      hint: 'Think about how much disk each variant needs, and whether the adapter can be merged at inference.',
+      solution: 'Choose LoRA. **Storage:** full fine-tuning means 50 complete copies of a 7B model (tens of gigabytes each — well over a terabyte total), whereas 50 LoRA adapters are only a few megabytes each, so they share one frozen base model and add negligible storage. **Latency:** a LoRA adapter $BA$ can be merged back into the base weights ($W \\leftarrow W + \\tfrac{\\alpha}{r}BA$) at deploy time, so the served model has the exact same shape and runs with zero added latency versus the base. You also get reduced catastrophic forgetting for free since the base weights are frozen. Full fine-tuning would only be justified if a customer needed a sweeping behavior change that a low-rank update genuinely cannot express.',
+      tags: ['conceptual', 'deployment', 'lora'],
+    },
+  ],
+  comparisons: [
+    {
+      title: 'Full Fine-tuning vs LoRA vs Prompt Engineering',
+      methods: ['Full Fine-tuning', 'LoRA', 'Prompt Engineering / In-Context Learning'],
+      rows: [
+        {
+          dimension: 'Trainable parameters',
+          values: ['All weights (billions)', 'Tiny low-rank adapters ($\\sim$0.1% of weights)', 'None — no training at all'],
+        },
+        {
+          dimension: 'Compute & memory cost',
+          values: ['Very high — needs optimizer state for every weight', 'Low — fits on a single GPU; base weights frozen', 'Effectively zero training cost; only inference'],
+        },
+        {
+          dimension: 'Catastrophic forgetting risk',
+          values: ['High — all weights can drift on narrow data', 'Low — base weights frozen, adapter is a small correction', 'None — weights never change'],
+        },
+        {
+          dimension: 'Persistence of adaptation',
+          values: ['Permanent, baked into the weights', 'Permanent, stored as a small reusable adapter', 'Ephemeral — lives only in the prompt for that request'],
+        },
+        {
+          dimension: 'Storage per task',
+          values: ['Full model copy (multi-GB)', 'A few MB per adapter', 'Nothing persisted'],
+        },
+      ],
+      takeaway: 'Start with prompt engineering; if behavior needs to be reliable and persistent, reach for LoRA; reserve full fine-tuning for large-scale behavior changes where the compute and storage cost is justified.',
+    },
+  ],
+  usageGuidance: {
+    useWhen: [
+      'You need the model to reliably adopt a **specific behavior, format, or domain style** that prompting alone cannot pin down.',
+      'You have a **labeled dataset** of task-specific examples (e.g. instruction-response pairs) to train on.',
+      'The adaptation must be **persistent** and consistent across every request, not re-specified in each prompt.',
+      'You want to serve **many task variants** cheaply — LoRA adapters share one frozen base model.',
+    ],
+    avoidWhen: [
+      'A well-crafted **prompt or few-shot examples** already solve the task — fine-tuning adds cost and maintenance for no gain.',
+      'You have **very little data** — fine-tuning on a tiny set risks overfitting and catastrophic forgetting.',
+      'The needed knowledge changes **frequently** — retrieval-augmented generation (RAG) keeps facts fresh without retraining.',
+      'You lack the **compute or MLOps** to train and version models, and the latency or storage budget for extra checkpoints is tight.',
+    ],
+    rulesOfThumb: [
+      'Climb the ladder: prompt engineering, then RAG, then LoRA, then full fine-tuning — only escalate when the cheaper rung fails.',
+      'Use a small learning rate and few epochs to limit catastrophic forgetting.',
+      'For LoRA, start with rank $r$ in the 8–16 range and target the attention projections; raise $r$ only if quality is insufficient.',
+    ],
+  },
+  caseStudies: [
+    {
+      title: 'LoRA matches full fine-tuning at a fraction of the trainable parameters',
+      domain: 'NLP / LLM adaptation',
+      scenario: 'Adapting very large pretrained language models (GPT-3 175B and RoBERTa/DeBERTa) to downstream tasks via full fine-tuning is prohibitively expensive: it updates and stores all 175B parameters per task, demanding enormous optimizer memory and a full model checkpoint for every deployment.',
+      approach: 'Hu et al. (2021) introduced LoRA, freezing the pretrained weights and injecting trainable low-rank matrices $B A$ into the attention projections, training only those. They benchmarked against full fine-tuning across GLUE and generation tasks.',
+      outcome: 'On GPT-3 175B, LoRA reduced the number of trainable parameters by roughly $10{,}000\\times$ and GPU memory by about $3\\times$, while matching or exceeding the quality of full fine-tuning on benchmarks like GLUE. Because the low-rank update can be merged into the base weights, LoRA also adds no inference latency. This established PEFT as the default way to adapt large models on modest hardware.',
+      source: {
+        title: 'LoRA: Low-Rank Adaptation of Large Language Models',
+        authors: 'Hu, E. J., Shen, Y., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., Wang, L. and Chen, W.',
+        url: 'https://arxiv.org/abs/2106.09685',
+        type: 'paper',
+      },
+    },
+  ],
+  quiz: [
+    {
+      question: 'In LoRA, given a frozen weight matrix $W \\in \\mathbb{R}^{d \\times k}$, the update is written as $\\Delta W = BA$. What are the shapes of $B$ and $A$?',
+      options: [
+        { text: '$B \\in \\mathbb{R}^{d \\times r}$ and $A \\in \\mathbb{R}^{r \\times k}$ with $r \\ll \\min(d, k)$.', correct: true },
+        { text: '$B \\in \\mathbb{R}^{d \\times k}$ and $A \\in \\mathbb{R}^{d \\times k}$.', correct: false },
+        { text: '$B \\in \\mathbb{R}^{r \\times d}$ and $A \\in \\mathbb{R}^{k \\times r}$ with $r \\gg \\max(d, k)$.', correct: false },
+        { text: '$B$ and $A$ are both $r \\times r$ square matrices.', correct: false },
+      ],
+      explanation: 'LoRA factors the low-rank update so that $BA$ has the same shape as $W$ ($d \\times k$) while introducing only $r(d + k)$ trainable parameters. With $r \\ll \\min(d, k)$ this is far fewer than the $d \\times k$ parameters of a full update.',
+    },
+    {
+      question: 'Which statement best describes catastrophic forgetting?',
+      options: [
+        { text: 'Fine-tuning on a narrow task distribution overwrites weights and degrades the model’s previously learned general capabilities.', correct: true },
+        { text: 'The model runs out of context window and forgets earlier tokens in the prompt.', correct: false },
+        { text: 'The optimizer diverges because the learning rate is set to zero.', correct: false },
+        { text: 'The model permanently caches user data between sessions.', correct: false },
+      ],
+      explanation: 'Catastrophic forgetting is a training-time phenomenon: updating weights on a narrow distribution erases capabilities encoded during pretraining. It is unrelated to the context window or data caching, and it is made worse — not caused — by large learning rates rather than a zero learning rate.',
+    },
+    {
+      question: 'For a $4096 \\times 4096$ weight matrix, roughly how many trainable parameters does a rank-$8$ LoRA adapter add, and how does it compare to full fine-tuning?',
+      options: [
+        { text: 'About $65.5$K parameters — a $256\\times$ reduction versus the $\\sim$16.8M of a full update.', correct: true },
+        { text: 'About $16.8$M parameters — the same as full fine-tuning.', correct: false },
+        { text: 'About $8$ parameters — one per rank.', correct: false },
+        { text: 'About $33.6$M parameters — twice as many as full fine-tuning.', correct: false },
+      ],
+      explanation: 'LoRA adds $r(d + k) = 8 \\times (4096 + 4096) = 65{,}536$ parameters, while a full update is $4096 \\times 4096 = 16{,}777{,}216$. The ratio is $256\\times$ fewer trainable parameters.',
+    },
+    {
+      question: 'Why does freezing the base weights in LoRA help reduce catastrophic forgetting?',
+      options: [
+        { text: 'The general knowledge encoded in the frozen base weights cannot be overwritten; only a small additive low-rank correction is learned.', correct: true },
+        { text: 'Freezing the weights increases the learning rate, which speeds convergence.', correct: false },
+        { text: 'Freezing the weights deletes the pretraining data so it cannot interfere.', correct: false },
+        { text: 'Frozen weights force the model to use a larger rank, capturing more of the task.', correct: false },
+      ],
+      explanation: 'Because $W$ is frozen, the knowledge it stores is preserved by construction — gradient descent can only adjust the tiny $BA$ adapter. This acts as a structural regularizer, confining adaptation to a small correction and protecting general capabilities.',
+    },
+  ],
+  review: {
+    lastReviewed: '2026-06-15',
+    reviewedBy: 'Suranjan',
+    status: 'published',
+  },
 };

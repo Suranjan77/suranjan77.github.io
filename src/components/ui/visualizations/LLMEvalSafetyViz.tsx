@@ -68,7 +68,7 @@ export default function LLMEvalSafetyViz() {
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       <div className="lg:col-span-2">
         <div className="relative border border-outline bg-surface overflow-hidden rounded p-4">
-          <div className="mb-4 font-mono text-[11px] font-bold uppercase tracking-wider text-primary">
+          <div className="mb-4 font-mono text-[12px] font-bold uppercase tracking-wider text-primary">
             Weighted Score Comparison
           </div>
 
@@ -116,7 +116,7 @@ export default function LLMEvalSafetyViz() {
 
           {/* Model breakdown table */}
           <div className="border-t border-outline pt-4 font-mono text-xs">
-            <div className="font-bold text-muted mb-2 uppercase text-[10px]">Model Capability Matrix</div>
+            <div className="font-bold text-muted mb-2 uppercase text-[12px]">Model Capability Matrix</div>
             <div className="grid grid-cols-5 gap-2 border-b border-outline pb-2 font-bold text-primary">
               <div>Model</div>
               <div className="text-center">Quality</div>
@@ -126,7 +126,7 @@ export default function LLMEvalSafetyViz() {
             </div>
             {models.map(m => (
               <div key={`table-row-${m.name}`} className="grid grid-cols-5 gap-2 py-2 border-b border-outline last:border-0 items-center">
-                <div className="font-sans font-medium text-on-surface text-[11px] leading-tight">{m.name}</div>
+                <div className="font-sans font-medium text-on-surface text-[12px] leading-tight">{m.name}</div>
                 <div className="text-center text-cyan font-bold">{m.quality.toFixed(1)}</div>
                 <div className="text-center text-cyan font-bold">{m.safety.toFixed(1)}</div>
                 <div className="text-center text-pink font-bold">{m.cost.toFixed(1)}</div>
@@ -145,7 +145,7 @@ export default function LLMEvalSafetyViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[10px]" htmlFor="quality-weight-slider">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="quality-weight-slider">
               Quality Importance ({qualityWeight})
             </label>
             <input
@@ -162,7 +162,7 @@ export default function LLMEvalSafetyViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[10px]" htmlFor="safety-weight-slider">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="safety-weight-slider">
               Safety Importance ({safetyWeight})
             </label>
             <input
@@ -179,7 +179,7 @@ export default function LLMEvalSafetyViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[10px]" htmlFor="cost-weight-slider">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="cost-weight-slider">
               Low Cost Importance ({costWeight})
             </label>
             <input
@@ -196,7 +196,7 @@ export default function LLMEvalSafetyViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[10px]" htmlFor="latency-weight-slider">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="latency-weight-slider">
               Low Latency Importance ({latencyWeight})
             </label>
             <input
@@ -215,9 +215,9 @@ export default function LLMEvalSafetyViz() {
 
         {/* Selected Best Fit */}
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[11px]">Recommended Fit</div>
+          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Recommended Fit</div>
           <div className="font-bold text-cyan text-sm mb-1">{scoredModels[0].name}</div>
-          <p className="text-[11px] font-sans text-on-surface-variant leading-relaxed">
+          <p className="text-[12px] font-sans text-on-surface-variant leading-relaxed">
             {scoredModels[0].description}
           </p>
         </div>

@@ -156,5 +156,200 @@ export class RAGPipeline {
     return \`Context: \${context}\\nQuestion: \${query}\\nAnswer the question using ONLY the context above.\`;
   }
 }`,
-  relatedModules: ["llms", "embeddings-tokenization", "transformers"]
+  relatedModules: ["llms", "embeddings-tokenization", "transformers"],
+  tldr: [
+    'RAG **retrieves** the most relevant chunks from an external corpus, **augments** the prompt with them, then has the LLM **generate** an answer grounded in that context.',
+    'It works like an open-book exam: the model reasons over fetched facts instead of relying solely on parametric memory.',
+    'Grounding generations in real source text sharply **reduces hallucination** and lets the model cite where an answer came from.',
+    'No retraining required — you update knowledge by editing the index, so RAG sidesteps the cost and staleness of fine-tuning.',
+    'Quality hinges on retrieval: chunking strategy, embedding quality, and top-$k$ selection determine whether the right context ever reaches the model.',
+  ],
+  additionalSections: [
+    {
+      heading: 'Derivation: The Retrieval Step and a Worked Top-k Example',
+      content: `
+Retrieval turns "find relevant text" into a geometry problem. Every document chunk $C_i$ is passed through an encoder $\\mathcal{E}$ to produce an embedding $\\mathbf{d}_i = \\mathcal{E}(C_i) \\in \\mathbb{R}^d$, and the user query is embedded the same way: $\\mathbf{q} = \\mathcal{E}(\\text{query})$. Because both live in the *same* vector space, semantic closeness becomes geometric closeness.
+
+We rank chunks by a similarity score. The two standard choices are the **dot product** and **cosine similarity**:
+
+$$ \\text{dot}(\\mathbf{q}, \\mathbf{d}_i) = \\mathbf{q} \\cdot \\mathbf{d}_i = \\sum_{j=1}^{d} q_j d_{ij}, \\qquad \\cos(\\mathbf{q}, \\mathbf{d}_i) = \\frac{\\mathbf{q} \\cdot \\mathbf{d}_i}{\\lVert \\mathbf{q} \\rVert_2 \\, \\lVert \\mathbf{d}_i \\rVert_2} $$
+
+Cosine similarity is just the dot product of the **L2-normalized** vectors, so it measures only the *angle* between them and ignores magnitude. When embeddings are pre-normalized to unit length, dot product and cosine give identical rankings. Top-$k$ retrieval then selects the $k$ chunks with the highest score:
+
+$$ \\mathcal{R} = \\operatorname*{arg\\,max}^{[k]}_{i \\in \\{1, \\dots, N\\}} \\; \\text{sim}(\\mathbf{q}, \\mathbf{d}_i) $$
+
+For large $N$, computing all $N$ similarities exactly is expensive, so vector databases use **approximate nearest neighbor (ANN)** indexes (e.g. HNSW graphs) to find the top-$k$ in roughly logarithmic time at the cost of occasionally missing a true neighbor.
+
+**Worked numeric example (top-2 by cosine).** Take a query and three candidate chunk vectors in $\\mathbb{R}^3$:
+
+$$ \\mathbf{q} = [1, 0, 1], \\quad \\mathbf{d}_1 = [1, 1, 0], \\quad \\mathbf{d}_2 = [0, 1, 1], \\quad \\mathbf{d}_3 = [2, 0, 2] $$
+
+First the dot products: $\\mathbf{q} \\cdot \\mathbf{d}_1 = 1$, $\\mathbf{q} \\cdot \\mathbf{d}_2 = 1$, $\\mathbf{q} \\cdot \\mathbf{d}_3 = 4$. The norms: $\\lVert \\mathbf{q} \\rVert = \\sqrt{2}$, $\\lVert \\mathbf{d}_1 \\rVert = \\lVert \\mathbf{d}_2 \\rVert = \\sqrt{2}$, $\\lVert \\mathbf{d}_3 \\rVert = \\sqrt{8}$. So the cosine scores are:
+
+$$ \\cos(\\mathbf{q}, \\mathbf{d}_1) = \\frac{1}{\\sqrt{2}\\sqrt{2}} = 0.5, \\quad \\cos(\\mathbf{q}, \\mathbf{d}_2) = \\frac{1}{2} = 0.5, \\quad \\cos(\\mathbf{q}, \\mathbf{d}_3) = \\frac{4}{\\sqrt{2}\\sqrt{8}} = \\frac{4}{4} = 1.0 $$
+
+Ranking gives $\\mathbf{d}_3$ (1.0) first, then a tie between $\\mathbf{d}_1$ and $\\mathbf{d}_2$ (0.5 each). **Top-2** retrieval returns $\\{\\mathbf{d}_3, \\mathbf{d}_1\\}$ (breaking the tie by index). Note the lesson from $\\mathbf{d}_3 = 2\\mathbf{q}$: it points in exactly the same direction as the query, so cosine scores it a perfect $1.0$ even though its raw magnitude is large — direction, not length, is what cosine rewards.
+      `,
+    },
+    {
+      heading: 'Chunking Strategy and the Precision/Recall Tradeoff',
+      content: `
+Before anything can be retrieved, a document must be split into chunks, and that choice quietly governs retrieval quality. A chunk is the *atomic unit* returned to the model, so its size trades off two failure modes.
+
+**Why chunk size matters.** A single embedding is a fixed-length summary of whatever text it encodes. If a chunk is **too large** (say an entire 5-page section), its embedding becomes an average of many topics; the one relevant sentence is *diluted* by surrounding noise, pulling the vector away from any specific query and lowering similarity scores — a precision problem. If a chunk is **too small** (a single clause), the embedding may match the query keyword but the retrieved snippet *lacks the surrounding context* needed to actually answer — you retrieve "the dose is 50 mg" without "for adult patients with condition X". The practical sweet spot is usually a few hundred tokens with a small overlap (e.g. 10–20%) so that ideas straddling a boundary are not cut in half.
+
+**Quantifying retrieval quality.** Suppose for a query there are $R$ truly relevant chunks in the corpus, and the retriever returns $k$ chunks of which $\\text{rel}_k$ are relevant. Two standard metrics:
+
+$$ \\text{precision@}k = \\frac{\\text{rel}_k}{k}, \\qquad \\text{recall@}k = \\frac{\\text{rel}_k}{R} $$
+
+Precision@k asks "of what I returned, how much was useful?"; recall@k asks "of everything useful, how much did I find?". In RAG, **recall@k is usually the metric that matters most**: if the answer-bearing chunk is never retrieved, no amount of clever prompting can recover it — the generator is blind to it.
+
+**Why we cannot just make k huge.** Raising $k$ monotonically helps recall (more chunks = more chances to include the right one) but it is bounded by the **context window**. If each chunk is $t$ tokens and the model has a context budget of $L$ tokens shared with the system prompt, question, and answer, then feasibly $k \\lesssim L / t$. Stuffing more chunks also invites the "lost in the middle" effect, where models attend poorly to content buried in a long context, and it raises latency and token cost. So $k$ is chosen to maximize recall *subject to* the window limit, and a **reranker** is often added to reorder a large candidate set down to the few highest-value chunks that fit.
+      `,
+    },
+  ],
+  practiceExercises: [
+    {
+      prompt: 'A query embedding is $\\mathbf{q} = [1, 2, 0]$. Three chunk embeddings are $\\mathbf{d}_1 = [2, 1, 0]$, $\\mathbf{d}_2 = [0, 1, 3]$, $\\mathbf{d}_3 = [1, 2, 1]$. Using the **dot product** as the score, which two chunks are returned by top-2 retrieval?',
+      difficulty: 'warm-up',
+      hint: 'Compute $\\mathbf{q} \\cdot \\mathbf{d}_i$ for each chunk, then take the two largest.',
+      solution: 'Dot products: $\\mathbf{q} \\cdot \\mathbf{d}_1 = (1)(2)+(2)(1)+(0)(0) = 4$; $\\mathbf{q} \\cdot \\mathbf{d}_2 = (1)(0)+(2)(1)+(0)(3) = 2$; $\\mathbf{q} \\cdot \\mathbf{d}_3 = (1)(1)+(2)(2)+(0)(1) = 5$. Ranking by score: $\\mathbf{d}_3 (5) > \\mathbf{d}_1 (4) > \\mathbf{d}_2 (2)$. Top-2 retrieval returns $\\{\\mathbf{d}_3, \\mathbf{d}_1\\}$.',
+      tags: ['retrieval', 'computation'],
+    },
+    {
+      prompt: 'For a given query there are $R = 4$ relevant chunks in the corpus. Your retriever returns $k = 5$ chunks, of which 3 are actually relevant. Compute precision@5 and recall@5, and state which one a RAG engineer should usually optimize first and why.',
+      difficulty: 'core',
+      hint: 'precision@$k = \\text{rel}_k / k$ and recall@$k = \\text{rel}_k / R$.',
+      solution: 'precision@5 $= 3/5 = 0.6$ and recall@5 $= 3/4 = 0.75$. A RAG engineer should usually prioritize **recall** first: if the chunk containing the answer is never retrieved, the generator has no way to produce a correct, grounded answer — a missing fact cannot be recovered downstream. Low precision (some irrelevant chunks in context) is more tolerable and can be cleaned up with a reranker, whereas low recall is a hard ceiling on answer quality.',
+      tags: ['evaluation', 'metrics'],
+    },
+    {
+      prompt: 'A RAG system over a medical FAQ keeps returning answers about the *wrong* drug. Retrieval logs show the correct document is in the index but is never in the top-$k$. You are currently embedding each *entire FAQ article* (about 2,000 tokens) as one chunk. Diagnose the likely cause and propose a fix.',
+      difficulty: 'core',
+      solution: 'The likely cause is **over-large chunks diluting the embedding**. When a whole 2,000-token article is compressed into a single vector, the embedding averages many drugs and topics, so its direction no longer aligns tightly with a query about one specific drug — the relevant article scores lower than shorter, more focused chunks about other drugs and falls out of the top-$k$. Fix: chunk each article into smaller, topically coherent segments (e.g. one drug or one Q/A pair per chunk, a few hundred tokens with slight overlap) so each embedding represents a single concept. Optionally add hybrid keyword search (BM25) so an exact drug-name match boosts recall, and a reranker to reorder candidates.',
+      tags: ['diagnosis', 'chunking'],
+    },
+    {
+      prompt: 'You evaluate two retrievers on the same 100 queries. Retriever A has recall@3 $= 0.70$; Retriever B has recall@10 $= 0.92$ but your model context window only comfortably fits **3** chunks. Which retriever is more useful in practice, and what technique lets you benefit from B without exceeding the window?',
+      difficulty: 'challenge',
+      hint: 'Think about what fraction of the answer-bearing chunks each setup can actually place *in front of the model*, given the window cap.',
+      solution: 'Recall@10 = 0.92 only helps if you can actually feed all 10 chunks to the model, but the window fits 3, so naively B does not beat A at the budget that matters. The standard fix is **two-stage retrieval with a reranker**: use Retriever B to fetch a large candidate set (its high recall@10 means the answer chunk is present 92% of the time), then apply a cross-encoder reranker to reorder those 10 candidates and keep only the top 3. If the reranker is accurate, you preserve most of B’s 0.92 recall while sending just 3 chunks — beating A’s 0.70 within the same context budget. The key insight: recall@k and the feasible context window must be reconciled, and reranking is the bridge.',
+      tags: ['evaluation', 'system-design', 'reranking'],
+    },
+  ],
+  comparisons: [
+    {
+      title: 'RAG vs Fine-tuning vs Long-context Prompting',
+      methods: ['RAG', 'Fine-tuning', 'Long-context prompting'],
+      rows: [
+        {
+          dimension: 'Knowledge freshness',
+          values: ['Update the index any time — instantly current', 'Stale until the next expensive retraining run', 'Fresh, but you must paste the source in every call'],
+        },
+        {
+          dimension: 'Cost to update knowledge',
+          values: ['Low — re-embed and upsert new chunks', 'High — GPU hours plus data curation per update', 'Low to set up, but high per-query token cost'],
+        },
+        {
+          dimension: 'Hallucination control',
+          values: ['Strong — answers grounded in cited, retrieved text', 'Weak — baked-in facts can still be confabulated', 'Strong if the answer is in-context, but no retrieval filter'],
+        },
+        {
+          dimension: 'Scales to large corpora',
+          values: ['Yes — retrieval selects only relevant slices', 'Indirectly — knowledge is compressed into weights', 'No — limited by the context window size'],
+        },
+        {
+          dimension: 'Best at teaching style/format',
+          values: ['No — changes facts, not behavior', 'Yes — shapes tone, format, and skills', 'Partially — via few-shot examples in the prompt'],
+        },
+        {
+          dimension: 'When to use',
+          values: ['Large, changing, private knowledge bases needing citations', 'Fixed domain skills, tone, or output format', 'Small, one-off documents that fit in the window'],
+        },
+      ],
+      takeaway: 'Reach for RAG when knowledge is large, private, or fast-changing and you need grounded, citable answers; fine-tune to change *behavior* (style, format, skills) rather than facts; use long-context prompting for small, ad-hoc documents. They compose well — e.g. fine-tune for tone while RAG supplies the facts.',
+    },
+  ],
+  usageGuidance: {
+    useWhen: [
+      'Your knowledge base is **large, private, or frequently changing** (internal docs, support tickets, product catalogs) and cannot be baked into weights.',
+      'You need **citations and auditability** — answers must point back to specific source passages.',
+      'You must respect the model’s **knowledge cutoff** and serve up-to-date facts without retraining.',
+      'Hallucination cost is high (legal, medical, financial) and grounding answers in retrieved text materially lowers risk.',
+    ],
+    avoidWhen: [
+      'The task is about **behavior, tone, or output format** rather than facts — that is a fine-tuning job, not retrieval.',
+      'The entire relevant source comfortably **fits in the context window** — just paste it in and skip the retrieval infrastructure.',
+      'The added **retrieval latency** is unacceptable for your real-time use case and the knowledge is static enough to fine-tune instead.',
+      'Your corpus is tiny or low-quality — a poor index retrieves poor context, and "garbage in, garbage out" can make RAG worse than a plain prompt.',
+    ],
+    rulesOfThumb: [
+      'Optimize **recall first**: if the answer chunk is never retrieved, no prompt can save you.',
+      'Start with a few-hundred-token chunk size and ~10–20% overlap, then tune empirically on your own eval set.',
+      'Add a **reranker** when you need high recall from a large candidate set but a small context window.',
+      'Always instruct the model to answer **only** from the provided context and to say "I don’t know" when the context is insufficient.',
+    ],
+  },
+  caseStudies: [
+    {
+      title: 'The original RAG paper on open-domain question answering',
+      domain: 'Knowledge-intensive NLP',
+      scenario: 'Lewis et al. (2020) at Facebook AI tackled knowledge-intensive tasks like open-domain question answering, where a parametric-only sequence model (BART) must recall specific facts it may never have reliably memorized, and cannot easily be updated or inspected.',
+      approach: 'They coupled a pretrained neural retriever (Dense Passage Retrieval) over a Wikipedia index with a pretrained seq2seq generator (BART), training the two **end-to-end** so the model retrieves top-$k$ passages and conditions generation on them. They studied both a variant that fixes one passage per output (RAG-Sequence) and one that can attend to different passages per token (RAG-Token).',
+      outcome: 'RAG set state-of-the-art results on three open-domain QA benchmarks, reaching **44.5% exact match on Natural Questions** and outperforming both a comparable parametric-only seq2seq baseline and prior extractive "retrieve-and-read" pipelines. Crucially, because knowledge lived in a swappable non-parametric index, the authors could **update the model’s world knowledge by replacing the document index** — no retraining — demonstrating the core practical advantage that defines modern RAG systems.',
+      source: {
+        title: 'Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks',
+        authors: 'Lewis, P., Perez, E., Piktus, A., Petroni, F., Karpukhin, V., et al.',
+        url: 'https://arxiv.org/abs/2005.11401',
+        type: 'paper',
+      },
+    },
+  ],
+  quiz: [
+    {
+      question: 'In a RAG pipeline using cosine similarity, why does normalizing the embeddings to unit length make the dot product and cosine similarity produce the same ranking?',
+      options: [
+        { text: 'Cosine similarity is the dot product of L2-normalized vectors, so after normalization the two scores are identical.', correct: true },
+        { text: 'Normalization changes the angle between vectors so that all chunks become equidistant.', correct: false },
+        { text: 'The dot product ignores direction, while cosine ignores magnitude, so normalization makes them cancel out.', correct: false },
+        { text: 'Normalization converts the vectors into probabilities, which the LLM requires.', correct: false },
+      ],
+      explanation: 'Cosine similarity divides the dot product by the product of the two norms. If every vector already has norm 1, that denominator is 1, so cosine equals the raw dot product — and therefore yields the same ordering of chunks.',
+    },
+    {
+      question: 'A RAG system retrieves the correct passage into the context, yet the model still answers with a fabricated detail not present in that passage. This is best described as:',
+      options: [
+        { text: 'A faithfulness (generation) failure, not a retrieval failure.', correct: true },
+        { text: 'A low-recall retrieval failure.', correct: false },
+        { text: 'A chunking error caused by overly small chunks.', correct: false },
+        { text: 'Proof that RAG cannot reduce hallucination at all.', correct: false },
+      ],
+      explanation: 'Retrieval succeeded — the right context was present — so this is a generation/faithfulness problem: the model ignored or contradicted its context. Mitigations include stronger "answer only from context" instructions and faithfulness evaluation, which are different from fixing low recall.',
+    },
+    {
+      question: 'Why is recall@k typically the most important retrieval metric to optimize in a RAG system?',
+      options: [
+        { text: 'If the answer-bearing chunk is never retrieved, the generator has no way to produce a grounded answer.', correct: true },
+        { text: 'Because precision is impossible to measure without labeled data.', correct: false },
+        { text: 'Because recall directly controls the model’s context window size.', correct: false },
+        { text: 'Because higher recall always lowers inference latency.', correct: false },
+      ],
+      explanation: 'Recall measures whether the relevant chunk made it into the retrieved set at all. A missing fact is unrecoverable downstream — no prompt or reranker can use context that was never fetched. Some irrelevant chunks (lower precision) are more tolerable and can be filtered by a reranker.',
+    },
+    {
+      question: 'You increase the chunk size from ~200 tokens to an entire 2,000-token article. What is the most likely effect on retrieval?',
+      options: [
+        { text: 'The relevant signal in each embedding gets diluted by unrelated content, lowering similarity scores for specific queries.', correct: true },
+        { text: 'Recall@k always improves because each chunk now contains more information.', correct: false },
+        { text: 'Cosine similarity becomes undefined for long text.', correct: false },
+        { text: 'The model’s context window automatically expands to fit the larger chunks.', correct: false },
+      ],
+      explanation: 'A single embedding summarizes the whole chunk. Packing many topics into one large chunk averages them together, so the vector no longer aligns tightly with a query about one specific topic. This dilution lowers similarity and can push the truly relevant chunk out of the top-k.',
+    },
+  ],
+  review: {
+    lastReviewed: '2026-06-15',
+    reviewedBy: 'Suranjan',
+    status: 'published',
+  },
 };

@@ -101,5 +101,192 @@ y = np.array([0, 0, 0, 1, 1, 1])
 # Initialize and fit KNN
 knn = KNeighborsClassifier(n_neighbors=2)
 knn.fit(X, y)
-print(f"KNN Class for coordinate [2, 2]: {knn.predict([[2, 2]])[0]}")`
+print(f"KNN Class for coordinate [2, 2]: {knn.predict([[2, 2]])[0]}")`,
+  tldr: [
+    'KNN is a **lazy**, **non-parametric** classifier: it stores the training set and defers all work to prediction time, where it finds the $k$ closest points and takes a majority vote (or an average for regression).',
+    'The choice of $k$ is a **bias-variance dial**: small $k$ means low bias but high variance (jagged, noise-chasing boundaries), large $k$ means high bias but low variance (smooth, possibly underfit boundaries).',
+    'Predictions hinge on a distance metric, usually **Euclidean** $d(x, x\') = \\sqrt{\\sum_i (x_i - x_i\')^2}$ or **Manhattan** $d_1 = \\sum_i |x_i - x_i\'|$.',
+    'Because distance mixes all features, **feature scaling is mandatory** — an unscaled large-range feature will dominate the metric and silently ignore the others.',
+    'KNN shines on small, low-dimensional datasets but degrades badly in high dimensions (the **curse of dimensionality**) and is slow at prediction time, costing $O(n \\cdot p)$ per query with a brute-force search.',
+  ],
+  additionalSections: [
+    {
+      heading: 'How $k$ Controls the Bias-Variance Tradeoff',
+      content: `
+The single hyperparameter $k$ is the knob that moves KNN along the bias-variance spectrum, and you can see this directly in how the decision boundary behaves.
+
+**Small $k$ (e.g. $k = 1$): low bias, high variance.** With $k = 1$ every training point owns a little territory (its Voronoi cell), and the prediction is whatever the single closest point says. The model bends to fit every point exactly, so the training error is **zero** — but the boundary is jagged and chases noise. Move one noisy point and the boundary near it flips. This is **overfitting**: high variance, low bias.
+
+**Large $k$ (e.g. $k \\to n$): high bias, low variance.** As $k$ grows, each prediction averages over more neighbors, smoothing the boundary. In the limit $k = n$, every query gets the same answer — the global majority class — regardless of where it sits. The model ignores local structure entirely: low variance (it barely changes when data changes) but high bias (**underfitting**).
+
+A useful way to see the variance is to look at the regression form of KNN, which predicts the mean of the $k$ neighbor targets:
+
+$$ \\hat{f}(x) = \\frac{1}{k} \\sum_{i \\in N_k(x)} y_i $$
+
+If the targets carry independent noise of variance $\\sigma^2$, the variance of this averaged estimate is
+
+$$ \\operatorname{Var}\\big(\\hat{f}(x)\\big) = \\frac{\\sigma^2}{k} $$
+
+so variance falls as $1/k$ — doubling $k$ halves the variance. The cost is bias: averaging over a wider, less local neighborhood pulls the estimate away from the true value of $f$ at $x$. The sweet spot is found by cross-validation, and a common heuristic starting point is $k \\approx \\sqrt{n}$.
+      `,
+    },
+    {
+      heading: 'Distance Metrics and Why Scaling Is Non-Negotiable',
+      content: `
+KNN ranks neighbors by distance, so the *units* of your features directly determine who counts as "near". Consider a query point $q = (\\text{age}=30, \\text{income}=50000)$ and two candidate neighbors:
+
+- $A = (\\text{age}=31, \\text{income}=50000)$ — one year older, identical income.
+- $B = (\\text{age}=30, \\text{income}=50500)$ — same age, \\$500 more income.
+
+**Raw (unscaled) Euclidean distances:**
+
+$$ d(q, A) = \\sqrt{(30-31)^2 + (50000-50000)^2} = \\sqrt{1} = 1 $$
+
+$$ d(q, B) = \\sqrt{(30-30)^2 + (50000-50500)^2} = \\sqrt{250000} = 500 $$
+
+By this metric $A$ is "500 times closer" than $B$, purely because income is measured on a vastly larger numeric scale. Income's range swamps age; the age feature is effectively invisible. The fix is **standardization**, mapping each feature to zero mean and unit variance:
+
+$$ z_i = \\frac{x_i - \\mu_i}{\\sigma_i} $$
+
+Suppose age has $\\sigma_{\\text{age}} = 1$ and income has $\\sigma_{\\text{income}} = 500$. After scaling, $A$ differs from $q$ by $1$ standard deviation in age, and $B$ differs by $1$ standard deviation in income — now the two are **equidistant** ($d = 1$ for both), which matches the intuition that "one year" and "one standard deviation of income" are comparable amounts of difference. Always fit the scaler on the training data only and reuse it on the test data to avoid leakage.
+      `,
+    },
+  ],
+  practiceExercises: [
+    {
+      prompt: 'Compute the Euclidean and Manhattan distances between the points $p = (1, 2)$ and $q = (4, 6)$.',
+      difficulty: 'warm-up',
+      solution: 'Euclidean: $d = \\sqrt{(4-1)^2 + (6-2)^2} = \\sqrt{9 + 16} = \\sqrt{25} = 5$. Manhattan: $d_1 = |4-1| + |6-2| = 3 + 4 = 7$. The Manhattan distance is larger here because it sums the axis-aligned legs rather than taking the diagonal shortcut.',
+    },
+    {
+      prompt: 'A query point $q = (0, 0)$ has these labeled neighbors: $A(1, 0)$ class 1, $B(0, 2)$ class 0, $C(2, 2)$ class 0, $D(-1, -1)$ class 1. Classify $q$ using $k = 3$ with Euclidean distance.',
+      difficulty: 'core',
+      hint: 'Compute all four distances, sort them, keep the three smallest, then take the majority vote.',
+      solution: 'Distances from $q=(0,0)$: $d(q,A) = \\sqrt{1^2+0^2} = 1$; $d(q,B) = \\sqrt{0^2+2^2} = 2$; $d(q,C) = \\sqrt{2^2+2^2} = \\sqrt{8} \\approx 2.83$; $d(q,D) = \\sqrt{(-1)^2+(-1)^2} = \\sqrt{2} \\approx 1.41$. Sorted: $A (1) < D (1.41) < B (2) < C (2.83)$. The three nearest are $A$ (class 1), $D$ (class 1), $B$ (class 0). Majority vote $= 2$ votes for class 1 vs $1$ for class 0, so $q$ is predicted **class 1**.',
+    },
+    {
+      prompt: 'Using the same four neighbors as the previous exercise, re-classify $q = (0, 0)$ with $k = 1$ and then with $k = 4$. Does the prediction change as $k$ grows?',
+      difficulty: 'core',
+      hint: 'With $k=1$ only the single closest point votes; with $k=4$ all points vote, so break a tie by a documented rule.',
+      solution: 'With $k = 1$: the closest point is $A$ at distance $1$, which is class 1, so the prediction is **class 1**. With $k = 4$: all neighbors vote — classes are $\\{1, 1, 0, 0\\}$, a $2$-$2$ **tie**. Ties must be broken by a rule; a standard choice is to favor the class of the nearest tied neighbor, which is $A$ (class 1), giving **class 1**, though some implementations break ties by lowest class label (which would give class 0). The lesson: as $k$ grows the vote becomes less decisive, and even values of $k$ in binary problems can produce ties — which is why an odd $k$ is usually preferred for two-class problems.',
+    },
+    {
+      prompt: 'A query $q = (\\text{height}=1.7\\,\\text{m}, \\text{weight}=80\\,\\text{kg})$ has neighbors $A = (1.8, 80)$ class 1 and $B = (1.7, 70)$ class 0. (a) Classify $q$ with $k = 1$ on the raw features. (b) Now standardize using $\\sigma_{\\text{height}} = 0.1$ and $\\sigma_{\\text{weight}} = 10$ and re-classify. Explain the difference.',
+      difficulty: 'challenge',
+      hint: 'Distance is dominated by whichever feature has the larger numeric range until you divide each difference by its standard deviation.',
+      solution: '(a) Raw distances: $d(q, A) = \\sqrt{(1.7-1.8)^2 + (80-80)^2} = \\sqrt{0.01} = 0.1$; $d(q, B) = \\sqrt{(1.7-1.7)^2 + (80-70)^2} = \\sqrt{100} = 10$. So $A$ is far nearer and $q$ is predicted **class 1** — but only because weight (range in kg) dwarfs height (range in m). (b) Standardized differences: for $A$, height differs by $0.1/0.1 = 1$ SD and weight by $0$, giving $d = 1$. For $B$, height differs by $0$ and weight by $10/10 = 1$ SD, giving $d = 1$. After scaling the two neighbors are **equidistant** ($d = 1$ each), so the earlier "obvious" answer was an artifact of unscaled units, not real similarity. This is exactly why scaling is mandatory for KNN.',
+    },
+  ],
+  comparisons: [
+    {
+      title: 'KNN vs Logistic Regression vs Decision Tree',
+      methods: ['KNN', 'Logistic Regression', 'Decision Tree'],
+      rows: [
+        {
+          dimension: 'Model type',
+          values: ['Non-parametric (instance-based)', 'Parametric (learns fixed weights $w, b$)', 'Non-parametric (learns a tree structure)'],
+        },
+        {
+          dimension: 'Training cost',
+          values: ['Effectively $O(1)$ — just stores the data (lazy)', 'Iterative optimization of the weights', 'Recursive splitting, roughly $O(n p \\log n)$'],
+        },
+        {
+          dimension: 'Prediction cost',
+          values: ['Expensive: $O(n p)$ per query (brute force)', 'Cheap: one dot product $O(p)$', 'Cheap: a root-to-leaf walk $O(\\text{depth})$'],
+        },
+        {
+          dimension: 'Interpretability',
+          values: ['Low — no global rule, only neighbor lookups', 'High — signed coefficients per feature', 'High — human-readable if/else splits'],
+        },
+        {
+          dimension: 'Handling of nonlinearity',
+          values: ['Naturally nonlinear, arbitrary boundaries', 'Linear boundary unless features are engineered', 'Naturally nonlinear via axis-aligned splits'],
+        },
+        {
+          dimension: 'Feature scaling needed',
+          values: ['Yes — distance is scale-sensitive', 'Helpful for convergence, not strictly required', 'No — splits are scale-invariant'],
+        },
+      ],
+      takeaway: 'Reach for KNN when boundaries are irregular and the dataset is small and low-dimensional; prefer logistic regression for a fast, interpretable linear baseline, and a decision tree when you want nonlinearity plus human-readable rules without worrying about scaling.',
+    },
+  ],
+  usageGuidance: {
+    useWhen: [
+      'The dataset is **small to medium and low-dimensional**, so brute-force neighbor search stays cheap and distances remain meaningful.',
+      'The decision boundary is **irregular or highly non-linear** and you want a method that adapts locally without assuming a functional form.',
+      'You need a quick, assumption-light **baseline** or a simple similarity engine (e.g. "find the most similar items/users").',
+    ],
+    avoidWhen: [
+      'The feature space is **high-dimensional** — under the curse of dimensionality all points become roughly equidistant and neighbor votes lose meaning.',
+      'You have a **large training set** with tight latency requirements — every prediction scans the whole dataset, which is slow and memory-heavy.',
+      'You need an **interpretable, global explanation** of the model — KNN offers no coefficients or rules, only per-query neighbor lists.',
+    ],
+    rulesOfThumb: [
+      'Always **scale features** (standardize or min-max) before computing distances.',
+      'Start with $k \\approx \\sqrt{n}$ and tune $k$ by cross-validation; prefer an **odd $k$** in binary classification to avoid ties.',
+      'For large datasets, replace brute-force search with an approximate index (KD-tree, ball tree, or HNSW) to cut prediction cost.',
+    ],
+  },
+  caseStudies: [
+    {
+      title: 'Handwritten digit recognition on MNIST',
+      domain: 'Computer vision / OCR',
+      scenario: 'The MNIST benchmark contains 70,000 grayscale images of handwritten digits (60,000 train, 10,000 test), each a $28 \\times 28$ image flattened into a 784-dimensional pixel vector. The task is to classify each image as one of the ten digits $0$ through $9$.',
+      approach: 'Treat each image as a point in $\\mathbb{R}^{784}$ and classify a test image by the majority label among its $k$ nearest training images under Euclidean (L2) distance. No model is trained — the algorithm simply searches the 60,000 stored examples for the closest matches at prediction time.',
+      outcome: 'A plain KNN classifier with $k = 3$ and Euclidean distance reaches roughly **97% test accuracy** (about a **3% error rate**) on MNIST — a strong result for such a simple, training-free method, and competitive with early neural networks. The main cost is at prediction time, since each of the 10,000 test queries is compared against all 60,000 training points.',
+      source: {
+        title: 'The MNIST Database of Handwritten Digits (benchmark results table)',
+        authors: 'LeCun, Y., Cortes, C. and Burges, C.J.C.',
+        url: 'http://yann.lecun.com/exdb/mnist/',
+        type: 'documentation',
+      },
+    },
+  ],
+  quiz: [
+    {
+      question: 'As you decrease $k$ toward $1$ in a KNN classifier, what happens to the bias and variance of the model?',
+      options: [
+        { text: 'Bias decreases and variance increases (the boundary becomes jagged and overfits).', correct: true },
+        { text: 'Bias increases and variance decreases (the boundary becomes smoother).', correct: false },
+        { text: 'Both bias and variance decrease.', correct: false },
+        { text: 'Neither changes; $k$ only affects prediction speed.', correct: false },
+      ],
+      explanation: 'Small $k$ lets the model follow individual points closely, lowering bias but making predictions highly sensitive to noise — high variance. With $k = 1$ the training error is zero, the classic signature of overfitting. Large $k$ does the opposite: smoother boundary, higher bias, lower variance.',
+    },
+    {
+      question: 'Why is feature scaling considered essential before running KNN?',
+      options: [
+        { text: 'Distances combine all features, so a feature with a large numeric range dominates the metric and crowds out the others.', correct: true },
+        { text: 'Scaling speeds up the neighbor search by reducing the number of points.', correct: false },
+        { text: 'KNN cannot compute distances on negative numbers without scaling.', correct: false },
+        { text: 'Scaling is what allows KNN to perform a training step.', correct: false },
+      ],
+      explanation: 'KNN ranks neighbors by distance, and an unscaled feature measured in large units (e.g. income in dollars) will contribute far more to the distance than a small-range feature (e.g. age), effectively ignoring the latter. Standardizing each feature to comparable units restores balance. Scaling does not change the number of points or enable a training step.',
+    },
+    {
+      question: 'KNN is often called a "lazy learner". What does this mean?',
+      options: [
+        { text: 'It does no real work at training time — it just stores the data and defers all computation to prediction time.', correct: true },
+        { text: 'It trains slowly because it optimizes many parameters.', correct: false },
+        { text: 'It randomly skips some training points to save time.', correct: false },
+        { text: 'It refuses to make predictions until it has seen the test labels.', correct: false },
+      ],
+      explanation: 'A lazy learner builds no explicit model during `.fit()`; it simply memorizes the training set. All the expense (computing distances, finding neighbors, voting) happens lazily at query time. This is why KNN has near-zero training cost but expensive prediction.',
+    },
+    {
+      question: 'What is the "curse of dimensionality" as it affects KNN?',
+      options: [
+        { text: 'As dimensions grow, points become nearly equidistant, so "nearest" neighbors are barely nearer than any others and votes lose meaning.', correct: true },
+        { text: 'High dimensions make the training step impossibly slow.', correct: false },
+        { text: 'KNN can only handle at most three features by definition.', correct: false },
+        { text: 'Adding dimensions always improves accuracy because there is more information.', correct: false },
+      ],
+      explanation: 'In high-dimensional space the contrast between the nearest and farthest points shrinks: distances concentrate, so the closest neighbors are no longer meaningfully closer than distant ones. The neighborhood stops being "local", and KNN degrades. This is why KNN favors small, low-dimensional datasets or aggressive dimensionality reduction.',
+    },
+  ],
+  review: {
+    lastReviewed: '2026-06-15',
+    reviewedBy: 'Suranjan',
+    status: 'published',
+  },
 };

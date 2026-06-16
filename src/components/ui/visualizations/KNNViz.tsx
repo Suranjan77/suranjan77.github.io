@@ -254,7 +254,7 @@ export default function KNNViz() {
           </div>
 
           <div className="mb-3">
-            <span className="block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
+            <span className="block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
               Neighbor Count (k):
             </span>
             <div className="flex items-center gap-2 bg-surface-container p-2 border border-outline">
@@ -295,7 +295,7 @@ export default function KNNViz() {
         </div>
 
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-2 block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant">
+          <div className="mb-2 block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant">
             VOTING READOUT
           </div>
           <div className="bg-surface-container p-3 border border-outline space-y-1 text-xs">

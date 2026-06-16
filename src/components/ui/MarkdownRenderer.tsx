@@ -12,7 +12,7 @@ interface MarkdownRendererProps {
 
 export default function MarkdownRenderer({ content, className = "" }: MarkdownRendererProps) {
   return (
-    <div className={`prose prose-sm max-w-none prose-p:leading-relaxed prose-headings:font-headline break-words overflow-hidden [&_.katex-display]:overflow-x-auto [&_.katex-display]:overflow-y-hidden [&_.katex-display]:py-2 [&_.katex-display]:scrollbar-thin ${className}`}>
+    <div className={`prose prose-sm max-w-none prose-p:text-[15px] prose-li:text-[15px] prose-p:leading-relaxed prose-headings:font-headline break-words overflow-hidden [&_.katex-display]:overflow-x-auto [&_.katex-display]:overflow-y-hidden [&_.katex-display]:py-2 [&_.katex-display]:scrollbar-thin ${className}`}>
       <ReactMarkdown
         remarkPlugins={markdownRemarkPlugins}
         rehypePlugins={markdownRehypePlugins}

@@ -169,7 +169,7 @@ export default function TransformerViz() {
 
             {/* Attention Heatmap Matrix (Left bottom) */}
             <g transform="translate(68, 166)">
-              <text x={2.5 * 32} y={-10} textAnchor="middle" fill={COLORS.muted} fontSize={9} fontWeight={800}>ATTENTION HEATMAP</text>
+              <text x={2.5 * 32} y={-10} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>ATTENTION HEATMAP</text>
               {tokens.map((_, r) =>
                 tokens.map((__, c) => {
                   const isQueryRow = r === hoveredIdx;
@@ -194,14 +194,14 @@ export default function TransformerViz() {
                 })
               )}
               {/* Labels on matrix */}
-              <text x={-10} y={2.5 * 32 + 4} textAnchor="end" fill={COLORS.muted} fontSize={8} fontWeight={800} transform={`rotate(-90 -10 ${2.5 * 32})`}>QUERIES (Q)</text>
-              <text x={2.5 * 32} y={5 * 32 + 12} textAnchor="middle" fill={COLORS.muted} fontSize={8} fontWeight={800}>KEYS (K)</text>
+              <text x={-10} y={2.5 * 32 + 4} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={800} transform={`rotate(-90 -10 ${2.5 * 32})`}>QUERIES (Q)</text>
+              <text x={2.5 * 32} y={5 * 32 + 12} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>KEYS (K)</text>
             </g>
 
             {/* Softmax Distribution chart (Right bottom) */}
             <g transform="translate(390, 166)">
               <rect width={194} height={166} fill="none" stroke={COLORS.border} strokeDasharray="3 3" />
-              <text x={97} y={18} textAnchor="middle" fill={COLORS.muted} fontSize={9} fontWeight={800}>SOFTMAX ATTENTION PROFILE</text>
+              <text x={97} y={18} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>SOFTMAX ATTENTION PROFILE</text>
               
               {tokens.map((tok, idx) => {
                 const w1 = h1[idx];
@@ -253,7 +253,7 @@ export default function TransformerViz() {
 
           <button aria-label="MULTI-HEAD ATTENTION (2 heads) SINGLE-HEAD ATTENTION"
             onClick={() => setMultiHead(!multiHead)}
-            className={`w-full flex h-9 items-center justify-center border font-bold tracking-wider cursor-pointer active:scale-[0.98] transition-all text-[9px] uppercase ${
+            className={`w-full flex h-9 items-center justify-center border font-bold tracking-wider cursor-pointer active:scale-[0.98] transition-all text-[12px] uppercase ${
               multiHead
                 ? "bg-cyan/20 border-cyan text-cyan"
                 : "bg-surface hover:bg-surface-container border-outline text-on-surface-variant"

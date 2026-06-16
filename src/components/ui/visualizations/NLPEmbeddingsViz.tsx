@@ -149,8 +149,8 @@ export default function NLPEmbeddingsViz() {
               ))}
               <line x1={plot.left} x2={plot.left} y1={plot.top} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
               <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
-              <text x={plot.right + 10} y={plot.bottom + 4} fill={COLORS.muted} fontSize={10} fontWeight={700}>Dimension X</text>
-              <text x={plot.left - 8} y={plot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={10} fontWeight={700}>Dim Y</text>
+              <text x={plot.right + 10} y={plot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>Dimension X</text>
+              <text x={plot.left - 8} y={plot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={700}>Dim Y</text>
             </g>
 
             {/* Nearest Neighbors Lines */}
@@ -333,7 +333,7 @@ export default function NLPEmbeddingsViz() {
           <button aria-label="CLEAR ARROWS"
             onClick={handleResetAnalogy}
             disabled={!showAnalogy}
-            className="w-full flex h-8 items-center justify-center border border-outline bg-surface hover:bg-surface-container text-on-surface-variant text-[10px] active:scale-[0.98] transition-all tracking-wider cursor-pointer disabled:opacity-50"
+            className="w-full flex h-8 items-center justify-center border border-outline bg-surface hover:bg-surface-container text-on-surface-variant text-[12px] active:scale-[0.98] transition-all tracking-wider cursor-pointer disabled:opacity-50"
           >
             CLEAR ARROWS
           </button>
@@ -348,7 +348,7 @@ export default function NLPEmbeddingsViz() {
 
         {hoveredTokenId && (
           <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-            <div className="mb-2 block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant">
+            <div className="mb-2 block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant">
               NEAREST NEIGHBORS (SIMILARITY)
             </div>
             <div className="bg-surface-container p-3 border border-outline space-y-2 text-xs">

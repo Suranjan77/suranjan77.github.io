@@ -138,5 +138,209 @@ export class UniformQuantizer {
     return arr.map(w => this.quantize(w));
   }
 }`,
-  relatedModules: ["transformers", "llms", "neural-networks"]
+  relatedModules: ["transformers", "llms", "neural-networks"],
+  tldr: [
+    'Autoregressive decoding generates one token per forward pass, so wall-clock latency is dominated by the **number of sequential steps**, not raw FLOPs.',
+    'The **KV cache** stores the keys and values of all previous tokens, turning per-step attention work from $O(n)$ recomputation into a cheap $O(1)$ lookup-plus-append, at the cost of memory that grows linearly with sequence length and batch size.',
+    'During decoding, each generated token reads the **entire weight matrix** for a single (or tiny-batch) matmul, so inference is **memory-bandwidth bound** — the GPU spends most of its time moving weights, not multiplying.',
+    '**Batching** many requests reuses each loaded weight across many tokens, raising arithmetic intensity and GPU utilization, which boosts throughput but increases per-request latency.',
+    '**Quantization** (FP16 to INT8/INT4) shrinks weight memory and bandwidth pressure roughly linearly with bit-width, trading a small accuracy loss for large speed and capacity gains.',
+  ],
+  additionalSections: [
+    {
+      heading: 'Derivation: Why the KV Cache Turns $O(n^2)$ Decoding into $O(n)$',
+      content: `
+In self-attention, the token at position $t$ produces a query $q_t$ and attends over the keys and values of **every** token up to and including itself: $k_1 \\dots k_t$ and $v_1 \\dots v_t$. The attention output is
+
+$$ \\text{attn}(q_t) = \\sum_{i=1}^{t} \\operatorname{softmax}\\!\\left( \\frac{q_t \\cdot k_i}{\\sqrt{d}} \\right) v_i $$
+
+**Naive decoding (no cache).** At each new step $t$, a stateless implementation re-embeds and re-projects the whole prefix of length $t$ to rebuild $k_1 \\dots k_t$ and $v_1 \\dots v_t$ from scratch. Building the keys and values for a prefix of length $t$ costs work proportional to $t$ (one projection per token). To generate $n$ tokens you pay this at every step, so the total work is
+
+$$ \\sum_{t=1}^{n} O(t) = O\\!\\left( \\frac{n(n+1)}{2} \\right) = O(n^2). $$
+
+The prefix is recomputed again and again — the same $k_i, v_i$ are regenerated $n - i$ times even though they never change.
+
+**Cached decoding.** The keys and values of a token depend only on that token (and the fixed weights), so once computed they are **immutable**. The KV cache stores $k_1 \\dots k_{t-1}$ and $v_1 \\dots v_{t-1}$; at step $t$ we only project the **single** new token into $k_t, v_t$, append them, and attend. Per-step new-projection work is now $O(1)$ and the attention dot-products are $O(t)$, so the total over $n$ tokens is
+
+$$ \\sum_{t=1}^{n} O(t)_{\\text{attention}} + O(1)_{\\text{projection}} = O(n) \\text{ projections} + O(n^2) \\text{ dot-products}, $$
+
+but crucially the expensive **weight matmuls** (projections and the big feed-forward layers) drop from $O(n^2)$ to $O(n)$ — exactly one per generated token instead of one per token-per-step.
+
+**Concrete numeric example.** Take a model with hidden dimension $d = 4096$ and suppose the per-token projection of $Q,K,V$ costs about $3 \\times 2 d^2 \\approx 1.0 \\times 10^{8}$ FLOPs (using $2 d^2$ FLOPs per linear map). Generating $n = 1000$ tokens:
+
+- *Naive*: rebuild the prefix every step $\\Rightarrow$ roughly $\\sum_{t=1}^{1000} t \\times 10^{8} \\approx \\frac{1000 \\cdot 1001}{2} \\times 10^{8} \\approx 5.0 \\times 10^{13}$ projection FLOPs.
+- *Cached*: project only the new token each step $\\Rightarrow 1000 \\times 10^{8} = 1.0 \\times 10^{11}$ projection FLOPs.
+
+That is a $\\approx 500\\times$ reduction in projection FLOPs for a 1000-token generation — and the saving grows linearly with sequence length. The price is memory: the cache must hold $2 \\times L \\times d \\times n$ values per sequence, which is why long-context, large-batch serving becomes KV-cache-memory bound.
+      `,
+    },
+    {
+      heading: 'Why Autoregressive Decoding Is Memory-Bandwidth Bound (and How Batching Helps)',
+      content: `
+Whether a kernel is **compute-bound** or **memory-bound** is decided by its *arithmetic intensity*: the ratio of useful arithmetic to bytes moved from memory.
+
+$$ \\text{Arithmetic Intensity} = \\frac{\\text{FLOPs performed}}{\\text{Bytes read/written}} \\;\\; \\left[ \\frac{\\text{FLOP}}{\\text{byte}} \\right] $$
+
+A GPU has a peak compute rate (FLOP/s) and a peak memory bandwidth (byte/s). Their ratio defines a hardware *ridge point*. If a kernel’s arithmetic intensity is **below** the ridge point, the chip starves for data and runs at memory-bandwidth speed; above it, the chip is compute-limited.
+
+**The batch-size-1 decoding problem.** Consider one weight matrix $W$ of shape $d \\times d$ multiplying a single token vector $x$ of shape $d \\times 1$. The matmul does about $2 d^2$ FLOPs but must read all $d^2$ weights from memory. In FP16 (2 bytes per weight) the intensity is
+
+$$ \\frac{2 d^2 \\text{ FLOP}}{2 d^2 \\text{ bytes}} = 1 \\;\\frac{\\text{FLOP}}{\\text{byte}}. $$
+
+Modern accelerators have ridge points of *hundreds* of FLOP/byte (for example, a chip with $\\sim 312$ TFLOP/s FP16 and $\\sim 2$ TB/s bandwidth has a ridge of $\\approx 156$ FLOP/byte). An intensity of $\\approx 1$ is far below that, so a single-token matmul runs at roughly **memory-bandwidth speed** — the GPU spends nearly all its time loading $W$ and almost none multiplying. This is why decoding latency tracks how fast you can stream the model’s weights, not its FLOP rating.
+
+**How batching fixes it.** Stack $B$ token vectors into a $d \\times B$ matrix. The **same** weights $W$ are read **once** but reused across all $B$ tokens, so FLOPs scale with $B$ while bytes read stay fixed:
+
+$$ \\text{Intensity} = \\frac{2 d^2 B}{2 d^2} = B \\;\\frac{\\text{FLOP}}{\\text{byte}}. $$
+
+**Worked example.** With $d = 4096$ and the ridge point $\\approx 156$ FLOP/byte above:
+
+- $B = 1$: intensity $1$ FLOP/byte $\\Rightarrow$ utilization $\\approx 1/156 \\approx 0.6\\%$ of peak compute — badly memory-bound.
+- $B = 32$: intensity $32$ FLOP/byte $\\Rightarrow$ still memory-bound but $\\approx 20\\%$ of peak.
+- $B \\approx 156$: intensity crosses the ridge $\\Rightarrow$ the kernel becomes compute-bound and approaches full GPU utilization.
+
+So increasing batch size amortizes the expensive weight load across many tokens, lifting throughput dramatically. The trade-off is latency and memory: bigger batches mean each request may wait to be grouped, and the KV cache grows linearly with $B$. Continuous batching exists precisely to keep $B$ high token-by-token without making individual requests wait for a whole batch to finish.
+      `,
+    },
+  ],
+  practiceExercises: [
+    {
+      prompt: 'A model has $L = 40$ layers and hidden dimension $d = 5120$ ($H \\times D_{\\text{head}} = 5120$). Using FP16 (2 bytes), compute the KV cache size for a **single** sequence of length $N_{\\text{seq}} = 2048$ tokens.',
+      difficulty: 'warm-up',
+      hint: 'Bytes per token $= 2 \\times L \\times d \\times B_{\\text{precision}}$ (the leading $2$ is for storing both keys and values). Then multiply by the sequence length.',
+      solution: 'Bytes per token $= 2 \\times 40 \\times 5120 \\times 2 = 819{,}200$ bytes $\\approx 0.78$ MB. For $N_{\\text{seq}} = 2048$ tokens: $819{,}200 \\times 2048 = 1{,}677{,}721{,}600$ bytes $\\approx 1.56$ GB. So a single 2048-token sequence already needs about **1.56 GB** of KV cache — multiply by batch size to see why long-context serving is memory-hungry.',
+      tags: ['core-formula', 'memory'],
+    },
+    {
+      prompt: 'A model has $7$ billion parameters. Compute its weight memory in (a) FP16, (b) INT8, and (c) INT4, and state the savings of INT4 relative to FP16.',
+      difficulty: 'warm-up',
+      solution: 'Memory $=$ parameters $\\times$ bytes-per-parameter. (a) FP16 $= 7 \\times 10^9 \\times 2 = 14 \\times 10^9$ bytes $\\approx 14$ GB. (b) INT8 $= 7 \\times 10^9 \\times 1 = 7$ GB. (c) INT4 $= 7 \\times 10^9 \\times 0.5 = 3.5$ GB. INT4 uses $3.5 / 14 = 1/4$ of the FP16 footprint — a **75% reduction**, which is what lets a 7B model fit comfortably on a consumer GPU.',
+      tags: ['quantization', 'memory'],
+    },
+    {
+      prompt: 'A serving system generates at a steady rate where each token takes $20$ ms (time-per-output-token). (a) What is the single-stream throughput in tokens/sec? (b) If continuous batching lets the GPU serve $B = 16$ concurrent requests at the same $20$ ms per-token step, what is the aggregate throughput, and what happens to each user’s perceived latency?',
+      difficulty: 'core',
+      hint: 'Tokens/sec for one stream $= 1000 / \\text{ms-per-token}$. With batching, each step still emits one token *per request*.',
+      solution: '(a) Single stream: $1000 \\text{ ms} / 20 \\text{ ms} = 50$ tokens/sec. (b) With $B = 16$ requests advancing together, each 20 ms step emits 16 tokens (one per request), so aggregate throughput $= 16 \\times 50 = 800$ tokens/sec. Per-user latency is essentially unchanged at $\\approx 50$ tokens/sec *if* the batched step still takes 20 ms — but in practice the larger matmul is somewhat slower per step, so individual latency degrades slightly while total throughput rises roughly $16\\times$. This is the throughput-vs-latency trade-off of batching.',
+      tags: ['throughput', 'batching'],
+    },
+    {
+      prompt: 'Explain quantitatively why raising the batch size from $1$ to $64$ increases throughput but can also increase the latency of an individual request. Tie your answer to arithmetic intensity.',
+      difficulty: 'challenge',
+      hint: 'Think about (1) how weight bytes are amortized across the batch, and (2) what a request must wait for before its tokens are produced.',
+      solution: 'At batch size $1$, a decode step reads the full weight matrix ($\\approx 2 d^2$ bytes) to do only $\\approx 2 d^2$ FLOPs, giving arithmetic intensity $\\approx 1$ FLOP/byte — deeply memory-bound, so the GPU is mostly idle while streaming weights. Raising the batch to $64$ reuses each loaded weight across $64$ tokens, lifting intensity to $\\approx 64$ FLOP/byte and pushing utilization toward (or past) the hardware ridge point, so total tokens/sec climbs nearly linearly until compute-bound. **Latency cost:** (i) a request may have to wait to be grouped into the batch (queuing delay), and (ii) the per-step matmul on a $d \\times 64$ activation is larger than on $d \\times 1$, so each step takes somewhat longer in wall-clock time, slowing the token cadence felt by any single user. Thus throughput (system-level) and latency (user-level) trade off against each other, which is the core scheduling tension continuous batching tries to balance.',
+      tags: ['batching', 'roofline', 'conceptual'],
+    },
+  ],
+  comparisons: [
+    {
+      title: 'Weight Precision: FP16/BF16 vs INT8 vs INT4',
+      methods: ['FP16/BF16', 'INT8 Quantization', 'INT4 Quantization'],
+      rows: [
+        {
+          dimension: 'Bytes per parameter',
+          values: ['2 bytes', '1 byte', '0.5 bytes'],
+        },
+        {
+          dimension: 'Weight memory for a 7B model',
+          values: ['$\\approx 14$ GB', '$\\approx 7$ GB', '$\\approx 3.5$ GB'],
+        },
+        {
+          dimension: 'Inference speed (bandwidth-bound decode)',
+          values: ['Baseline', '$\\approx 2\\times$ less weight traffic, often faster decode', '$\\approx 4\\times$ less weight traffic, fastest decode'],
+        },
+        {
+          dimension: 'Accuracy / quality loss',
+          values: ['None (reference)', 'Near-lossless with good calibration (LLM.int8(), SmoothQuant)', 'Small but measurable; needs GPTQ/AWQ to stay usable'],
+        },
+        {
+          dimension: 'Typical use case',
+          values: ['Training and quality-critical or short-context serving', 'Default production serving sweet spot', 'Memory-constrained / consumer-GPU and edge deployment'],
+        },
+      ],
+      takeaway: 'Each step down in precision roughly halves weight memory and bandwidth pressure; INT8 is usually near-free in quality with proper calibration, while INT4 trades a small, recoverable quality hit for the ability to run large models on modest hardware.',
+    },
+  ],
+  usageGuidance: {
+    useWhen: [
+      'You are **serving** a trained model under latency or cost constraints and need to maximize tokens/sec per GPU dollar.',
+      'Long contexts or high concurrency make the **KV cache** a memory bottleneck — paged attention and cache management pay off directly.',
+      'You must fit a large model onto **limited GPU memory** (consumer or edge hardware) where INT8/INT4 quantization is the difference between fitting and not fitting.',
+      'Workload has many concurrent requests, so **continuous batching** can keep the GPU at high arithmetic intensity.',
+    ],
+    avoidWhen: [
+      'You are still **training or fine-tuning** — aggressive inference-time quantization and KV caching are decode-time optimizations, not training ones.',
+      'The task is **quality-critical** and even small INT4 degradation is unacceptable (e.g. some medical or legal reasoning) — stay at FP16/BF16 or INT8.',
+      'Traffic is extremely **low and bursty** with single isolated requests, where batching gives little benefit and just adds engineering complexity.',
+      'A draft model that aligns well with the target is unavailable, making **speculative decoding** ineffective or even slower.',
+    ],
+    rulesOfThumb: [
+      'Profile first: if decode is memory-bound (the common case), prioritize quantization and batching over raw FLOP optimizations.',
+      'Start at INT8 for production; only drop to INT4 with a calibration method (GPTQ/AWQ) and an eval to confirm quality holds.',
+      'Budget KV cache as $2 \\times L \\times d \\times \\text{bytes} \\times N_{\\text{seq}} \\times B$ and reserve headroom — it grows linearly with both context length and batch size.',
+      'Push batch size up until you cross the hardware ridge point or hit a latency SLA, whichever comes first.',
+    ],
+  },
+  caseStudies: [
+    {
+      title: 'vLLM and PagedAttention: near-zero KV cache waste',
+      domain: 'LLM serving infrastructure',
+      scenario: 'Production LLM serving systems pre-2023 reserved a contiguous block of GPU memory for each request’s KV cache sized to the maximum possible sequence length. Because most requests finish far short of that maximum, Kwon et al. measured that existing systems wasted **60% to 80%** of KV cache memory to internal and external fragmentation, capping how many requests could be batched concurrently.',
+      approach: 'PagedAttention borrows the operating-system idea of virtual memory and paging: the KV cache is split into fixed-size **blocks** that need not be contiguous, allocated on demand as a sequence grows, and shared across sequences (e.g. for common prefixes). This nearly eliminates fragmentation and enables much larger effective batch sizes, which in turn raises arithmetic intensity and GPU utilization.',
+      outcome: 'The vLLM system built on PagedAttention reduced KV cache waste to **under 4%** and improved serving throughput by **2 to 4 times** over prior systems such as FasterTransformer and Orca at the same latency level, with larger gains for longer sequences and bigger models — all without changing model accuracy.',
+      source: {
+        title: 'Efficient Memory Management for Large Language Model Serving with PagedAttention',
+        authors: 'Kwon, W., Li, Z., Zhuang, S., Sheng, Y., Zheng, L., Yu, C. H., Gonzalez, J. E., Zhang, H., and Stoica, I.',
+        url: 'https://arxiv.org/abs/2309.06180',
+        type: 'paper',
+      },
+    },
+  ],
+  quiz: [
+    {
+      question: 'During single-stream autoregressive decoding of a large transformer, the GPU is typically:',
+      options: [
+        { text: 'Memory-bandwidth bound — most time is spent reading weights for tiny batch-size-1 matmuls.', correct: true },
+        { text: 'Compute bound — the matmuls saturate the tensor cores.', correct: false },
+        { text: 'Network bound — the bottleneck is inter-GPU communication.', correct: false },
+        { text: 'Disk bound — weights are streamed from SSD each step.', correct: false },
+      ],
+      explanation: 'A batch-size-1 decode step reads the entire weight matrix ($\\approx 2 d^2$ bytes) to perform only $\\approx 2 d^2$ FLOPs, an arithmetic intensity of $\\approx 1$ FLOP/byte — far below the hundreds-of-FLOP/byte ridge point of modern accelerators. The chip starves for data, so it runs at memory-bandwidth speed, not compute speed.',
+    },
+    {
+      question: 'What is the primary purpose of the KV cache in autoregressive decoding?',
+      options: [
+        { text: 'It stores the keys and values of past tokens so each new step avoids recomputing attention over the whole prefix.', correct: true },
+        { text: 'It compresses the model weights to a lower precision to save memory.', correct: false },
+        { text: 'It stores the final softmax probabilities for every generated token.', correct: false },
+        { text: 'It batches multiple user requests together at the token level.', correct: false },
+      ],
+      explanation: 'A token’s keys and values depend only on that token and the fixed weights, so they never change once computed. Caching them lets step $t$ project just the single new token instead of rebuilding the whole prefix, dropping the expensive weight-matmul work from $O(n^2)$ to $O(n)$ over a full generation. Compression is quantization, and token-level grouping is continuous batching — different techniques.',
+    },
+    {
+      question: 'Quantizing a model’s weights from FP16 to INT4 reduces the weight memory footprint by approximately:',
+      options: [
+        { text: '75% (a factor of 4).', correct: true },
+        { text: '25%.', correct: false },
+        { text: '50% (a factor of 2).', correct: false },
+        { text: '90%.', correct: false },
+      ],
+      explanation: 'FP16 uses 2 bytes per parameter and INT4 uses 0.5 bytes, a 4:1 ratio. So INT4 occupies $1/4$ of the FP16 footprint, a 75% reduction. INT8 (1 byte) would be the 50% / factor-of-2 case.',
+    },
+    {
+      question: 'Increasing the serving batch size from 1 to 32 generally:',
+      options: [
+        { text: 'Raises arithmetic intensity and total throughput, but can increase individual request latency.', correct: true },
+        { text: 'Decreases total throughput because each step does more work.', correct: false },
+        { text: 'Has no effect on GPU utilization for memory-bound decoding.', correct: false },
+        { text: 'Reduces the KV cache memory required.', correct: false },
+      ],
+      explanation: 'Batching reuses each loaded weight across all requests in the batch, so FLOPs scale with batch size while weight bytes read stay fixed — arithmetic intensity and throughput rise toward the hardware ridge point. The costs are higher per-request latency (queuing to form the batch plus larger per-step matmuls) and a KV cache that grows linearly with batch size.',
+    },
+  ],
+  review: {
+    lastReviewed: '2026-06-15',
+    reviewedBy: 'Suranjan',
+    status: 'published',
+  },
 };

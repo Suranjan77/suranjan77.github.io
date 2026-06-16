@@ -265,7 +265,7 @@ export default function GradientDescentViz() {
             {/* Minimum target star marker */}
             <g transform={`translate(${scaleX(surfacePreset === "rosenbrock" ? 1.0 : 0)}, ${scaleY(surfacePreset === "rosenbrock" ? 1.0 : 0)})`}>
               <polygon points="0,-7 2,-2 7,0 2,2 0,7 -2,2 -7,0 -2,-2" fill={COLORS.pink} />
-              <text y={18} textAnchor="middle" fontSize={10} fill={COLORS.pink} fontWeight={800}>GLOBAL MINIMUM</text>
+              <text y={18} textAnchor="middle" fontSize={12} fill={COLORS.pink} fontWeight={800}>GLOBAL MINIMUM</text>
             </g>
 
             {/* Trajectory path */}
@@ -303,7 +303,7 @@ export default function GradientDescentViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[11px]" htmlFor="optimizer-select">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="optimizer-select">
               Optimizer Method
             </label>
             <select
@@ -320,7 +320,7 @@ export default function GradientDescentViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[11px]" htmlFor="lr-slider">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="lr-slider">
               Learning Rate (α: {learningRate.toFixed(3)})
             </label>
             <input
@@ -337,7 +337,7 @@ export default function GradientDescentViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[11px]" htmlFor="surface-select">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="surface-select">
               Loss Surface Preset
             </label>
             <select
@@ -356,7 +356,7 @@ export default function GradientDescentViz() {
           <div className="flex flex-col gap-2 mt-4">
             <button
               onClick={isRunning ? () => setIsRunning(false) : () => setIsRunning(true)}
-              className={`w-full flex h-9 items-center justify-center border border-outline font-bold tracking-wider cursor-pointer active:scale-[0.98] transition-all text-[11px] ${
+              className={`w-full flex h-9 items-center justify-center border border-outline font-bold tracking-wider cursor-pointer active:scale-[0.98] transition-all text-[12px] ${
                 isRunning
                   ? "bg-warning/20 border-warning hover:bg-warning/30 text-warning"
                   : "bg-cyan text-white hover:bg-cyan/90"
@@ -368,7 +368,7 @@ export default function GradientDescentViz() {
 
             <button
               onClick={resetSimulation}
-              className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer text-[11px]"
+              className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer text-[12px]"
               aria-label="Reset trajectory to start position"
             >
               RESET TRAJECTORY
@@ -378,7 +378,7 @@ export default function GradientDescentViz() {
 
         {/* Diagnostic Metrics */}
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[11px]">Loss metrics</div>
+          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Loss metrics</div>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div>Steps taken:</div>
             <div className="font-bold text-right text-cyan">{stepCount}</div>
@@ -389,7 +389,7 @@ export default function GradientDescentViz() {
               ({path.length > 0 ? path[path.length - 1].x.toFixed(2) : "—"}, {path.length > 0 ? path[path.length - 1].y.toFixed(2) : "—"})
             </div>
           </div>
-          <p className="mt-3 text-[10px] leading-snug text-on-surface-variant font-sans">
+          <p className="mt-3 text-[12px] leading-snug text-on-surface-variant font-sans">
             *Click anywhere inside the coordinate grid to set a custom initial parameter point!
           </p>
         </div>

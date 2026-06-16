@@ -238,7 +238,7 @@ export default function NaiveBayesViz() {
 
         {/* Prediction Output */}
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[11px]">CLASSIFICATION DECISION</div>
+          <div className="font-bold text-primary mb-2 uppercase text-[12px]">CLASSIFICATION DECISION</div>
           <div className="text-center p-3 border border-outline bg-surface-container rounded font-bold text-lg">
             {computation.finalSpamProb > 0.5 ? (
               <span className="text-pink">SPAM</span>
@@ -246,7 +246,7 @@ export default function NaiveBayesViz() {
               <span className="text-cyan">HAM</span>
             )}
           </div>
-          <p className="mt-2 text-[10px] leading-relaxed text-on-surface-variant font-sans">
+          <p className="mt-2 text-[12px] leading-relaxed text-on-surface-variant font-sans">
             Toggling words changes the active feature set. If a word is checked, its likelihood conditional probability is multiplied to the class score.
           </p>
         </div>

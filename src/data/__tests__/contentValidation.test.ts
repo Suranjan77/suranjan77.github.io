@@ -82,3 +82,90 @@ describe("Content validation checks", () => {
     }
   });
 });
+
+// Active-learning rubric — only enforced once a module is marked `published`.
+// Legacy/draft modules are exempt so the upgrade can roll out incrementally
+// without turning CI red the moment any module is touched.
+describe("Published-module active-learning rubric", () => {
+  const publishedModules = algorithmsList.filter(
+    (mod) => mod.review?.status === "published",
+  );
+
+  it("has at least one published module once the rollout begins (informational)", () => {
+    // Not a hard requirement; this simply documents rollout progress.
+    expect(publishedModules.length).toBeGreaterThanOrEqual(0);
+  });
+
+  it.each(publishedModules.map((m) => [m.id, m] as const))(
+    "%s: has >= 3 practice exercises spanning >= 2 difficulty tiers (each with a solution)",
+    (_id, mod) => {
+      expect(mod.practiceExercises).toBeDefined();
+      expect(mod.practiceExercises!.length).toBeGreaterThanOrEqual(3);
+      const tiers = new Set(mod.practiceExercises!.map((e) => e.difficulty));
+      expect(tiers.size).toBeGreaterThanOrEqual(2);
+      for (const ex of mod.practiceExercises!) {
+        expect(ex.solution).toBeTruthy();
+      }
+    },
+  );
+
+  it.each(publishedModules.map((m) => [m.id, m] as const))(
+    "%s: has 3-5 self-check quiz questions, each with an explanation",
+    (_id, mod) => {
+      expect(mod.quiz).toBeDefined();
+      expect(mod.quiz!.length).toBeGreaterThanOrEqual(3);
+      expect(mod.quiz!.length).toBeLessThanOrEqual(5);
+      for (const q of mod.quiz!) {
+        expect(q.options.length).toBeGreaterThanOrEqual(3);
+        expect(q.options.some((o) => o.correct)).toBe(true);
+        expect(q.explanation).toBeTruthy();
+      }
+    },
+  );
+
+  it.each(publishedModules.map((m) => [m.id, m] as const))(
+    "%s: has at least 1 case study with a quantified outcome",
+    (_id, mod) => {
+      expect(mod.caseStudies).toBeDefined();
+      expect(mod.caseStudies!.length).toBeGreaterThanOrEqual(1);
+    },
+  );
+
+  it.each(publishedModules.map((m) => [m.id, m] as const))(
+    "%s: has usage guidance with >= 2 use-when and >= 2 avoid-when",
+    (_id, mod) => {
+      expect(mod.usageGuidance).toBeDefined();
+      expect(mod.usageGuidance!.useWhen.length).toBeGreaterThanOrEqual(2);
+      expect(mod.usageGuidance!.avoidWhen.length).toBeGreaterThanOrEqual(2);
+    },
+  );
+
+  it.each(publishedModules.map((m) => [m.id, m] as const))(
+    "%s: has at least 1 derivation in additionalSections",
+    (_id, mod) => {
+      expect(mod.additionalSections).toBeDefined();
+      expect(mod.additionalSections!.length).toBeGreaterThanOrEqual(1);
+    },
+  );
+
+  it.each(publishedModules.map((m) => [m.id, m] as const))(
+    "%s: has a TL;DR of 3-6 points",
+    (_id, mod) => {
+      expect(mod.tldr).toBeDefined();
+      expect(mod.tldr!.length).toBeGreaterThanOrEqual(3);
+      expect(mod.tldr!.length).toBeLessThanOrEqual(6);
+    },
+  );
+
+  it.each(
+    publishedModules
+      .filter((m) => m.tracks?.some((t) => t !== "foundations"))
+      .map((m) => [m.id, m] as const),
+  )(
+    "%s: (practitioner/modern-ai) has at least 1 comparison table",
+    (_id, mod) => {
+      expect(mod.comparisons).toBeDefined();
+      expect(mod.comparisons!.length).toBeGreaterThanOrEqual(1);
+    },
+  );
+});

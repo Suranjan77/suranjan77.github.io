@@ -197,12 +197,12 @@ export default function AutoencoderViz() {
               <circle cx={mx} cy={164} r={6} fill={COLORS.yellow} />
               <circle cx={mx} cy={200} r={6} fill={COLORS.yellow} />
               <circle cx={mx} cy={236} r={6} fill={COLORS.yellow} />
-              <text x={mx} y={134} textAnchor="middle" fill={COLORS.yellow} fontSize={9} fontWeight={900}>LATENT (z)</text>
+              <text x={mx} y={134} textAnchor="middle" fill={COLORS.yellow} fontSize={12} fontWeight={900}>LATENT (z)</text>
             </g>
 
             {/* Input Grid (Perfect 4x4 Grid) */}
             <g transform="translate(48, 168)">
-              <text x={28} y={-12} textAnchor="middle" fill={COLORS.muted} fontSize={9} fontWeight={800}>INPUT (High Res)</text>
+              <text x={28} y={-12} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>INPUT (High Res)</text>
               {[0, 1, 2, 3].map((r) =>
                 [0, 1, 2, 3].map((c) => (
                   <rect
@@ -221,7 +221,7 @@ export default function AutoencoderViz() {
 
             {/* Reconstruction Grid (Applying SVG Gaussian blur + noise) */}
             <g transform="translate(516, 168)">
-              <text x={28} y={-12} textAnchor="middle" fill={COLORS.muted} fontSize={9} fontWeight={800}>RECONSTRUCTION</text>
+              <text x={28} y={-12} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>RECONSTRUCTION</text>
               <g filter="url(#autoencoder-blur)">
                 {[0, 1, 2, 3].map((r) =>
                   [0, 1, 2, 3].map((c) => {

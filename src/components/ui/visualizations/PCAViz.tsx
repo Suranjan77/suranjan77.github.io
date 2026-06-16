@@ -161,7 +161,7 @@ export default function PCAViz() {
               <line x1={topPlot.left} x2={topPlot.right} y1={origin.y} y2={origin.y} stroke={COLORS.grid} strokeWidth={1} strokeOpacity={0.5} />
               <line x1={origin.x} x2={origin.x} y1={topPlot.top} y2={topPlot.bottom} stroke={COLORS.grid} strokeWidth={1} strokeOpacity={0.5} />
               
-              <text x={topPlot.left + 8} y={topPlot.top + 14} fill={COLORS.muted} fontSize={9} fontWeight={800}>2D FEATURE SPACE</text>
+              <text x={topPlot.left + 8} y={topPlot.top + 14} fill={COLORS.muted} fontSize={12} fontWeight={800}>2D FEATURE SPACE</text>
 
               {/* Perpendicular drop lines (dashed yellow) */}
               <g>
@@ -243,7 +243,7 @@ export default function PCAViz() {
             <g>
               {/* Boundary box */}
               <rect x={botPlot.left} y={botPlot.top} width={botPlot.width} height={botPlot.bottom - botPlot.top + 30} fill="none" stroke={COLORS.border} strokeDasharray="3 3" />
-              <text x={botPlot.left + 8} y={botPlot.top + 16} fill={COLORS.muted} fontSize={9} fontWeight={800}>PROJECTED 1D SPACE</text>
+              <text x={botPlot.left + 8} y={botPlot.top + 16} fill={COLORS.muted} fontSize={12} fontWeight={800}>PROJECTED 1D SPACE</text>
 
               {/* 1D Number Line Axis */}
               <line
@@ -254,8 +254,8 @@ export default function PCAViz() {
                 stroke={COLORS.border}
                 strokeWidth={2}
               />
-              <text x={scaleBotX(r) + 8} y={botPlot.bottom + 4} fill={COLORS.muted} fontSize={10} fontWeight={800}>u1</text>
-              <text x={scaleBotX(-r) - 12} y={botPlot.bottom + 4} fill={COLORS.muted} fontSize={10} fontWeight={800}>-u1</text>
+              <text x={scaleBotX(r) + 8} y={botPlot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={800}>u1</text>
+              <text x={scaleBotX(-r) - 12} y={botPlot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={800}>-u1</text>
 
               {/* Ticks on 1D line */}
               {[-5, 0, 5].map((tVal) => (
@@ -292,7 +292,7 @@ export default function PCAViz() {
               {/* Variance Captured percentage */}
               <g transform="translate(440, 44)">
                 <rect width={166} height={54} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={21} fill={COLORS.muted} fontSize={9} fontWeight={700}>VARIANCE CAPTURED</text>
+                <text x={12} y={21} fill={COLORS.muted} fontSize={12} fontWeight={700}>VARIANCE CAPTURED</text>
                 <text x={12} y={41} fill={isAligned ? COLORS.pink : COLORS.cyan} fontSize={17} fontWeight={800}>
                   {varPercent.toFixed(1)}% {isAligned && " (PC1!)"}
                 </text>
@@ -301,7 +301,7 @@ export default function PCAViz() {
               {/* Eigenvalue index info */}
               <g transform="translate(440, 110)">
                 <rect width={166} height={102} fill="rgba(250,248,242,0.6)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={9} fontWeight={800}>EIGENVALUE REPORT</text>
+                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={800}>EIGENVALUE REPORT</text>
 
                 {/* Bar representation of variance percentage */}
                 <rect x={20} y={30} width={126} height={14} fill={COLORS.grid} rx={2} />
@@ -317,7 +317,7 @@ export default function PCAViz() {
                 />
 
                 <foreignObject x={16} y={54} width={130} height={50}>
-                  <div className="font-sans text-[9px] font-medium leading-snug" style={{ color: COLORS.muted }}>
+                  <div className="font-sans text-[12px] font-medium leading-snug" style={{ color: COLORS.muted }}>
                     First PC accounts for the maximum variance (spread) in data.
                   </div>
                 </foreignObject>

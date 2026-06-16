@@ -46,13 +46,13 @@ export function VisualizationShell({
     >
       <div className="relative z-10 flex flex-col items-start justify-between gap-4 border-b border-outline py-6 lg:flex-row lg:gap-8">
         <div className="min-w-0 flex-1">
-          <div className="mb-3 inline-block border border-outline bg-surface-container-high px-3 py-1.5 font-mono text-[11px] font-normal uppercase tracking-[0.14em] text-primary sm:text-[10px] sm:tracking-[0.18em]">
+          <div className="mb-3 inline-block border border-outline bg-surface-container-high px-3 py-1.5 font-mono text-[12px] font-normal uppercase tracking-[0.1em] text-primary">
             Interactive Diagram
           </div>
           <h4 className="mb-2 text-balance font-headline text-xl font-medium tracking-normal text-on-background">
             {title}
           </h4>
-          <p className="max-w-2xl text-[15px] font-medium leading-7 text-on-surface-variant sm:text-sm sm:leading-relaxed">
+          <p className="max-w-2xl text-[15px] font-medium leading-7 text-on-surface-variant">
             {subtitle}
           </p>
         </div>
@@ -62,7 +62,7 @@ export function VisualizationShell({
             {legend.map((item) => (
               <div
                 key={item.label}
-                className="inline-flex min-h-8 items-center gap-2 border border-outline bg-surface-container-high px-3 py-1.5 font-mono text-[11px] font-normal uppercase tracking-[0.1em] text-on-surface sm:min-h-7 sm:py-1 sm:text-[10px] sm:tracking-[0.14em]"
+                className="inline-flex min-h-8 items-center gap-2 border border-outline bg-surface-container-high px-3 py-1.5 font-mono text-[12px] font-normal uppercase tracking-[0.08em] text-on-surface"
               >
                 <span
                   className="h-2.5 w-2.5 shrink-0"
@@ -79,8 +79,8 @@ export function VisualizationShell({
         {children}
       </div>
 
-      <div className="relative z-10 flex flex-col gap-3 border-t border-outline py-6 text-[15px] font-medium leading-7 text-on-surface sm:flex-row sm:items-start sm:text-sm sm:leading-relaxed">
-        <span className="w-max shrink-0 border border-outline bg-surface-container-high px-3 py-1.5 font-mono text-[11px] font-normal uppercase tracking-[0.14em] text-warning sm:py-1 sm:text-[10px] sm:tracking-[0.18em]">
+      <div className="relative z-10 flex flex-col gap-3 border-t border-outline py-6 text-[15px] font-medium leading-7 text-on-surface sm:flex-row sm:items-start">
+        <span className="w-max shrink-0 border border-outline bg-surface-container-high px-3 py-1.5 font-mono text-[12px] font-normal uppercase tracking-[0.1em] text-warning">
           Key Insight
         </span>
         <span className="font-sans font-medium text-on-surface-variant">
@@ -136,9 +136,9 @@ export function VisualizationInstruction({
 }) {
   return (
     <div
-      className={`mt-3 border border-outline bg-surface-container-low p-2 font-sans text-xs leading-relaxed tracking-wide text-on-surface-variant ${className}`}
+      className={`mt-3 border border-outline bg-surface-container-low p-2 font-sans text-[13px] leading-relaxed tracking-wide text-on-surface-variant ${className}`}
     >
-      <p className="mb-1 font-bold uppercase text-primary">{title}</p>
+      <p className="mb-1 text-[12px] font-bold uppercase tracking-[0.06em] text-primary">{title}</p>
       <MarkdownRenderer
         content={content}
         className="[&_ol]:my-1 [&_ol]:ml-4 [&_ol]:list-decimal [&_ul]:my-1 [&_ul]:ml-4 [&_ul]:list-disc [&_li]:my-0.5 [&_p]:my-1"
@@ -329,7 +329,7 @@ export function NarrativeControls({
   totalSteps?: number;
 }) {
   return (
-    <div className="flex items-center justify-between border border-outline bg-surface p-3 font-mono text-[11px] w-full">
+    <div className="flex items-center justify-between border border-outline bg-surface p-3 font-mono text-[13px] w-full">
       <div className="flex items-center gap-2">
         {onReset && (
           <button
@@ -419,7 +419,7 @@ export function StepIndicator({
                 }}
               />
               <span
-                className={`font-mono text-[9px] font-bold uppercase tracking-wider transition-colors ${
+                className={`font-mono text-[12px] font-bold uppercase tracking-[0.06em] transition-colors ${
                   isActive
                     ? "text-primary"
                     : isCompleted
@@ -492,7 +492,7 @@ export function MiniStat({ x0, y0, label, value }: { x0: number; y0: number; lab
   return (
     <g>
       <rect x={x0} y={y0} width={166} height={54} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} />
-      <text x={x0 + 14} y={y0 + 21} fill={COLORS.muted} fontSize={11} fontWeight={700}>{label}</text>
+      <text x={x0 + 14} y={y0 + 21} fill={COLORS.muted} fontSize={12} fontWeight={700}>{label}</text>
       <text x={x0 + 14} y={y0 + 41} fill={COLORS.pink} fontSize={17} fontWeight={800}>{value}</text>
     </g>
   );

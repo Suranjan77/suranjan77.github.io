@@ -142,5 +142,205 @@ loss = criterion(predictions, y_batch)# 2. Compute loss
 loss.backward()                       # 3. Backpropagate gradients
 optimizer.step()                      # 4. Update weights
 
-print(f"Current Error (Loss): {loss.item():.4f}")`
+print(f"Current Error (Loss): {loss.item():.4f}")`,
+  tldr: [
+    'A feedforward neural network (MLP) stacks layers of $z = Wx + b$ followed by a non-linear activation $f(z)$, letting it model curved decision boundaries that a single linear layer cannot.',
+    'Non-linearity is the whole point: stacking purely linear layers collapses back into one linear layer, so the activation function is what gives the network its expressive power.',
+    'The **Universal Approximation Theorem** says a single hidden layer with enough units can approximate any continuous function on a bounded domain — but "enough" can mean exponentially many units.',
+    '**Depth** lets the network compose features hierarchically (edges to shapes to objects), often representing the same function with far fewer total parameters than a single very wide layer.',
+    'Training uses **backpropagation** (the chain rule applied layer by layer) plus an optimizer like SGD or Adam to adjust every weight and bias to reduce the loss.',
+    'XOR is the classic proof that you need at least one hidden layer: it is not linearly separable, so no single-layer perceptron can solve it.',
+  ],
+  additionalSections: [
+    {
+      heading: 'Derivation: Universal Approximation via ReLU "Bumps"',
+      content: `
+The Universal Approximation Theorem claims that a feedforward network with a single hidden layer and a non-linear activation can approximate any continuous function on a closed interval to arbitrary precision, given enough hidden units. The clearest way to see why is to build piecewise-linear approximations out of ReLU units.
+
+### 1. A single ReLU is a hinge
+A ReLU unit $f(x) = \\max(0, wx + b)$ is zero until $x = -b/w$, then rises linearly. It is a "hinge" with one bend. The key trick is that **adding and subtracting shifted hinges produces a bump**: a function that rises over some interval and then flattens or falls back to zero.
+
+### 2. Building one bump from two ReLUs
+Consider two ReLUs with the same slope but opposite sign, offset along $x$:
+
+$$ h(x) = \\text{ReLU}(x) - \\text{ReLU}(x - 1) $$
+
+For $x \\le 0$: $h(x) = 0 - 0 = 0$. For $0 < x \\le 1$: $h(x) = x - 0 = x$ (rising). For $x > 1$: $h(x) = x - (x-1) = 1$ (flat). So $h(x)$ is a ramp that climbs from $0$ to $1$ over $[0, 1]$ and then stays flat — a single "step-with-a-ramp" building block, made from just two hidden units.
+
+### 3. Combining a few bumps to approximate a target function
+Suppose the target function we want to approximate is the piecewise-linear "tent":
+
+$$ g(x) = \\begin{cases} 2x & 0 \\le x \\le 0.5 \\\\ 2 - 2x & 0.5 < x \\le 1 \\\\ 0 & \\text{otherwise} \\end{cases} $$
+
+We can build $g(x)$ exactly using **three** ReLUs:
+
+$$ g(x) = 2\\,\\text{ReLU}(x) - 4\\,\\text{ReLU}(x - 0.5) + 2\\,\\text{ReLU}(x - 1) $$
+
+Check the pieces. For $x \\le 0$, all three ReLUs are zero, so $g(x) = 0$. For $0 < x \\le 0.5$, only the first ReLU is active: $g(x) = 2x$, matching the rising edge. For $0.5 < x \\le 1$: $g(x) = 2x - 4(x - 0.5) = 2x - 4x + 2 = 2 - 2x$, matching the falling edge. For $x > 1$: $g(x) = 2x - 4(x-0.5) + 2(x-1) = 2x - 4x + 2 + 2x - 2 = 0$, back to flat.
+
+### 4. Generalizing
+Any continuous 1D function can be approximated arbitrarily closely by a fine enough grid of such tent/ramp pieces, each contributed by 2-3 ReLU units in the hidden layer, with the output layer just summing them with the right coefficients. This is the essence of the Universal Approximation Theorem: a wide-enough single hidden layer is a giant "piecewise-linear function fitter." The catch is that the number of bumps needed to control the error to within $\\epsilon$ can grow very quickly (often exponentially) as the function's complexity or the input dimension grows — which motivates going deep instead of just wide.
+      `,
+    },
+    {
+      heading: 'Derivation: Why Depth Can Beat Width Exponentially',
+      content: `
+Universal approximation tells us a wide single hidden layer is *sufficient* in principle, but says nothing about *efficiency*. The depth argument shows that composing layers can represent some functions with exponentially fewer total units than any single wide layer.
+
+### 1. The composition argument
+A network with $L$ layers is a composition of functions:
+
+$$ F(x) = f^{(L)}(f^{(L-1)}(\\cdots f^{(1)}(x) \\cdots)) $$
+
+Each layer can **reuse** the features built by the previous layer. If layer 1 learns $k$ useful primitive features, layer 2 can combine pairs (or larger groups) of them into $O(k^2)$ derived features — without needing $O(k^2)$ new parameters, because each layer-2 unit borrows the same $k$ shared building blocks. A single-layer ("shallow") network has no such reuse: every output unit must reconstruct all the relevant structure from scratch directly from the raw input, typically requiring far more hidden units to express the same function.
+
+### 2. A concrete staged-feature example
+Suppose the target function is a "parity-like" pattern over $n$ binary inputs grouped into pairs — e.g. you want to detect whether an **even number** of $n/2$ specific pairs are both "active." A two-layer composition can solve this efficiently:
+
+- **Layer 1** (width $n/2$): each unit checks one pair, e.g. unit $i$ computes whether $x_{2i-1}$ AND $x_{2i}$ are both on — this needs only $n/2$ units, each looking at 2 inputs.
+- **Layer 2** (small width): combines the $n/2$ pair-detectors to compute the overall parity/count condition.
+
+Each layer here only needs to represent a *simple, local* function of its inputs. To replicate the same overall function in a **single** hidden layer (no reuse of intermediate pair-features), each hidden unit must be a function of potentially all $n$ raw inputs directly, and known results on threshold-circuit and Boolean-circuit complexity (e.g. the classical parity/XOR-circuit lower bounds) show that representing such structured Boolean functions with a single layer of threshold units can require a number of units that grows **exponentially in $n$**, whereas the depth-2 (or deeper) construction grows only **linearly**.
+
+### 3. Why this matters for real networks
+This is a simplified, discrete analogue of a more general principle that shows up across deep learning: stacking layers lets the network build a hierarchy of reusable, increasingly abstract intermediate features (edges to textures to parts to objects, in vision; characters to morphemes to phrases, in language). Each new layer multiplies the *expressive combinations* available from the previous layer's vocabulary, rather than starting over — which is why modestly deep networks often match or beat extremely wide shallow ones while using far fewer total parameters.
+      `,
+    },
+  ],
+  practiceExercises: [
+    {
+      prompt: 'A tiny network has one hidden layer. Input $x = [1, 2]$, hidden weights $W^{(1)} = \\begin{bmatrix} 1 & -1 \\\\ 0 & 1 \\end{bmatrix}$, hidden bias $b^{(1)} = [0, -1]$, ReLU activation, output weights $W^{(2)} = [2, 1]$, output bias $b^{(2)} = 0$ (no output activation). Compute the forward pass.',
+      difficulty: 'warm-up',
+      hint: 'First compute $z^{(1)} = W^{(1)}x + b^{(1)}$, apply ReLU, then compute the scalar output $\\hat{y} = W^{(2)} a^{(1)} + b^{(2)}$.',
+      solution: 'Pre-activations: $z^{(1)}_1 = 1(1) + (-1)(2) + 0 = -1$, $z^{(1)}_2 = 0(1) + 1(2) + (-1) = 1$. So $z^{(1)} = [-1, 1]$. After ReLU: $a^{(1)} = [\\max(0,-1), \\max(0,1)] = [0, 1]$. Output: $\\hat{y} = 2(0) + 1(1) + 0 = 1$.',
+      tags: ['forward-pass', 'computation'],
+    },
+    {
+      prompt: 'A network has an input layer of size 8, one hidden layer of size 16 with ReLU, and an output layer of size 3 (no activation listed). Both layers use a bias term per unit. Count the total number of trainable parameters.',
+      difficulty: 'core',
+      hint: 'Each dense layer of size $(in, out)$ contributes $in \\times out$ weights plus $out$ biases.',
+      solution: 'Layer 1 (input to hidden): weights $8 \\times 16 = 128$, biases $16$, subtotal $144$. Layer 2 (hidden to output): weights $16 \\times 3 = 48$, biases $3$, subtotal $51$. Total parameters $= 144 + 51 = 195$.',
+      tags: ['architecture', 'parameter-counting'],
+    },
+    {
+      prompt: 'Explain why a single-layer perceptron (no hidden layer) cannot represent the XOR function, where the four labeled points are $(0,0)\\to 0$, $(0,1)\\to 1$, $(1,0)\\to 1$, $(1,1)\\to 0$.',
+      difficulty: 'core',
+      hint: 'Think about what a single linear decision boundary $w_1 x_1 + w_2 x_2 + b = 0$ can separate in the plane.',
+      solution: 'A single-layer perceptron with no hidden layer computes a single linear decision boundary (a line in 2D): it predicts class 1 on one side of the line and class 0 on the other. Plotting the XOR points shows the two "1" points $(0,1)$ and $(1,0)$ lie on opposite corners from the two "0" points $(0,0)$ and $(1,1)$ — the classes are arranged diagonally, so **no single straight line** can separate the 1s from the 0s. XOR is the textbook example of a function that is **not linearly separable** (the historical Minsky-Papert critique of perceptrons). Adding a hidden layer lets the network first transform the input into a space (e.g. via two hidden units acting like AND/OR-style gates) where the classes become linearly separable, after which the output layer can draw a line in that new space.',
+      tags: ['conceptual', 'XOR', 'linear-separability'],
+    },
+    {
+      prompt: 'Using ReLU units of the form $\\text{ReLU}(x - c)$, construct a sum of ReLUs that exactly reproduces the piecewise-linear target $g(x) = 0$ for $x \\le 1$, $g(x) = x - 1$ for $1 < x \\le 3$, and $g(x) = 2$ for $x > 3$ (i.e. a ramp from $(1,0)$ to $(3,2)$ that then flattens).',
+      difficulty: 'challenge',
+      hint: 'You need one ReLU to start the ramp at $x=1$ and a second, oppositely-signed ReLU to cancel the slope and flatten the function at $x=3$.',
+      solution: 'Use $g(x) = \\text{ReLU}(x - 1) - \\text{ReLU}(x - 3)$. For $x \\le 1$: both terms are $0$, so $g(x) = 0$. For $1 < x \\le 3$: only the first ReLU is active, $g(x) = (x-1) - 0 = x - 1$, which rises from $0$ at $x=1$ to $2$ at $x=3$ — matching the ramp. For $x > 3$: $g(x) = (x-1) - (x-3) = 2$, a constant — matching the flat segment. So just **two** ReLU hidden units (with weight $1$ on the output for the first, $-1$ for the second) exactly reproduce this three-piece function, illustrating how a small number of ReLUs stitch together arbitrary piecewise-linear shapes.',
+      tags: ['derivation', 'ReLU', 'universal-approximation'],
+    },
+  ],
+  comparisons: [
+    {
+      title: 'Logistic Regression vs Single Hidden Layer MLP vs Deep MLP',
+      methods: ['Logistic Regression', 'Single Hidden Layer MLP', 'Deep MLP'],
+      rows: [
+        {
+          dimension: 'Representational capacity',
+          values: ['Linear decision boundary only', 'Can approximate any continuous function given enough hidden units (universal approximation)', 'Can represent many structured functions with far fewer total parameters via hierarchical composition'],
+        },
+        {
+          dimension: 'Risk of overfitting',
+          values: ['Low — few parameters, strong bias', 'Moderate to high if hidden layer is very wide relative to data size', 'High — many parameters; needs regularization, dropout, and enough data'],
+        },
+        {
+          dimension: 'Training difficulty',
+          values: ['Easy — convex loss, fast convergence', 'Moderate — non-convex but generally well-behaved with modern optimizers', 'Harder — vanishing/exploding gradients, more hyperparameters, longer training'],
+        },
+        {
+          dimension: 'Typical use case',
+          values: ['Simple, interpretable binary classification on linearly separable or near-linear data', 'Small-to-medium tabular problems with mild non-linearity', 'Images, text, audio, and other high-dimensional, highly non-linear problems with abundant data'],
+        },
+      ],
+      takeaway: 'Start with logistic regression as a cheap, interpretable baseline; reach for a single hidden layer when the data shows clear non-linear structure but stays modest in size; go deep only when the problem has rich hierarchical structure (vision, language, audio) and you have enough data and compute to justify the added overfitting risk and training difficulty.',
+    },
+  ],
+  usageGuidance: {
+    useWhen: [
+      'The relationship between inputs and outputs is **non-linear** and cannot be captured by simple feature engineering on a linear or logistic model.',
+      'You have a **large** labeled dataset (thousands to millions of examples) relative to the number of parameters you plan to use.',
+      'The input has rich structure that benefits from hierarchical features — images, audio, text, or other high-dimensional signals.',
+      'You have access to enough compute (GPUs/TPUs) and time to iterate on architecture and hyperparameters.',
+    ],
+    avoidWhen: [
+      'You have a **small** dataset (hundreds of rows) — a deep network will likely overfit; prefer linear/logistic regression or tree ensembles.',
+      'You need a fully **interpretable** model for regulatory or stakeholder reasons — favor simpler, transparent models or add explicit explainability tooling.',
+      'Latency or memory budgets are extremely tight (e.g. embedded devices) and a much smaller model would meet accuracy requirements.',
+      'The relationship is genuinely close to linear — a neural network adds complexity and tuning burden without meaningfully improving accuracy.',
+    ],
+    rulesOfThumb: [
+      'Start with the simplest model that could plausibly work (logistic regression or a shallow MLP) before reaching for depth.',
+      'Watch the gap between training and validation loss — a widening gap signals overfitting; add dropout, weight decay, or more data.',
+      'Prefer increasing depth over width when the problem has hierarchical structure; prefer width when the function is simple but needs fine resolution.',
+    ],
+  },
+  caseStudies: [
+    {
+      title: 'The XOR problem and the first "AI winter" critique of perceptrons',
+      domain: 'History of AI / foundations of deep learning',
+      scenario: 'In 1969, Marvin Minsky and Seymour Papert published *Perceptrons*, proving that a single-layer perceptron cannot learn the XOR function because its four labeled points are not linearly separable. At the time, single-layer perceptrons were the dominant trainable neural model, and this result was widely read as a fundamental limitation of neural networks.',
+      approach: 'The eventual resolution was architectural: adding a hidden layer of just 2 units lets the network first map the XOR inputs into a new 2D space where the classes become linearly separable, after which a final linear output layer can solve the problem. Backpropagation (popularized in the mid-1980s by Rumelhart, Hinton, and Williams) provided a practical algorithm for training such multi-layer networks end-to-end.',
+      outcome: 'A minimal 2-2-1 MLP (2 inputs, 2 hidden ReLU/sigmoid units, 1 output) solves XOR with 100% accuracy on the 4 truth-table examples, something no single-layer perceptron can do for any choice of weights. This single example reframed the field’s understanding: the limitation was not "neural networks," but specifically *linear, single-layer* networks — motivating decades of subsequent work on deeper architectures and ultimately today’s deep learning systems.',
+      source: {
+        title: 'Neural Networks and Deep Learning, Ch. 1 ("Perceptrons" and the XOR limitation)',
+        authors: 'Nielsen, M. A.',
+        url: 'http://neuralnetworksanddeeplearning.com',
+        type: 'textbook',
+      },
+    },
+  ],
+  quiz: [
+    {
+      question: 'Why does a feedforward network need a non-linear activation function between layers?',
+      options: [
+        { text: 'Without it, stacking multiple linear layers collapses mathematically into a single linear transformation, losing all benefit of depth.', correct: true },
+        { text: 'Non-linear activations are only needed to speed up training, not for representational power.', correct: false },
+        { text: 'Activations are required purely to keep outputs positive.', correct: false },
+        { text: 'Linear layers cannot be trained with backpropagation.', correct: false },
+      ],
+      explanation: 'A composition of purely linear maps, $W_2(W_1x + b_1) + b_2$, is itself an affine function of $x$ — equivalent to one linear layer. The non-linear activation between layers is what allows depth to create genuinely more expressive, curved decision boundaries.',
+    },
+    {
+      question: 'According to the Universal Approximation Theorem, a single hidden layer with enough units can approximate any continuous function on a bounded domain. What is the main practical catch?',
+      options: [
+        { text: 'The number of hidden units required can grow extremely large (often exponentially) for complex functions, even though a deeper network might represent the same function far more compactly.', correct: true },
+        { text: 'The theorem only applies to functions of a single binary input.', correct: false },
+        { text: 'The theorem requires the activation function to be linear.', correct: false },
+        { text: 'A single hidden layer can never achieve zero training error.', correct: false },
+      ],
+      explanation: 'Universal approximation is an existence result about capacity, not efficiency. Achieving low error for complex functions may require an impractically wide single layer, whereas composing several narrower layers can often represent the same function with far fewer total parameters.',
+    },
+    {
+      question: 'Why is the XOR function a classic illustration of the need for hidden layers?',
+      options: [
+        { text: 'XOR is not linearly separable, so no single straight-line decision boundary (i.e. no single-layer perceptron) can classify all four points correctly.', correct: true },
+        { text: 'XOR cannot be computed by any digital circuit.', correct: false },
+        { text: 'XOR requires more than two input features to define.', correct: false },
+        { text: 'XOR can only be solved using convolutional layers.', correct: false },
+      ],
+      explanation: 'The two "positive" XOR points sit on opposite corners from the two "negative" points, so they cannot be separated by any single line. A hidden layer lets the network first re-represent the inputs in a space where the classes do become linearly separable.',
+    },
+    {
+      question: 'A network performs near-perfectly on training data but much worse on validation data. Which is the most appropriate first response?',
+      options: [
+        { text: 'Treat it as a sign of overfitting and consider regularization (dropout, weight decay), more data, or a smaller model.', correct: true },
+        { text: 'Immediately add more hidden layers to increase capacity further.', correct: false },
+        { text: 'Lower the learning rate to zero so training stops changing the weights.', correct: false },
+        { text: 'Conclude the model architecture is fundamentally incapable of solving the task.', correct: false },
+      ],
+      explanation: 'A large train-validation gap is the textbook signature of overfitting: the model has memorized training-specific patterns rather than learning generalizable structure. The fix is to reduce effective capacity or add data/regularization — not increase capacity, which would make the gap worse.',
+    },
+  ],
+  review: {
+    lastReviewed: '2026-06-15',
+    reviewedBy: 'Suranjan',
+    status: 'published',
+  },
 };

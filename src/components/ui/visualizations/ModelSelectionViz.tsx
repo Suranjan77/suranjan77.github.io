@@ -145,7 +145,7 @@ export default function ModelSelectionViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[11px]" htmlFor="folds-select">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="folds-select">
               Number of Folds (K)
             </label>
             <select
@@ -167,7 +167,7 @@ export default function ModelSelectionViz() {
           </div>
 
           <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[11px]" htmlFor="active-fold-select">
+            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="active-fold-select">
               Select Active Fold Step
             </label>
             <select
@@ -187,7 +187,7 @@ export default function ModelSelectionViz() {
           <div className="flex flex-col gap-2 mt-4">
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className={`w-full flex h-9 items-center justify-center border border-outline font-bold tracking-wider cursor-pointer active:scale-[0.98] transition-all text-[11px] ${
+              className={`w-full flex h-9 items-center justify-center border border-outline font-bold tracking-wider cursor-pointer active:scale-[0.98] transition-all text-[12px] ${
                 isPlaying
                   ? "bg-warning/20 border-warning hover:bg-warning/30 text-warning"
                   : "bg-cyan text-white hover:bg-cyan/90"
@@ -201,7 +201,7 @@ export default function ModelSelectionViz() {
 
         {/* Validation Score outputs */}
         <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[11px]">GENERALIZATION ESTIMATE</div>
+          <div className="font-bold text-primary mb-2 uppercase text-[12px]">GENERALIZATION ESTIMATE</div>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div>Avg CV score:</div>
             <div className="font-bold text-right text-cyan">{(averageValScore * 100).toFixed(2)}%</div>
@@ -210,7 +210,7 @@ export default function ModelSelectionViz() {
               ±{(Math.sqrt(valScores.reduce((s, x) => s + Math.pow(x - averageValScore, 2), 0) / (valScores.length - 1)) * 100).toFixed(2)}%
             </div>
           </div>
-          <p className="mt-3 text-[10px] leading-snug text-on-surface-variant font-sans">
+          <p className="mt-3 text-[12px] leading-snug text-on-surface-variant font-sans">
             *Training scores are consistently higher than validation scores due to model fitting capacity. Average validation score is the true generalization proxy.
           </p>
         </div>

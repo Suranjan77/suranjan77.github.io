@@ -157,7 +157,7 @@ export default function LLMViz() {
 
             {/* Candidates Probability Bar Chart */}
             <g transform="translate(46, 126)">
-              <text x={0} y={-10} fill={COLORS.muted} fontSize={10} fontWeight={800} letterSpacing="0.05em">RAW LOGITS</text>
+              <text x={0} y={-10} fill={COLORS.muted} fontSize={12} fontWeight={800} letterSpacing="0.05em">RAW LOGITS</text>
               <text x={140} y={-10} fill={COLORS.muted} fontSize={10} fontWeight={800} letterSpacing="0.05em">SOFTMAX PROBABILITIES (Temp={temperature.toFixed(1)})</text>
 
               {candidates.map((cand, idx) => {
@@ -250,7 +250,7 @@ export default function LLMViz() {
                 fill={COLORS.pink}
               />
               <circle cx={wheelCenter.x} cy={wheelCenter.y - wheelRadius - 10} r={3} fill={COLORS.pink} />
-              <text x={wheelCenter.x} y={wheelCenter.y + wheelRadius + 16} textAnchor="middle" fill={COLORS.muted} fontSize={9} fontWeight={800}>PROBABILITY WHEEL</text>
+              <text x={wheelCenter.x} y={wheelCenter.y + wheelRadius + 16} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>PROBABILITY WHEEL</text>
             </g>
           </svg>
         </div>
@@ -263,7 +263,7 @@ export default function LLMViz() {
           </div>
 
           <div className="mb-4">
-            <span className="block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
+            <span className="block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
               TEMPERATURE (SCALING):
             </span>
             <input aria-label="LLM input"
@@ -275,7 +275,7 @@ export default function LLMViz() {
               onChange={(e) => setTemperature(parseFloat(e.target.value))}
               className="w-full accent-primary"
             />
-            <div className="flex justify-between text-[9px] text-on-surface-variant font-bold mt-1">
+            <div className="flex justify-between text-[12px] text-on-surface-variant font-bold mt-1">
               <span>0.2 (greedy/sharp)</span>
               <span className="text-primary">T = {temperature.toFixed(2)}</span>
               <span>2.2 (creative/flat)</span>
@@ -283,7 +283,7 @@ export default function LLMViz() {
           </div>
 
           <div className="mb-4">
-            <span className="block text-[9px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
+            <span className="block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
               SAMPLING PARADIGM:
             </span>
             <div className="grid grid-cols-2 gap-1 border border-outline p-1 bg-surface-container-low">
@@ -292,7 +292,7 @@ export default function LLMViz() {
                   aria-label={mode === "greedy" ? "Greedy (Max)" : "Random Sample"}
                   key={mode}
                   onClick={() => setSamplingMode(mode)}
-                  className={`py-1 text-[9px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
+                  className={`py-1 text-[12px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
                     samplingMode === mode
                       ? "bg-primary text-on-primary"
                       : "hover:bg-outline-variant text-on-surface-variant"
@@ -308,13 +308,13 @@ export default function LLMViz() {
             <button aria-label="SAMPLE NEXT WORD"
               onClick={handleSample}
               disabled={isSpinning}
-              className="flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold cursor-pointer disabled:opacity-50 text-center text-[10px]"
+              className="flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold cursor-pointer disabled:opacity-50 text-center text-[12px]"
             >
               SAMPLE NEXT WORD
             </button>
             <button aria-label="RESET SENTENCE"
               onClick={handleReset}
-              className="flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container active:scale-[0.98] transition-all font-bold cursor-pointer text-center text-[10px]"
+              className="flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container active:scale-[0.98] transition-all font-bold cursor-pointer text-center text-[12px]"
             >
               RESET SENTENCE
             </button>

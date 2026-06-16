@@ -41,7 +41,7 @@ export default function AlgorithmCard({
         <span className="font-mono text-[10px] text-on-surface-variant">
           {String((index ?? 0) + 1).padStart(2, "0")}
         </span>
-        <span className="max-w-[52%] border border-outline bg-surface-container-high px-2 py-1 text-center font-mono text-[8px] uppercase tracking-[0.16em] text-on-surface sm:max-w-[60%]">
+        <span className="max-w-[52%] border border-outline bg-surface-container-high px-2 py-1 text-center font-mono text-[12px] uppercase tracking-[0.06em] text-on-surface sm:max-w-[60%]">
           {category}
         </span>
       </div>

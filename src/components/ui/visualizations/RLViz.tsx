@@ -259,23 +259,23 @@ export default function RLViz() {
             />
 
             {/* Cell Markers Labels (Goal, Penalty) */}
-            <text x={gridOffset.x + goalPos.c * cellSize + cellSize / 2} y={gridOffset.y + goalPos.r * cellSize + cellSize / 2 + 4} textAnchor="middle" fill={COLORS.green} fontSize={10} fontWeight={900} className="pointer-events-none select-none">GOAL</text>
-            <text x={gridOffset.x + penaltyPos.c * cellSize + cellSize / 2} y={gridOffset.y + penaltyPos.r * cellSize + cellSize / 2 + 4} textAnchor="middle" fill={COLORS.pink} fontSize={9} fontWeight={900} className="pointer-events-none select-none">TRAP</text>
+            <text x={gridOffset.x + goalPos.c * cellSize + cellSize / 2} y={gridOffset.y + goalPos.r * cellSize + cellSize / 2 + 4} textAnchor="middle" fill={COLORS.green} fontSize={12} fontWeight={900} className="pointer-events-none select-none">GOAL</text>
+            <text x={gridOffset.x + penaltyPos.c * cellSize + cellSize / 2} y={gridOffset.y + penaltyPos.r * cellSize + cellSize / 2 + 4} textAnchor="middle" fill={COLORS.pink} fontSize={12} fontWeight={900} className="pointer-events-none select-none">TRAP</text>
 
             {/* In-Plot Info board */}
             <g transform="translate(426, 70)">
               <rect width={140} height={120} fill="rgba(250,248,242,0.85)" stroke={COLORS.border} rx={2} />
-              <text x={12} y={22} fill={COLORS.muted} fontSize={9} fontWeight={800}>SIMULATION STATUS</text>
+              <text x={12} y={22} fill={COLORS.muted} fontSize={12} fontWeight={800}>SIMULATION STATUS</text>
               
-              <text x={12} y={48} fill={COLORS.muted} fontSize={9} fontWeight={700}>EPISODES COMPLETED:</text>
+              <text x={12} y={48} fill={COLORS.muted} fontSize={12} fontWeight={700}>EPISODES COMPLETED:</text>
               <text x={12} y={64} fill={COLORS.cyan} fontSize={14} fontWeight={900}>{episodes}</text>
 
-              <text x={12} y={88} fill={COLORS.muted} fontSize={9} fontWeight={700}>ACCUMULATED REWARD:</text>
+              <text x={12} y={88} fill={COLORS.muted} fontSize={12} fontWeight={700}>ACCUMULATED REWARD:</text>
               <text x={12} y={104} fill={COLORS.pink} fontSize={14} fontWeight={900}>{cumulativeReward}</text>
             </g>
 
             {/* Title / Legend */}
-            <text x={gridOffset.x + 2.5 * cellSize} y={40} textAnchor="middle" fill={COLORS.muted} fontSize={11} fontWeight={800}>GRIDWORLD (Click cell to reposition GOAL)</text>
+            <text x={gridOffset.x + 2.5 * cellSize} y={40} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>GRIDWORLD (Click cell to reposition GOAL)</text>
           </svg>
         </div>
       </div>
@@ -319,7 +319,7 @@ export default function RLViz() {
           <div className="grid grid-cols-2 gap-2">
             <button aria-label="PAUSE AUTO RUN AUTO EXPLORE"
               onClick={() => setIsPlaying(!isPlaying)}
-              className={`flex h-9 items-center justify-center border font-bold cursor-pointer transition-colors text-[10px] ${
+              className={`flex h-9 items-center justify-center border font-bold cursor-pointer transition-colors text-[12px] ${
                 isPlaying ? "bg-warning/20 border-warning text-warning" : "bg-surface border-outline hover:bg-surface-container"
               }`}
             >
@@ -327,7 +327,7 @@ export default function RLViz() {
             </button>
             <button aria-label="RESET Q-TABLE"
               onClick={handleReset}
-              className="flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container active:scale-[0.98] transition-all font-bold cursor-pointer text-[10px]"
+              className="flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container active:scale-[0.98] transition-all font-bold cursor-pointer text-[12px]"
             >
               RESET Q-TABLE
             </button>

@@ -60,7 +60,7 @@ export default function Sidebar() {
             <p className="font-headline text-base font-medium tracking-wide text-on-surface">
               ML Learn
             </p>
-            <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-on-surface-variant">
+            <p className="font-mono text-[12px] uppercase tracking-[0.1em] text-on-surface-variant">
               Study workspace
             </p>
           </div>
@@ -70,7 +70,7 @@ export default function Sidebar() {
       <div className="border-b border-outline bg-surface-container-low px-5 py-5">
         <Link
           href="/#curriculum"
-          className="mb-4 inline-flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.18em] text-on-surface-variant transition-colors hover:text-primary"
+          className="mb-4 inline-flex items-center gap-2 font-mono text-[12px] uppercase tracking-[0.1em] text-on-surface-variant transition-colors hover:text-primary"
         >
           <ArrowLeft size={13} aria-hidden="true" />
           All modules
@@ -78,13 +78,13 @@ export default function Sidebar() {
 
         {currentModule && (
           <>
-            <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-primary">
+            <p className="font-mono text-[12px] uppercase tracking-[0.1em] text-primary">
               Current module
             </p>
             <h2 className="mt-2 text-pretty font-headline text-xl font-medium leading-snug text-on-surface">
               {currentModule.title}
             </h2>
-            <div className="mt-3 flex items-center gap-3 font-mono text-[10px] text-on-surface-variant">
+            <div className="mt-3 flex items-center gap-3 font-mono text-[12px] text-on-surface-variant">
               {currentModule.estimatedMinutes && (
                 <span className="inline-flex items-center gap-1.5">
                   <Clock3 size={12} aria-hidden="true" />
@@ -104,7 +104,7 @@ export default function Sidebar() {
           <div className="shrink-0 border-b border-outline px-5 py-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-on-surface-variant">
+                <p className="font-mono text-[12px] uppercase tracking-[0.1em] text-on-surface-variant">
                   Learning track
                 </p>
                 <Link
@@ -114,7 +114,7 @@ export default function Sidebar() {
                   {trackLabels[primaryTrack]}
                 </Link>
               </div>
-              <span className="font-mono text-[10px] text-on-surface-variant">
+              <span className="font-mono text-[12px] text-on-surface-variant">
                 {trackModules.length} modules
               </span>
             </div>
@@ -125,7 +125,7 @@ export default function Sidebar() {
           aria-label="Modules in this track"
           className="min-h-0 flex-1 overflow-y-auto px-3 py-4"
         >
-          <p className="mb-2 px-2 font-mono text-[9px] uppercase tracking-[0.18em] text-on-surface-variant">
+          <p className="mb-2 px-2 font-mono text-[12px] uppercase tracking-[0.1em] text-on-surface-variant">
             Track sequence
           </p>
           <ol className="space-y-0.5">
@@ -138,7 +138,7 @@ export default function Sidebar() {
                     href={href}
                     aria-current={isActive ? "page" : undefined}
                     className={clsx(
-                      "group relative grid grid-cols-[22px_1fr] items-center gap-2 border px-2 py-2 text-[12px] leading-snug transition-colors",
+                      "group relative grid grid-cols-[22px_1fr] items-center gap-2 border px-2 py-2 text-[13px] leading-snug transition-colors",
                       isActive
                         ? "border-outline bg-surface-container-high text-on-surface"
                         : "border-transparent text-on-surface-variant hover:border-outline hover:bg-surface-container-low hover:text-on-surface",
@@ -147,7 +147,7 @@ export default function Sidebar() {
                     {isActive && (
                       <span className="absolute inset-y-1 left-0 w-px bg-primary" />
                     )}
-                    <span className="font-mono text-[9px] text-outline-dark">
+                    <span className="font-mono text-[11px] text-outline-dark">
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     <span className={clsx("min-w-0", isActive && "font-medium")}>
@@ -164,7 +164,7 @@ export default function Sidebar() {
       <div className="shrink-0 border-t border-outline px-4 py-4">
         {prerequisites.length > 0 && (
           <div className="mb-4">
-            <p className="mb-2 font-mono text-[9px] uppercase tracking-[0.18em] text-on-surface-variant">
+            <p className="mb-2 font-mono text-[12px] uppercase tracking-[0.1em] text-on-surface-variant">
               Prerequisites
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -172,7 +172,7 @@ export default function Sidebar() {
                 <Link
                   key={module.id}
                   href={`/algorithms/${module.id}`}
-                  className="border border-outline bg-surface-container-low px-2 py-1 text-[10px] text-on-surface-variant transition-colors hover:border-primary hover:text-primary"
+                  className="border border-outline bg-surface-container-low px-2 py-1 text-[12px] text-on-surface-variant transition-colors hover:border-primary hover:text-primary"
                 >
                   {module.title}
                 </Link>
@@ -195,7 +195,7 @@ export default function Sidebar() {
             icon={GraduationCap}
           />
         </div>
-        <p className="mt-3 text-center font-mono text-[9px] uppercase tracking-[0.14em] text-on-surface-variant">
+        <p className="mt-3 text-center font-mono text-[12px] uppercase tracking-[0.1em] text-on-surface-variant">
           {algorithmsList.length} modules · 2 interactive labs
         </p>
       </div>
@@ -215,10 +215,11 @@ function SidebarUtilityLink({
   return (
     <Link
       href={href}
-      className="flex flex-col items-center gap-1.5 border border-transparent px-1 py-2 font-mono text-[8px] uppercase tracking-[0.08em] text-on-surface-variant transition-colors hover:border-outline hover:bg-surface-container-low hover:text-primary"
+      aria-label={label}
+      title={label}
+      className="flex items-center justify-center border border-transparent py-2.5 text-on-surface-variant transition-colors hover:border-outline hover:bg-surface-container-low hover:text-primary"
     >
-      <Icon size={15} strokeWidth={1.7} aria-hidden="true" />
-      {label}
+      <Icon size={18} strokeWidth={1.7} aria-hidden="true" />
     </Link>
   );
 }

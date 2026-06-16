@@ -51,7 +51,7 @@ export default function FoundationView({
         <div className="mb-8 border border-outline bg-surface-container-low p-5 sm:mb-10 sm:p-8 lg:p-10">
           <div className="mb-4 flex flex-wrap items-center gap-3">
             <div
-              className={`inline-flex items-center px-4 py-2 text-sm font-medium tracking-wide sm:py-1.5 sm:text-xs ${accent.badge}`}
+              className={`inline-flex items-center px-4 py-2 text-sm font-medium tracking-wide sm:py-1.5 ${accent.badge}`}
             >
               Machine Learning Foundation
             </div>
@@ -79,7 +79,7 @@ export default function FoundationView({
                 <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
                   Intuition
                 </h2>
-                <p className="text-sm text-on-surface-variant/70 sm:text-xs">
+                <p className="text-sm text-on-surface-variant/70">
                   How to think conceptually about this mathematics
                 </p>
               </div>
@@ -107,7 +107,7 @@ export default function FoundationView({
                 <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
                   Core Mathematics
                 </h2>
-                <p className="text-sm text-on-surface-variant/70 sm:text-xs">
+                <p className="text-sm text-on-surface-variant/70">
                   Fundamental theorems and formulations
                 </p>
               </div>
@@ -187,7 +187,7 @@ export default function FoundationView({
                     <h2 className="font-headline text-xl font-semibold text-on-surface">
                       References
                     </h2>
-                    <p className="text-sm text-on-surface-variant/70 sm:text-xs">
+                    <p className="text-sm text-on-surface-variant/70">
                       Standardized citations for further reading
                     </p>
                   </div>

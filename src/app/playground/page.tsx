@@ -50,11 +50,11 @@ export default function PlaygroundPage() {
           <div className="mb-8 flex flex-wrap items-center gap-4">
             <Link
               href="/"
-              className="border border-outline bg-surface px-4 py-2 font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface hover:border-primary hover:text-primary"
+              className="border border-outline bg-surface px-4 py-2 text-sm font-medium tracking-tight text-on-surface hover:border-primary hover:text-primary"
             >
               Back
             </Link>
-            <div className="border border-outline bg-surface-container-high px-3 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
+            <div className="border border-outline bg-surface-container-high px-3 py-2 font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
               Interactive Laboratory
             </div>
           </div>
@@ -75,7 +75,7 @@ export default function PlaygroundPage() {
                 ["Task", "Binary"],
               ].map(([label, value]) => (
                 <div key={label} className="border-b border-outline bg-surface px-5 py-7 sm:border-b-0 sm:border-r sm:last:border-r-0">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">{label}</p>
+                  <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">{label}</p>
                   <p className="mt-2 font-headline text-2xl font-medium text-on-surface">{value}</p>
                 </div>
               ))}
@@ -91,13 +91,13 @@ export default function PlaygroundPage() {
               <span className="font-headline text-xl font-medium text-on-surface">
                 Playground Environment
               </span>
-              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
+              <p className="mt-1 text-sm text-on-surface-variant">
                 Interactive Neural Network Canvas
               </p>
             </div>
             <Link
               href="/algorithms/neural-networks"
-              className="border border-outline bg-surface-container px-4 py-2 font-mono text-[10px] uppercase tracking-[0.16em] text-on-surface hover:border-primary hover:text-primary"
+              className="border border-outline bg-surface-container px-4 py-2 text-sm font-medium tracking-tight text-on-surface hover:border-primary hover:text-primary"
             >
               Read Theory
             </Link>
@@ -117,7 +117,7 @@ export default function PlaygroundPage() {
           <div className="grid gap-px border border-outline bg-border sm:grid-cols-2 lg:grid-cols-4">
             {guidelines.map(([step, title, description]) => (
               <article key={step} className="bg-surface p-6">
-                <div className="mb-8 font-mono text-[11px] text-on-surface-variant">{step}</div>
+                <div className="mb-8 font-mono text-[13px] text-on-surface-variant">{step}</div>
                 <h3 className="font-headline text-xl font-medium text-on-surface">{title}</h3>
                 <p className="mt-4 text-sm font-medium leading-7 text-on-surface-variant">{description}</p>
               </article>
