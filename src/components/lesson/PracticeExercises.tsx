@@ -38,7 +38,7 @@ export default function PracticeExercises({ exercises }: PracticeExercisesProps)
       <h3 className="font-headline text-sm font-bold uppercase tracking-wide text-primary">
         Practice Exercises
       </h3>
-      <p className="text-[15px] leading-relaxed text-on-surface-variant sm:text-sm">
+      <p className="text-[15px] leading-relaxed text-on-surface-variant">
         Work each problem yourself first, then reveal the solution to check your
         approach.
       </p>

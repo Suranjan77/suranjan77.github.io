@@ -31,7 +31,7 @@ function ExampleCard({ example }: { example: WorkedExample }) {
         </h4>
       </div>
       <div className="p-5">
-        <div className="mb-3 text-on-surface-variant font-medium text-sm sm:text-xs uppercase tracking-wider">Problem</div>
+        <div className="mb-3 text-on-surface-variant font-medium text-sm uppercase tracking-wider">Problem</div>
         <div className="mb-5 rounded bg-surface p-4 border border-outline">
           <LogicContent content={example.problem} />
         </div>
@@ -45,7 +45,7 @@ function ExampleCard({ example }: { example: WorkedExample }) {
 
         {isOpen && (
           <div className="mt-5 border-t border-outline/50 pt-5">
-            <div className="mb-3 text-primary font-medium text-sm sm:text-xs uppercase tracking-wider">Solution</div>
+            <div className="mb-3 text-primary font-medium text-sm uppercase tracking-wider">Solution</div>
             <div className="rounded bg-surface p-4 border border-outline">
               <LogicContent content={example.solution} />
             </div>

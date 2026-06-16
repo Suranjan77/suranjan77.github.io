@@ -32,7 +32,7 @@ function SingleTable({ table }: { table: ComparisonTableType }) {
         </div>
       )}
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-left text-[15px] sm:text-sm">
+        <table className="w-full border-collapse text-left text-[15px]">
           <thead>
             <tr className="border-b border-outline bg-surface-container">
               <th className="px-4 py-3 font-headline text-sm font-semibold text-on-surface-variant">
@@ -72,12 +72,12 @@ function SingleTable({ table }: { table: ComparisonTableType }) {
       </div>
       {table.takeaway && (
         <div className="border-t border-outline bg-surface px-5 py-4 accent-left-primary">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
+          <span className="text-[13px] font-bold uppercase tracking-wider text-primary">
             Takeaway
           </span>
           <InlineMarkdown
             content={table.takeaway}
-            className="mt-1 block text-[15px] leading-relaxed text-on-surface-variant sm:text-sm"
+            className="mt-1 block text-[15px] leading-relaxed text-on-surface-variant"
           />
         </div>
       )}

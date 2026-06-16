@@ -75,7 +75,7 @@ function QuestionCard({
                   aria-checked={isSelected}
                   disabled={answered}
                   onClick={() => setSelected(optionIdx)}
-                  className={`flex w-full items-start gap-3 rounded border px-4 py-3 text-left text-[15px] leading-relaxed text-on-surface transition-colors sm:text-sm ${stateClasses} ${answered ? "cursor-default" : "cursor-pointer"}`}
+                  className={`flex w-full items-start gap-3 rounded border px-4 py-3 text-left text-[15px] leading-relaxed text-on-surface transition-colors ${stateClasses} ${answered ? "cursor-default" : "cursor-pointer"}`}
                 >
                   <span className="mt-px font-mono text-xs font-bold text-on-surface-variant">
                     {String.fromCharCode(65 + optionIdx)}

@@ -35,7 +35,7 @@ export default function CaseStudy({ studies }: CaseStudyProps) {
             <CaseBlock label="Approach" content={study.approach} />
             <CaseBlock label="Outcome" content={study.outcome} accent />
             {study.source && (
-              <p className="border-t border-outline/40 pt-3 text-sm text-on-surface-variant sm:text-xs">
+              <p className="border-t border-outline/40 pt-3 text-sm text-on-surface-variant">
                 Source:{" "}
                 {study.source.url ? (
                   <a
