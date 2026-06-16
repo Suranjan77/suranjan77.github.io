@@ -41,17 +41,17 @@ export default function LogicContent({ content, className, size = "base" }: Logi
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className={isSm ? "mt-2 mb-1 font-headline text-base font-semibold tracking-tight text-on-surface first:mt-0 sm:text-sm" : "mt-6 mb-3 font-headline text-xl font-semibold tracking-tight text-on-surface first:mt-0"}>
+            <h3 className={isSm ? "mt-2 mb-1 font-headline text-base font-semibold tracking-tight text-on-surface first:mt-0" : "mt-6 mb-3 font-headline text-xl font-semibold tracking-tight text-on-surface first:mt-0"}>
               {children}
             </h3>
           ),
           h4: ({ children }) => (
-            <h4 className={isSm ? "mt-1.5 mb-1 font-headline text-sm font-semibold text-on-surface first:mt-0 sm:text-xs" : "mt-5 mb-2 font-headline text-lg font-semibold text-on-surface first:mt-0"}>
+            <h4 className={isSm ? "mt-1.5 mb-1 font-headline text-sm font-semibold text-on-surface first:mt-0" : "mt-5 mb-2 font-headline text-lg font-semibold text-on-surface first:mt-0"}>
               {children}
             </h4>
           ),
           p: ({ children }) => (
-            <p className={isSm ? "my-1 text-[15px] leading-7 text-on-surface first:mt-0 last:mb-0 sm:text-sm" : "my-4 text-[17px] leading-8 text-on-surface-variant first:mt-0 last:mb-0 sm:text-base"}>
+            <p className={isSm ? "my-1 text-[15px] leading-7 text-on-surface first:mt-0 last:mb-0" : "my-4 text-[17px] leading-8 text-on-surface-variant first:mt-0 last:mb-0"}>
               {children}
             </p>
           ),
@@ -66,7 +66,7 @@ export default function LogicContent({ content, className, size = "base" }: Logi
             </ol>
           ),
           li: ({ children }) => (
-            <li className={isSm ? "pl-0.5 text-[15px] leading-7 text-on-surface sm:text-sm" : "pl-1 text-[17px] leading-8 text-on-surface-variant sm:text-base"}>
+            <li className={isSm ? "pl-0.5 text-[15px] leading-7 text-on-surface" : "pl-1 text-[17px] leading-8 text-on-surface-variant"}>
               {children}
             </li>
           ),
@@ -78,7 +78,7 @@ export default function LogicContent({ content, className, size = "base" }: Logi
           ),
           hr: () => <hr className="my-4 border-white/10" />,
           blockquote: ({ children }) => (
-            <blockquote className={isSm ? "my-2 border border-outline border-l-primary bg-surface px-3 py-2 text-[15px] text-on-surface sm:py-1.5 sm:text-sm" : "my-6 border border-outline border-l-primary bg-surface px-4 py-3 text-[17px] text-on-surface sm:text-base"}>
+            <blockquote className={isSm ? "my-2 border border-outline border-l-primary bg-surface px-3 py-2 text-[15px] text-on-surface" : "my-6 border border-outline border-l-primary bg-surface px-4 py-3 text-[17px] text-on-surface"}>
               {children}
             </blockquote>
           ),

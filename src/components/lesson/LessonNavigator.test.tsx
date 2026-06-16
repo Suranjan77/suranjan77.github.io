@@ -59,21 +59,17 @@ describe("LessonNavigator", () => {
     const observe = vi.fn();
     const disconnect = vi.fn();
     const mockObserver = vi.fn();
-    mockObserver.mockImplementation(function () {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this as any).observe = observe;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this as any).disconnect = disconnect;
+    mockObserver.mockImplementation(function (this: Record<string, unknown>) {
+      this.observe = observe;
+      this.disconnect = disconnect;
     });
 
     const originalIntersectionObserver = window.IntersectionObserver;
     document.body.innerHTML =
       '<div id="intuition"></div><div id="visualization"></div><div id="mathematics"></div>';
 
-    // @ts-expect-error mocking global/window IntersectionObserver
-    window.IntersectionObserver = mockObserver as any; // eslint-disable-line @typescript-eslint/no-explicit-any
-    // @ts-expect-error mocking global/window IntersectionObserver
-    global.IntersectionObserver = mockObserver as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    window.IntersectionObserver = mockObserver as unknown as typeof IntersectionObserver;
+    global.IntersectionObserver = mockObserver as unknown as typeof IntersectionObserver;
 
     const currentModule = algorithmsList.find(
       (module) => module.id === "linear-algebra",
@@ -93,13 +89,10 @@ describe("LessonNavigator", () => {
 
     // Restore the original IntersectionObserver after the test.
     if (originalIntersectionObserver === undefined) {
-      // @ts-expect-error cleanup
-      delete (window as any).IntersectionObserver; // eslint-disable-line @typescript-eslint/no-explicit-any
-      // @ts-expect-error cleanup
-      delete (global as any).IntersectionObserver; // eslint-disable-line @typescript-eslint/no-explicit-any
+      delete (window as { IntersectionObserver?: unknown }).IntersectionObserver;
+      delete (global as { IntersectionObserver?: unknown }).IntersectionObserver;
     } else {
       window.IntersectionObserver = originalIntersectionObserver;
-      // @ts-expect-error mocking global/window IntersectionObserver
       global.IntersectionObserver = originalIntersectionObserver;
     }
   });
