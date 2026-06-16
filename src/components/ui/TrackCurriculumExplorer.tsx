@@ -78,7 +78,7 @@ export default function TrackCurriculumExplorer({
                 </span>
               </span>
               <span className="flex items-center justify-between gap-5 sm:justify-end">
-                <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-on-surface-variant">
+                <span className="font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
                   {modules.length} modules
                 </span>
                 <ChevronDown

@@ -36,13 +36,13 @@ export default function ReferenceList({ references }: ReferenceListProps) {
               <span className="font-medium text-on-surface text-[15px] sm:text-base">
                 {ref.title}
               </span>
-              <span className={`inline-flex rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${getBadgeClass(ref.type)}`}>
+              <span className={`inline-flex rounded px-2 py-0.5 text-[12px] font-bold uppercase tracking-wide ${getBadgeClass(ref.type)}`}>
                 {ref.type}
               </span>
             </div>
-            
+
             {ref.authors && (
-              <p className="text-xs text-on-surface-variant/70 mt-1">
+              <p className="text-[13px] text-on-surface-variant/70 mt-1">
                 By {ref.authors}
               </p>
             )}
@@ -55,7 +55,7 @@ export default function ReferenceList({ references }: ReferenceListProps) {
             )}
 
             {(ref.url || ref.doi) && (
-              <div className="mt-2 flex gap-3 text-xs">
+              <div className="mt-2 flex gap-3 text-[13px]">
                 {ref.url && (
                   <a
                     href={ref.url}

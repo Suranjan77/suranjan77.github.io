@@ -552,7 +552,9 @@ shared-primitive changes.
 - [x] Playground and GradForge page shells (`src/app/playground/page.tsx`, `src/app/gradforge/page.tsx`) — hero eyebrows, step labels, and CTA buttons raised 9-11px→12-13px, heavy tracking (0.16-0.22em) trimmed to 0.08em; all are auto-width badges/buttons, no truncation risk.
 
 ### Phase 8 - Verification, Regression Tests, and Polish
-- [ ] Audit rerun and remaining exceptions classified.
-- [ ] Lint, tests, and build pass.
-- [ ] Cypress or manual viewport checks completed.
-- [ ] Plan updated with completed work and deferred items.
+- [x] Audit rerun: the Phase-0 grep was re-run and every additional non-visualization hit was triaged and fixed in this pass — a missed Phase-2-style `sm:text-xs` shrink regression in `FoundationView.tsx` (foundation-track lesson shell, same pattern already fixed in `LessonPage.tsx`), plus sub-13px chip/eyebrow/badge text in `ReferenceList`, `Misconceptions`, `AlgorithmCard` (category badge), `CurriculumExplorer`, `TrackCurriculumExplorer`, the homepage (`src/app/page.tsx`), and `not-found.tsx`. Decorative index counters (module numbers in `AlgorithmCard`/`TrackCurriculumExplorer`) were deliberately left small, consistent with the Phase 0/3 classification. Hand-positioned SVG `<text>` elements (homepage hero diagram, the 51 visualization files) were left untouched for the same overlap-risk reason as Phase 5/6.
+- [x] Lint, tests, and build pass (`npm run lint`, `npx vitest run` — 8695/8695, `npm run build` — 55/55 static pages, no warnings) after every batch in this pass.
+- [ ] Cypress or manual viewport checks — not completed; this environment has no browser/Cypress runtime available, so all sizing/wrap/overlap judgments in Phases 1-4/7/8 were restricted to changes verifiable as additive (no `sm:` shrink, no fixed-width truncation risk) without rendering.
+- [x] Plan updated with completed work and deferred items (this section).
+
+**Remaining deferred work (needs a browser):** Phases 5 and 6 — resizing the ~51 hand-tuned SVG diagrams' in-canvas text — and the Phase 2/3 chrome-density and anchor/mobile-wrap checks noted above. These are the only items left on the plan; everything else (Phases 0-4, 7, and the non-visualization portion of 8) is complete and green on this branch.

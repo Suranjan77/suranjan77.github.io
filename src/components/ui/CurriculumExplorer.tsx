@@ -89,12 +89,12 @@ function ExpandedPanel({ algorithm }: { algorithm: Algorithm }) {
     <div className="border-x border-b border-outline bg-border">
       <div className="grid gap-px lg:grid-cols-[170px_minmax(0,1fr)_360px]">
         <aside className="bg-surface-container-low p-5 sm:p-6">
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
+          <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-primary">
             Module
           </p>
           <div className="mt-8 space-y-5">
             <div>
-              <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">
+              <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
                 Level
               </p>
               <div className="mt-2 flex gap-1.5" aria-label={`Difficulty ${getDifficulty(algorithm.category)} of 3`}>
@@ -107,7 +107,7 @@ function ExpandedPanel({ algorithm }: { algorithm: Algorithm }) {
               </div>
             </div>
             <div>
-              <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">
+              <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
                 Category
               </p>
               <p className="mt-2 text-sm font-medium leading-6 text-on-surface">
@@ -118,7 +118,7 @@ function ExpandedPanel({ algorithm }: { algorithm: Algorithm }) {
         </aside>
 
         <section className="bg-surface p-5 sm:p-7">
-          <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
+          <p className="mb-3 font-mono text-[12px] uppercase tracking-[0.08em] text-primary">
             Preview
           </p>
           <h3 className="max-w-3xl font-headline text-2xl font-medium leading-tight text-on-surface sm:text-3xl">
@@ -170,7 +170,7 @@ function ExpandedPanel({ algorithm }: { algorithm: Algorithm }) {
         <section className="bg-surface-container-low p-5 sm:p-7">
           <div className="crop-marks relative flex min-h-full flex-col border border-outline bg-surface">
             <div className="border-b border-outline px-4 py-3">
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
+              <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
                 Key Equation
               </p>
             </div>
@@ -186,14 +186,14 @@ function ExpandedPanel({ algorithm }: { algorithm: Algorithm }) {
 
       <div className="grid gap-px border-t border-outline bg-border sm:grid-cols-[1fr_auto]">
         <div className="bg-surface-container-low px-5 py-4 sm:px-7">
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">
+          <p className="font-mono text-[12px] uppercase tracking-[0.08em] text-on-surface-variant">
             Continue when ready for intuition, math, code, and interactive diagrams.
           </p>
         </div>
         <div className="bg-surface px-5 py-4 sm:px-7">
           <Link
             href={`/algorithms/${algorithm.id}`}
-            className="inline-flex w-full justify-center border border-on-surface bg-on-surface px-5 py-3 font-mono text-[10px] uppercase tracking-[0.16em] text-background hover:bg-primary sm:w-auto"
+            className="inline-flex w-full justify-center border border-on-surface bg-on-surface px-5 py-3 font-mono text-[12px] uppercase tracking-[0.08em] text-background hover:bg-primary sm:w-auto"
           >
             Open Full Study
           </Link>

@@ -185,7 +185,7 @@ export default function Home() {
       <section className="border-b border-outline px-5 py-14 sm:px-8 lg:px-12 lg:py-20">
         <div className="mx-auto grid max-w-[1360px] gap-10 lg:grid-cols-[minmax(0,520px)_360px] xl:grid-cols-[minmax(0,560px)_400px] lg:items-center lg:justify-between">
           <div className="flex flex-col items-start">
-            <div className="mb-7 flex items-center gap-4 font-mono text-[10px] uppercase tracking-[0.22em] text-on-surface-variant sm:text-[11px]">
+            <div className="mb-7 flex items-center gap-4 font-mono text-[13px] uppercase tracking-[0.08em] text-on-surface-variant">
               <span className="h-px w-8 bg-outline-dark" />
               {heroStats.map((stat) => (
                 <span key={stat.label}>
@@ -205,13 +205,13 @@ export default function Home() {
             <div className="mt-9 flex flex-col gap-4 sm:flex-row">
               <Link
                 href="/algorithms/calculus"
-                className="inline-flex min-h-10 items-center justify-center border border-on-surface bg-on-surface px-8 py-3 font-mono text-[11px] uppercase tracking-[0.18em] text-background hover:bg-primary"
+                className="inline-flex min-h-10 items-center justify-center border border-on-surface bg-on-surface px-8 py-3 font-mono text-[13px] uppercase tracking-[0.08em] text-background hover:bg-primary"
               >
                 Begin Curriculum
               </Link>
               <Link
                 href="/#curriculum"
-                className="inline-flex min-h-10 items-center justify-center border border-transparent px-8 py-3 font-mono text-[11px] uppercase tracking-[0.18em] text-primary hover:border-outline"
+                className="inline-flex min-h-10 items-center justify-center border border-transparent px-8 py-3 font-mono text-[13px] uppercase tracking-[0.08em] text-primary hover:border-outline"
               >
                 Explore Learning Tracks →
               </Link>
@@ -257,7 +257,7 @@ export default function Home() {
         <div className="mx-auto max-w-[1360px]">
           <div className="mb-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
             <div>
-              <p className="mb-5 font-mono text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
+              <p className="mb-5 font-mono text-[13px] uppercase tracking-[0.08em] text-on-surface-variant">
                 Curriculum
               </p>
             </div>
@@ -270,7 +270,7 @@ export default function Home() {
       <section className="bg-surface-dim px-5 py-14 sm:px-8 sm:py-16 lg:px-12">
         <div className="mx-auto grid max-w-[1360px] gap-12 lg:grid-cols-[430px_minmax(0,1fr)] lg:items-center">
           <div>
-            <div className="mb-9 flex items-center gap-4 font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
+            <div className="mb-9 flex items-center gap-4 font-mono text-[13px] uppercase tracking-[0.08em] text-on-surface-variant">
               <span className="h-px w-8 bg-outline-dark" />
               Interactive Lab
             </div>
@@ -297,7 +297,7 @@ export default function Home() {
             </ul>
             <Link
               href="/playground"
-              className="mt-10 inline-flex min-h-10 items-center justify-center border border-on-surface bg-on-surface px-8 py-3 font-mono text-[11px] uppercase tracking-[0.18em] text-background hover:bg-primary"
+              className="mt-10 inline-flex min-h-10 items-center justify-center border border-on-surface bg-on-surface px-8 py-3 font-mono text-[13px] uppercase tracking-[0.08em] text-background hover:bg-primary"
             >
               Open Playground →
             </Link>
@@ -314,7 +314,7 @@ export default function Home() {
                   key={label}
                   className="border-r border-outline px-4 py-5 last:border-r-0"
                 >
-                  <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-on-surface-variant">
+                  <p className="font-mono text-[13px] uppercase tracking-[0.08em] text-on-surface-variant">
                     {label}
                   </p>
                   <p className="mt-2 font-mono text-sm text-on-surface">
@@ -330,7 +330,7 @@ export default function Home() {
       <section className="bg-[#faf8f2] border-t border-outline px-5 py-12 sm:px-8 sm:py-14 lg:px-12">
         <div className="mx-auto grid max-w-[1360px] gap-8 md:grid-cols-[minmax(0,1fr)_460px] lg:grid-cols-[minmax(0,1fr)_520px] md:items-center">
           <div>
-            <div className="mb-6 flex items-center gap-4 font-mono text-[11px] uppercase tracking-[0.22em] text-on-surface-variant">
+            <div className="mb-6 flex items-center gap-4 font-mono text-[13px] uppercase tracking-[0.08em] text-on-surface-variant">
               <span className="h-px w-8 bg-outline-dark" />
               Suranjan.co.uk
             </div>
@@ -359,7 +359,7 @@ export default function Home() {
       </section>
 
       <footer className="border-t border-outline px-5 py-8 sm:px-8 lg:px-12">
-        <div className="mx-auto flex max-w-[1360px] flex-col gap-4 font-mono text-[11px] uppercase tracking-[0.18em] text-on-surface-variant sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto flex max-w-[1360px] flex-col gap-4 font-mono text-[13px] uppercase tracking-[0.08em] text-on-surface-variant sm:flex-row sm:items-center sm:justify-between">
           <p>ML Learn · Learning AI & ML</p>
           <p>
             © 2026{" "}
