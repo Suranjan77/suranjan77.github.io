@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -74,9 +74,49 @@ export default function LessonNavigator({
       ? [{ id: "references", label: "References", icon: List } as const]
       : []),
   ];
+  const sectionIds = sections.map(({ id }) => id);
   const [activeSection, setActiveSection] = useState<string>(
     sections[0]?.id ?? "",
   );
+
+  useEffect(() => {
+    if (!sectionIds.length || typeof IntersectionObserver === "undefined") {
+      return;
+    }
+
+    const elements = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter((element): element is HTMLElement => Boolean(element));
+
+    if (!elements.length) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntries = entries.filter((entry) => entry.isIntersecting);
+        if (!visibleEntries.length) {
+          return;
+        }
+
+        const nearestEntry = visibleEntries.reduce((current, next) => {
+          const currentDistance = Math.abs(current.boundingClientRect.top);
+          const nextDistance = Math.abs(next.boundingClientRect.top);
+          return nextDistance < currentDistance ? next : current;
+        });
+
+        setActiveSection(nearestEntry.target.id);
+      },
+      {
+        rootMargin: "-35% 0px -55% 0px",
+        threshold: [0, 0.1, 0.25],
+      },
+    );
+
+    elements.forEach((element) => observer.observe(element));
+
+    return () => observer.disconnect();
+  }, [sectionIds.join(",")]);
 
   return (
     <div
