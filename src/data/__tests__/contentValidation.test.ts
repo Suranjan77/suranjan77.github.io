@@ -63,15 +63,19 @@ describe("Content validation checks", () => {
     }
   });
 
-  it("every module has a non-empty mathematics section", () => {
+  it("every module has a non-empty mathematics section (if it has a visualization)", () => {
     for (const mod of algorithmsList) {
-      expect(mod.mathematics).toBeTruthy();
+      if (mod.hasVisualization !== false) {
+        expect(mod.mathematics).toBeTruthy();
+      }
     }
   });
 
-  it("every module has a non-empty codeSnippet", () => {
+  it("every module has a non-empty codeSnippet (if it has a visualization)", () => {
     for (const mod of algorithmsList) {
-      expect(mod.codeSnippet).toBeTruthy();
+      if (mod.hasVisualization !== false) {
+        expect(mod.codeSnippet).toBeTruthy();
+      }
     }
   });
 

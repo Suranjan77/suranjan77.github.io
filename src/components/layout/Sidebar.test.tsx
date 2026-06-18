@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import Sidebar from './Sidebar';
+import { algorithmsList } from '@/data/algorithms_content';
 
 vi.mock('next/navigation', () => ({
   usePathname: () => '/algorithms/calculus',
@@ -17,7 +18,7 @@ describe('Sidebar', () => {
       'href',
       '/#track-foundations',
     );
-    expect(screen.getByText('40 modules · 1 interactive lab')).toBeInTheDocument();
+    expect(screen.getByText(`${algorithmsList.length} modules · 1 interactive lab`)).toBeInTheDocument();
   });
 
 });

@@ -1,6 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import DataPreparationViz from "./DataPreparationViz";
 import KNNViz from "./KNNViz";
 import DecisionTreeViz from "./DecisionTreeViz";
 import SVMViz from "./SVMViz";
@@ -9,9 +8,6 @@ import EnsembleViz from "./EnsembleViz";
 import KMeansViz from "./KMeansViz";
 import GMMEMViz from "./GMMEMViz";
 import MCMCViz from "./MCMCViz";
-import AnomalyDetectionViz from "./AnomalyDetectionViz";
-import ModelSelectionViz from "./ModelSelectionViz";
-import BiasVarianceViz from "./BiasVarianceViz";
 import RegularizationViz from "./RegularizationViz";
 import NeuralNetworkViz from "./NeuralNetworkViz";
 import NLPEmbeddingsViz from "./NLPEmbeddingsViz";
@@ -22,10 +18,6 @@ import RLViz from "./RLViz";
 import GenerativeViz from "./GenerativeViz";
 
 describe("Practitioner Track Visualization Accuracy", () => {
-  it("verifies Data Preparation scaling calculations", () => {
-    render(<DataPreparationViz />);
-    expect(screen.getByText(/Feature Scaling/i)).toBeInTheDocument();
-  });
 
   it("tags a new track by neighbour vote and flips the tag when k shrinks", () => {
     render(<KNNViz />);
@@ -101,30 +93,21 @@ describe("Practitioner Track Visualization Accuracy", () => {
     expect(screen.getByTestId("kmeans-status")).toHaveTextContent("3 segments");
   });
 
-  it("verifies GMM Expectation Maximization state", () => {
+  it("shows K-Means limit and GMM stretching via narrative stepper", () => {
     render(<GMMEMViz />);
-    expect(screen.getByText(/RUN NEXT/i)).toBeInTheDocument();
+    expect(screen.getByText("STEP 1 / 4")).toBeInTheDocument();
+    
+    // Step forward shows Expectation
+    fireEvent.click(screen.getByTitle("Step Forward"));
+    expect(screen.getByText("STEP 2 / 4")).toBeInTheDocument();
   });
 
-  it("verifies MCMC simulation trace metrics", () => {
+  it("shows the MCMC probability mountain and walker", () => {
     render(<MCMCViz />);
-    expect(screen.getByText(/MCMC step/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/The Mountain/i).length).toBeGreaterThan(0);
+    expect(screen.getByText("WALKER")).toBeInTheDocument();
   });
 
-  it("verifies Anomaly Detection score contours", () => {
-    render(<AnomalyDetectionViz />);
-    expect(screen.getByText(/Contamination/i)).toBeInTheDocument();
-  });
-
-  it("verifies Model Selection CV scores and folds", () => {
-    render(<ModelSelectionViz />);
-    expect(screen.getByText(/DATA SPLITS ACROSS FOLDS/i)).toBeInTheDocument();
-  });
-
-  it("verifies Bias Variance complexity balance", () => {
-    render(<BiasVarianceViz />);
-    expect(screen.getByText(/Optimal Balance/i)).toBeInTheDocument();
-  });
 
   it("verifies Regularization weight shrinkage coefficients", () => {
     render(<RegularizationViz />);

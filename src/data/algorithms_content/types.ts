@@ -21,17 +21,13 @@ export type AlgorithmCategory =
   | "Transformers"
   | "Large Language Models"
   | "Reinforcement Learning"
-  | "Model Complexity & Bias-Variance"
+  | "Machine Learning Concepts"
   | "Generative Models"
   | "Regularization"
-  | "Evaluation Metrics"
   | "Statistics and Estimation"
   | "Gradient Descent and Optimization"
-  | "Data Preparation and Feature Engineering"
   | "Naive Bayes"
-  | "Model Selection and Cross-Validation"
   | "Gaussian Mixtures and EM"
-  | "Anomaly Detection"
   | "Backpropagation"
   | "Sequence Models"
   | "Embeddings and Tokenization"
@@ -46,11 +42,12 @@ export interface Algorithm {
   category: AlgorithmCategory;
   shortDescription: string;
   fullDescription: string;
-  intuition: string;
-  mathematics: string;
-  pros: string[];
-  cons: string[];
-  codeSnippet: string;
+  intuition?: string;
+  mathematics?: string;
+  pros?: string[];
+  cons?: string[];
+  codeSnippet?: string;
+  hasVisualization?: boolean;
 }
 
 export * from './learningModuleTypes';

@@ -143,11 +143,11 @@ const categoryConfig: Record<
     label: "Reinforcement Learning",
     description: "Train autonomous agents to make sequences of decisions to maximize cumulative rewards in dynamic environments.",
   },
-  "Model Complexity & Bias-Variance": {
+  "Machine Learning Concepts": {
     color: "tertiary",
-    route: "/algorithms/bias-variance",
-    label: "Bias-Variance Tradeoff",
-    description: "Balance underfitting and overfitting by choosing the right level of model capacity.",
+    route: "/algorithms/applied-ml-workflow",
+    label: "ML Concepts & Workflow",
+    description: "End-to-end data preparation, model selection, evaluation, and handling anomalies.",
   },
   "Generative Models": {
     color: "primary",
@@ -161,12 +161,7 @@ const categoryConfig: Record<
     label: "L1 & L2 Regularization",
     description: "Enforce geometric constraints on parameter space to prevent overfitting and encourage sparse features.",
   },
-  "Evaluation Metrics": {
-    color: "tertiary",
-    route: "/algorithms/evaluation-metrics",
-    label: "Evaluation Metrics",
-    description: "Use classification diagnostics like confusion matrices, precision-recall, and ROC/AUC curves to assess predictive performance.",
-  },
+
   "Statistics and Estimation": {
     color: "primary",
     route: "/algorithms/statistics-estimation",
@@ -179,36 +174,21 @@ const categoryConfig: Record<
     label: "Gradient Descent and Optimization",
     description: "Train models by wiggling weights in the direction of steepest loss descent using gradient updates.",
   },
-  "Data Preparation and Feature Engineering": {
-    color: "tertiary",
-    route: "/algorithms/data-preparation",
-    label: "Data Prep & Feature Engineering",
-    description: "Clean raw data, perform feature scaling, and encode categorical features to build robust input pipelines.",
-  },
+
   "Naive Bayes": {
     color: "primary",
     route: "/algorithms/naive-bayes",
     label: "Naive Bayes",
     description: "Probabilistic classification model based on Bayes' Theorem with a naive independence assumption.",
   },
-  "Model Selection and Cross-Validation": {
-    color: "secondary",
-    route: "/algorithms/model-selection",
-    label: "Model Selection & CV",
-    description: "Evaluate generalization performance and tune hyperparameters using cross-validation techniques.",
-  },
+
   "Gaussian Mixtures and EM": {
     color: "tertiary",
     route: "/algorithms/gmm-em",
     label: "GMM & EM",
     description: "Soft probabilistic clustering using mixture models fit with the Expectation-Maximization algorithm.",
   },
-  "Anomaly Detection": {
-    color: "primary",
-    route: "/algorithms/anomaly-detection",
-    label: "Anomaly Detection",
-    description: "Identify rare, unusual points in datasets using tree-based and distance-based scoring.",
-  },
+
   "Backpropagation": {
     color: "secondary",
     route: "/algorithms/backpropagation",
@@ -274,17 +254,13 @@ const algorithmIcons: Record<string, string> = {
   "transformers": "psychology",
   "llms": "forum",
   "reinforcement-learning": "smart_toy",
-  "bias-variance": "query_stats",
+  "applied-ml-workflow": "query_stats",
   "generative-models": "auto_awesome",
   "regularization": "align_horizontal_center",
-  "evaluation-metrics": "fact_check",
   "statistics-estimation": "analytics",
   "gradient-descent": "trending_down",
-  "data-preparation": "build",
   "naive-bayes": "calculate",
-  "model-selection": "published_with_changes",
   "gmm-em": "lens",
-  "anomaly-detection": "report_problem",
   "backpropagation": "alt_route",
   "sequence-models": "repeat",
   "embeddings-tokenization": "pattern",

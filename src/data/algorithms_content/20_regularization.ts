@@ -4,10 +4,10 @@ export const regularization: LearningModule = {
   id: "regularization",
   title: "L1 & L2 Regularization",
   category: "Regularization",
-  prerequisites: ["linear-regression", "bias-variance"],
+  prerequisites: ["linear-regression", "applied-ml-workflow"],
   tracks: ["practitioner"],
   difficulty: 2,
-  relatedModules: ["linear-regression", "logistic-regression", "bias-variance"],
+  relatedModules: ["linear-regression", "logistic-regression", "applied-ml-workflow"],
   shortDescription: "Preventing overfitting by adding parameter penalty constraints (L1 Lasso and L2 Ridge) to the loss objective.",
   estimatedMinutes: 20,
   learningObjectives: [

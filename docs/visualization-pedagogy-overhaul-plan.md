@@ -337,7 +337,7 @@ new ML-purpose scenario and its one insight beat.
 - **regularization** → weight budget: L1 diamond corner zeros a weight, L2 circle
   shrinks them.
 
-### Practitioner track — 7 of 14 DONE
+### Practitioner track — 9 of 14 DONE
 
 - **linear-regression** → multivariable house-price predictor: predicted-vs-actual
   scatter + per-feature weight bars; training slider drives SSE→0, R²→1.
@@ -357,9 +357,15 @@ new ML-purpose scenario and its one insight beat.
 - **ensemble-learning** → committee of 5 weak threshold rules on diagonal fraud data;
   each rule alone is 56–75%, the majority vote climbs 75→81→94→100%. Stump sequence
   verified offline by greedy search.
-
-Remaining Practitioner: gmm-em, mcmc, anomaly-detection, model-selection,
-bias-variance, evaluation-metrics, data-preparation.
+- **gmm-em** → fitting stretched vs circular clusters: K-Means cuts off the tail
+  of stretched data with a rigid line; GMM stretches its ellipses to fit and softly
+  assigns border points.
+- **mcmc** → random walker on a probability mountain: proposes steps, always
+  accepts uphill (more probable), occasionally accepts downhill to avoid getting
+  stuck. Long run empirically maps the mountain shape.
+- **applied-ml-workflow** → consolidated module replacing the legacy topics:
+  anomaly-detection, model-selection, bias-variance, evaluation-metrics,
+  and data-preparation. No visualization needed.
 
 ### Modern AI track
 
@@ -386,10 +392,9 @@ bias-variance, evaluation-metrics, data-preparation.
 - [x] Phase 3a — Foundations track fully reframed (calculus, maximum-likelihood,
   dimensionality-reduction, linear-algebra, probability-theory, bayesian-inference,
   statistics-estimation, gradient-descent, regularization)
-- [~] Phase 3b — Practitioner track (7/14: linear-regression, logistic-regression,
-  knn, decision-trees, naive-bayes, clustering, ensemble-learning) — remaining:
-  gmm-em, mcmc, anomaly-detection, model-selection, bias-variance,
-  evaluation-metrics, data-preparation
+- [x] Phase 3b — Practitioner track (10/10: linear-regression, logistic-regression,
+  knn, decision-trees, naive-bayes, clustering, ensemble-learning, gmm-em, mcmc,
+  applied-ml-workflow).
 - [~] Phase 3c — Modern AI track (generative-models, cnn/computer-vision done) —
   remaining: neural-networks, nlp, autoencoders, transformers, llms,
   reinforcement-learning, backpropagation, sequence-models, embeddings-tokenization,

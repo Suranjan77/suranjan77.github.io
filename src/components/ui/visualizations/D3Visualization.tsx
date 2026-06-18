@@ -33,16 +33,11 @@ import LLMViz from "./LLMViz";
 import RLViz from "./RLViz";
 import GenerativeViz from "./GenerativeViz";
 
-import BiasVarianceViz from "./BiasVarianceViz";
 import RegularizationViz from "./RegularizationViz";
-import EvaluationMetricsViz from "./EvaluationMetricsViz";
 import StatisticsViz from "./StatisticsViz";
 import GradientDescentViz from "./GradientDescentViz";
-import DataPreparationViz from "./DataPreparationViz";
 import NaiveBayesViz from "./NaiveBayesViz";
-import ModelSelectionViz from "./ModelSelectionViz";
 import GMMEMViz from "./GMMEMViz";
-import AnomalyDetectionViz from "./AnomalyDetectionViz";
 import BackpropagationViz from "./BackpropagationViz";
 import SequenceModelsViz from "./SequenceModelsViz";
 import EmbeddingsTokenizationViz from "./EmbeddingsTokenizationViz";
@@ -74,10 +69,8 @@ type AlgorithmKind =
   | "transformer"
   | "llm"
   | "rl"
-  | "bias-variance"
   | "generative"
-  | "regularization"
-  | "metrics";
+  | "regularization";
 
 interface SceneConfig {
   kind: AlgorithmKind;
@@ -121,35 +114,17 @@ const extendedVisualizations: Record<
     subtitle: "Three optimizers descend the same 3D loss landscape from the same point. A shallow pit traps plain SGD, while momentum and Adam coast through it to the deep valley.",
     insight: "Gradient descent only feels the local slope, so plain SGD stalls in the first dip; momentum's accumulated speed and Adam's adaptive steps carry training past traps.",
   },
-  "data-preparation": {
-    component: DataPreparationViz,
-    title: "Data Preparation and Feature Engineering",
-    subtitle: "Explore scaling, missing-value handling, and leakage controls before model fitting.",
-    insight: "Reliable models begin with transformations learned only from training data.",
-  },
   "naive-bayes": {
     component: NaiveBayesViz,
     title: "Spam Filter: Every Word Tugs the Verdict",
     subtitle: "Toggle words in the email; each one pulls the decision toward spam or ham by how often it appears in each, until the running total crosses the 50/50 line.",
     insight: "Naive Bayes adds up each word's log-likelihood ratio, so one strong word can tip a borderline email across the decision line.",
   },
-  "model-selection": {
-    component: ModelSelectionViz,
-    title: "Cross-Validation and Model Selection",
-    subtitle: "Move through validation folds and compare training and held-out performance.",
-    insight: "Repeated held-out evaluation estimates how a model will generalize beyond its training set.",
-  },
   "gmm-em": {
     component: GMMEMViz,
     title: "Gaussian Mixtures and Expectation-Maximization",
     subtitle: "Alternate soft assignments and parameter updates for a mixture model.",
     insight: "EM improves latent-variable models by alternating inference and parameter estimation.",
-  },
-  "anomaly-detection": {
-    component: AnomalyDetectionViz,
-    title: "Anomaly Detection",
-    subtitle: "Compare scoring methods and contamination thresholds on a two-dimensional dataset.",
-    insight: "Anomaly labels depend on both the scoring model and the operating threshold.",
   },
   backpropagation: {
     component: BackpropagationViz,
@@ -527,23 +502,6 @@ const configs: Record<string, SceneConfig> = {
       value: (control) => `step ${Math.round((control / 100) * 6)}`,
     },
   },
-  "bias-variance": {
-    kind: "bias-variance",
-    title: "Bias-Variance Is a Complexity Tradeoff",
-    subtitle: "Model complexity bends the fit curve while train and validation errors diverge.",
-    insight: "Underfit models have high bias; overfit models have high variance and poor validation behavior.",
-    legend: [
-      { label: "Fit", color: COLORS.pink },
-      { label: "Train error", color: COLORS.cyan },
-      { label: "Validation error", color: COLORS.yellow },
-    ],
-    control: {
-      label: "Model Complexity",
-      low: "bias",
-      high: "variance",
-      value: (control) => `degree ${Math.round(1 + (control / 100) * 9)}`,
-    },
-  },
   "generative-models": {
     kind: "generative",
     title: "Walk the Latent Space and Watch Faces Morph",
@@ -568,23 +526,6 @@ const configs: Record<string, SceneConfig> = {
     ],
     control: percentControl("Penalty Geometry", "L1", "L2"),
   },
-  "evaluation-metrics": {
-    kind: "metrics",
-    title: "Metrics Depend on the Decision Threshold",
-    subtitle: "A threshold moves through score distributions while confusion counts and ROC position update.",
-    insight: "Evaluation metrics summarize threshold choices; no single number captures all deployment costs.",
-    legend: [
-      { label: "Negatives", color: COLORS.pink },
-      { label: "Positives", color: COLORS.cyan },
-      { label: "Threshold", color: COLORS.yellow },
-    ],
-    control: {
-      label: "Classification Threshold",
-      low: "recall",
-      high: "precision",
-      value: (control) => `t=${(control / 100).toFixed(2)}`,
-    },
-  },
 };
 
 export interface VisualizationRegistryEntry {
@@ -604,7 +545,6 @@ const visualizationComponents: Record<string, React.ComponentType> = {
   "bayesian-inference": BayesianInferenceViz,
   "statistics-estimation": StatisticsViz,
   "gradient-descent": GradientDescentViz,
-  "data-preparation": DataPreparationViz,
   "linear-regression": LinearRegressionViz,
   "logistic-regression": LogisticRegressionViz,
   knn: KNNViz,
@@ -616,11 +556,7 @@ const visualizationComponents: Record<string, React.ComponentType> = {
   "gmm-em": GMMEMViz,
   "dimensionality-reduction": PCAViz,
   mcmc: MCMCViz,
-  "anomaly-detection": AnomalyDetectionViz,
-  "model-selection": ModelSelectionViz,
-  "bias-variance": BiasVarianceViz,
   regularization: RegularizationViz,
-  "evaluation-metrics": EvaluationMetricsViz,
   "neural-networks": NeuralNetworkViz,
   cnn: CNNViz,
   "computer-vision": ComputerVisionViz,
@@ -647,7 +583,6 @@ const accessibleLabels: Record<string, string> = {
   "bayesian-inference": "Bayesian A/B Test Belief Update",
   "statistics-estimation": "Bootstrap Confidence on Model Accuracy",
   "gradient-descent": "Gradient Descent Optimizer Race",
-  "data-preparation": "Data Prep and Feature Scaling View",
   "linear-regression": "Multivariable Linear Regression Fit",
   "logistic-regression": "Logistic Regression Probability Curve",
   knn: "K-Nearest Neighbors Genre Vote",
@@ -659,11 +594,7 @@ const accessibleLabels: Record<string, string> = {
   "gmm-em": "GMM EM Fit Visualizer",
   "dimensionality-reduction": "Low-Rank Image Reconstruction",
   mcmc: "MCMC Metropolis-Hastings Walker",
-  "anomaly-detection": "2D Anomaly Detection Scatter Plot",
-  "model-selection": "K-Fold Split Visualizer",
-  "bias-variance": "Bias-Variance Tradeoff Curves",
   regularization: "Regularization Loss Contours",
-  "evaluation-metrics": "Evaluation Metrics Overlapping Distributions",
   "neural-networks": "Backpropagation Neural Network",
   cnn: "Convolutional Neural Network Scanner",
   "computer-vision": "Computer Vision Sandbox",
@@ -1021,47 +952,7 @@ function Scene({ kind, control }: { kind: AlgorithmKind; control: number }) {
     return <NeuralScene kind={kind} t={t} />;
   }
 
-  if (kind === "bias-variance") {
-    const fit = d3.range(0, 10.05, 0.18).map((v) => ({ x: x(v), y: y(5 + Math.sin(v * (0.7 + t * 2.3)) * (1 + t * 2.1)) }));
-    return (
-      <>
-        <Axis labelX="x" labelY="y" />
-        {basePoints.map((p) => <PointMark key={p.x} px={x(p.x)} py={y(5 + Math.sin(p.x) * 2)} color={COLORS.cyan} r={5} />)}
-        <path d={line(fit) ?? ""} fill="none" stroke={COLORS.pink} strokeWidth={4} />
-        <path d={`M452,304 C500,${286 - t * 100} 552,${256 - t * 86} 606,${228 - t * 70}`} fill="none" stroke={COLORS.cyan} strokeWidth={3} />
-        <path d={`M452,250 C500,${214 - t * 80} 552,${154 + t * 20} 606,${120 + t * 110}`} fill="none" stroke={COLORS.yellow} strokeWidth={3} />
-        <MiniStat x0={444} y0={58} label="complexity" value={(1 + t * 9).toFixed(1)} />
-      </>
-    );
-  }
 
-  if (kind === "metrics") {
-    const threshold = t * 10;
-    const negMu = 3.7;
-    const posMu = 6.3;
-    const sigma = 1.25;
-    const pdf = (v: number, mu: number) => Math.exp(-0.5 * ((v - mu) / sigma) ** 2) * 8;
-    const neg = d3.range(0, 10.05, 0.1).map((v) => ({ x: x(v), y: y(pdf(v, negMu)) }));
-    const pos = d3.range(0, 10.05, 0.1).map((v) => ({ x: x(v), y: y(pdf(v, posMu)) }));
-    const tpr = 1 / (1 + Math.exp((threshold - posMu) / 0.8));
-    const fpr = 1 / (1 + Math.exp((threshold - negMu) / 0.8));
-    const precision = tpr / Math.max(0.01, tpr + fpr);
-    const recall = tpr;
-    const f1 = (2 * precision * recall) / Math.max(0.01, precision + recall);
-    return (
-      <>
-        <Axis labelX="score" labelY="density" />
-        <path d={`${line(neg) ?? ""} L${plot.right},${plot.bottom} L${plot.left},${plot.bottom} Z`} fill={COLORS.pink} opacity={0.12} stroke={COLORS.pink} strokeWidth={3} />
-        <path d={`${line(pos) ?? ""} L${plot.right},${plot.bottom} L${plot.left},${plot.bottom} Z`} fill={COLORS.cyan} opacity={0.12} stroke={COLORS.cyan} strokeWidth={3} />
-        <line x1={x(threshold)} x2={x(threshold)} y1={plot.top} y2={plot.bottom} stroke={COLORS.yellow} strokeWidth={4} />
-        <rect x={462} y={68} width={118} height={118} fill="none" stroke={COLORS.border} />
-        <path d={`M462,186 C498,${176 - fpr * 92} 536,${176 - tpr * 100} 580,${186 - tpr * 118}`} fill="none" stroke={COLORS.cyan} strokeWidth={3} />
-        <PointMark px={462 + fpr * 118} py={186 - tpr * 118} color={COLORS.yellow} r={6} />
-        <MiniStat x0={440} y0={220} label="precision / recall" value={`${precision.toFixed(2)} / ${recall.toFixed(2)}`} />
-        <MiniStat x0={440} y0={288} label="F1 score" value={f1.toFixed(2)} />
-      </>
-    );
-  }
 
   const mode = t < 0.5 ? "L1" : "L2";
   return (

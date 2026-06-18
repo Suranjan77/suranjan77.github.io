@@ -22,17 +22,12 @@ import { autoencoders } from "./14_autoencoders";
 import { transformers } from "./15_transformers";
 import { llms } from "./16_llms";
 import { reinforcementLearning } from "./17_reinforcement_learning";
-import { biasVariance } from "./18_bias_variance";
 import { generativeModels } from "./19_generative_models";
 import { regularization } from "./20_regularization";
-import { evaluationMetrics } from "./21_evaluation_metrics";
 import { statisticsEstimation } from "./22_statistics_estimation";
 import { gradientDescent } from "./23_gradient_descent";
-import { dataPreparation } from "./24_data_preparation";
 import { naiveBayes } from "./25_naive_bayes";
-import { modelSelection } from "./26_model_selection";
 import { gmmEm } from "./27_gmm_em";
-import { anomalyDetection } from "./28_anomaly_detection";
 import { backpropagation } from "./29_backpropagation";
 import { sequenceModels } from "./30_sequence_models";
 import { embeddingsTokenization } from "./31_embeddings_tokenization";
@@ -40,6 +35,7 @@ import { rag } from "./32_rag";
 import { fineTuning } from "./33_fine_tuning";
 import { llmEvaluationSafety } from "./34_llm_evaluation_safety";
 import { aiInference } from "./35_ai_inference";
+import { appliedMlWorkflow } from "./36_applied_ml_workflow";
 
 export const algorithmsList: LearningModule[] = [
   calculus,
@@ -64,17 +60,12 @@ export const algorithmsList: LearningModule[] = [
   transformers,
   llms,
   reinforcementLearning,
-  biasVariance,
   generativeModels,
   regularization,
-  evaluationMetrics,
   statisticsEstimation,
   gradientDescent,
-  dataPreparation,
   naiveBayes,
-  modelSelection,
   gmmEm,
-  anomalyDetection,
   backpropagation,
   sequenceModels,
   embeddingsTokenization,
@@ -82,4 +73,5 @@ export const algorithmsList: LearningModule[] = [
   fineTuning,
   llmEvaluationSafety,
   aiInference,
+  appliedMlWorkflow,
 ];

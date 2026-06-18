@@ -31,7 +31,7 @@ describe('Algorithm schema validation', () => {
     for (const mod of algorithmsList) {
       if (mod.prerequisites) {
         for (const prereqId of mod.prerequisites) {
-          expect(allIds.has(prereqId)).toBe(true);
+          expect(allIds.has(prereqId), `Module ${mod.id} has missing prerequisite: ${prereqId}`).toBe(true);
         }
       }
     }
@@ -42,7 +42,7 @@ describe('Algorithm schema validation', () => {
     for (const mod of algorithmsList) {
       if (mod.relatedModules) {
         for (const relId of mod.relatedModules) {
-          expect(allIds.has(relId)).toBe(true);
+          expect(allIds.has(relId), `Module ${mod.id} has missing relatedModule: ${relId}`).toBe(true);
         }
       }
     }

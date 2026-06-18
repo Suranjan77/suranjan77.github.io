@@ -159,7 +159,7 @@ export class LLMGuardrail {
     return modelOutput;
   }
 }`,
-  relatedModules: ["llms", "evaluation-metrics", "bias-variance"],
+  relatedModules: ["llms", "applied-ml-workflow"],
   tldr: [
     'Standard NLP metrics (BLEU/ROUGE) measure **n-gram overlap** with a reference, which correlates poorly with human judgments of open-ended LLM quality.',
     '**Benchmark contamination** — test data leaking into pretraining — silently inflates scores, so a high MMLU/GSM8K number can be a memorization artifact rather than capability.',

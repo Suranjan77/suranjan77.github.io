@@ -107,86 +107,92 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         <LearningObjectives objectives={module.learningObjectives} />
 
         {/* Intuition Section */}
-        <div
-          id="intuition"
-          className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
-        >
-          <div className="border-b border-outline px-6 py-5 sm:px-8">
-            <div className="mb-2 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center border border-tertiary/30 bg-tertiary/12 text-tertiary">
-                <Lightbulb size={18} strokeWidth={1.7} aria-hidden="true" />
+        {module.intuition && (
+          <div
+            id="intuition"
+            className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
+          >
+            <div className="border-b border-outline px-6 py-5 sm:px-8">
+              <div className="mb-2 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center border border-tertiary/30 bg-tertiary/12 text-tertiary">
+                  <Lightbulb size={18} strokeWidth={1.7} aria-hidden="true" />
+                </div>
+                <div>
+                  <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
+                    Intuition
+                  </h2>
+                  <p className="text-sm text-on-surface-variant/70">
+                    How to think conceptually about this topic
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
-                  Intuition
-                </h2>
-                <p className="text-sm text-on-surface-variant/70">
-                  How to think conceptually about this topic
-                </p>
+              <div className="mt-4">
+                <LogicContent content={module.intuition} />
               </div>
-            </div>
-            <div className="mt-4">
-              <LogicContent content={module.intuition} />
             </div>
           </div>
-        </div>
+        )}
 
         {/* Interactive Visualization Section */}
-        <div
-          id="visualization"
-          className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
-        >
-          <div className="border-b border-outline bg-surface-container px-6 py-5 sm:px-8">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center border border-primary/30 bg-primary/12 text-primary">
-                <ChartNoAxesCombined size={18} strokeWidth={1.7} aria-hidden="true" />
+        {module.hasVisualization !== false && (
+          <div
+            id="visualization"
+            className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
+          >
+            <div className="border-b border-outline bg-surface-container px-6 py-5 sm:px-8">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center border border-primary/30 bg-primary/12 text-primary">
+                  <ChartNoAxesCombined size={18} strokeWidth={1.7} aria-hidden="true" />
+                </div>
+                <div>
+                  <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
+                    Interactive Diagram
+                  </h2>
+                  <p className="text-sm text-on-surface-variant/70">
+                    Test the intuition above by changing the model parameters
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
-                  Interactive Diagram
-                </h2>
-                <p className="text-sm text-on-surface-variant/70">
-                  Test the intuition above by changing the model parameters
-                </p>
+            </div>
+            <div className="bg-surface-container-low p-2 sm:p-6">
+              <div className="min-h-[380px]">
+                <VisualizationErrorBoundary algorithmId={module.id}>
+                  <AlgorithmVisualization algorithmId={module.id} />
+                </VisualizationErrorBoundary>
               </div>
             </div>
           </div>
-          <div className="bg-surface-container-low p-2 sm:p-6">
-            <div className="min-h-[380px]">
-              <VisualizationErrorBoundary algorithmId={module.id}>
-                <AlgorithmVisualization algorithmId={module.id} />
-              </VisualizationErrorBoundary>
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* Notation Table Section */}
         <NotationTable notationTable={module.notationTable} />
 
         {/* Mathematics Section */}
-        <div
-          id="mathematics"
-          className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
-        >
-          <div className="border-b border-outline px-6 py-5 sm:px-8">
-            <div className="mb-2 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center border border-primary/30 bg-primary/12 text-primary">
-                <Sigma size={18} strokeWidth={1.7} aria-hidden="true" />
+        {module.mathematics && (
+          <div
+            id="mathematics"
+            className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
+          >
+            <div className="border-b border-outline px-6 py-5 sm:px-8">
+              <div className="mb-2 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center border border-primary/30 bg-primary/12 text-primary">
+                  <Sigma size={18} strokeWidth={1.7} aria-hidden="true" />
+                </div>
+                <div>
+                  <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
+                    The Mathematics
+                  </h2>
+                  <p className="text-sm text-on-surface-variant/70">
+                    Formal formulations, equations, and derivations
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
-                  The Mathematics
-                </h2>
-                <p className="text-sm text-on-surface-variant/70">
-                  Formal formulations, equations, and derivations
-                </p>
+              <div className="mt-4">
+                <LogicContent content={module.mathematics} />
               </div>
-            </div>
-            <div className="mt-4">
-              <LogicContent content={module.mathematics} />
             </div>
           </div>
-        </div>
+        )}
 
         {/* Full Derivations (foldable) */}
         <div id="derivations" className="scroll-mt-32 lg:scroll-mt-48">
@@ -235,58 +241,66 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
         <WhenToUse guidance={module.usageGuidance} />
 
         {/* Implementation / Code Section */}
-        <div
-          id="implementation"
-          className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
-        >
-          <div className="border-b border-outline px-6 py-5 sm:px-8">
-            <div className="mb-2 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center border border-outline-variant/30 bg-outline-variant/10 text-on-surface">
-                <Code2 size={18} strokeWidth={1.7} aria-hidden="true" />
+        {module.codeSnippet && (
+          <div
+            id="implementation"
+            className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
+          >
+            <div className="border-b border-outline px-6 py-5 sm:px-8">
+              <div className="mb-2 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center border border-outline-variant/30 bg-outline-variant/10 text-on-surface">
+                  <Code2 size={18} strokeWidth={1.7} aria-hidden="true" />
+                </div>
+                <div>
+                  <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
+                    Implementation
+                  </h2>
+                  <p className="text-sm text-on-surface-variant/70">
+                    Reference code implementation
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
-                  Implementation
-                </h2>
-                <p className="text-sm text-on-surface-variant/70">
-                  Reference code implementation
-                </p>
+              <div className="mt-4">
+                <CodeBlock code={module.codeSnippet} />
               </div>
-            </div>
-            <div className="mt-4">
-              <CodeBlock code={module.codeSnippet} />
             </div>
           </div>
-        </div>
+        )}
 
         {/* Pros and Cons (Strengths and Limitations) Section */}
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-lg border border-outline bg-surface-container-low accent-left-success p-5">
-            <h3 className="text-sm font-semibold tracking-wide text-success uppercase">
-              Strengths & Advantages
-            </h3>
-            <ul className="mt-4 list-disc pl-5 space-y-2 text-on-surface-variant text-sm sm:text-base leading-relaxed">
-              {module.pros.map((pro, i) => (
-                <li key={i}>
-                  <InlineMarkdown content={pro} />
-                </li>
-              ))}
-            </ul>
-          </div>
+        {((module.pros && module.pros.length > 0) || (module.cons && module.cons.length > 0)) && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {module.pros && module.pros.length > 0 && (
+              <div className="rounded-lg border border-outline bg-surface-container-low accent-left-success p-5">
+                <h3 className="text-sm font-semibold tracking-wide text-success uppercase">
+                  Strengths & Advantages
+                </h3>
+                <ul className="mt-4 list-disc pl-5 space-y-2 text-on-surface-variant text-sm sm:text-base leading-relaxed">
+                  {module.pros.map((pro, i) => (
+                    <li key={i}>
+                      <InlineMarkdown content={pro} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
-          <div className="rounded-lg border border-outline bg-surface-container-low accent-left-error p-5">
-            <h3 className="text-sm font-semibold tracking-wide text-error uppercase">
-              Limitations & Drawbacks
-            </h3>
-            <ul className="mt-4 list-disc pl-5 space-y-2 text-on-surface-variant text-sm sm:text-base leading-relaxed">
-              {module.cons.map((con, i) => (
-                <li key={i}>
-                  <InlineMarkdown content={con} />
-                </li>
-              ))}
-            </ul>
+            {module.cons && module.cons.length > 0 && (
+              <div className="rounded-lg border border-outline bg-surface-container-low accent-left-error p-5">
+                <h3 className="text-sm font-semibold tracking-wide text-error uppercase">
+                  Limitations & Drawbacks
+                </h3>
+                <ul className="mt-4 list-disc pl-5 space-y-2 text-on-surface-variant text-sm sm:text-base leading-relaxed">
+                  {module.cons.map((con, i) => (
+                    <li key={i}>
+                      <InlineMarkdown content={con} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
-        </div>
+        )}
 
         {/* Real-World Case Studies */}
         <div id="case-studies" className="scroll-mt-32 lg:scroll-mt-48">

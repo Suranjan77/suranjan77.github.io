@@ -5,10 +5,11 @@ import D3Visualization, { visualizationRegistry } from "./D3Visualization";
 
 describe("D3Visualization router", () => {
   it("registers every module exactly once and no unknown modules", () => {
-    const moduleIds = algorithmsList.map((module) => module.id).sort();
+    const modulesWithViz = algorithmsList.filter((m) => m.hasVisualization !== false);
+    const moduleIds = modulesWithViz.map((module) => module.id).sort();
     const registryIds = Object.keys(visualizationRegistry).sort();
 
-    expect(new Set(moduleIds).size).toBe(40);
+    expect(new Set(moduleIds).size).toBe(modulesWithViz.length);
     expect(registryIds).toEqual(moduleIds);
     expect(
       registryIds.every(
@@ -20,7 +21,7 @@ describe("D3Visualization router", () => {
     ).toBe(true);
   });
 
-  it.each(algorithmsList)(
+  it.each(algorithmsList.filter((m) => m.hasVisualization !== false))(
     "renders $id with its registered title and accessible visual",
     (module) => {
       const entry = visualizationRegistry[module.id];

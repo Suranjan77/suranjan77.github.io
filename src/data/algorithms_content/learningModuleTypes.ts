@@ -102,11 +102,12 @@ export interface LearningModule {
   category: AlgorithmCategory;
   shortDescription: string;
   fullDescription: string;
-  intuition: string;
-  mathematics: string;
-  pros: string[];
-  cons: string[];
-  codeSnippet: string;
+  intuition?: string;
+  mathematics?: string;
+  pros?: string[];
+  cons?: string[];
+  codeSnippet?: string;
+  hasVisualization?: boolean;
 
   // --- New fields (ALL optional so existing files don't break) ---
   tracks?: TrackId[];

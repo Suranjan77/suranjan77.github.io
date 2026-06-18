@@ -179,33 +179,24 @@ describe("algorithm visualization interaction contracts", () => {
     ).toBeGreaterThan(0);
   });
 
-  it("stages MCMC proposals, resolves them, and resets collected samples", () => {
-    vi.useFakeTimers();
+  it("advances MCMC narrative steps through rules and run", () => {
     renderVisualization("mcmc");
 
-    fireEvent.click(screen.getByRole("button", { name: /mcmc step/i }));
-    expect(screen.getByRole("button", { name: /mcmc step/i })).toBeDisabled();
-    expect(screen.getByText("Acceptance Ratio (α):")).toBeInTheDocument();
+    expect(screen.getByText("Start")).toBeInTheDocument();
 
-    act(() => {
-      vi.advanceTimersByTime(950);
-    });
+    const forwardBtn = screen.getByRole("button", { name: /step forward/i });
+    
+    fireEvent.click(forwardBtn);
+    expect(screen.getByText("Greedy Trap")).toBeInTheDocument();
 
-    expect(screen.getByRole("button", { name: /reset sampler/i })).not.toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: /reset sampler/i }));
-    expect(screen.getByRole("button", { name: /reset sampler/i })).toBeDisabled();
-    vi.useRealTimers();
-  });
+    fireEvent.click(forwardBtn);
+    expect(screen.getByText("Downhill Rule")).toBeInTheDocument();
 
-  it("toggles MCMC trace and speed controls", () => {
-    renderVisualization("mcmc");
+    fireEvent.click(forwardBtn);
+    expect(screen.getByText("Cross Valley")).toBeInTheDocument();
 
-    expect(screen.getByRole("button", { name: "ON" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "ON" }));
-    expect(screen.getByRole("button", { name: "OFF" })).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: /fast/i }));
-    expect(screen.getByRole("button", { name: /fast/i })).toBeInTheDocument();
+    fireEvent.click(forwardBtn);
+    expect(screen.getByText("Long Run")).toBeInTheDocument();
   });
 
   it("updates computer vision presets, threshold, and isolation mode", () => {
@@ -283,14 +274,7 @@ describe("algorithm visualization interaction contracts", () => {
     expect(screen.queryByText(/0 — dropped/i)).not.toBeInTheDocument();
   });
 
-  it("updates evaluation threshold metrics from the slider", () => {
-    renderVisualization("evaluation-metrics");
 
-    expect(screen.getByText(/CONFUSION MATRIX/)).toBeInTheDocument();
-    expect(screen.getAllByText(/Precision/i).length).toBeGreaterThan(0);
-    fireEvent.change(screen.getByRole("slider"), { target: { value: "7" } });
-    expect(screen.getByText("T = 7.0")).toBeInTheDocument();
-  });
 
   it("moves reinforcement-learning policy controls and resets Q-table", () => {
     renderVisualization("reinforcement-learning");
@@ -320,13 +304,4 @@ describe("algorithm visualization interaction contracts", () => {
     expect(screen.getByRole("button", { name: /run interpolation walker/i })).toBeInTheDocument();
   });
 
-  it("keeps bias-variance complexity slider tied to underfit/overfit labels", () => {
-    renderVisualization("bias-variance");
-
-    expect(screen.getByText(/OPTIMAL BALANCE/i)).toBeInTheDocument();
-    fireEvent.change(screen.getByRole("slider"), { target: { value: "1" } });
-    expect(screen.getByText(/UNDERFITTING/i)).toBeInTheDocument();
-    fireEvent.change(screen.getByRole("slider"), { target: { value: "7" } });
-    expect(screen.getByText(/OVERFITTING/i)).toBeInTheDocument();
-  });
 });

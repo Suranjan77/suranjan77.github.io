@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import CNNViz from "./CNNViz";
 import ComputerVisionViz from "./ComputerVisionViz";
-import EvaluationMetricsViz from "./EvaluationMetricsViz";
+
 import LinearRegressionViz from "./LinearRegressionViz";
 import LogisticRegressionViz from "./LogisticRegressionViz";
 import { pcaVarianceCapturedPercent } from "./PCAViz";
@@ -76,31 +76,7 @@ describe("visualization algorithm accuracy", () => {
     expect(screen.getByTestId("cnn-current-sum")).toHaveTextContent(/= 0$/);
   });
 
-  it("derives confusion-matrix and precision-recall metrics from the threshold", () => {
-    const { container } = render(<EvaluationMetricsViz />);
 
-    expect(screen.getByTestId("metrics-tp")).toHaveTextContent("84");
-    expect(screen.getByTestId("metrics-fp")).toHaveTextContent("16");
-    expect(screen.getByTestId("metrics-fn")).toHaveTextContent("16");
-    expect(screen.getByTestId("metrics-tn")).toHaveTextContent("84");
-    expect(screen.getByTestId("metrics-precision")).toHaveTextContent("84.0%");
-    expect(screen.getByTestId("metrics-recall")).toHaveTextContent("84.0%");
-    expect(screen.getByTestId("metrics-f1")).toHaveTextContent("84.0%");
-    expect(screen.getByText("left").tagName).toBe("STRONG");
-    expect(screen.getByText("right").tagName).toBe("STRONG");
-    expect(container.querySelectorAll("ul > li")).toHaveLength(2);
-    expect(container).not.toHaveTextContent("**");
-
-    fireEvent.change(screen.getByRole("slider"), { target: { value: "9.0" } });
-
-    expect(screen.getByTestId("metrics-tp")).toHaveTextContent("4");
-    expect(screen.getByTestId("metrics-fp")).toHaveTextContent("0");
-    expect(screen.getByTestId("metrics-fn")).toHaveTextContent("96");
-    expect(screen.getByTestId("metrics-tn")).toHaveTextContent("100");
-    expect(screen.getByTestId("metrics-precision")).toHaveTextContent("100.0%");
-    expect(screen.getByTestId("metrics-recall")).toHaveTextContent("4.4%");
-    expect(screen.getByTestId("metrics-f1")).toHaveTextContent("8.4%");
-  });
 
   it("captures monotonically more variance as PCA keeps more components", () => {
     // Variance captured is a non-decreasing function of k, starts above zero
