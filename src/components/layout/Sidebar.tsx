@@ -8,7 +8,6 @@ import {
   ArrowLeft,
   Clock3,
   FlaskConical,
-  GraduationCap,
   House,
   Route,
 } from "lucide-react";
@@ -181,7 +180,7 @@ export default function Sidebar() {
           </div>
         )}
 
-        <div className="grid grid-cols-4 gap-1">
+        <div className="grid grid-cols-3 gap-1">
           <SidebarUtilityLink href="/" label="Home" icon={House} />
           <SidebarUtilityLink href="/#curriculum" label="Tracks" icon={Route} />
           <SidebarUtilityLink
@@ -189,14 +188,9 @@ export default function Sidebar() {
             label="Play"
             icon={FlaskConical}
           />
-          <SidebarUtilityLink
-            href="/gradforge"
-            label="Grad"
-            icon={GraduationCap}
-          />
         </div>
         <p className="mt-3 text-center font-mono text-[12px] uppercase tracking-[0.1em] text-on-surface-variant">
-          {algorithmsList.length} modules · 2 interactive labs
+          {algorithmsList.length} modules · 1 interactive lab
         </p>
       </div>
     </aside>

@@ -17,7 +17,7 @@ describe('Sidebar', () => {
       'href',
       '/#track-foundations',
     );
-    expect(screen.getByText('40 modules · 2 interactive labs')).toBeInTheDocument();
+    expect(screen.getByText('40 modules · 1 interactive lab')).toBeInTheDocument();
   });
 
 });

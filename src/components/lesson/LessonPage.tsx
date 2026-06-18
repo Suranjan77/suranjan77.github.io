@@ -203,32 +203,6 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
           <PracticeExercises exercises={module.practiceExercises} />
         </div>
 
-        {module.id === "backpropagation" && (
-          <aside className="grid gap-px border border-outline bg-border sm:grid-cols-[1fr_auto]">
-            <div className="bg-primary p-6 text-on-primary sm:p-8">
-              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-on-primary/70">
-                Companion laboratory
-              </p>
-              <h2 className="mt-3 font-headline text-2xl font-medium">
-                Put reverse-mode autodiff into practice.
-              </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-on-primary/80">
-                Build scalar computation graphs, step through the backward
-                pass, inspect local derivatives, and verify gradients with
-                finite differences in GradForge.
-              </p>
-            </div>
-            <div className="flex items-center bg-surface p-6 sm:p-8">
-              <Link
-                href="/gradforge"
-                className="w-full border border-outline-dark bg-surface px-5 py-3 text-center font-mono text-[10px] uppercase tracking-[0.16em] text-on-surface transition-colors hover:border-primary hover:text-primary"
-              >
-                Open GradForge →
-              </Link>
-            </div>
-          </aside>
-        )}
-
         {/* In-Depth Description Section */}
         <div
           id="depth"

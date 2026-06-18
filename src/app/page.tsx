@@ -6,7 +6,6 @@ import { algorithms } from "@/data/algorithms";
 
 const interactiveLabs = [
   { label: "Playground", href: "/playground" },
-  { label: "GradForge", href: "/gradforge" },
 ] as const;
 
 const suranjanQrSvg =
