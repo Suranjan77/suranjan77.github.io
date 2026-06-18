@@ -1,321 +1,281 @@
 "use client";
 
 import React, { useState } from "react";
-import MarkdownRenderer from "../MarkdownRenderer";
 import { motion } from "framer-motion";
-import {
-  COLORS,
-  SVGFilters,
-  AnimatedPointMark,
-  VisualizationInstruction,
-} from "../visualizationPrimitives";
+import { COLORS, SVGFilters, VizShell } from "../visualizationPrimitives";
 
-const W = 640;
+const W = 660;
 const H = 420;
-const plot = { left: 64, top: 44, right: 406, bottom: 338 };
+const plot = { left: 60, top: 40, right: 624, bottom: 344 };
 
-// Coordinate scales
-const scaleX = (val: number) => plot.left + (val / 10) * (plot.right - plot.left);
-const scaleY = (val: number) => plot.bottom - (val / 10) * (plot.bottom - plot.top);
+// internal 0..10 space -> screen
+const scaleX = (v: number) => plot.left + (v / 10) * (plot.right - plot.left);
+const scaleY = (v: number) => plot.bottom - (v / 10) * (plot.bottom - plot.top);
 const invertX = (px: number) => ((px - plot.left) / (plot.right - plot.left)) * 10;
 const invertY = (py: number) => ((plot.bottom - py) / (plot.bottom - plot.top)) * 10;
 
-const basePoints = [
-  { id: 0, x: 1.2, y: 2.1, label: 0 },
-  { id: 1, x: 2.1, y: 3.4, label: 0 },
-  { id: 2, x: 3.5, y: 5.3, label: 0 },
-  { id: 3, x: 4.3, y: 4.5, label: 0 },
-  { id: 4, x: 5.8, y: 6.2, label: 1 },
-  { id: 5, x: 6.6, y: 5.7, label: 1 },
-  { id: 7, x: 7.7, y: 7.2, label: 1 },
-  { id: 8, x: 8.8, y: 8.1, label: 1 },
-  { id: 9, x: 4.9, y: 7.6, label: 0 },
-  { id: 10, x: 5.4, y: 2.8, label: 1 },
+// display units
+const tempo = (x: number) => Math.round(60 + x * 12); // BPM
+const energy = (y: number) => Math.round(y * 10); // %
+
+// known, already-tagged songs on a tempo (x) x energy (y) map.
+// label 0 = "Lo-fi" (low energy), label 1 = "EDM" (high energy).
+// One crossover track — a fast but mellow song tagged EDM — sits down in the
+// lo-fi neighbourhood. That lone outlier is where k earns its keep.
+type Song = { id: number; x: number; y: number; label: 0 | 1 };
+const SONGS: Song[] = [
+  { id: 0, x: 1.5, y: 2.2, label: 0 },
+  { id: 1, x: 2.4, y: 3.0, label: 0 },
+  { id: 2, x: 3.2, y: 2.4, label: 0 },
+  { id: 3, x: 2.0, y: 3.6, label: 0 },
+  { id: 4, x: 3.6, y: 3.4, label: 0 },
+  { id: 5, x: 6.4, y: 7.2, label: 1 },
+  { id: 6, x: 7.2, y: 8.0, label: 1 },
+  { id: 7, x: 8.0, y: 6.8, label: 1 },
+  { id: 8, x: 7.6, y: 8.4, label: 1 },
+  { id: 9, x: 6.8, y: 7.6, label: 1 },
+  { id: 10, x: 5.4, y: 2.8, label: 1 }, // crossover: fast but mellow, tagged EDM
 ];
 
+const GENRES = [
+  { name: "Lo-fi", color: COLORS.cyan },
+  { name: "EDM", color: COLORS.pink },
+] as const;
+
 export default function KNNViz() {
-  const [query, setQuery] = useState({ x: 5.0, y: 5.0 });
+  const [query, setQuery] = useState({ x: 5.2, y: 3.4 });
   const [k, setK] = useState(3);
-  const [showBoundary, setShowBoundary] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const [dragging, setDragging] = useState(false);
 
-  // Compute nearest neighbors to query
-  const distances = basePoints.map((p) => {
-    const dist = Math.hypot(p.x - query.x, p.y - query.y);
-    return { ...p, dist };
-  });
-  distances.sort((a, b) => a.dist - b.dist);
-  const nearest = distances.slice(0, k);
+  const ranked = SONGS.map((s) => ({ ...s, dist: Math.hypot(s.x - query.x, s.y - query.y) })).sort(
+    (a, b) => a.dist - b.dist,
+  );
+  const nearest = ranked.slice(0, k);
+  const edmVotes = nearest.filter((s) => s.label === 1).length;
+  const lofiVotes = k - edmVotes;
+  const predicted = edmVotes > lofiVotes ? 1 : 0;
+  const predGenre = GENRES[predicted];
 
-  // Compute predicted class
-  const class1Count = nearest.filter((p) => p.label === 1).length;
-  const predictedLabel = class1Count > k / 2 ? 1 : 0;
-  const predText = predictedLabel === 1 ? "Class 1 (Pink)" : "Class 0 (Cyan)";
-
-  // Compute radar ripple radius (distance to k-th neighbor in pixels)
-  const kNeighbor = nearest[nearest.length - 1];
-  const radiusPx = kNeighbor
-    ? Math.hypot(scaleX(kNeighbor.x) - scaleX(query.x), scaleY(kNeighbor.y) - scaleY(query.y))
+  // neighbourhood radius = distance to the k-th neighbour (screen px)
+  const kth = nearest[nearest.length - 1];
+  const radiusPx = kth
+    ? Math.hypot(scaleX(kth.x) - scaleX(query.x), scaleY(kth.y) - scaleY(query.y)) + 12
     : 40;
 
-  const handlePointerDown = (e: React.PointerEvent<SVGElement>) => {
+  const setFromPointer = (e: React.PointerEvent<SVGElement>) => {
+    const svg = e.currentTarget.ownerSVGElement ?? (e.currentTarget as unknown as SVGSVGElement);
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const c = pt.matrixTransform(ctm.inverse());
+    setQuery({
+      x: Math.max(0.4, Math.min(9.6, invertX(c.x))),
+      y: Math.max(0.4, Math.min(9.6, invertY(c.y))),
+    });
+  };
+  const onDown = (e: React.PointerEvent<SVGElement>) => {
     e.preventDefault();
     (e.currentTarget as SVGElement).setPointerCapture(e.pointerId);
-    setIsDragging(true);
-    updateQueryPos(e);
+    setDragging(true);
+    setFromPointer(e);
   };
-
-  const handlePointerMove = (e: React.PointerEvent<SVGElement>) => {
-    if (!isDragging) return;
-    updateQueryPos(e);
+  const onMove = (e: React.PointerEvent<SVGElement>) => {
+    if (dragging) setFromPointer(e);
   };
-
-  const handlePointerUp = (e: React.PointerEvent<SVGElement>) => {
+  const onUp = (e: React.PointerEvent<SVGElement>) => {
     (e.currentTarget as SVGElement).releasePointerCapture(e.pointerId);
-    setIsDragging(false);
+    setDragging(false);
   };
 
-  const updateQueryPos = (e: React.PointerEvent<SVGElement>) => {
-    const svg = e.currentTarget.ownerSVGElement;
-    if (!svg) return;
-
-    const point = svg.createSVGPoint();
-    point.x = e.clientX;
-    point.y = e.clientY;
-    const svgCoords = point.matrixTransform(svg.getScreenCTM()?.inverse());
-    if (svgCoords) {
-      const rx = invertX(svgCoords.x);
-      const ry = invertY(svgCoords.y);
-      setQuery({
-        x: Math.max(0.5, Math.min(9.5, rx)),
-        y: Math.max(0.5, Math.min(9.5, ry)),
-      });
-    }
-  };
-
-  // Voronoi Heatmap resolution
-  const stepSize = 14;
-  const boundaryGrid: React.ReactNode[] = [];
-
-  if (showBoundary) {
-    for (let px = plot.left; px < plot.right; px += stepSize) {
-      for (let py = plot.top; py < plot.bottom; py += stepSize) {
-        const gx = invertX(px + stepSize / 2);
-        const gy = invertY(py + stepSize / 2);
-
-        // Find nearest k
-        const gridDistances = basePoints.map((p) => Math.hypot(p.x - gx, p.y - gy));
-        // Sort indices
-        const indices = Array.from(Array(basePoints.length).keys());
-        indices.sort((a, b) => gridDistances[a] - gridDistances[b]);
-
-        let vote1 = 0;
-        for (let i = 0; i < k; i++) {
-          if (basePoints[indices[i]].label === 1) vote1++;
-        }
-
-        const cellLabel = vote1 > k / 2 ? 1 : 0;
-        boundaryGrid.push(
+  // genre map: classify a coarse grid of cells by the same k-vote
+  const cells: React.ReactNode[] = [];
+  if (showMap) {
+    const step = 16;
+    for (let px = plot.left; px < plot.right; px += step) {
+      for (let py = plot.top; py < plot.bottom; py += step) {
+        const gx = invertX(px + step / 2);
+        const gy = invertY(py + step / 2);
+        const d = SONGS.map((s) => ({ label: s.label, dist: Math.hypot(s.x - gx, s.y - gy) })).sort(
+          (a, b) => a.dist - b.dist,
+        );
+        const v1 = d.slice(0, k).filter((s) => s.label === 1).length;
+        cells.push(
           <rect
             key={`${px}-${py}`}
             x={px}
             y={py}
-            width={stepSize}
-            height={stepSize}
-            fill={cellLabel === 1 ? COLORS.pink : COLORS.cyan}
-            fillOpacity={0.06}
-          />
+            width={step}
+            height={step}
+            fill={v1 > k / 2 ? COLORS.pink : COLORS.cyan}
+            fillOpacity={0.07}
+          />,
         );
       }
     }
   }
 
-  const ticks = [0, 2.5, 5, 7.5, 10];
+  const xticks = [0, 2.5, 5, 7.5, 10];
+  const yticks = [0, 2.5, 5, 7.5, 10];
 
-  return (
-    <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(340px,1fr)]">
-      <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <svg
-            className="h-full w-full"
-            viewBox={`0 0 ${W} ${H}`}
-            role="img"
-            aria-label="K-Nearest Neighbors Neighborhood"
-          >
-            <title>K N N Diagram</title>
-            <SVGFilters />
-            <rect width={W} height={H} fill={COLORS.bg} />
+  const caption =
+    `KNN never trains a model — it just remembers every tagged song. To label this new track it measures distance to all of them and lets the ${k} closest vote: ` +
+    `${edmVotes} say EDM, ${lofiVotes} say Lo-fi → tagged ${predGenre.name}. ` +
+    `Drag the track near the lone fast-but-mellow song: at k=1 its nearest neighbour alone decides, but a larger k lets the surrounding crowd outvote that one oddball.`;
 
-            {/* Decision Boundary Background (Heatmap) */}
-            {showBoundary && <g>{boundaryGrid}</g>}
+  const canvas = (
+    <svg
+      className="block h-auto w-full"
+      viewBox={`0 0 ${W} ${H}`}
+      role="img"
+      aria-label="K-Nearest Neighbors Genre Vote"
+      onPointerMove={onMove}
+      onPointerUp={onUp}
+    >
+      <title>K Nearest Neighbors Diagram</title>
+      <SVGFilters />
+      <rect width={W} height={H} fill={COLORS.bg} />
 
-            {/* Grid Axes */}
-            <g>
-              {ticks.map((tick) => (
-                <g key={tick}>
-                  <line x1={scaleX(tick)} x2={scaleX(tick)} y1={plot.top} y2={plot.bottom} stroke={COLORS.grid} strokeWidth={1} />
-                  <line x1={plot.left} x2={plot.right} y1={scaleY(tick)} y2={scaleY(tick)} stroke={COLORS.grid} strokeWidth={1} />
-                </g>
-              ))}
-              <line x1={plot.left} x2={plot.left} y1={plot.top} y2={plot.bottom} stroke={COLORS.border} strokeWidth={2} />
-              <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={COLORS.border} strokeWidth={2} />
-              <text x={plot.right + 12} y={plot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>Feature x1</text>
-              <text x={plot.left - 20} y={plot.top - 8} fill={COLORS.muted} fontSize={12} fontWeight={700}>Feature x2</text>
-            </g>
+      {showMap && <g>{cells}</g>}
 
-            {/* Radar ripple neighborhood circle */}
-            <motion.circle
-              key={`${query.x}-${query.y}-${k}`}
-              cx={scaleX(query.x)}
-              cy={scaleY(query.y)}
-              r={0}
-              fill="none"
-              stroke={COLORS.yellow}
-              strokeWidth={1.5}
-              strokeDasharray="4 3"
-              initial={{ r: 0, opacity: 0.8 }}
-              animate={{ r: radiusPx, opacity: 0.16 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-            />
+      {/* grid + axes */}
+      {xticks.map((t) => (
+        <g key={`x${t}`}>
+          <line x1={scaleX(t)} y1={plot.top} x2={scaleX(t)} y2={plot.bottom} stroke={COLORS.grid} strokeWidth={1} />
+          <text x={scaleX(t)} y={plot.bottom + 16} textAnchor="middle" fill={COLORS.muted} fontSize={10}>{tempo(t)}</text>
+        </g>
+      ))}
+      {yticks.map((t) => (
+        <g key={`y${t}`}>
+          <line x1={plot.left} y1={scaleY(t)} x2={plot.right} y2={scaleY(t)} stroke={COLORS.grid} strokeWidth={1} />
+          <text x={plot.left - 8} y={scaleY(t) + 3} textAnchor="end" fill={COLORS.muted} fontSize={10}>{energy(t)}</text>
+        </g>
+      ))}
+      <text x={plot.right} y={plot.bottom + 32} textAnchor="end" fill={COLORS.muted} fontSize={11} fontWeight={700}>tempo (BPM) →</text>
+      <text x={plot.left - 8} y={plot.top - 12} textAnchor="end" fill={COLORS.muted} fontSize={11} fontWeight={700}>energy (%)</text>
 
-            {/* Connecting lines from query to nearest neighbors */}
-            <g>
-              {nearest.map((p, idx) => (
-                <motion.line
-                  key={`line-${idx}-${query.x}-${query.y}`}
-                  x1={scaleX(query.x)}
-                  y1={scaleY(query.y)}
-                  x2={scaleX(p.x)}
-                  y2={scaleY(p.y)}
-                  stroke={COLORS.yellow}
-                  strokeWidth={2}
-                  strokeDasharray="4 2"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.3, delay: idx * 0.04 }}
-                />
-              ))}
-            </g>
+      {/* neighbourhood ring */}
+      <motion.circle
+        key={`${query.x.toFixed(2)}-${query.y.toFixed(2)}-${k}`}
+        cx={scaleX(query.x)}
+        cy={scaleY(query.y)}
+        fill={COLORS.yellow}
+        fillOpacity={0.05}
+        stroke={COLORS.yellow}
+        strokeWidth={1.5}
+        strokeDasharray="4 3"
+        initial={{ r: 0, opacity: 0.7 }}
+        animate={{ r: radiusPx, opacity: 1 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+      />
 
-            {/* All Data Points */}
-            <g>
-              {basePoints.map((p) => {
-                const isNear = nearest.some((n) => n.id === p.id);
-                return (
-                  <g key={p.id}>
-                    {/* Ring highlight if neighbor */}
-                    {isNear && (
-                      <circle
-                        cx={scaleX(p.x)}
-                        cy={scaleY(p.y)}
-                        r={11}
-                        fill="none"
-                        stroke={COLORS.yellow}
-                        strokeWidth={2}
-                        opacity={0.8}
-                      />
-                    )}
-                    <AnimatedPointMark px={scaleX(p.x)} py={scaleY(p.y)} color={p.label ? COLORS.pink : COLORS.cyan} r={5} />
-                  </g>
-                );
-              })}
-            </g>
+      {/* vote arcs to the k nearest */}
+      {nearest.map((s) => (
+        <line
+          key={`arc-${s.id}`}
+          x1={scaleX(query.x)}
+          y1={scaleY(query.y)}
+          x2={scaleX(s.x)}
+          y2={scaleY(s.y)}
+          stroke={GENRES[s.label].color}
+          strokeWidth={2}
+          strokeDasharray="4 2"
+          opacity={0.8}
+        />
+      ))}
 
-            {/* Click/Drag Area to move Query */}
-            <rect
-              x={plot.left}
-              y={plot.top}
-              width={plot.right - plot.left}
-              height={plot.bottom - plot.top}
-              fill="transparent"
-              onPointerDown={handlePointerDown}
-              onPointerMove={handlePointerMove}
-              onPointerUp={handlePointerUp}
-              className="cursor-crosshair"
-            />
+      {/* known songs */}
+      {SONGS.map((s) => {
+        const isNear = nearest.some((n) => n.id === s.id);
+        return (
+          <g key={s.id}>
+            {isNear && (
+              <circle cx={scaleX(s.x)} cy={scaleY(s.y)} r={11} fill="none" stroke={COLORS.yellow} strokeWidth={2} />
+            )}
+            <circle cx={scaleX(s.x)} cy={scaleY(s.y)} r={5.5} fill={GENRES[s.label].color} stroke={COLORS.bg} strokeWidth={1.5} />
+          </g>
+        );
+      })}
 
-            {/* Draggable Query Point (yellow) */}
-            <g transform={`translate(${scaleX(query.x)}, ${scaleY(query.y)})`}>
-              <circle r={10} fill={COLORS.yellow} stroke={COLORS.bg} strokeWidth={2.5} />
-              {/* Predicted Label indicator */}
-              <circle r={5} fill={predictedLabel === 1 ? COLORS.pink : COLORS.cyan} />
-              <text x={14} y={4} fill={COLORS.yellow} fontSize={10} fontWeight={800} stroke={COLORS.bg} strokeWidth={2.5} paintOrder="stroke">
-                Query [k={k}]
-              </text>
-            </g>
-          </svg>
-        </div>
-      </div>
+      {/* invisible hit area so the whole plot is draggable */}
+      <rect
+        x={plot.left}
+        y={plot.top}
+        width={plot.right - plot.left}
+        height={plot.bottom - plot.top}
+        fill="transparent"
+        onPointerDown={onDown}
+        className="cursor-crosshair"
+      />
 
-      <div className="flex min-w-0 flex-col gap-3">
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between gap-4 font-bold uppercase tracking-wide">
-            <span>Interactions</span>
-          </div>
-
-          <div className="mb-3">
-            <span className="block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
-              Neighbor Count (k):
-            </span>
-            <div className="flex items-center gap-2 bg-surface-container p-2 border border-outline">
-              <button aria-label="-"
-                onClick={() => setK((prev) => Math.max(1, prev - 2))}
-                disabled={k <= 1}
-                className="h-7 w-7 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer disabled:opacity-30"
-              >
-                -
-              </button>
-              <span className="font-bold text-primary text-center w-8">k = {k}</span>
-              <button aria-label="+"
-                onClick={() => setK((prev) => Math.min(7, prev + 2))}
-                disabled={k >= 7}
-                className="h-7 w-7 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer disabled:opacity-30"
-              >
-                +
-              </button>
-            </div>
-          </div>
-
-          <button aria-label="HIDE DECISION BOUNDARY SHOW DECISION BOUNDARY"
-            onClick={() => setShowBoundary(!showBoundary)}
-            className={`w-full flex h-9 items-center justify-center border border-outline font-bold tracking-wider cursor-pointer mb-2 active:scale-[0.98] transition-all ${
-              showBoundary
-                ? "bg-cyan/20 border-cyan text-cyan"
-                : "bg-surface hover:bg-surface-container hover:text-primary"
-            }`}
-          >
-            {showBoundary ? "HIDE DECISION BOUNDARY" : "SHOW DECISION BOUNDARY"}
-          </button>
-
-          <VisualizationInstruction
-            title="Direct Manipulation:"
-            content="Click or drag anywhere inside the plot to move the query point. Watch neighbor arcs connect and the vote balance update."
-            className="uppercase"
-          />
-        </div>
-
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-2 block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant">
-            VOTING READOUT
-          </div>
-          <div className="bg-surface-container p-3 border border-outline space-y-1 text-xs">
-            <div className="flex justify-between">
-              <span>Neighbors for Class 1 (Pink):</span>
-              <span className="font-bold text-pink">{class1Count}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Neighbors for Class 0 (Cyan):</span>
-              <span className="font-bold text-cyan">{k - class1Count}</span>
-            </div>
-            <div className="border-t border-outline my-2 pt-2 flex justify-between text-sm font-bold">
-              <span>PREDICTED CLASS:</span>
-              <span style={{ color: predictedLabel === 1 ? COLORS.pink : COLORS.cyan }}>
-                {predText}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      {/* the new, untagged track */}
+      <g transform={`translate(${scaleX(query.x)}, ${scaleY(query.y)})`} pointerEvents="none">
+        <circle r={10} fill={COLORS.yellow} stroke={COLORS.bg} strokeWidth={2.5} />
+        <circle r={5} fill={predGenre.color} />
+        <text x={14} y={4} fill={COLORS.yellow} fontSize={11} fontWeight={800} stroke={COLORS.bg} strokeWidth={3} paintOrder="stroke">new track</text>
+      </g>
+    </svg>
   );
+
+  const controls = (
+    <>
+      <div className="flex flex-col justify-center gap-2 border border-outline bg-surface p-3">
+        <span className="font-mono text-[12px] font-bold uppercase tracking-wide text-primary">Neighbor Count</span>
+        <div className="flex items-center gap-2">
+          <button
+            aria-label="-"
+            onClick={() => setK((p) => Math.max(1, p - 2))}
+            disabled={k <= 1}
+            className="h-8 w-8 border border-outline bg-surface font-bold hover:bg-surface-container disabled:opacity-30"
+          >
+            −
+          </button>
+          <span className="w-12 text-center font-mono text-sm font-bold text-primary">k = {k}</span>
+          <button
+            aria-label="+"
+            onClick={() => setK((p) => Math.min(7, p + 2))}
+            disabled={k >= 7}
+            className="h-8 w-8 border border-outline bg-surface font-bold hover:bg-surface-container disabled:opacity-30"
+          >
+            +
+          </button>
+        </div>
+        <button
+          aria-label={showMap ? "Hide the genre map" : "Show the genre map"}
+          onClick={() => setShowMap((s) => !s)}
+          className={`mt-1 flex h-8 items-center justify-center border px-3 font-mono text-[11px] font-bold uppercase tracking-wide ${showMap ? "border-cyan bg-cyan/15 text-cyan" : "border-outline bg-surface text-on-surface-variant hover:bg-surface-container"}`}
+        >
+          {showMap ? "Hide genre map" : "Show genre map"}
+        </button>
+        <span className="font-sans text-[12px] text-on-surface-variant">Click or drag inside the plot to move the new track.</span>
+      </div>
+
+      <div className="flex flex-1 flex-col justify-center gap-1.5 border border-outline bg-surface p-3 font-mono text-xs">
+        <div className="flex items-baseline justify-between gap-3">
+          <span className="text-[11px] font-bold uppercase text-on-surface-variant">Tagged as</span>
+          <span data-testid="knn-prediction" className="text-lg font-bold" style={{ color: predGenre.color }}>{predGenre.name}</span>
+        </div>
+        <div className="flex justify-between gap-3"><span className="text-on-surface-variant">votes for EDM</span><span className="font-bold" style={{ color: COLORS.pink }}>{edmVotes}</span></div>
+        <div className="flex justify-between gap-3"><span className="text-on-surface-variant">votes for Lo-fi</span><span className="font-bold" style={{ color: COLORS.cyan }}>{lofiVotes}</span></div>
+        <div className="flex justify-between gap-3"><span className="text-on-surface-variant">nearest is</span><span className="font-bold text-on-surface">{(ranked[0].dist).toFixed(2)} away</span></div>
+      </div>
+    </>
+  );
+
+  const mentalModel = (
+    <p>
+      K-nearest-neighbours is the <strong>lazy</strong> classifier: there is no
+      training step and no fitted equation — it simply <strong>stores every
+      labelled example</strong>. To classify something new it measures distance to
+      all of them and lets the <strong>k closest</strong> cast a majority vote.
+      Small k follows the data tightly and can be fooled by a single noisy
+      neighbour; larger k averages over more of the crowd, giving a smoother, more
+      robust boundary but blurring fine detail. The same &quot;find the most
+      similar known items&quot; idea powers recommendation and image search.
+    </p>
+  );
+
+  return <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />;
 }

@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import MarkdownRenderer from "../MarkdownRenderer";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import {
   COLORS,
   SVGFilters,
@@ -10,374 +9,273 @@ import {
   PulseRing,
   StepIndicator,
   NarrativeControls,
+  VizShell,
 } from "../visualizationPrimitives";
 
-const W = 640;
-const H = 420;
-const plot = { left: 64, top: 44, right: 406, bottom: 338 };
+const W = 660;
+const H = 380;
+const plot = { left: 60, top: 40, right: 624, bottom: 332 };
 
-const scaleX = (val: number) => plot.left + (val / 10) * (plot.right - plot.left);
-const scaleY = (val: number) => plot.bottom - (val / 10) * (plot.bottom - plot.top);
+const scaleX = (v: number) => plot.left + (v / 10) * (plot.right - plot.left);
+const scaleY = (v: number) => plot.bottom - (v / 10) * (plot.bottom - plot.top);
 
-const points = [
-  { x: 1.8, y: 2.8 },
-  { x: 2.2, y: 4.1 },
-  { x: 3.0, y: 2.2 },
-  { x: 3.5, y: 4.5 },
-  { x: 6.8, y: 7.2 },
-  { x: 7.2, y: 5.8 },
-  { x: 8.1, y: 8.5 },
-  { x: 8.5, y: 6.6 },
-  { x: 4.5, y: 5.0 }, // middle point
-  { x: 5.2, y: 3.2 }, // middle point 2
+// display units
+const spend = (y: number) => Math.round(y * 20); // £/month
+const visits = (x: number) => Math.round(x * 1.2); // /month
+
+// unlabelled customers: behaviour only, no segment given.
+// Three natural groups: occasional, loyal regulars, VIP big-spenders.
+const CUSTOMERS = [
+  { x: 1.5, y: 2.0 },
+  { x: 2.2, y: 1.4 },
+  { x: 1.0, y: 3.0 },
+  { x: 2.8, y: 2.2 },
+  { x: 7.5, y: 3.5 },
+  { x: 8.2, y: 4.6 },
+  { x: 7.0, y: 5.0 },
+  { x: 8.6, y: 3.2 },
+  { x: 4.5, y: 8.0 },
+  { x: 5.5, y: 7.2 },
+  { x: 4.0, y: 8.8 },
+  { x: 5.8, y: 8.4 },
 ];
 
-interface Particle {
-  id: number;
-  x: number;
-  y: number;
-  tx: number;
-  ty: number;
-  color: string;
-}
+const INIT = [
+  { x: 3, y: 3 },
+  { x: 7, y: 5 },
+  { x: 5, y: 7 },
+];
+const CLUSTER_COLORS = [COLORS.cyan, COLORS.pink, COLORS.yellow];
+
+const segmentName = (c: { x: number; y: number }) =>
+  c.y >= 6 ? "VIP big-spenders" : c.x >= 6 ? "Loyal regulars" : "Occasional shoppers";
+
+type Phase = "raw" | "assigned" | "converged";
 
 export default function KMeansViz() {
-  const [c1, setC1] = useState({ x: 2.5, y: 8.0 });
-  const [c2, setC2] = useState({ x: 7.5, y: 2.0 });
-  const [phase, setPhase] = useState<"unassigned" | "assign" | "move">("unassigned");
-  const [iteration, setIteration] = useState(0);
-  const [assignments, setAssignments] = useState<number[]>(Array(points.length).fill(-1));
-  const [trail1, setTrail1] = useState<{ x: number; y: number }[]>([{ x: 2.5, y: 8.0 }]);
-  const [trail2, setTrail2] = useState<{ x: number; y: number }[]>([{ x: 7.5, y: 2.0 }]);
-  const [converged, setConverged] = useState(false);
+  const [centroids, setCentroids] = useState(INIT.map((c) => ({ ...c })));
+  const [assignments, setAssignments] = useState<number[]>(Array(CUSTOMERS.length).fill(-1));
+  const [trails, setTrails] = useState<{ x: number; y: number }[][]>(INIT.map((c) => [{ ...c }]));
+  const [phase, setPhase] = useState<Phase>("raw");
   const [isPlaying, setIsPlaying] = useState(false);
-  const [particles, setParticles] = useState<Particle[]>([]);
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const playTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const currentStep = phase === "raw" ? 0 : phase === "assigned" ? 1 : 2;
+  const converged = phase === "converged";
 
-  const steps = ["1. Assign territory", "2. Move Centroids", "3. Converge"];
-  const currentStep = phase === "unassigned" ? 0 : phase === "assign" ? 0 : phase === "move" ? 1 : 2;
-
-  // Run assignment step
-  const runAssign = () => {
-    const nextAssignments = points.map((p) => {
-      const d1 = Math.hypot(p.x - c1.x, p.y - c1.y);
-      const d2 = Math.hypot(p.x - c2.x, p.y - c2.y);
-      return d1 <= d2 ? 0 : 1;
+  const assignTo = (cs: { x: number; y: number }[]) =>
+    CUSTOMERS.map((p) => {
+      let best = 0;
+      let bestD = Infinity;
+      cs.forEach((c, i) => {
+        const d = Math.hypot(p.x - c.x, p.y - c.y);
+        if (d < bestD) {
+          bestD = d;
+          best = i;
+        }
+      });
+      return best;
     });
 
-    setAssignments(nextAssignments);
-    setPhase("assign");
+  const runAssign = () => {
+    setAssignments(assignTo(centroids));
+    setPhase("assigned");
   };
 
-  // Run move step
   const runMove = () => {
-    const pts1 = points.filter((_, idx) => assignments[idx] === 0);
-    const pts2 = points.filter((_, idx) => assignments[idx] === 1);
-
-    let nextC1 = { ...c1 };
-    let nextC2 = { ...c2 };
-
-    if (pts1.length > 0) {
-      nextC1 = {
-        x: pts1.reduce((sum, p) => sum + p.x, 0) / pts1.length,
-        y: pts1.reduce((sum, p) => sum + p.y, 0) / pts1.length,
+    const next = centroids.map((c, i) => {
+      const owned = CUSTOMERS.filter((_, idx) => assignments[idx] === i);
+      if (owned.length === 0) return c;
+      return {
+        x: owned.reduce((s, p) => s + p.x, 0) / owned.length,
+        y: owned.reduce((s, p) => s + p.y, 0) / owned.length,
       };
-    }
-    if (pts2.length > 0) {
-      nextC2 = {
-        x: pts2.reduce((sum, p) => sum + p.x, 0) / pts2.length,
-        y: pts2.reduce((sum, p) => sum + p.y, 0) / pts2.length,
-      };
-    }
-
-    // Check convergence: did centroids move?
-    const d1 = Math.hypot(nextC1.x - c1.x, nextC1.y - c1.y);
-    const d2 = Math.hypot(nextC2.x - c2.x, nextC2.y - c2.y);
-
-    if (d1 < 0.02 && d2 < 0.02 && phase !== "unassigned") {
-      setConverged(true);
-      setIsPlaying(false);
-      spawnConfetti();
-    } else {
-      setC1(nextC1);
-      setC2(nextC2);
-      setTrail1((prev) => [...prev, nextC1]);
-      setTrail2((prev) => [...prev, nextC2]);
-      setIteration((prev) => prev + 1);
-    }
-
-    setPhase("move");
+    });
+    setCentroids(next);
+    setTrails((prev) => prev.map((t, i) => [...t, next[i]]));
+    // with separable groups, one assign+move pass already stabilises the segments
+    setPhase("converged");
+    setIsPlaying(false);
   };
 
   const handleStep = () => {
-    if (converged) return;
-    if (phase === "unassigned" || phase === "move") {
-      runAssign();
-    } else {
-      runMove();
-    }
+    if (phase === "raw") runAssign();
+    else if (phase === "assigned") runMove();
   };
 
   const handleReset = () => {
     setIsPlaying(false);
-    if (playTimerRef.current) clearInterval(playTimerRef.current);
-    
-    // Reset to random centroid starting points
-    setC1({ x: 2.0, y: 7.5 });
-    setC2({ x: 8.0, y: 3.5 });
-    setAssignments(Array(points.length).fill(-1));
-    setTrail1([{ x: 2.0, y: 7.5 }]);
-    setTrail2([{ x: 8.0, y: 3.5 }]);
-    setPhase("unassigned");
-    setIteration(0);
-    setConverged(false);
+    setCentroids(INIT.map((c) => ({ ...c })));
+    setAssignments(Array(CUSTOMERS.length).fill(-1));
+    setTrails(INIT.map((c) => [{ ...c }]));
+    setPhase("raw");
   };
 
-  // Play loop
   useEffect(() => {
-    if (playTimerRef.current) clearInterval(playTimerRef.current);
-
+    if (timer.current) clearInterval(timer.current);
     if (isPlaying && !converged) {
-      playTimerRef.current = setInterval(() => {
-        handleStep();
-      }, 1200);
+      timer.current = setInterval(handleStep, 1100);
     }
-
     return () => {
-      if (playTimerRef.current) clearInterval(playTimerRef.current);
+      if (timer.current) clearInterval(timer.current);
     };
-  }, [isPlaying, phase, c1, c2, assignments, converged]);
+  }, [isPlaying, phase]);
 
-  const spawnConfetti = () => {
-    const newParticles: Particle[] = [];
-    const colors = [COLORS.cyan, COLORS.pink, COLORS.yellow];
-    // Explode from both centroids
-    [c1, c2].forEach((c, idx) => {
-      const cx = scaleX(c.x);
-      const cy = scaleY(c.y);
-      for (let i = 0; i < 20; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 80 + 30;
-        newParticles.push({
-          id: idx * 100 + i + Date.now(),
-          x: cx,
-          y: cy,
-          tx: cx + Math.cos(angle) * speed,
-          ty: cy + Math.sin(angle) * speed,
-          color: colors[idx],
+  // discovered segments (only meaningful once converged)
+  const segments = centroids.map((c, i) => ({
+    name: segmentName(c),
+    color: CLUSTER_COLORS[i],
+    count: assignments.filter((a) => a === i).length,
+  }));
+
+  const caption =
+    phase === "raw"
+      ? "Twelve customers plotted by how often they visit and how much they spend — but with no labels. We don't know who the segments are yet. Each centroid (the big markers) is a guessed segment centre. Step to begin."
+      : phase === "assigned"
+        ? "ASSIGN: every customer joins its nearest centroid, tinting the map into territories. The grouping is still rough because the centres were only guesses."
+        : `MOVE & CONVERGE: each centroid slid to the mean of its customers, and the groups stopped changing. The algorithm discovered ${segments.length} segments with no labels at all — and we can read off what they are: ${segments.map((s) => s.name).join(", ")}.`;
+
+  const ticks = [0, 2.5, 5, 7.5, 10];
+
+  // Voronoi tint
+  const cells: React.ReactNode[] = [];
+  if (phase !== "raw") {
+    const step = 16;
+    for (let px = plot.left; px < plot.right; px += step) {
+      for (let py = plot.top; py < plot.bottom; py += step) {
+        const gx = ((px + step / 2 - plot.left) / (plot.right - plot.left)) * 10;
+        const gy = ((plot.bottom - (py + step / 2)) / (plot.bottom - plot.top)) * 10;
+        let best = 0;
+        let bestD = Infinity;
+        centroids.forEach((c, i) => {
+          const d = Math.hypot(gx - c.x, gy - c.y);
+          if (d < bestD) {
+            bestD = d;
+            best = i;
+          }
         });
-      }
-    });
-
-    setParticles(newParticles);
-    setTimeout(() => {
-      setParticles([]);
-    }, 900);
-  };
-
-  // Voronoi claim grid
-  const stepSize = 14;
-  const voronoiGrid: React.ReactNode[] = [];
-  if (phase === "assign" || phase === "move") {
-    for (let px = plot.left; px < plot.right; px += stepSize) {
-      for (let py = plot.top; py < plot.bottom; py += stepSize) {
-        const gx = ((px + stepSize / 2 - plot.left) / (plot.right - plot.left)) * 10;
-        const gy = ((plot.bottom - (py + stepSize / 2)) / (plot.bottom - plot.top)) * 10;
-
-        const d1 = Math.hypot(gx - c1.x, gy - c1.y);
-        const d2 = Math.hypot(gx - c2.x, gy - c2.y);
-
-        const cluster = d1 <= d2 ? 0 : 1;
-        voronoiGrid.push(
-          <rect
-            key={`v-${px}-${py}`}
-            x={px}
-            y={py}
-            width={stepSize}
-            height={stepSize}
-            fill={cluster === 0 ? COLORS.cyan : COLORS.pink}
-            fillOpacity={0.045}
-          />
-        );
+        cells.push(<rect key={`${px}-${py}`} x={px} y={py} width={step} height={step} fill={CLUSTER_COLORS[best]} fillOpacity={0.05} />);
       }
     }
   }
 
-  const ticks = [0, 2.5, 5, 7.5, 10];
+  const canvas = (
+    <svg className="block h-auto w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="K-Means Customer Segmentation">
+      <title>K Means Diagram</title>
+      <SVGFilters />
+      <rect width={W} height={H} fill={COLORS.bg} />
 
-  return (
-    <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(340px,1fr)]">
-      <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="K-Means Clustering Iterations">
-            <title>K Means Diagram</title>
-            <SVGFilters />
-            <rect width={W} height={H} fill={COLORS.bg} />
+      {cells}
 
-            {/* Claimed Voronoi background territories */}
-            {voronoiGrid}
+      {ticks.map((t) => (
+        <g key={t}>
+          <line x1={scaleX(t)} y1={plot.top} x2={scaleX(t)} y2={plot.bottom} stroke={COLORS.grid} strokeWidth={1} />
+          <line x1={plot.left} y1={scaleY(t)} x2={plot.right} y2={scaleY(t)} stroke={COLORS.grid} strokeWidth={1} />
+          <text x={plot.left - 8} y={scaleY(t) + 3} textAnchor="end" fill={COLORS.muted} fontSize={10}>£{spend(t)}</text>
+          <text x={scaleX(t)} y={plot.bottom + 15} textAnchor="middle" fill={COLORS.muted} fontSize={10}>{visits(t)}</text>
+        </g>
+      ))}
+      <line x1={plot.left} y1={plot.top} x2={plot.left} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
+      <line x1={plot.left} y1={plot.bottom} x2={plot.right} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
+      <text x={plot.right} y={plot.bottom + 30} textAnchor="end" fill={COLORS.muted} fontSize={11} fontWeight={700}>visits / month →</text>
+      <text x={plot.left - 8} y={plot.top - 12} textAnchor="end" fill={COLORS.muted} fontSize={11} fontWeight={700}>spend / month</text>
 
-            {/* Grid Axes */}
-            <g>
-              {ticks.map((tick) => (
-                <g key={tick}>
-                  <line x1={scaleX(tick)} x2={scaleX(tick)} y1={plot.top} y2={plot.bottom} stroke={COLORS.grid} strokeWidth={1} />
-                  <line x1={plot.left} x2={plot.right} y1={scaleY(tick)} y2={scaleY(tick)} stroke={COLORS.grid} strokeWidth={1} />
-                </g>
-              ))}
-              <line x1={plot.left} x2={plot.left} y1={plot.top} y2={plot.bottom} stroke={COLORS.border} strokeWidth={2} />
-              <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={COLORS.border} strokeWidth={2} />
-            </g>
+      {/* centroid trails */}
+      {trails.map((t, i) =>
+        t.length > 1 ? (
+          <path key={`tr${i}`} d={"M " + t.map((p) => `${scaleX(p.x)} ${scaleY(p.y)}`).join(" L ")} fill="none" stroke={CLUSTER_COLORS[i]} strokeWidth={1.5} strokeDasharray="3 3" opacity={0.5} />
+        ) : null,
+      )}
 
-            {/* Centroid trails */}
-            {trail1.length > 1 && (
-              <path
-                d={"M " + trail1.map((p) => `${scaleX(p.x)} ${scaleY(p.y)}`).join(" L ")}
-                fill="none"
-                stroke={COLORS.cyan}
-                strokeWidth={1.5}
-                strokeDasharray="3 3"
-                opacity={0.5}
-              />
-            )}
-            {trail2.length > 1 && (
-              <path
-                d={"M " + trail2.map((p) => `${scaleX(p.x)} ${scaleY(p.y)}`).join(" L ")}
-                fill="none"
-                stroke={COLORS.pink}
-                strokeWidth={1.5}
-                strokeDasharray="3 3"
-                opacity={0.5}
-              />
-            )}
+      {/* assignment spokes */}
+      {phase !== "raw" &&
+        CUSTOMERS.map((p, idx) => {
+          const c = centroids[assignments[idx]];
+          if (!c) return null;
+          return (
+            <motion.line
+              key={`spk-${idx}-${phase}`}
+              x1={scaleX(p.x)}
+              y1={scaleY(p.y)}
+              x2={scaleX(c.x)}
+              y2={scaleY(c.y)}
+              stroke={CLUSTER_COLORS[assignments[idx]]}
+              strokeWidth={1.2}
+              strokeOpacity={0.4}
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 0.4 }}
+            />
+          );
+        })}
 
-            {/* Assignment spokes */}
-            {assignments.length > 0 && phase !== "unassigned" && (
-              <g>
-                {points.map((p, idx) => {
-                  const cIdx = assignments[idx];
-                  if (cIdx === -1) return null;
-                  const targetCentroid = cIdx === 0 ? c1 : c2;
-                  return (
-                    <motion.line
-                      key={`spoke-${idx}-${iteration}-${phase}`}
-                      x1={scaleX(p.x)}
-                      y1={scaleY(p.y)}
-                      x2={scaleX(targetCentroid.x)}
-                      y2={scaleY(targetCentroid.y)}
-                      stroke={COLORS.yellow}
-                      strokeWidth={1.5}
-                      strokeOpacity={0.65}
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ duration: 0.4 }}
-                    />
-                  );
-                })}
-              </g>
-            )}
+      {/* customers */}
+      {CUSTOMERS.map((p, idx) => {
+        const a = assignments[idx];
+        return <AnimatedPointMark key={`c${idx}`} px={scaleX(p.x)} py={scaleY(p.y)} color={a === -1 ? COLORS.border : CLUSTER_COLORS[a]} r={5.5} />;
+      })}
 
-            {/* Data Points */}
-            <g>
-              {points.map((p, idx) => {
-                const cIdx = assignments[idx];
-                const color = cIdx === 0 ? COLORS.cyan : cIdx === 1 ? COLORS.pink : COLORS.border;
-                return (
-                  <AnimatedPointMark
-                    key={`pt-${idx}`}
-                    px={scaleX(p.x)}
-                    py={scaleY(p.y)}
-                    color={color}
-                    r={5.5}
-                  />
-                );
-              })}
-            </g>
+      {/* centroids */}
+      {centroids.map((c, i) => (
+        <AnimatedPointMark key={`cen${i}`} px={scaleX(c.x)} py={scaleY(c.y)} color={CLUSTER_COLORS[i]} r={10} />
+      ))}
 
-            {/* Centroids (Larger, styled markers) */}
-            <g>
-              <AnimatedPointMark px={scaleX(c1.x)} py={scaleY(c1.y)} color={COLORS.cyan} r={10} label="C1" />
-              <AnimatedPointMark px={scaleX(c2.x)} py={scaleY(c2.y)} color={COLORS.pink} r={10} label="C2" />
-            </g>
+      {converged && centroids.map((c, i) => <PulseRing key={`pr${i}`} px={scaleX(c.x)} py={scaleY(c.y)} color={CLUSTER_COLORS[i]} maxRadius={32} />)}
+    </svg>
+  );
 
-            {/* Confetti Explosion particles */}
-            {particles.map((p) => (
-              <motion.circle
-                key={p.id}
-                cx={p.x}
-                cy={p.y}
-                r={3}
-                fill={p.color}
-                initial={{ cx: p.x, cy: p.y, opacity: 0.9 }}
-                animate={{ cx: p.tx, cy: p.ty, opacity: 0 }}
-                transition={{ duration: 0.7, ease: "easeOut" }}
-              />
-            ))}
+  const controls = (
+    <div className="flex flex-1 flex-col justify-between gap-3">
+      <StepIndicator steps={["Raw data", "Assign", "Converge"]} currentStep={currentStep} />
 
-            {/* Convergence ring visual */}
-            {converged && (
-              <g>
-                <PulseRing px={scaleX(c1.x)} py={scaleY(c1.y)} color={COLORS.cyan} maxRadius={35} />
-                <PulseRing px={scaleX(c2.x)} py={scaleY(c2.y)} color={COLORS.pink} maxRadius={35} />
-              </g>
-            )}
-
-            {/* SVG In-Plot Stats */}
-            <g>
-              {/* Iteration Counter */}
-              <g transform="translate(440, 44)">
-                <rect width={166} height={54} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={21} fill={COLORS.muted} fontSize={12} fontWeight={700}>OPTIMIZATION STEP</text>
-                <text x={12} y={41} fill={COLORS.pink} fontSize={16} fontWeight={800}>
-                  #{iteration} ({phase.toUpperCase()})
-                </text>
-              </g>
-            </g>
-          </svg>
+      <div className="border border-outline bg-surface p-3 font-mono text-xs">
+        <div className="mb-1.5 flex items-baseline justify-between gap-3">
+          <span className="text-[11px] font-bold uppercase text-on-surface-variant">Status</span>
+          <span data-testid="kmeans-status" className="font-bold" style={{ color: converged ? COLORS.cyan : COLORS.muted }}>
+            {phase === "raw" ? "raw data — no labels yet" : phase === "assigned" ? "grouping…" : `converged · ${segments.length} segments`}
+          </span>
         </div>
+        {converged ? (
+          segments.map((s) => (
+            <div key={s.name} className="flex justify-between gap-3">
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: s.color }} />
+                {s.name}
+              </span>
+              <span className="font-bold text-on-surface">{s.count} customers</span>
+            </div>
+          ))
+        ) : (
+          <span className="text-[12px] text-on-surface-variant">No segment labels exist — k-means will discover them from behaviour alone.</span>
+        )}
       </div>
 
-      <div className="flex min-w-0 flex-col gap-3">
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between gap-4 font-bold uppercase tracking-wide">
-            <span>Iterations</span>
-          </div>
-
-          <StepIndicator steps={steps} currentStep={currentStep} />
-
-          <div className="my-3 min-h-[52px] text-[12px] text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline font-sans">
-            {converged ? (
-              <span className="text-cyan font-bold block">CONVERGED: Centroids have stabilized.</span>
-            ) : phase === "unassigned" ? (
-              "Ready to begin. Click STEP or PLAY to assign territory."
-            ) : phase === "assign" ? (
-              "Territory claimed. Next step: Glide centroids to the mean of their respective colored cluster."
-            ) : (
-              "Centroids updated. Next step: Re-assign points based on proximity to new centroid locations."
-            )}
-          </div>
-
-          <NarrativeControls
-            isPlaying={isPlaying}
-            onPlayToggle={() => {
-              if (converged) return;
-              setIsPlaying(!isPlaying);
-            }}
-            onStepForward={handleStep}
-            onReset={handleReset}
-            currentStep={phase === "unassigned" ? 0 : phase === "assign" ? 1 : 2}
-            totalSteps={3}
-          />
-        </div>
-
-        <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">
-          <span className="font-mono text-xs sm:text-sm font-bold uppercase tracking-wide text-primary">Mental model</span>
-          <div className="mt-3 text-sm sm:text-[15px] leading-relaxed text-on-surface-variant">
-            <MarkdownRenderer content={`K-Means Alternates: 1) Assignment (each point selects the closest centroid, carving space into Voronoi cells) and 2) Adjustment (each centroid glides to the center of mass of its claimed points).`} />
-          </div>
-        </div>
-      </div>
+      <NarrativeControls
+        isPlaying={isPlaying}
+        onPlayToggle={() => {
+          if (converged) return;
+          setIsPlaying((p) => !p);
+        }}
+        onStepForward={handleStep}
+        onReset={handleReset}
+        currentStep={currentStep}
+        totalSteps={3}
+      />
     </div>
   );
+
+  const mentalModel = (
+    <p>
+      Clustering is <strong>unsupervised</strong>: there are no labels, so the
+      algorithm has to <em>discover</em> structure on its own. K-means does it by
+      alternating two cheap moves — <strong>assign</strong> every point to the
+      nearest centre, then <strong>move</strong> each centre to the mean of the
+      points that chose it — repeating until nothing changes. It&apos;s how raw
+      logs become customer segments, images become colour palettes, and documents
+      become topics. The catch: <strong>you pick k</strong>, and a poor k (or
+      oddly-shaped groups) gives clusters that don&apos;t match reality.
+    </p>
+  );
+
+  return <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />;
 }

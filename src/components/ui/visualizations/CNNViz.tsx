@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   COLORS,
   SVGFilters,
-  StepIndicator,
   NarrativeControls,
+  VizShell,
 } from "../visualizationPrimitives";
 
 const W = 640;
@@ -123,11 +123,13 @@ export default function CNNViz() {
   const outX = outputStart.x + cOffset * outCellSize;
   const outY = outputStart.y + rOffset * outCellSize;
 
-  return (
-    <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(340px,1fr)]">
-      <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Convolutional Neural Network Scanner">
+  const canvas = (
+    <svg
+      className="block h-auto w-full"
+      viewBox={`0 0 ${W} ${H}`}
+      role="img"
+      aria-label="Convolutional Neural Network Scanner"
+    >
             <title>C N N Diagram</title>
             <SVGFilters />
             <rect width={W} height={H} fill={COLORS.bg} />
@@ -251,16 +253,16 @@ export default function CNNViz() {
               </text>
             </g>
           </svg>
-        </div>
-      </div>
+  );
 
-      <div className="flex min-w-0 flex-col gap-3">
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between gap-4 font-bold uppercase tracking-wide">
-            <span>Filter Select</span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 mb-4">
+  const controls = (
+    <>
+      <div className="flex flex-1 flex-wrap items-center gap-4 border border-outline bg-surface p-3">
+        <div className="flex flex-col gap-1.5">
+          <span className="font-mono text-[12px] font-bold uppercase tracking-wide text-on-surface-variant">
+            Filter Select
+          </span>
+          <div className="flex gap-2">
             {(["vertical", "horizontal"] as const).map((kKey) => (
               <button
                 aria-label={kKey === "vertical" ? "Vertical Edge" : "Horizontal Edge"}
@@ -269,7 +271,7 @@ export default function CNNViz() {
                   setSelectedKernel(kKey);
                   handleReset();
                 }}
-                className={`py-2 text-[12px] font-bold uppercase tracking-wider cursor-pointer border ${
+                className={`px-3 py-2 text-[12px] font-bold uppercase tracking-wider cursor-pointer border ${
                   selectedKernel === kKey
                     ? "bg-primary border-primary text-on-primary"
                     : "bg-surface hover:bg-surface-container border-outline text-on-surface-variant"
@@ -279,46 +281,65 @@ export default function CNNViz() {
               </button>
             ))}
           </div>
-
-          <div className="mb-3 flex flex-col gap-1.5 p-2.5 border border-outline bg-surface-container-low">
-            <span className="font-bold text-[12px] uppercase tracking-wide text-primary">Active Kernel Weights:</span>
-            <div className="grid grid-cols-3 gap-1 w-28 text-center text-[12px] font-bold">
-              {kernel.map((row, rIdx) =>
-                row.map((w, cIdx) => (
-                  <div key={`${rIdx}-${cIdx}`} className="bg-surface p-1 border border-outline text-on-surface">
-                    {w > 0 ? `+${w}` : w}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          <div className="my-3 min-h-[46px] text-[12px] text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline font-sans">
-            Moving kernel window scans image pixels. In-place multiplication values are calculated and summed up to generate the feature map cell value.
-          </div>
-
-          <NarrativeControls
-            isPlaying={isPlaying}
-            onPlayToggle={() => setIsPlaying(!isPlaying)}
-            onStepForward={handleStepForward}
-            onStepBackward={handleStepBackward}
-            onReset={handleReset}
-            currentStep={scanIndex}
-            totalSteps={16}
-          />
         </div>
 
-        <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">
-          <span className="font-mono text-xs sm:text-sm font-bold uppercase tracking-wide text-primary">Pythonic Code Snippet</span>
-          <pre className="mt-2 text-[12px] bg-surface-container p-2.5 rounded border border-outline font-mono overflow-x-auto text-primary leading-tight">
+        <div className="flex flex-col gap-1.5">
+          <span className="font-mono text-[12px] font-bold uppercase tracking-wide text-primary">
+            Active Kernel Weights
+          </span>
+          <div className="grid w-28 grid-cols-3 gap-1 text-center text-[12px] font-bold">
+            {kernel.map((row, rIdx) =>
+              row.map((w, cIdx) => (
+                <div
+                  key={`${rIdx}-${cIdx}`}
+                  className="border border-outline bg-surface p-1 text-on-surface"
+                >
+                  {w > 0 ? `+${w}` : w}
+                </div>
+              )),
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center sm:min-w-[320px]">
+        <NarrativeControls
+          isPlaying={isPlaying}
+          onPlayToggle={() => setIsPlaying(!isPlaying)}
+          onStepForward={handleStepForward}
+          onStepBackward={handleStepBackward}
+          onReset={handleReset}
+          currentStep={scanIndex}
+          totalSteps={16}
+        />
+      </div>
+    </>
+  );
+
+  const mentalModel = (
+    <div className="flex flex-col gap-3">
+      <p>
+        The kernel slides over the image; at each stop it multiplies the 3×3
+        patch by the filter weights and sums them into one feature-map cell. The
+        same small filter is reused at every position — that weight sharing is
+        what lets a CNN detect the same feature wherever it appears.
+      </p>
+      <pre className="overflow-x-auto rounded border border-outline bg-surface-container p-2.5 font-mono text-[12px] leading-tight text-primary">
 {`# 2D Conv loop element
 for r in range(out_h):
     for c in range(out_w):
         patch = img[r:r+3, c:c+3]
         out[r, c] = np.sum(patch * kernel)`}
-          </pre>
-        </div>
-      </div>
+      </pre>
     </div>
+  );
+
+  return (
+    <VizShell
+      canvas={canvas}
+      controls={controls}
+      caption="A kernel window scans the image. At each stop, the overlapping pixels are multiplied by the filter weights and summed into a single feature-map cell."
+      mentalModel={mentalModel}
+    />
   );
 }

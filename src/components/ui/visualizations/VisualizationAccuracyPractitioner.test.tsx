@@ -27,34 +27,78 @@ describe("Practitioner Track Visualization Accuracy", () => {
     expect(screen.getByText(/Feature Scaling/i)).toBeInTheDocument();
   });
 
-  it("verifies KNN neighborhood classification", () => {
+  it("tags a new track by neighbour vote and flips the tag when k shrinks", () => {
     render(<KNNViz />);
+
+    // Default query sits in the crossover pocket: the 3-neighbour crowd outvotes
+    // the lone EDM oddball, so it is tagged Lo-fi.
     expect(screen.getByText("k = 3")).toBeInTheDocument();
+    expect(screen.getByTestId("knn-prediction")).toHaveTextContent("Lo-fi");
+
+    // Drop to k = 1 and only the single nearest neighbour (the EDM crossover
+    // track) decides — the tag flips to EDM.
+    fireEvent.click(screen.getByRole("button", { name: "-" }));
+    expect(screen.getByText("k = 1")).toBeInTheDocument();
+    expect(screen.getByTestId("knn-prediction")).toHaveTextContent("EDM");
   });
 
-  it("verifies Decision Trees split thresholds", () => {
+  it("grows the loan tree so a second question fixes the income-only mistakes", () => {
     render(<DecisionTreeViz />);
-    expect(screen.getByText(/FEATURE PARTITION/i)).toBeInTheDocument();
+
+    // Shallow tree denies every low-income applicant, including the two who
+    // actually repaid -> 7 of 9 judged correctly.
+    expect(screen.getByTestId("tree-accuracy")).toHaveTextContent("7/9");
+
+    // Growing the tree adds the credit-score question, rescuing the creditworthy
+    // low-income applicants -> all 9 correct.
+    fireEvent.click(screen.getByRole("button", { name: /grow the tree/i }));
+    expect(screen.getByTestId("tree-accuracy")).toHaveTextContent("9/9");
   });
 
-  it("verifies SVM margin and C penalty math", () => {
+  it("renders the SVM kernel-trick lift narrative and free-play control", () => {
     render(<SVMViz />);
-    expect(screen.getAllByText(/Support Vectors/i).length).toBeGreaterThan(0);
+    expect(screen.getByText("STEP 1 / 4")).toBeInTheDocument();
+    expect(
+      screen.getByRole("slider", { name: /lift into third dimension/i }),
+    ).toBeInTheDocument();
   });
 
-  it("verifies Naive Bayes likelihood accumulation", () => {
+  it("tips the spam verdict when one strong word is added to the email", () => {
     render(<NaiveBayesViz />);
-    expect(screen.getByText(/Toggle words in email/i)).toBeInTheDocument();
+
+    // Borderline email ("free" + "meeting") sits just on the ham side.
+    expect(screen.getByTestId("nb-verdict")).toHaveTextContent("HAM");
+
+    // Adding "money" pulls hard toward spam and crosses the 50/50 line.
+    fireEvent.click(screen.getByRole("checkbox", { name: /include the word money/i }));
+    expect(screen.getByTestId("nb-verdict")).toHaveTextContent("SPAM");
   });
 
-  it("verifies Ensemble stumps count", () => {
+  it("raises committee accuracy as weak rules are added", () => {
     render(<EnsembleViz />);
-    expect(screen.getByText("1 Stumps")).toBeInTheDocument();
+
+    // A single weak rule is well below perfect.
+    expect(screen.getByTestId("ensemble-count")).toHaveTextContent("1 of 5 rules");
+    expect(screen.getByTestId("ensemble-committee-acc")).toHaveTextContent("75%");
+
+    // The full five-rule committee classifies every transaction correctly.
+    for (let i = 0; i < 4; i += 1) {
+      fireEvent.click(screen.getByRole("button", { name: /add a weak rule/i }));
+    }
+    expect(screen.getByTestId("ensemble-committee-acc")).toHaveTextContent("100%");
   });
 
-  it("verifies KMeans clustering iterations", () => {
+  it("discovers customer segments from unlabelled data after stepping to convergence", () => {
     render(<KMeansViz />);
+
+    // Starts as raw, label-less data.
     expect(screen.getByText("STEP 1 / 3")).toBeInTheDocument();
+    expect(screen.getByTestId("kmeans-status")).toHaveTextContent(/no labels/i);
+
+    // Assign, then move/converge -> three segments emerge with no labels given.
+    fireEvent.click(screen.getByTitle("Step Forward"));
+    fireEvent.click(screen.getByTitle("Step Forward"));
+    expect(screen.getByTestId("kmeans-status")).toHaveTextContent("3 segments");
   });
 
   it("verifies GMM Expectation Maximization state", () => {

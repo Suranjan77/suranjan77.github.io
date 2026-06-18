@@ -1,316 +1,162 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  COLORS,
-  SVGFilters,
-  AnimatedPointMark,
-} from "../visualizationPrimitives";
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { COLORS, SVGFilters, VizShell } from "../visualizationPrimitives";
 
-const W = 640;
-const H = 420;
+const W = 660;
+const H = 380;
+const plot = { left: 60, top: 40, right: 488, bottom: 332 };
 
-// Subplot boundaries
-const leftPlot = { left: 40, top: 44, right: 280, width: 240, bottom: 320, height: 276 };
-const rightPlot = { left: 340, top: 44, right: 580, width: 240, bottom: 320, height: 276 };
+const scaleX = (v: number) => plot.left + (v / 10) * (plot.right - plot.left);
+const scaleY = (v: number) => plot.bottom - (v / 10) * (plot.bottom - plot.top);
+const invX = (px: number) => ((px - plot.left) / (plot.right - plot.left)) * 10;
+const invY = (py: number) => ((plot.bottom - py) / (plot.bottom - plot.top)) * 10;
 
-// Coordinate scales
-const scaleLeftX = (val: number) => leftPlot.left + (val / 10) * leftPlot.width;
-const scaleLeftY = (val: number) => leftPlot.bottom - (val / 10) * leftPlot.height;
-const invertLeftX = (px: number) => ((px - leftPlot.left) / leftPlot.width) * 10;
-const invertLeftY = (py: number) => ((leftPlot.bottom - py) / leftPlot.height) * 10;
-
-const scaleRightX = (idx: number) => rightPlot.left + 24 + idx * 42;
-const scaleRightY = (errorVal: number) => rightPlot.bottom - errorVal * 200;
-
-const basePoints = [
-  { x: 1.2, y: 2.1, label: 0 },
-  { x: 2.1, y: 3.4, label: 0 },
-  { x: 3.5, y: 5.3, label: 0 },
-  { x: 4.3, y: 4.5, label: 0 },
-  { x: 5.8, y: 6.2, label: 1 },
-  { x: 6.6, y: 5.7, label: 1 },
-  { x: 7.7, y: 7.2, label: 1 },
-  { x: 8.8, y: 8.1, label: 1 },
+// transactions: FRAUD when amount (x) exceeds the account's typical amount (y),
+// i.e. points below the diagonal. LEGIT above it. The boundary is diagonal, so
+// no single axis-aligned rule can separate the classes well.
+// label 1 = legit (above), label 0 = fraud (below) — kept internal; displayed by name.
+const TX = [
+  // fraud (below diagonal)
+  { x: 3, y: 1, l: 0 }, { x: 4, y: 2, l: 0 }, { x: 5, y: 3, l: 0 }, { x: 6, y: 4, l: 0 },
+  { x: 7, y: 5, l: 0 }, { x: 8, y: 6, l: 0 }, { x: 5.5, y: 4.2, l: 0 }, { x: 6.5, y: 5.2, l: 0 },
+  // legit (above diagonal)
+  { x: 1, y: 3, l: 1 }, { x: 2, y: 4, l: 1 }, { x: 3, y: 5, l: 1 }, { x: 4, y: 6, l: 1 },
+  { x: 5, y: 7, l: 1 }, { x: 6, y: 8, l: 1 }, { x: 4.2, y: 5.5, l: 1 }, { x: 5.2, y: 6.5, l: 1 },
 ];
 
-const stumps = [
-  { dim: "x", value: 3.2, dir: 1, label: "x1 > 3.2" }, // x > 3.2 -> Class 1
-  { dim: "y", value: 5.4, dir: -1, label: "x2 < 5.4" }, // y < 5.4 -> Class 1
-  { dim: "x", value: 6.8, dir: 1, label: "x1 > 6.8" }, // x > 6.8 -> Class 1
-  { dim: "y", value: 7.2, dir: -1, label: "x2 < 7.2" }, // y < 7.2 -> Class 1
-  { dim: "x", value: 4.9, dir: -1, label: "x1 < 4.9" }, // x < 4.9 -> Class 1
-] as const;
+// five weak rules. Each votes +1 (legit) when its condition holds, else -1.
+// Individually each is only 56–75% accurate; their committee reaches 100%.
+type Stump = { dim: "x" | "y"; v: number; dir: 1 | -1; label: string };
+const STUMPS: Stump[] = [
+  { dim: "x", v: 5.5, dir: -1, label: "amount < 5.5" },
+  { dim: "y", v: 6.5, dir: 1, label: "typical > 6.5" },
+  { dim: "y", v: 2.5, dir: 1, label: "typical > 2.5" },
+  { dim: "x", v: 1.5, dir: -1, label: "amount < 1.5" },
+  { dim: "y", v: 3.5, dir: 1, label: "typical > 3.5" },
+];
+
+const vote = (s: Stump, x: number, y: number) => {
+  const f = s.dim === "x" ? x : y;
+  return (s.dir === 1 ? f > s.v : f < s.v) ? 1 : -1;
+};
+const committeeLabel = (stumps: Stump[], x: number, y: number) =>
+  stumps.reduce((sum, s) => sum + vote(s, x, y), 0) >= 0 ? 1 : 0;
+const indivAcc = (s: Stump) =>
+  TX.filter((p) => (vote(s, p.x, p.y) === 1 ? 1 : 0) === p.l).length / TX.length;
+const committeeAcc = (stumps: Stump[]) =>
+  TX.filter((p) => committeeLabel(stumps, p.x, p.y) === p.l).length / TX.length;
+
+const BEST_SINGLE = Math.max(...STUMPS.map(indivAcc));
 
 export default function EnsembleViz() {
-  const [learnerCount, setLearnerCount] = useState(1);
-  const [pulse, setPulse] = useState(false);
+  const [n, setN] = useState(1);
+  const active = STUMPS.slice(0, n);
+  const acc = committeeAcc(active);
 
-  // Trigger pulse highlight when count changes
-  useEffect(() => {
-    setPulse(true);
-    const t = setTimeout(() => setPulse(false), 500);
-    return () => clearTimeout(t);
-  }, [learnerCount]);
+  const caption =
+    n === 1
+      ? `One weak rule is just a single straight cut — barely better than a coin flip (${(indivAcc(STUMPS[0]) * 100).toFixed(0)}% right). It can't follow the diagonal fraud boundary, so it misclassifies everything stranded on the wrong side.`
+      : `${n} weak rules now vote. Each one alone is mediocre (56–75% right), but their majority vote carves a staircase that hugs the true boundary — ${(acc * 100).toFixed(0)}% right. No single straight rule could draw this shape.`;
 
-  // Compute ensemble prediction error at each stage (1 to 5)
-  const getErrors = () => {
-    const errs: number[] = [];
-    for (let c = 1; c <= 5; c++) {
-      let misclassified = 0;
-      basePoints.forEach((p) => {
-        const vote = stumps.slice(0, c).reduce((sum, stump) => {
-          const feature = stump.dim === "x" ? p.x : p.y;
-          const pred = stump.dir === 1 ? feature > stump.value : feature < stump.value;
-          return sum + (pred ? 1 : -1);
-        }, 0);
-        const predLabel = vote >= 0 ? 1 : 0;
-        if (predLabel !== p.label) misclassified++;
-      });
-      errs.push(misclassified / basePoints.length);
-    }
-    return errs;
-  };
-
-  const errors = getErrors();
-  const currentError = errors[learnerCount - 1];
-
-  // Render heatmap cells
-  const stepSize = 14;
-  const heatmap: React.ReactNode[] = [];
-  for (let px = leftPlot.left; px < leftPlot.right; px += stepSize) {
-    for (let py = leftPlot.top; py < leftPlot.bottom; py += stepSize) {
-      const gx = invertLeftX(px + stepSize / 2);
-      const gy = invertLeftY(py + stepSize / 2);
-
-      // Ensemble voting
-      const vote = stumps.slice(0, learnerCount).reduce((sum, stump) => {
-        const feature = stump.dim === "x" ? gx : gy;
-        const pred = stump.dir === 1 ? feature > stump.value : feature < stump.value;
-        return sum + (pred ? 1 : -1);
-      }, 0);
-
-      const cellColor = vote >= 0 ? COLORS.pink : COLORS.cyan;
-      const opacity = 0.04 + Math.abs(vote) * 0.038;
-
-      heatmap.push(
-        <rect
-          key={`${px}-${py}`}
-          x={px}
-          y={py}
-          width={stepSize}
-          height={stepSize}
-          fill={cellColor}
-          fillOpacity={opacity}
-        />
+  // committee-vote heatmap
+  const cells: React.ReactNode[] = [];
+  const step = 13;
+  for (let px = plot.left; px < plot.right; px += step) {
+    for (let py = plot.top; py < plot.bottom; py += step) {
+      const gx = invX(px + step / 2);
+      const gy = invY(py + step / 2);
+      const margin = active.reduce((s, st) => s + vote(st, gx, gy), 0) / n;
+      const lab = margin >= 0 ? 1 : 0;
+      cells.push(
+        <rect key={`${px}-${py}`} x={px} y={py} width={step} height={step} fill={lab === 1 ? COLORS.cyan : COLORS.pink} fillOpacity={0.05 + Math.abs(margin) * 0.16} />,
       );
     }
   }
 
-  const leftTicks = [0, 2.5, 5, 7.5, 10];
-  const rightTicksErr = [0, 0.2, 0.4, 0.6];
+  const ticks = [0, 2.5, 5, 7.5, 10];
 
-  return (
-    <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(340px,1fr)]">
-      <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <svg
-            className="h-full w-full"
-            viewBox={`0 0 ${W} ${H}`}
-            role="img"
-            aria-label="Ensemble Voting Boosting Surface"
-          >
-            <title>Ensemble Diagram</title>
-            <SVGFilters />
-            <rect width={W} height={H} fill={COLORS.bg} />
+  const canvas = (
+    <svg className="block h-auto w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Ensemble Weak Learners Committee Vote">
+      <title>Ensemble Diagram</title>
+      <SVGFilters />
+      <rect width={W} height={H} fill={COLORS.bg} />
 
-            {/* LEFT PANEL: Feature Space & Heatmap */}
-            <g>
-              {/* Heatmap background */}
-              {heatmap}
+      {cells}
 
-              {/* Grid ticks */}
-              {leftTicks.map((tick) => (
-                <g key={`l-tick-${tick}`}>
-                  <line x1={scaleLeftX(tick)} x2={scaleLeftX(tick)} y1={leftPlot.top} y2={leftPlot.bottom} stroke={COLORS.grid} strokeWidth={1} strokeOpacity={0.5} />
-                  <line x1={leftPlot.left} x2={leftPlot.right} y1={scaleLeftY(tick)} y2={scaleLeftY(tick)} stroke={COLORS.grid} strokeWidth={1} strokeOpacity={0.5} />
-                </g>
-              ))}
+      {ticks.map((t) => (
+        <g key={t}>
+          <line x1={scaleX(t)} y1={plot.top} x2={scaleX(t)} y2={plot.bottom} stroke={COLORS.grid} strokeWidth={1} strokeOpacity={0.5} />
+          <line x1={plot.left} y1={scaleY(t)} x2={plot.right} y2={scaleY(t)} stroke={COLORS.grid} strokeWidth={1} strokeOpacity={0.5} />
+        </g>
+      ))}
+      <line x1={plot.left} y1={plot.top} x2={plot.left} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
+      <line x1={plot.left} y1={plot.bottom} x2={plot.right} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
+      <text x={plot.right} y={plot.bottom + 28} textAnchor="end" fill={COLORS.muted} fontSize={11} fontWeight={700}>transaction amount →</text>
+      <text x={plot.left - 8} y={plot.top - 14} textAnchor="end" fill={COLORS.muted} fontSize={11} fontWeight={700}>typical amount</text>
 
-              {/* Axes */}
-              <line x1={leftPlot.left} x2={leftPlot.left} y1={leftPlot.top} y2={leftPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
-              <line x1={leftPlot.left} x2={leftPlot.right} y1={leftPlot.bottom} y2={leftPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
+      {/* active weak-rule cuts */}
+      {active.map((s, idx) => {
+        const newest = idx === n - 1;
+        const stroke = newest ? COLORS.yellow : COLORS.muted;
+        if (s.dim === "x") {
+          const cx = scaleX(s.v);
+          return <motion.line key={`s${idx}`} x1={cx} y1={plot.top} x2={cx} y2={plot.bottom} stroke={stroke} strokeWidth={newest ? 3 : 1.5} strokeDasharray={newest ? undefined : "3 3"} initial={newest ? { pathLength: 0 } : false} animate={{ pathLength: 1 }} transition={{ duration: 0.4 }} />;
+        }
+        const cy = scaleY(s.v);
+        return <motion.line key={`s${idx}`} x1={plot.left} y1={cy} x2={plot.right} y2={cy} stroke={stroke} strokeWidth={newest ? 3 : 1.5} strokeDasharray={newest ? undefined : "3 3"} initial={newest ? { pathLength: 0 } : false} animate={{ pathLength: 1 }} transition={{ duration: 0.4 }} />;
+      })}
 
-              <text x={leftPlot.right + 8} y={leftPlot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>x1</text>
-              <text x={leftPlot.left - 8} y={leftPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={700}>x2</text>
-              <text x={leftPlot.left + 5} y={leftPlot.top - 8} fill={COLORS.muted} fontSize={12} fontWeight={800}>VOTING HEATMAP</text>
-
-              {/* Render Weak Stumps */}
-              {stumps.slice(0, learnerCount).map((stump, idx) => {
-                const isNewest = idx === learnerCount - 1;
-
-                if (stump.dim === "y") {
-                  // Horizontal cut
-                  const settledY = scaleLeftY(stump.value);
-                  return (
-                    <motion.line
-                      key={`stump-${idx}`}
-                      x1={leftPlot.left}
-                      x2={leftPlot.right}
-                      y1={settledY}
-                      y2={settledY}
-                      stroke={COLORS.yellow}
-                      strokeWidth={isNewest ? 3.5 : 1.5}
-                      strokeDasharray={isNewest ? undefined : "3 3"}
-                      initial={isNewest ? { y: -50 } : false}
-                      animate={isNewest ? { y: 0 } : {}}
-                      transition={{ type: "spring", stiffness: 100 }}
-                    />
-                  );
-                } else {
-                  // Vertical cut
-                  const settledX = scaleLeftX(stump.value);
-                  return (
-                    <motion.line
-                      key={`stump-${idx}`}
-                      x1={settledX}
-                      x2={settledX}
-                      y1={leftPlot.top}
-                      y2={leftPlot.bottom}
-                      stroke={COLORS.yellow}
-                      strokeWidth={isNewest ? 3.5 : 1.5}
-                      strokeDasharray={isNewest ? undefined : "3 3"}
-                      initial={isNewest ? { scaleY: 0 } : false}
-                      animate={isNewest ? { scaleY: 1 } : {}}
-                      style={{ transformOrigin: "top" }}
-                      transition={{ duration: 0.5 }}
-                    />
-                  );
-                }
-              })}
-
-              {/* Data points */}
-              {basePoints.map((p, idx) => (
-                <AnimatedPointMark key={`pt-${idx}`} px={scaleLeftX(p.x)} py={scaleLeftY(p.y)} color={p.label ? COLORS.pink : COLORS.cyan} r={5} />
-              ))}
-            </g>
-
-            {/* RIGHT PANEL: Training Error Bar Chart */}
-            <g>
-              {/* Plot boundary */}
-              <rect x={rightPlot.left} y={rightPlot.top} width={rightPlot.width} height={rightPlot.height} fill="none" stroke={COLORS.border} strokeDasharray="3 3" />
-              <text x={rightPlot.left + 8} y={rightPlot.top - 8} fill={COLORS.muted} fontSize={12} fontWeight={800}>TRAINING ERROR PROFILE</text>
-
-              {/* Error ticks */}
-              {rightTicksErr.map((tick) => {
-                const yPos = scaleRightY(tick);
-                return (
-                  <g key={`r-err-tick-${tick}`}>
-                    <line x1={rightPlot.left} x2={rightPlot.right} y1={yPos} y2={yPos} stroke={COLORS.grid} strokeWidth={1} />
-                    <text x={rightPlot.left - 8} y={yPos + 3} textAnchor="end" fill={COLORS.muted} fontSize={9} fontWeight={700}>
-                      {(tick * 100).toFixed(0)}%
-                    </text>
-                  </g>
-                );
-              })}
-
-              {/* Error Bars for each learner stage */}
-              {errors.map((err, idx) => {
-                const isCurrent = idx === learnerCount - 1;
-                const bx = scaleRightX(idx);
-                const bh = err * 200; // 0% is at bottom, bh grows upwards
-                const barWidth = 24;
-
-                return (
-                  <g key={`bar-${idx}`}>
-                    <motion.rect
-                      x={bx - barWidth / 2}
-                      y={rightPlot.bottom - bh}
-                      width={barWidth}
-                      height={bh}
-                      fill={isCurrent ? COLORS.pink : COLORS.muted}
-                      fillOpacity={isCurrent ? 0.85 : 0.4}
-                      stroke={isCurrent ? COLORS.pink : COLORS.border}
-                      strokeWidth={1}
-                      animate={isCurrent ? { scale: [1, 1.08, 1] } : {}}
-                      transition={{ duration: 0.3 }}
-                    />
-                    <text x={bx} y={rightPlot.bottom + 14} textAnchor="middle" fill={COLORS.muted} fontSize={9} fontWeight={700}>
-                      M{idx + 1}
-                    </text>
-                    <text x={bx} y={rightPlot.bottom - bh - 6} textAnchor="middle" fill={isCurrent ? COLORS.pink : COLORS.muted} fontSize={8} fontWeight={800}>
-                      {(err * 100).toFixed(0)}%
-                    </text>
-                  </g>
-                );
-              })}
-            </g>
-          </svg>
-        </div>
-      </div>
-
-      <div className="flex min-w-0 flex-col gap-3">
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between gap-4 font-bold uppercase tracking-wide">
-            <span>Ensemble Size</span>
-          </div>
-
-          <div className="mb-3">
-            <span className="block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
-              Weak Learners (Stumps):
-            </span>
-            <div className="flex items-center gap-2 bg-surface-container p-2 border border-outline">
-              <button aria-label="-"
-                onClick={() => setLearnerCount((prev) => Math.max(1, prev - 1))}
-                disabled={learnerCount <= 1}
-                className="h-7 w-7 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer disabled:opacity-30"
-              >
-                -
-              </button>
-              <span className="font-bold text-primary text-center w-24">
-                {learnerCount} Stumps
-              </span>
-              <button aria-label="+"
-                onClick={() => setLearnerCount((prev) => Math.min(5, prev + 1))}
-                disabled={learnerCount >= 5}
-                className="h-7 w-7 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer disabled:opacity-30"
-              >
-                +
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-3 text-xs uppercase tracking-wide text-on-surface-variant leading-relaxed bg-surface-container-low p-2 border border-outline">
-            <p className="font-bold mb-1 text-primary">Visual Concept:</p>
-            Add stumps using <span className="text-primary font-bold">+</span>. Watch each vertical or horizontal decision split drop from above and settle, as the error bar graph shrinks toward zero!
-          </div>
-        </div>
-
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-2 block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant">
-            CURRENT ENSEMBLE SUMMARY
-          </div>
-          <div className="bg-surface-container p-3 border border-outline space-y-1.5 text-xs">
-            <div className="flex justify-between">
-              <span>Weak Learners:</span>
-              <span className="font-bold text-primary">{learnerCount}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Active Formula:</span>
-              <span className="font-bold text-yellow-600">
-                sign(Σ Stump_i)
-              </span>
-            </div>
-            <div className="flex justify-between border-t border-outline pt-2 mt-2 font-bold text-sm">
-              <span>TRAINING ERROR:</span>
-              <span className={currentError === 0 ? "text-cyan" : "text-pink"}>
-                {(currentError * 100).toFixed(1)}%
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      {/* transactions, colored by their true class */}
+      {TX.map((p, idx) => {
+        const correct = committeeLabel(active, p.x, p.y) === p.l;
+        return (
+          <g key={idx}>
+            <circle cx={scaleX(p.x)} cy={scaleY(p.y)} r={correct ? 5.5 : 7} fill={p.l === 1 ? COLORS.cyan : COLORS.pink} stroke={correct ? COLORS.bg : COLORS.yellow} strokeWidth={correct ? 1.5 : 2.5} />
+            {!correct && <text x={scaleX(p.x)} y={scaleY(p.y) + 3.5} textAnchor="middle" fill={COLORS.bg} fontSize={9} fontWeight={900}>!</text>}
+          </g>
+        );
+      })}
+    </svg>
   );
+
+  const controls = (
+    <>
+      <div className="flex flex-col justify-center gap-2 border border-outline bg-surface p-3">
+        <span className="font-mono text-[12px] font-bold uppercase tracking-wide text-primary">Weak rules in committee</span>
+        <div className="flex items-center gap-2">
+          <button aria-label="Remove a weak rule" onClick={() => setN((p) => Math.max(1, p - 1))} disabled={n <= 1} className="h-8 w-8 border border-outline bg-surface font-bold hover:bg-surface-container disabled:opacity-30">−</button>
+          <span data-testid="ensemble-count" className="w-28 text-center font-mono text-sm font-bold text-primary">{n} of {STUMPS.length} rules</span>
+          <button aria-label="Add a weak rule" onClick={() => setN((p) => Math.min(STUMPS.length, p + 1))} disabled={n >= STUMPS.length} className="h-8 w-8 border border-outline bg-surface font-bold hover:bg-surface-container disabled:opacity-30">+</button>
+        </div>
+        <span className="font-sans text-[12px] text-on-surface-variant">Each rule is one threshold (a “decision stump”). Add them and watch the committee vote.</span>
+      </div>
+
+      <div className="flex flex-1 flex-col justify-center gap-1.5 border border-outline bg-surface p-3 font-mono text-xs">
+        <div className="flex items-baseline justify-between gap-3">
+          <span className="text-[11px] font-bold uppercase text-on-surface-variant">Committee accuracy</span>
+          <span data-testid="ensemble-committee-acc" className="text-lg font-bold" style={{ color: acc === 1 ? COLORS.cyan : COLORS.pink }}>{(acc * 100).toFixed(0)}%</span>
+        </div>
+        <div className="flex justify-between gap-3"><span className="text-on-surface-variant">best single rule alone</span><span className="font-bold text-on-surface">{(BEST_SINGLE * 100).toFixed(0)}%</span></div>
+        <div className="flex justify-between gap-3"><span className="text-on-surface-variant">newest rule</span><span className="font-bold text-on-surface">{STUMPS[n - 1].label} ({(indivAcc(STUMPS[n - 1]) * 100).toFixed(0)}%)</span></div>
+      </div>
+    </>
+  );
+
+  const mentalModel = (
+    <p>
+      An ensemble combines many <strong>weak learners</strong> — models barely
+      better than chance — into one strong one. Each weak rule makes its own
+      mistakes; because those mistakes are <strong>uncorrelated</strong>, a
+      majority vote cancels them out and the committee&apos;s errors shrink toward
+      zero. <strong>Bagging</strong> (random forests) trains the learners on
+      different random samples and averages them; <strong>boosting</strong>
+      (AdaBoost, gradient boosting, XGBoost) trains each new learner to fix the
+      previous ones&apos; mistakes. It&apos;s why a forest of shallow trees beats a
+      single deep one, and why boosted trees still win on tabular data.
+    </p>
+  );
+
+  return <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />;
 }

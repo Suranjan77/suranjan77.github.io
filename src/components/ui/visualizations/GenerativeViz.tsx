@@ -1,314 +1,297 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import MarkdownRenderer from "../MarkdownRenderer";
-import { motion } from "framer-motion";
-import {
-  COLORS,
-  SVGFilters,
-  Vector,
-  MiniStat,
-  VisualizationInstruction,
-} from "../visualizationPrimitives";
+import { COLORS, SVGFilters, VizShell } from "../visualizationPrimitives";
 
-const W = 640;
-const H = 420;
+const W = 720;
+const H = 440;
 
-const plot = { left: 54, top: 44, right: 294, width: 240, bottom: 320, height: 276 };
+// Left: latent space. Right: the decoded face.
+const plot = { left: 70, top: 70, width: 250, height: 300 };
+const plotRight = plot.left + plot.width;
+const plotBottom = plot.top + plot.height;
 
 const scaleX = (val: number) => plot.left + (val / 10) * plot.width;
-const scaleY = (val: number) => plot.bottom - (val / 10) * plot.height;
+const scaleY = (val: number) => plotBottom - (val / 10) * plot.height;
 const invertX = (px: number) => ((px - plot.left) / plot.width) * 10;
-const invertY = (py: number) => ((plot.bottom - py) / plot.height) * 10;
+const invertY = (py: number) => ((plotBottom - py) / plot.height) * 10;
+
+// A face decoded from a 2-D latent code: z1 controls the smile (frown <-> grin),
+// z2 controls how wide the eyes are open (sleepy <-> surprised).
+function Face({
+  z1,
+  z2,
+  cx,
+  cy,
+  r,
+}: {
+  z1: number;
+  z2: number;
+  cx: number;
+  cy: number;
+  r: number;
+}) {
+  const smile = (z1 - 5) / 5; // -1 (frown) .. +1 (grin)
+  const open = 0.35 + (z2 / 10) * 0.75; // eye openness
+  const eyeY = cy - 0.22 * r;
+  const eyeDX = 0.42 * r;
+  const eyeRx = 0.13 * r;
+  const eyeRy = 0.13 * r * open;
+  const mouthY = cy + 0.34 * r;
+  const mouthW = 0.46 * r;
+  const ctrlY = mouthY + smile * 0.42 * r; // control point below = smile
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={r} fill={COLORS.yellow} fillOpacity={0.28} stroke={COLORS.yellow} strokeWidth={2.5} />
+      {[-1, 1].map((s) => (
+        <g key={s}>
+          <ellipse cx={cx + s * eyeDX} cy={eyeY} rx={eyeRx} ry={eyeRy} fill={COLORS.bg} stroke={COLORS.pink} strokeWidth={2} />
+          <circle cx={cx + s * eyeDX} cy={eyeY} r={Math.max(1.5, eyeRy * 0.5)} fill={COLORS.pink} />
+        </g>
+      ))}
+      <path
+        d={`M ${cx - mouthW} ${mouthY} Q ${cx} ${ctrlY} ${cx + mouthW} ${mouthY}`}
+        fill="none"
+        stroke={COLORS.pink}
+        strokeWidth={3}
+        strokeLinecap="round"
+      />
+    </g>
+  );
+}
+
+function expressionWords(z1: number, z2: number) {
+  const mouth = z1 > 6 ? "smiling" : z1 < 4 ? "frowning" : "neutral";
+  const eyes = z2 > 6.5 ? "wide-eyed" : z2 < 3.5 ? "sleepy" : "calm";
+  return `${eyes}, ${mouth}`;
+}
+
+const Z_START = { x: 2.0, y: 8.0 };
+const Z_END = { x: 8.5, y: 2.5 };
+const ticks = [0, 2.5, 5, 7.5, 10];
 
 export default function GenerativeViz() {
   const [zPoint, setZPoint] = useState({ x: 5.0, y: 5.0 });
-  const [zStart, setZStart] = useState({ x: 3.0, y: 3.0 });
-  const [zEnd, setZEnd] = useState({ x: 7.0, y: 7.0 });
-
   const [mode, setMode] = useState<"single" | "interpolate">("single");
   const [isInterpolating, setIsInterpolating] = useState(false);
-  const [interpProgress, setInterpProgress] = useState(0); // 0 to 1
-
+  const [progress, setProgress] = useState(0);
   const animationRef = useRef<number | null>(null);
+  const draggingRef = useRef(false);
 
-  const handlePlotClick = (e: React.PointerEvent<SVGSVGElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const px = e.clientX - rect.left;
-    const py = e.clientY - rect.top;
+  // Map a pointer event to viewBox coordinates via the SVG CTM (works even
+  // though the SVG scales to the full content width).
+  const applyPointer = (e: React.PointerEvent<SVGSVGElement>) => {
+    const svg = e.currentTarget;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const c = pt.matrixTransform(ctm.inverse());
+    if (c.x >= plot.left && c.x <= plotRight && c.y >= plot.top && c.y <= plotBottom) {
+      setZPoint({
+        x: Math.max(0.2, Math.min(9.8, invertX(c.x))),
+        y: Math.max(0.2, Math.min(9.8, invertY(c.y))),
+      });
+    }
+  };
 
-    if (
-      px >= plot.left &&
-      px <= plot.right &&
-      py >= plot.top &&
-      py <= plot.bottom
-    ) {
-      const zX = Math.max(0.2, Math.min(9.8, invertX(px)));
-      const zY = Math.max(0.2, Math.min(9.8, invertY(py)));
+  const handlePointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (mode !== "single") return;
+    e.preventDefault();
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      /* not all environments support pointer capture */
+    }
+    draggingRef.current = true;
+    applyPointer(e);
+  };
 
-      if (mode === "single") {
-        setZPoint({ x: zX, y: zY });
-      } else {
-        // Toggle setting start vs end point
-        if (Math.hypot(zX - zStart.x, zY - zStart.y) <= Math.hypot(zX - zEnd.x, zY - zEnd.y)) {
-          setZStart({ x: zX, y: zY });
-        } else {
-          setZEnd({ x: zX, y: zY });
-        }
-      }
+  const handlePointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (!draggingRef.current) return;
+    applyPointer(e);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<SVGSVGElement>) => {
+    draggingRef.current = false;
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
     }
   };
 
   const handleInterpolate = () => {
     if (isInterpolating) return;
     setIsInterpolating(true);
-    setInterpProgress(0);
+    setProgress(0);
+    setZPoint(Z_START);
   };
 
-  // Interpolation step loop
   useEffect(() => {
-    if (isInterpolating) {
-      let lastTime = Date.now();
-      const step = () => {
-        const now = Date.now();
-        const delta = now - lastTime;
-        lastTime = now;
-
-        setInterpProgress((prev) => {
-          const next = prev + 0.015 * (delta / 16);
-          if (next >= 1.0) {
-            setIsInterpolating(false);
-            setZPoint(zEnd);
-            return 1.0;
-          }
-          // Update active zPoint to interpolated coordinates
-          setZPoint({
-            x: zStart.x + next * (zEnd.x - zStart.x),
-            y: zStart.y + next * (zEnd.y - zStart.y),
-          });
-          return next;
+    if (!isInterpolating) return;
+    let last = Date.now();
+    const stepFn = () => {
+      const now = Date.now();
+      const delta = now - last;
+      last = now;
+      setProgress((prev) => {
+        const next = prev + 0.012 * (delta / 16);
+        if (next >= 1) {
+          setIsInterpolating(false);
+          setZPoint(Z_END);
+          return 1;
+        }
+        setZPoint({
+          x: Z_START.x + next * (Z_END.x - Z_START.x),
+          y: Z_START.y + next * (Z_END.y - Z_START.y),
         });
-
-        animationRef.current = requestAnimationFrame(step);
-      };
-      animationRef.current = requestAnimationFrame(step);
-    }
+        return next;
+      });
+      animationRef.current = requestAnimationFrame(stepFn);
+    };
+    animationRef.current = requestAnimationFrame(stepFn);
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [isInterpolating, zStart, zEnd]);
+  }, [isInterpolating]);
 
-  // Math: derive generated shape based on zPoint
-  const densityCenter = { x: 5.0, y: 5.0 };
-  const distFromCenter = Math.hypot(zPoint.x - densityCenter.x, zPoint.y - densityCenter.y);
-  
-  // If dist > 3, it becomes blurry/noisy (out of manifold)
-  const isOutOfManifold = distFromCenter > 3.0;
-  const blurVal = isOutOfManifold ? (distFromCenter - 3.0) * 2.8 : 0;
-  const opacityVal = Math.max(0.2, 1.0 - distFromCenter / 7.0);
+  const faceCx = 520;
+  const faceCy = 210;
 
-  // Math for Rose Curve shape: r = cos(k * theta)
-  // Number of petals depends on zPoint.x
-  const kPetals = Math.max(2, Math.round(zPoint.x));
-  // Scale of shape depends on zPoint.y
-  const scale = 20 + zPoint.y * 7;
+  const caption =
+    mode === "single"
+      ? `The latent point (${zPoint.x.toFixed(1)}, ${zPoint.y.toFixed(1)}) decodes into this ${expressionWords(zPoint.x, zPoint.y)} face. Drag anywhere in the latent space — right for more smile, up for wider eyes — and every single point decodes to a plausible face.`
+      : isInterpolating || progress > 0
+        ? `Walking the straight line from one face to the other: the decoded face morphs smoothly through valid in-between faces. The latent space is continuous and meaningful — not a lookup table of memorised images.`
+        : `Two latent codes decode to two different faces (the cyan and pink dots). Press “walk the latent line” and watch one face morph into the other.`;
 
-  // Generate shape path coordinates centered at right plot center (470, 180)
-  const centerX = 470;
-  const centerY = 180;
-  const points: string[] = [];
-  for (let theta = 0; theta <= Math.PI * 2 + 0.05; theta += 0.05) {
-    const r = Math.sin(kPetals * theta) * scale;
-    const x = centerX + r * Math.cos(theta);
-    const y = centerY + r * Math.sin(theta);
-    points.push(`${x.toFixed(2)} ${y.toFixed(2)}`);
-  }
-  const shapePath = "M " + points.join(" L ");
+  const canvas = (
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      role="img"
+      aria-label="Generative Models Latent Space Walk"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      className={`block h-auto w-full ${mode === "single" ? "cursor-pointer" : ""}`}
+    >
+      <title>Generative Diagram</title>
+      <SVGFilters />
+      <rect width={W} height={H} fill={COLORS.bg} />
 
-  const ticks = [0, 2.5, 5, 7.5, 10];
+      {/* LEFT: latent space */}
+      <text x={plot.left} y={plot.top - 16} fill={COLORS.muted} fontSize={12} fontWeight={800}>
+        LATENT SPACE (z)
+      </text>
+      {ticks.map((t) => (
+        <g key={t}>
+          <line x1={scaleX(t)} x2={scaleX(t)} y1={plot.top} y2={plotBottom} stroke={COLORS.grid} strokeWidth={1} />
+          <line x1={plot.left} x2={plotRight} y1={scaleY(t)} y2={scaleY(t)} stroke={COLORS.grid} strokeWidth={1} />
+        </g>
+      ))}
+      <line x1={plot.left} x2={plot.left} y1={plot.top} y2={plotBottom} stroke={COLORS.border} strokeWidth={1.5} />
+      <line x1={plot.left} x2={plotRight} y1={plotBottom} y2={plotBottom} stroke={COLORS.border} strokeWidth={1.5} />
+      <text x={plotRight + 6} y={plotBottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>z1</text>
+      <text x={plot.left - 6} y={plot.top - 4} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={700}>z2</text>
 
-  return (
-    <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(340px,1fr)]">
-      <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <svg
-            className="h-full w-full"
-            viewBox={`0 0 ${W} ${H}`}
-            role="img"
-            aria-label="Generative Models Latent Space Walk"
-            onPointerDown={handlePlotClick}
-          >
-            <title>Generative Diagram</title>
-            <defs>
-              <filter id="generative-blur">
-                <feGaussianBlur stdDeviation={blurVal} />
-              </filter>
-            </defs>
-            <SVGFilters />
-            <rect width={W} height={H} fill={COLORS.bg} />
+      {mode === "interpolate" && (
+        <>
+          <line x1={scaleX(Z_START.x)} y1={scaleY(Z_START.y)} x2={scaleX(Z_END.x)} y2={scaleY(Z_END.y)} stroke={COLORS.yellow} strokeWidth={2.5} strokeDasharray="4 3" opacity={0.8} />
+          <circle cx={scaleX(Z_START.x)} cy={scaleY(Z_START.y)} r={6} fill={COLORS.cyan} stroke={COLORS.bg} strokeWidth={1.5} />
+          <circle cx={scaleX(Z_END.x)} cy={scaleY(Z_END.y)} r={6} fill={COLORS.pink} stroke={COLORS.bg} strokeWidth={1.5} />
+        </>
+      )}
 
-            {/* LEFT PLOT: Latent Space Map */}
-            <g>
-              <text x={plot.left + plot.width / 2} y={plot.top - 14} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>2D LATENT SPACE (z)</text>
-              
-              {/* Grid ticks */}
-              {ticks.map((tick) => (
-                <g key={tick}>
-                  <line x1={scaleX(tick)} x2={scaleX(tick)} y1={plot.top} y2={plot.bottom} stroke={COLORS.grid} strokeWidth={1} />
-                  <line x1={plot.left} x2={plot.right} y1={scaleY(tick)} y2={scaleY(tick)} stroke={COLORS.grid} strokeWidth={1} />
-                </g>
-              ))}
+      {/* Current latent point */}
+      <circle cx={scaleX(zPoint.x)} cy={scaleY(zPoint.y)} r={9} fill={COLORS.yellow} stroke={COLORS.bg} strokeWidth={2} />
+      <circle cx={scaleX(zPoint.x)} cy={scaleY(zPoint.y)} r={2.5} fill={COLORS.bg} />
 
-              {/* Density Manifold Contours (concentric circles around center) */}
-              <circle cx={scaleX(5.0)} cy={scaleY(5.0)} r={scaleX(8.0) - scaleX(5.0)} fill="none" stroke={COLORS.cyan} strokeWidth={1.0} strokeDasharray="3 3" opacity={0.3} />
-              <circle cx={scaleX(5.0)} cy={scaleY(5.0)} r={scaleX(6.5) - scaleX(5.0)} fill="none" stroke={COLORS.cyan} strokeWidth={1.5} opacity={0.5} />
-              <circle cx={scaleX(5.0)} cy={scaleY(5.0)} r={scaleX(5.0) - scaleX(5.0)} fill={COLORS.cyan} fillOpacity={0.06} stroke={COLORS.cyan} strokeWidth={2} />
-              <text x={scaleX(5.0)} y={scaleY(5.0) + 4} textAnchor="middle" fill={COLORS.cyan} fontSize={8} fontWeight={900} opacity={0.7}>MANIFOLD REGION</text>
+      {/* RIGHT: decoded sample */}
+      <text x={faceCx} y={plot.top - 16} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>
+        DECODED SAMPLE
+      </text>
+      <Face z1={zPoint.x} z2={zPoint.y} cx={faceCx} cy={faceCy} r={120} />
+    </svg>
+  );
 
-              {/* Axes */}
-              <line x1={plot.left} x2={plot.left} y1={plot.top} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
-              <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
-              <text x={plot.right + 8} y={plot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>z1</text>
-              <text x={plot.left - 8} y={plot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={700}>z2</text>
-
-              {/* Single Point Mode representation */}
-              {mode === "single" && (
-                <g>
-                  <circle cx={scaleX(zPoint.x)} cy={scaleY(zPoint.y)} r={8} fill={COLORS.yellow} stroke={COLORS.bg} strokeWidth={1.5} />
-                  <circle cx={scaleX(zPoint.x)} cy={scaleY(zPoint.y)} r={2} fill={COLORS.bg} />
-                </g>
-              )}
-
-              {/* Interpolation Mode representation */}
-              {mode === "interpolate" && (
-                <g>
-                  {/* Interpolation dashed path */}
-                  <line
-                    x1={scaleX(zStart.x)}
-                    y1={scaleY(zStart.y)}
-                    x2={scaleX(zEnd.x)}
-                    y2={scaleY(zEnd.y)}
-                    stroke={COLORS.yellow}
-                    strokeWidth={2.5}
-                    strokeDasharray="4 3"
-                    opacity={0.75}
-                  />
-
-                  {/* Start Point */}
-                  <circle cx={scaleX(zStart.x)} cy={scaleY(zStart.y)} r={7} fill={COLORS.cyan} stroke={COLORS.bg} strokeWidth={1.5} />
-                  <text x={scaleX(zStart.x)} y={scaleY(zStart.y) - 10} textAnchor="middle" fill={COLORS.cyan} fontSize={8} fontWeight={800}>z_start</text>
-
-                  {/* End Point */}
-                  <circle cx={scaleX(zEnd.x)} cy={scaleY(zEnd.y)} r={7} fill={COLORS.pink} stroke={COLORS.bg} strokeWidth={1.5} />
-                  <text x={scaleX(zEnd.x)} y={scaleY(zEnd.y) - 10} textAnchor="middle" fill={COLORS.pink} fontSize={8} fontWeight={800}>z_end</text>
-
-                  {/* Interp walking progress dot */}
-                  <circle cx={scaleX(zPoint.x)} cy={scaleY(zPoint.y)} r={9} fill={COLORS.yellow} stroke={COLORS.bg} strokeWidth={2} />
-                  <circle cx={scaleX(zPoint.x)} cy={scaleY(zPoint.y)} r={2.5} fill={COLORS.bg} />
-                </g>
-              )}
-            </g>
-
-            {/* RIGHT PLOT: Generated Output Frame */}
-            <g>
-              <rect x={340} y={plot.top} width={250} height={plot.height} fill="none" stroke={COLORS.border} strokeDasharray="3 3" />
-              <text x={350} y={plot.top + 16} fill={COLORS.muted} fontSize={12} fontWeight={800}>GENERATED MANIFOLD SHAPE</text>
-
-              {/* Shaded Shape with Gaussian Blur Filter applied */}
-              <g filter="url(#generative-blur)">
-                <path
-                  d={shapePath}
-                  fill={isOutOfManifold ? COLORS.pink : COLORS.cyan}
-                  fillOpacity={opacityVal * 0.4}
-                  stroke={isOutOfManifold ? COLORS.pink : COLORS.cyan}
-                  strokeWidth={2.5}
-                  opacity={opacityVal}
-                />
-              </g>
-
-              {/* Status Indicator text overlays */}
-              {isOutOfManifold ? (
-                <g>
-                  <text x={470} y={300} textAnchor="middle" fill={COLORS.pink} fontSize={10} fontWeight={900} className="animate-pulse">
-                    OUT OF MANIFOLD (BLURRY NOISE)
-                  </text>
-                </g>
-              ) : (
-                <text x={470} y={300} textAnchor="middle" fill={COLORS.cyan} fontSize={10} fontWeight={800}>
-                  HIGH DENSITY MANIFOLD (CRISP)
-                </text>
-              )}
-            </g>
-          </svg>
+  const controls = (
+    <>
+      <div className="flex flex-col justify-center gap-2 border border-outline bg-surface p-3">
+        <span className="font-mono text-[12px] font-bold uppercase tracking-wide text-primary">Mode</span>
+        <div className="flex gap-2">
+          {(["single", "interpolate"] as const).map((m) => (
+            <button
+              aria-label={m === "single" ? "Single Walk" : "Interpolation"}
+              key={m}
+              onClick={() => {
+                setMode(m);
+                setIsInterpolating(false);
+                setProgress(0);
+              }}
+              className={`px-3 py-2 text-[12px] font-bold uppercase tracking-wider cursor-pointer border ${
+                mode === m
+                  ? "bg-primary border-primary text-on-primary"
+                  : "bg-surface hover:bg-surface-container border-outline text-on-surface-variant"
+              }`}
+            >
+              {m === "single" ? "Single Walk" : "Interpolation"}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-col gap-3">
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between gap-4 font-bold uppercase tracking-wide">
-            <span>Latent Sandbox</span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 mb-4">
-            {(["single", "interpolate"] as const).map((mKey) => (
-              <button
-                aria-label={mKey === "single" ? "Single Walk" : "Interpolation"}
-                key={mKey}
-                onClick={() => {
-                  setMode(mKey);
-                  setIsInterpolating(false);
-                }}
-                className={`py-2 text-[12px] font-bold uppercase tracking-wider cursor-pointer border ${
-                  mode === mKey
-                    ? "bg-primary border-primary text-on-primary"
-                    : "bg-surface hover:bg-surface-container border-outline text-on-surface-variant"
-                }`}
-              >
-                {mKey === "single" ? "Single Walk" : "Interpolation"}
-              </button>
-            ))}
-          </div>
-
-          {mode === "interpolate" ? (
-            <button aria-label="RUN INTERPOLATION WALKER"
+      <div className="flex flex-1 flex-col justify-center gap-2 border border-outline bg-surface p-3">
+        {mode === "single" ? (
+          <>
+            <span className="font-mono text-[12px] font-bold uppercase tracking-wide text-primary">
+              Latent code z
+            </span>
+            <span className="font-mono text-xl font-bold text-on-surface">
+              ({zPoint.x.toFixed(2)}, {zPoint.y.toFixed(2)})
+            </span>
+            <span className="font-sans text-[12px] text-on-surface-variant">
+              decodes to a {expressionWords(zPoint.x, zPoint.y)} face — click the latent space to move it
+            </span>
+          </>
+        ) : (
+          <>
+            <button
+              aria-label="RUN INTERPOLATION WALKER"
               onClick={handleInterpolate}
               disabled={isInterpolating}
-              className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer mb-2 text-[12px]"
+              className="flex h-9 items-center justify-center border border-outline bg-surface-container px-4 font-mono text-[12px] font-bold uppercase tracking-wider text-on-surface transition-colors hover:bg-outline-variant hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
             >
-              RUN INTERPOLATION WALKER
+              {isInterpolating ? "Walking…" : "Walk the latent line"}
             </button>
-          ) : (
-            <div className="bg-surface-container p-2.5 border border-outline space-y-1.5 text-xs mb-3">
-              <div className="flex justify-between">
-                <span>Latent Coordinate z:</span>
-                <span className="font-bold text-primary">({zPoint.x.toFixed(2)}, {zPoint.y.toFixed(2)})</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Petal Parameter (z1):</span>
-                <span className="font-bold">{kPetals} petals</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Scale Parameter (z2):</span>
-                <span className="font-bold">{scale.toFixed(1)}px</span>
-              </div>
+            <div className="h-2 w-full bg-surface-container">
+              <div className="h-full" style={{ width: `${progress * 100}%`, backgroundColor: COLORS.yellow }} />
             </div>
-          )}
-
-          <VisualizationInstruction
-            title="Interactivity pedagogy:"
-            content={`1. Click inside the left box to change latent variables.
-2. Walking **outside** the central manifold area reduces data density, triggering Gaussian blur in outputs.`}
-            className="uppercase"
-          />
-        </div>
-
-        <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">
-          <span className="font-mono text-xs sm:text-sm font-bold uppercase tracking-wide text-primary">Mental model</span>
-          <div className="mt-3 text-sm sm:text-[15px] leading-relaxed text-on-surface-variant">
-            <MarkdownRenderer content={`Generative models (like GANs and VAEs) map high-dimensional complex datasets onto continuous, lower-dimensional **Latent Spaces**. Points outside the learned training distribution boundary (outside the manifold) produce blurred and noisy outputs.`} />
-          </div>
-        </div>
+          </>
+        )}
       </div>
+    </>
+  );
+
+  const mentalModel = (
+    <div className="flex flex-col gap-2">
+      <p>
+        A generative model learns to turn a small <strong>latent code</strong>{" "}
+        into a full sample. Here a 2-D code decodes into a face: one axis bends
+        the smile, the other opens the eyes.
+      </p>
+      <p>
+        The magic is <strong>continuity</strong>: walk a straight line between
+        two codes and the decoded face morphs smoothly through plausible
+        in-between faces. The model has organised faces into a continuous space
+        rather than memorising a fixed gallery — which is exactly why you can
+        sample brand-new ones it never saw in training.
+      </p>
     </div>
+  );
+
+  return (
+    <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />
   );
 }

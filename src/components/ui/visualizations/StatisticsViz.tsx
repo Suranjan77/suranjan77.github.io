@@ -1,442 +1,200 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { COLORS } from "../visualizationPrimitives";
+import { COLORS, VizShell } from "../visualizationPrimitives";
 import { createSeededRNG } from "@/lib/prng";
-import { motion } from "framer-motion";
 
-const W = 640;
-const H = 420;
+const W = 720;
+const H = 380;
+const TEST_N = 100; // examples in the test set
+const TRUE_ACC = 0.87; // the model's real accuracy
+const MODEL_B = 0.82; // a rival model's reported accuracy
+
+// distribution panel maps accuracy [0.70, 1.00] -> pixels
+const distL = 380;
+const distR = 690;
+const distScaleX = (acc: number) => distL + ((acc - 0.7) / 0.3) * (distR - distL);
+
+const mean = (a: number[]) => a.reduce((s, v) => s + v, 0) / (a.length || 1);
 
 export default function StatisticsViz() {
-  const [sampleSize, setSampleSize] = useState<number>(30);
-  const [numBootstrapSamples, setNumBootstrapSamples] = useState<number>(1000);
-  const [statisticType, setStatisticType] = useState<"mean" | "median">("mean");
-  const [seed, setSeed] = useState<number>(42);
-  const [bootstrapResults, setBootstrapResults] = useState<number[]>([]);
-  const [originalSample, setOriginalSample] = useState<number[]>([]);
-  const [animatingStep, setAnimatingStep] = useState<boolean>(false);
-  const [animationBootstrapSample, setAnimationBootstrapSample] = useState<number[]>([]);
-  const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
+  const [seed, setSeed] = useState(7);
+  const [testSet, setTestSet] = useState<boolean[]>([]);
+  const [results, setResults] = useState<number[]>([]); // bootstrap accuracies
+  const [latest, setLatest] = useState<number | null>(null);
 
-  // Generate original data sample using seeded RNG
+  // One test set: each example correct with probability TRUE_ACC.
   useEffect(() => {
     const rng = createSeededRNG(seed);
-    const data: number[] = [];
-    // Generate a distribution that is slightly bimodal or skewed to be interesting
-    for (let i = 0; i < sampleSize; i++) {
-      if (rng.next() > 0.4) {
-        // Mode 1: Normal around 4.5
-        data.push(4.5 + rng.nextGaussian() * 1.0);
-      } else {
-        // Mode 2: Normal around 7.0
-        data.push(7.0 + rng.nextGaussian() * 0.8);
-      }
-    }
-    // Clip data to [1, 9] for plotting limits
-    const clippedData = data.map(val => Math.max(1, Math.min(9, val)));
-    setOriginalSample(clippedData);
-    setBootstrapResults([]);
-    setAnimationBootstrapSample([]);
-  }, [sampleSize, seed]);
+    setTestSet(Array.from({ length: TEST_N }, () => rng.next() < TRUE_ACC));
+    setResults([]);
+    setLatest(null);
+  }, [seed]);
 
-  // Compute stats of original sample
-  const originalStatValue = useMemo(() => {
-    if (originalSample.length === 0) return 0;
-    if (statisticType === "mean") {
-      return originalSample.reduce((sum, v) => sum + v, 0) / originalSample.length;
-    } else {
-      const sorted = [...originalSample].sort((a, b) => a - b);
-      const mid = Math.floor(sorted.length / 2);
-      return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-    }
-  }, [originalSample, statisticType]);
-
-  // Run full bootstrap simulation
-  const runFullBootstrap = () => {
-    if (originalSample.length === 0) return;
-    const rng = createSeededRNG(seed + 12345); // use a derived seed
-    const results: number[] = [];
-
-    for (let b = 0; b < numBootstrapSamples; b++) {
-      const resample: number[] = [];
-      for (let i = 0; i < sampleSize; i++) {
-        const randIdx = rng.nextInt(0, originalSample.length - 1);
-        resample.push(originalSample[randIdx]);
-      }
-
-      let statVal = 0;
-      if (statisticType === "mean") {
-        statVal = resample.reduce((sum, v) => sum + v, 0) / sampleSize;
-      } else {
-        resample.sort((a, b) => a - b);
-        const mid = Math.floor(sampleSize / 2);
-        statVal = sampleSize % 2 !== 0 ? resample[mid] : (resample[mid - 1] + resample[mid]) / 2;
-      }
-      results.push(statVal);
-    }
-    results.sort((a, b) => a - b);
-    setBootstrapResults(results);
-  };
-
-  // Run a single animated step of bootstrap resampling
-  const runBootstrapStep = () => {
-    if (originalSample.length === 0) return;
-    setAnimatingStep(true);
-    const rng = createSeededRNG(Math.random() * 100000); // fresh seed
-    const resample: number[] = [];
-    let stepCount = 0;
-
-    const interval = setInterval(() => {
-      if (stepCount < sampleSize) {
-        const randIdx = rng.nextInt(0, originalSample.length - 1);
-        setHighlightedIndex(randIdx);
-        const val = originalSample[randIdx];
-        resample.push(val);
-        setAnimationBootstrapSample([...resample]);
-        stepCount++;
-      } else {
-        clearInterval(interval);
-        setHighlightedIndex(null);
-        setAnimatingStep(false);
-        // Add this sample's statistic to our results
-        let statVal = 0;
-        if (statisticType === "mean") {
-          statVal = resample.reduce((sum, v) => sum + v, 0) / sampleSize;
-        } else {
-          resample.sort((a, b) => a - b);
-          const mid = Math.floor(sampleSize / 2);
-          statVal = sampleSize % 2 !== 0 ? resample[mid] : (resample[mid - 1] + resample[mid]) / 2;
-        }
-        setBootstrapResults(prev => [...prev, statVal].sort((a, b) => a - b));
-      }
-    }, 50);
-  };
-
-  // Compute CI limits (2.5th and 97.5th percentiles)
-  const confidenceInterval = useMemo(() => {
-    if (bootstrapResults.length === 0) return null;
-    const lowIdx = Math.floor(bootstrapResults.length * 0.025);
-    const highIdx = Math.min(bootstrapResults.length - 1, Math.floor(bootstrapResults.length * 0.975));
-    return {
-      lower: bootstrapResults[lowIdx],
-      upper: bootstrapResults[highIdx]
-    };
-  }, [bootstrapResults]);
-
-  // Standard Error of bootstrap distribution
-  const bootstrapSE = useMemo(() => {
-    if (bootstrapResults.length === 0) return 0;
-    const mean = bootstrapResults.reduce((s, x) => s + x, 0) / bootstrapResults.length;
-    const variance = bootstrapResults.reduce((s, x) => s + Math.pow(x - mean, 2), 0) / (bootstrapResults.length - 1);
-    return Math.sqrt(variance);
-  }, [bootstrapResults]);
-
-  // Map values to pixels
-  const pad = { left: 50, right: 30, top: 40, bottom: 40 };
-  const scaleX = (val: number) => pad.left + ((val - 1) / 8) * (W - pad.left - pad.right);
-  const scaleY = (val: number, maxFreq: number) => H - pad.bottom - (val / (maxFreq || 1)) * 120;
-
-  // Build histogram bins for bootstrap statistics
-  const bins = useMemo(() => {
-    if (bootstrapResults.length === 0) return [];
-    const numBins = 30;
-    const binCounts = new Array(numBins).fill(0);
-    const minVal = 1;
-    const maxVal = 9;
-    const step = (maxVal - minVal) / numBins;
-
-    bootstrapResults.forEach(v => {
-      const idx = Math.min(numBins - 1, Math.floor((v - minVal) / step));
-      if (idx >= 0 && idx < numBins) {
-        binCounts[idx]++;
-      }
-    });
-
-    return binCounts.map((count, idx) => ({
-      x0: minVal + idx * step,
-      x1: minVal + (idx + 1) * step,
-      count
-    }));
-  }, [bootstrapResults]);
-
-  const maxBinCount = useMemo(() => {
-    if (bins.length === 0) return 1;
-    return Math.max(...bins.map(b => b.count));
-  }, [bins]);
-
-  return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2">
-        <div className="relative border border-outline bg-surface overflow-hidden rounded">
-          <svg
-            viewBox={`0 0 ${W} ${H}`}
-            className="w-full h-auto select-none"
-            role="img"
-            aria-label="Seeded Bootstrap Simulator"
-          >
-            <title>Seeded Bootstrap Simulator</title>
-            <defs>
-              <pattern id="grid-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke={COLORS.grid} strokeWidth="0.5" />
-              </pattern>
-            </defs>
-            <rect width={W} height={H} fill="url(#grid-pattern)" />
-
-            {/* Original sample axis & dots */}
-            <g transform="translate(0, 10)">
-              <text x={pad.left} y={24} fill={COLORS.muted} fontSize={12} fontWeight={700}>
-                ORIGINAL SAMPLE (N = {originalSample.length})
-              </text>
-              <line x1={scaleX(1)} y1={50} x2={scaleX(9)} y2={50} stroke={COLORS.border} strokeWidth={2} />
-              {/* X Axis ticks */}
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(t => (
-                <g key={`t1-${t}`} transform={`translate(${scaleX(t)}, 50)`}>
-                  <line y2={6} stroke={COLORS.border} strokeWidth={1.5} />
-                  <text y={18} textAnchor="middle" fontSize={10} fill={COLORS.muted} fontWeight={600}>{t}</text>
-                </g>
-              ))}
-
-              {originalSample.map((val, idx) => {
-                const highlighted = highlightedIndex === idx;
-                return (
-                  <circle
-                    key={`orig-${idx}`}
-                    cx={scaleX(val)}
-                    cy={50}
-                    r={highlighted ? 7 : 4.5}
-                    fill={highlighted ? COLORS.pink : COLORS.cyan}
-                    stroke={highlighted ? "#fff" : COLORS.muted}
-                    strokeWidth={highlighted ? 2 : 1}
-                    opacity={highlighted ? 1 : 0.8}
-                  />
-                );
-              })}
-
-              <text x={scaleX(originalStatValue)} y={38} textAnchor="middle" fontSize={10} fill={COLORS.muted} fontWeight={700}>
-                ▼ Sample {statisticType === "mean" ? "Mean" : "Median"}: {originalStatValue.toFixed(2)}
-              </text>
-            </g>
-
-            {/* Bootstrap resample visualization */}
-            <g transform="translate(0, 110)">
-              <text x={pad.left} y={20} fill={COLORS.muted} fontSize={12} fontWeight={700}>
-                CURRENT RESAMPLE STEP ({animationBootstrapSample.length} / {sampleSize})
-              </text>
-              <line x1={scaleX(1)} y1={45} x2={scaleX(9)} y2={45} stroke={COLORS.border} strokeWidth={2} />
-              {animationBootstrapSample.map((val, idx) => (
-                <circle
-                  key={`resample-${idx}`}
-                  cx={scaleX(val)}
-                  cy={45 + (idx % 3) * 6 - 6} // jitter to prevent complete overlaps
-                  r={4}
-                  fill={COLORS.pink}
-                  opacity={0.9}
-                />
-              ))}
-            </g>
-
-            {/* Bootstrap Distribution (Histogram) */}
-            <g transform="translate(0, 200)">
-              <text x={pad.left} y={24} fill={COLORS.muted} fontSize={12} fontWeight={700}>
-                BOOTSTRAP SAMPLING DISTRIBUTION ({bootstrapResults.length} SAMPLES)
-              </text>
-              <line x1={scaleX(1)} y1={H - 200 - pad.bottom} x2={scaleX(9)} y2={H - 200 - pad.bottom} stroke={COLORS.border} strokeWidth={2} />
-              
-              {/* X Axis ticks */}
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(t => (
-                <g key={`t2-${t}`} transform={`translate(${scaleX(t)}, ${H - 200 - pad.bottom})`}>
-                  <line y2={6} stroke={COLORS.border} strokeWidth={1.5} />
-                  <text y={18} textAnchor="middle" fontSize={10} fill={COLORS.muted} fontWeight={600}>{t}</text>
-                </g>
-              ))}
-
-              {/* Shaded Confidence Interval area */}
-              {confidenceInterval && (
-                <rect
-                  x={scaleX(confidenceInterval.lower)}
-                  y={40}
-                  width={scaleX(confidenceInterval.upper) - scaleX(confidenceInterval.lower)}
-                  height={H - 200 - pad.bottom - 40}
-                  fill={COLORS.yellow}
-                  opacity={0.15}
-                />
-              )}
-
-              {/* Render Histogram bars */}
-              {bins.map((bin, idx) => {
-                const x = scaleX(bin.x0);
-                const w = scaleX(bin.x1) - x;
-                const h = H - 200 - pad.bottom - scaleY(bin.count, maxBinCount);
-                const y = scaleY(bin.count, maxBinCount);
-
-                return (
-                  <rect
-                    key={`bin-${idx}`}
-                    x={x}
-                    y={y}
-                    width={Math.max(1, w - 1)}
-                    height={h}
-                    fill={COLORS.yellow}
-                    opacity={0.85}
-                  />
-                );
-              })}
-
-              {/* CI Marker Lines */}
-              {confidenceInterval && (
-                <>
-                  <line
-                    x1={scaleX(confidenceInterval.lower)}
-                    y1={30}
-                    x2={scaleX(confidenceInterval.lower)}
-                    y2={H - 200 - pad.bottom}
-                    stroke={COLORS.yellow}
-                    strokeWidth={2}
-                    strokeDasharray="4 2"
-                  />
-                  <line
-                    x1={scaleX(confidenceInterval.upper)}
-                    y1={30}
-                    x2={scaleX(confidenceInterval.upper)}
-                    y2={H - 200 - pad.bottom}
-                    stroke={COLORS.yellow}
-                    strokeWidth={2}
-                    strokeDasharray="4 2"
-                  />
-                  <text
-                    x={scaleX(confidenceInterval.lower) - 5}
-                    y={26}
-                    textAnchor="end"
-                    fontSize={10}
-                    fill={COLORS.yellow}
-                    fontWeight={800}
-                  >
-                    2.5%: {confidenceInterval.lower.toFixed(2)}
-                  </text>
-                  <text
-                    x={scaleX(confidenceInterval.upper) + 5}
-                    y={26}
-                    textAnchor="start"
-                    fontSize={10}
-                    fill={COLORS.yellow}
-                    fontWeight={800}
-                  >
-                    97.5%: {confidenceInterval.upper.toFixed(2)}
-                  </text>
-                </>
-              )}
-            </g>
-          </svg>
-        </div>
-      </div>
-
-      <div className="flex min-w-0 flex-col gap-3">
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between font-bold uppercase tracking-wide">
-            <span>Controls</span>
-          </div>
-
-          <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="sample-size-slider">
-              Sample Size (N: {sampleSize})
-            </label>
-            <input
-              id="sample-size-slider"
-              type="range"
-              min={10}
-              max={100}
-              step={1}
-              value={sampleSize}
-              onChange={e => setSampleSize(Number(e.target.value))}
-              disabled={animatingStep}
-              className="w-full h-1.5 bg-grid rounded-lg appearance-none cursor-pointer accent-cyan"
-              aria-label="Sample size range slider from 10 to 100"
-            />
-          </div>
-
-          <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="bootstrap-samples-slider">
-              Bootstrap Resamples ({numBootstrapSamples})
-            </label>
-            <input
-              id="bootstrap-samples-slider"
-              type="range"
-              min={100}
-              max={5000}
-              step={100}
-              value={numBootstrapSamples}
-              onChange={e => setNumBootstrapSamples(Number(e.target.value))}
-              disabled={animatingStep}
-              className="w-full h-1.5 bg-grid rounded-lg appearance-none cursor-pointer accent-yellow"
-              aria-label="Number of bootstrap resamples from 100 to 5000"
-            />
-          </div>
-
-          <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="statistic-select">
-              Statistic of Interest
-            </label>
-            <select
-              id="statistic-select"
-              value={statisticType}
-              onChange={e => setStatisticType(e.target.value as "mean" | "median")}
-              disabled={animatingStep}
-              className="w-full border border-outline bg-surface p-2 text-xs sm:text-sm rounded accent-cyan"
-              aria-label="Select statistic of interest: mean or median"
-            >
-              <option value="mean">Sample Mean</option>
-              <option value="median">Sample Median</option>
-            </select>
-          </div>
-
-          <div className="mb-4">
-            <button
-              onClick={() => setSeed(prev => prev + 1)}
-              disabled={animatingStep}
-              className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer disabled:opacity-50 text-[12px]"
-              aria-label="Generate new sample data using random seed"
-            >
-              REGENERATE DATA (NEW SEED)
-            </button>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <button
-              onClick={runBootstrapStep}
-              disabled={animatingStep}
-              className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer disabled:opacity-50 text-[12px]"
-              aria-label="Perform one step of bootstrap resampling with animation"
-            >
-              {animatingStep ? "SAMPLING..." : "SAMPLE 1 STEP (ANIMATE)"}
-            </button>
-
-            <button
-              onClick={runFullBootstrap}
-              disabled={animatingStep}
-              className="w-full flex h-9 items-center justify-center border border-outline bg-cyan text-white hover:bg-cyan/90 active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer disabled:opacity-50 text-[12px]"
-              aria-label="Run full bootstrap simulation instantly"
-            >
-              RUN FULL BOOTSTRAP INSTANTLY
-            </button>
-          </div>
-        </div>
-
-        {/* Confidence Interval outputs */}
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Estimation Outputs</div>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div>Sample {statisticType}:</div>
-            <div className="font-bold text-right text-cyan">{originalStatValue.toFixed(3)}</div>
-            <div>Bootstrap SE:</div>
-            <div className="font-bold text-right text-yellow">{bootstrapSE > 0 ? bootstrapSE.toFixed(3) : "—"}</div>
-            <div>95% CI Lower:</div>
-            <div className="font-bold text-right text-pink">{confidenceInterval ? confidenceInterval.lower.toFixed(3) : "—"}</div>
-            <div>95% CI Upper:</div>
-            <div className="font-bold text-right text-pink">{confidenceInterval ? confidenceInterval.upper.toFixed(3) : "—"}</div>
-          </div>
-        </div>
-      </div>
-    </div>
+  const accuracy = useMemo(
+    () => (testSet.length ? testSet.filter(Boolean).length / TEST_N : 0),
+    [testSet],
   );
+
+  const resampleOnce = (rng: { nextInt: (a: number, b: number) => number }) => {
+    let correct = 0;
+    for (let i = 0; i < TEST_N; i++) {
+      if (testSet[rng.nextInt(0, TEST_N - 1)]) correct++;
+    }
+    return correct / TEST_N;
+  };
+
+  const drawOne = () => {
+    if (!testSet.length) return;
+    const rng = createSeededRNG(Math.random() * 1e6);
+    const acc = resampleOnce(rng);
+    setLatest(acc);
+    setResults((prev) => [...prev, acc]);
+  };
+
+  const runMany = () => {
+    if (!testSet.length) return;
+    const rng = createSeededRNG(seed + 313);
+    const out: number[] = [];
+    for (let b = 0; b < 500; b++) out.push(resampleOnce(rng));
+    setResults((prev) => [...prev, ...out]);
+    setLatest(out[out.length - 1]);
+  };
+
+  const ci = useMemo(() => {
+    if (results.length < 20) return null;
+    const s = [...results].sort((a, b) => a - b);
+    return {
+      lo: s[Math.floor(s.length * 0.025)],
+      hi: s[Math.min(s.length - 1, Math.floor(s.length * 0.975))],
+    };
+  }, [results]);
+
+  const bIsInside = ci ? MODEL_B >= ci.lo && MODEL_B <= ci.hi : true;
+
+  // histogram
+  const NB = 30;
+  const bins = useMemo(() => {
+    const c = new Array(NB).fill(0);
+    results.forEach((v) => {
+      const idx = Math.max(0, Math.min(NB - 1, Math.floor(((v - 0.7) / 0.3) * NB)));
+      c[idx]++;
+    });
+    return c;
+  }, [results]);
+  const maxBin = Math.max(1, ...bins);
+
+  const pct = (v: number) => `${(v * 100).toFixed(0)}%`;
+
+  const caption =
+    results.length === 0
+      ? `Your model scored ${pct(accuracy)} on this test set. But that is just one test set — would it hold up on different data? You can't collect more, so resample this one (with replacement) and re-score.`
+      : !ci
+        ? `Each resample re-scores the model on a shuffled-with-replacement copy of the test set${latest !== null ? ` (latest ${pct(latest)})` : ""}. Keep going to trace out the spread.`
+        : bIsInside
+          ? `That ${pct(accuracy)} is really ${pct(ci.lo)}–${pct(ci.hi)} (95% CI). Rival model B's ${pct(MODEL_B)} sits inside that band — so this test set cannot prove your model is actually better. The gap is within the noise.`
+          : `That ${pct(accuracy)} is really ${pct(ci.lo)}–${pct(ci.hi)} (95% CI), and model B's ${pct(MODEL_B)} falls outside it — here you can claim a real difference.`;
+
+  const gridX = 60;
+  const gridY = 74;
+  const cell = 20;
+
+  const canvas = (
+    <svg className="block h-auto w-full select-none" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Bootstrap Confidence on Model Accuracy">
+      <title>Bootstrap Confidence on Model Accuracy</title>
+      <rect width={W} height={H} fill={COLORS.bg} />
+
+      {/* Test set grid */}
+      <text x={gridX} y={gridY - 30} fill={COLORS.muted} fontSize={12} fontWeight={800}>MODEL ON TEST SET (100 examples)</text>
+      <text x={gridX} y={gridY - 10} fill={COLORS.cyan} fontSize={16} fontWeight={800}>
+        Accuracy: {pct(accuracy)}
+      </text>
+      {testSet.map((correct, i) => {
+        const r = Math.floor(i / 10);
+        const c = i % 10;
+        return (
+          <rect
+            key={i}
+            x={gridX + c * cell}
+            y={gridY + r * cell}
+            width={cell - 2}
+            height={cell - 2}
+            fill={correct ? COLORS.cyan : COLORS.pink}
+            fillOpacity={correct ? 0.75 : 0.85}
+          />
+        );
+      })}
+      <text x={gridX} y={gridY + 10 * cell + 16} fill={COLORS.muted} fontSize={10}>
+        ✓ correct = teal · ✗ wrong = red
+      </text>
+
+      {/* Bootstrap distribution */}
+      <text x={distL} y={gridY - 30} fill={COLORS.muted} fontSize={12} fontWeight={800}>HOW MUCH THAT SCORE COULD WOBBLE</text>
+      <text x={distL} y={gridY - 10} fill={COLORS.muted} fontSize={11}>{results.length} resamples</text>
+
+      {/* axis */}
+      <line x1={distL} y1={290} x2={distR} y2={290} stroke={COLORS.border} strokeWidth={2} />
+      {[0.7, 0.8, 0.9, 1.0].map((t) => (
+        <text key={t} x={distScaleX(t)} y={306} textAnchor="middle" fontSize={10} fill={COLORS.muted}>{pct(t)}</text>
+      ))}
+
+      {/* CI band */}
+      {ci && (
+        <rect x={distScaleX(ci.lo)} y={120} width={Math.max(1, distScaleX(ci.hi) - distScaleX(ci.lo))} height={170} fill={COLORS.yellow} opacity={0.16} />
+      )}
+
+      {/* histogram */}
+      {bins.map((c, i) => {
+        const x = distScaleX(0.7 + (i / NB) * 0.3);
+        const w = (distR - distL) / NB;
+        const h = (c / maxBin) * 150;
+        return <rect key={i} x={x} y={290 - h} width={Math.max(1, w - 1)} height={h} fill={COLORS.yellow} opacity={0.85} />;
+      })}
+
+      {/* this model's accuracy line */}
+      <line x1={distScaleX(accuracy)} y1={110} x2={distScaleX(accuracy)} y2={290} stroke={COLORS.cyan} strokeWidth={2} />
+      <text x={distScaleX(accuracy)} y={104} textAnchor="middle" fontSize={10} fontWeight={800} fill={COLORS.cyan}>your model</text>
+
+      {/* rival model B reference */}
+      <line x1={distScaleX(MODEL_B)} y1={110} x2={distScaleX(MODEL_B)} y2={290} stroke={COLORS.pink} strokeWidth={2} strokeDasharray="4 3" />
+      <text x={distScaleX(MODEL_B)} y={104} textAnchor="middle" fontSize={10} fontWeight={800} fill={COLORS.pink}>model B {pct(MODEL_B)}</text>
+    </svg>
+  );
+
+  const controls = (
+    <>
+      <div className="flex flex-wrap items-center gap-2 border border-outline bg-surface p-3">
+        <button onClick={drawOne} aria-label="Resample the test set once" className="flex h-9 items-center justify-center border border-outline bg-surface px-3 font-mono text-[12px] font-bold uppercase tracking-wide text-on-surface hover:bg-surface-container hover:text-primary">
+          Resample once
+        </button>
+        <button onClick={runMany} aria-label="Run 500 resamples" className="flex h-9 items-center justify-center border border-outline bg-cyan px-3 font-mono text-[12px] font-bold uppercase tracking-wide text-white hover:bg-cyan/90">
+          Run 500
+        </button>
+        <button onClick={() => setSeed((s) => s + 1)} aria-label="Draw a new test set" className="flex h-9 items-center justify-center border border-outline bg-surface px-3 font-mono text-[12px] font-bold uppercase tracking-wide text-on-surface-variant hover:bg-surface-container">
+          New test set
+        </button>
+      </div>
+
+      <div className="flex flex-1 flex-col gap-1.5 border border-outline bg-surface p-3 font-mono text-xs">
+        <div className="text-[12px] font-bold uppercase text-primary">Confidence readout</div>
+        <div className="flex justify-between gap-4"><span>Test accuracy:</span><span className="text-cyan font-bold">{pct(accuracy)}</span></div>
+        <div className="flex justify-between gap-4"><span>95% CI:</span><span className="text-yellow font-bold">{ci ? `${pct(ci.lo)} – ${pct(ci.hi)}` : "— run resamples —"}</span></div>
+        <div className="flex justify-between gap-4"><span>Beats model B ({pct(MODEL_B)})?</span><span className="font-bold" style={{ color: ci ? (bIsInside ? COLORS.pink : COLORS.cyan) : COLORS.muted }}>{ci ? (bIsInside ? "can't tell — noise" : "yes, real gap") : "—"}</span></div>
+      </div>
+    </>
+  );
+
+  const mentalModel = (
+    <p>
+      A single test-set score is itself a noisy sample — run the model on
+      different data and it would land somewhere else. The{" "}
+      <strong>bootstrap</strong> estimates that wobble without new data: resample
+      the test set <em>with replacement</em> many times, re-score each copy, and
+      the spread of scores is a <strong>confidence interval</strong> on the
+      metric. It is how you put honest error bars on a benchmark number and judge
+      whether one model truly beats another or just got luckier on this test set.
+    </p>
+  );
+
+  return <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />;
 }

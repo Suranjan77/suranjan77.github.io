@@ -2,7 +2,14 @@
 
 import React, { type ComponentProps, type ReactNode } from "react";
 import { motion } from "framer-motion";
-import { Play, Pause, RotateCcw, ChevronRight, ChevronLeft } from "lucide-react";
+import {
+  Play,
+  Pause,
+  RotateCcw,
+  ChevronRight,
+  ChevronLeft,
+  ChevronDown,
+} from "lucide-react";
 import MarkdownRenderer from "./MarkdownRenderer";
 
 export interface LegendItem {
@@ -105,6 +112,81 @@ export function PlotFrame({
       <div className="absolute inset-0 z-10 flex items-center justify-center">
         {children}
       </div>
+    </div>
+  );
+}
+
+/**
+ * VizShell - The full-width visualization frame.
+ *
+ * Replaces the cramped `lg:grid-cols-[minmax(0,1.8fr)_minmax(340px,1fr)]`
+ * two-column grid. The canvas owns the full content width; controls relocate
+ * to a horizontal strip below it, a per-beat caption replaces the old
+ * right-rail explanation, and long prose lives in a collapsible "Mental model"
+ * block. A visual only needs to supply its canvas plus these slots.
+ *
+ * The canvas child should be an `<svg className="block h-auto w-full" ...>` with
+ * a fixed `viewBox` so it scales to the available width.
+ */
+export function VizShell({
+  canvas,
+  controls,
+  caption,
+  mentalModel,
+  mentalModelTitle = "Mental model",
+  canvasClassName = "",
+}: {
+  canvas: ReactNode;
+  controls?: ReactNode;
+  caption?: ReactNode;
+  mentalModel?: ReactNode;
+  mentalModelTitle?: string;
+  canvasClassName?: string;
+}) {
+  return (
+    <div className="flex w-full flex-col gap-3 font-body" data-testid="viz-shell">
+      <div
+        className={`relative w-full overflow-hidden border border-outline bg-surface ${canvasClassName}`}
+      >
+        {canvas}
+      </div>
+
+      {controls && (
+        <div
+          className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-stretch"
+          data-testid="viz-controls"
+        >
+          {controls}
+        </div>
+      )}
+
+      {caption && (
+        <div
+          className="flex items-start gap-3 border border-outline bg-surface-container-low px-4 py-3 font-sans text-[14px] leading-6 text-on-surface-variant"
+          data-testid="viz-caption"
+          aria-live="polite"
+        >
+          <span className="mt-[3px] shrink-0 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-primary">
+            Now
+          </span>
+          <span className="min-w-0">{caption}</span>
+        </div>
+      )}
+
+      {mentalModel && (
+        <details className="group border border-outline bg-surface">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-primary [&::-webkit-details-marker]:hidden">
+            <span>{mentalModelTitle}</span>
+            <ChevronDown
+              className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180"
+              aria-hidden="true"
+            />
+          </summary>
+          <div className="border-t border-outline px-4 py-4 text-[15px] leading-relaxed text-on-surface-variant">
+            {mentalModel}
+          </div>
+        </details>
+      )}
     </div>
   );
 }

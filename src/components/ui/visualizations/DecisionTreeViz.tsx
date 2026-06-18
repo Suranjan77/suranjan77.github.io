@@ -1,448 +1,290 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import MarkdownRenderer from "../MarkdownRenderer";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  COLORS,
-  SVGFilters,
-  AnimatedPointMark,
-  VisualizationInstruction,
-} from "../visualizationPrimitives";
+import { motion } from "framer-motion";
+import { COLORS, SVGFilters, VizShell } from "../visualizationPrimitives";
 
-const W = 640;
+const W = 660;
 const H = 420;
 
-// Subplot boundaries
-const leftPlot = { left: 40, top: 44, right: 280, width: 240, bottom: 320, height: 276 };
+// LEFT: applicant feature map (income x, credit score y)
+const map = { left: 48, top: 48, right: 300, bottom: 330 };
+const mapW = map.right - map.left;
+const mapH = map.bottom - map.top;
+const scaleX = (v: number) => map.left + (v / 10) * mapW;
+const scaleY = (v: number) => map.bottom - (v / 10) * mapH;
+const invertX = (px: number) => ((px - map.left) / mapW) * 10;
+const invertY = (py: number) => ((map.bottom - py) / mapH) * 10;
 
-// Coordinate scales for Left Plot
-const scaleX = (val: number) => leftPlot.left + (val / 10) * leftPlot.width;
-const scaleY = (val: number) => leftPlot.bottom - (val / 10) * leftPlot.height;
-const invertX = (px: number) => ((px - leftPlot.left) / leftPlot.width) * 10;
-const invertY = (py: number) => ((leftPlot.bottom - py) / leftPlot.height) * 10;
+// display units
+const income = (x: number) => Math.round(20 + x * 8); // £k
+const credit = (y: number) => Math.round(300 + y * 55);
 
-// Node positions in right Tree Panel
+// split thresholds (internal units)
+const INCOME_SPLIT = 5; // £60k
+const CREDIT_SPLIT = 4.5; // ~550
+
+// tree node anchor points (right half)
 const nodes = {
-  root: { x: 470, y: 70, label: "x1 < 5.0" },
-  leafR: { x: 540, y: 160, label: "Leaf B (Pink)", color: COLORS.pink },
-  nodeL: { x: 400, y: 160, label: "y < 4.5" },
-  leafL_A: { x: 400, y: 160, label: "Leaf A (Cyan)", color: COLORS.cyan }, // when tree is small
-  leafL_LL: { x: 345, y: 240, label: "Leaf A (Cyan)", color: COLORS.cyan }, // grown tree left
-  leafL_LR: { x: 455, y: 240, label: "Leaf C (Yellow)", color: COLORS.yellow }, // grown tree right
+  root: { x: 478, y: 80 },
+  right: { x: 560, y: 180 }, // high-income approve leaf
+  left: { x: 420, y: 180 }, // low-income node / shallow leaf
+  leafLL: { x: 372, y: 282 }, // low income + low credit -> deny
+  leafLR: { x: 472, y: 282 }, // low income + good credit -> approve
 };
 
-const basePoints = [
-  { id: 0, x: 1.5, y: 2.5, label: 0 },
-  { id: 1, x: 3.0, y: 3.5, label: 0 },
-  { id: 2, x: 2.2, y: 6.8, label: 0 },
-  { id: 3, x: 4.1, y: 8.1, label: 0 },
-  { id: 4, x: 6.5, y: 5.7, label: 1 },
-  { id: 5, x: 8.2, y: 3.1, label: 1 },
-  { id: 6, x: 7.5, y: 7.5, label: 1 },
-  { id: 7, x: 8.9, y: 6.2, label: 1 },
-  { id: 8, x: 3.5, y: 1.8, label: 1 }, // outlier for yellow leaf demo
+// past applicants: repaid ("good") vs defaulted ("bad")
+type App = { id: number; x: number; y: number; repaid: boolean };
+const APPS: App[] = [
+  // high income — repaid
+  { id: 0, x: 6.5, y: 5.7, repaid: true },
+  { id: 1, x: 8.2, y: 3.1, repaid: true },
+  { id: 2, x: 7.5, y: 7.5, repaid: true },
+  { id: 3, x: 8.9, y: 6.2, repaid: true },
+  // low income, low credit — defaulted
+  { id: 4, x: 1.5, y: 2.5, repaid: false },
+  { id: 5, x: 3.0, y: 3.5, repaid: false },
+  { id: 6, x: 3.5, y: 1.8, repaid: false },
+  // low income, GOOD credit — repaid (the shallow tree wrongly rejects these)
+  { id: 7, x: 2.2, y: 6.8, repaid: true },
+  { id: 8, x: 4.1, y: 8.1, repaid: true },
 ];
 
+// approve = predicted to repay
+const classify = (x: number, y: number, grown: boolean): boolean => {
+  if (x >= INCOME_SPLIT) return true; // high income -> approve
+  if (!grown) return false; // shallow: reject every low-income applicant
+  return y >= CREDIT_SPLIT; // good credit rescues the low-income applicant
+};
+
+const APPROVE = COLORS.cyan;
+const DENY = COLORS.pink;
+
 export default function DecisionTreeViz() {
-  const [isTreeGrown, setIsTreeGrown] = useState(false);
+  const [grown, setGrown] = useState(false);
   const [query, setQuery] = useState<{ x: number; y: number } | null>(null);
-  
-  // Animation state
-  const [animStep, setAnimStep] = useState<number>(-1); // -1 = idle, 0 = root, 1 = mid node, 2 = leaf, 3 = finished/flash
-  const [animPos, setAnimPos] = useState({ x: nodes.root.x, y: nodes.root.y });
-  const [flashRegion, setFlashRegion] = useState<"LL" | "LR" | "L" | "R" | null>(null);
+  const [animPos, setAnimPos] = useState<{ x: number; y: number } | null>(null);
+  const [flash, setFlash] = useState<"R" | "L" | "LL" | "LR" | null>(null);
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  const timersRef = useRef<NodeJS.Timeout[]>([]);
-
-  // Stop any active animations
   const clearTimers = () => {
-    timersRef.current.forEach((t) => clearTimeout(t));
-    timersRef.current = [];
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
   };
+  useEffect(() => () => clearTimers(), []);
 
-  const handlePlotClick = (e: React.PointerEvent<SVGSVGElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const px = e.clientX - rect.left;
-    const py = e.clientY - rect.top;
+  const correct = APPS.filter((a) => classify(a.x, a.y, grown) === a.repaid).length;
 
-    // Check if click was inside the left plot area
-    const borderPadding = 5;
-    if (
-      px >= leftPlot.left - borderPadding &&
-      px <= leftPlot.right + borderPadding &&
-      py >= leftPlot.top - borderPadding &&
-      py <= leftPlot.bottom + borderPadding
-    ) {
-      const qX = Math.max(0.2, Math.min(9.8, invertX(px)));
-      const qY = Math.max(0.2, Math.min(9.8, invertY(py)));
-      
-      startPointFallAnimation(qX, qY);
-    }
-  };
-
-  const startPointFallAnimation = (qx: number, qy: number) => {
+  const dropApplicant = (qx: number, qy: number) => {
     clearTimers();
     setQuery({ x: qx, y: qy });
-    setFlashRegion(null);
-    
-    // Step 0: Place at root
-    setAnimStep(0);
+    setFlash(null);
     setAnimPos({ x: nodes.root.x, y: nodes.root.y });
 
-    // Step 1: Slide to Level 1
-    const t1 = setTimeout(() => {
-      setAnimStep(1);
-      if (qx < 5.0) {
-        if (!isTreeGrown) {
-          // Lands in Left Leaf A
-          setAnimPos({ x: nodes.leafL_A.x, y: nodes.leafL_A.y });
-          triggerFlash("L", 0.5);
+    const goRight = qx >= INCOME_SPLIT;
+    timers.current.push(
+      setTimeout(() => {
+        if (goRight) {
+          setAnimPos(nodes.right);
+          timers.current.push(setTimeout(() => setFlash("R"), 450));
+        } else if (!grown) {
+          setAnimPos(nodes.left);
+          timers.current.push(setTimeout(() => setFlash("L"), 450));
         } else {
-          // Lands in split Node L
-          setAnimPos({ x: nodes.nodeL.x, y: nodes.nodeL.y });
-          // Proceed to Level 2
-          const t2 = setTimeout(() => {
-            setAnimStep(2);
-            if (qy < 4.5) {
-              setAnimPos({ x: nodes.leafL_LL.x, y: nodes.leafL_LL.y });
-              triggerFlash("LL", 0.5);
-            } else {
-              setAnimPos({ x: nodes.leafL_LR.x, y: nodes.leafL_LR.y });
-              triggerFlash("LR", 0.5);
-            }
-          }, 600);
-          timersRef.current.push(t2);
+          setAnimPos(nodes.left);
+          timers.current.push(
+            setTimeout(() => {
+              const lowCredit = qy < CREDIT_SPLIT;
+              setAnimPos(lowCredit ? nodes.leafLL : nodes.leafLR);
+              timers.current.push(setTimeout(() => setFlash(lowCredit ? "LL" : "LR"), 450));
+            }, 600),
+          );
         }
-      } else {
-        // Lands in Right Leaf B
-        setAnimPos({ x: nodes.leafR.x, y: nodes.leafR.y });
-        triggerFlash("R", 0.5);
-      }
-    }, 700);
-
-    timersRef.current.push(t1);
+      }, 600),
+    );
   };
 
-  const triggerFlash = (region: "LL" | "LR" | "L" | "R", delaySec: number) => {
-    const tFlash = setTimeout(() => {
-      setAnimStep(3);
-      setFlashRegion(region);
-      // Auto-clear flash after 1 second
-      const tClear = setTimeout(() => {
-        setFlashRegion(null);
-      }, 1000);
-      timersRef.current.push(tClear);
-    }, delaySec * 1000);
-    timersRef.current.push(tFlash);
+  const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    const svg = e.currentTarget;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const c = pt.matrixTransform(ctm.inverse());
+    if (c.x < map.left - 6 || c.x > map.right + 6 || c.y < map.top - 6 || c.y > map.bottom + 6) return;
+    dropApplicant(
+      Math.max(0.2, Math.min(9.8, invertX(c.x))),
+      Math.max(0.2, Math.min(9.8, invertY(c.y))),
+    );
   };
 
-  useEffect(() => {
-    return () => clearTimers();
-  }, []);
+  const verdict = query ? classify(query.x, query.y, grown) : null;
+  const ticks = [0, 2.5, 5, 7.5, 10];
 
-  const leftTicks = [0, 2.5, 5, 7.5, 10];
+  const caption = !grown
+    ? `Shallow tree — it asks only one question: "income ≥ £60k?". Everyone below that line is rejected, so the ${APPS.filter((a) => a.repaid && a.x < INCOME_SPLIT).length} low-income applicants who actually repaid are wrongly denied (${correct}/${APPS.length} right). Grow the tree to add a second question.`
+    : `Grown tree — a second question, "credit score ≥ 550?", now splits the low-income branch. Creditworthy low-income applicants get rescued into Approve, so every past applicant is judged correctly (${correct}/${APPS.length}). Click any spot on the map to watch an applicant fall through the questions.`;
 
-  return (
-    <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(340px,1fr)]">
-      <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <svg
-            className="h-full w-full"
-            viewBox={`0 0 ${W} ${H}`}
-            role="img"
-            aria-label="Decision Tree Space Partition"
-            onPointerDown={handlePlotClick}
-          >
-            <title>Decision Tree Diagram</title>
-            <SVGFilters />
-            <rect width={W} height={H} fill={COLORS.bg} />
+  // shaded decision regions on the map
+  const regions = !grown ? (
+    <>
+      <rect x={map.left} y={map.top} width={scaleX(INCOME_SPLIT) - map.left} height={mapH} fill={DENY} fillOpacity={flash === "L" ? 0.26 : 0.08} className="transition-all duration-300" />
+      <rect x={scaleX(INCOME_SPLIT)} y={map.top} width={map.right - scaleX(INCOME_SPLIT)} height={mapH} fill={APPROVE} fillOpacity={flash === "R" ? 0.26 : 0.08} className="transition-all duration-300" />
+    </>
+  ) : (
+    <>
+      <rect x={map.left} y={scaleY(CREDIT_SPLIT)} width={scaleX(INCOME_SPLIT) - map.left} height={map.bottom - scaleY(CREDIT_SPLIT)} fill={DENY} fillOpacity={flash === "LL" ? 0.26 : 0.08} className="transition-all duration-300" />
+      <rect x={map.left} y={map.top} width={scaleX(INCOME_SPLIT) - map.left} height={scaleY(CREDIT_SPLIT) - map.top} fill={APPROVE} fillOpacity={flash === "LR" ? 0.26 : 0.08} className="transition-all duration-300" />
+      <rect x={scaleX(INCOME_SPLIT)} y={map.top} width={map.right - scaleX(INCOME_SPLIT)} height={mapH} fill={APPROVE} fillOpacity={flash === "R" ? 0.26 : 0.08} className="transition-all duration-300" />
+    </>
+  );
 
-            {/* LEFT PLOT: Feature Space */}
-            <g>
-              {/* Shaded split regions */}
-              {/* If tree is not grown, we have two regions split at x=5.0 */}
-              {!isTreeGrown ? (
-                <>
-                  <rect
-                    x={leftPlot.left}
-                    y={leftPlot.top}
-                    width={scaleX(5.0) - leftPlot.left}
-                    height={leftPlot.height}
-                    fill={COLORS.cyan}
-                    fillOpacity={flashRegion === "L" ? 0.28 : 0.08}
-                    className="transition-all duration-300"
-                  />
-                  <rect
-                    x={scaleX(5.0)}
-                    y={leftPlot.top}
-                    width={leftPlot.right - scaleX(5.0)}
-                    height={leftPlot.height}
-                    fill={COLORS.pink}
-                    fillOpacity={flashRegion === "R" ? 0.28 : 0.08}
-                    className="transition-all duration-300"
-                  />
-                </>
-              ) : (
-                <>
-                  {/* Left-Left region: x < 5.0 and y < 4.5 (Cyan) */}
-                  <rect
-                    x={leftPlot.left}
-                    y={scaleY(4.5)}
-                    width={scaleX(5.0) - leftPlot.left}
-                    height={leftPlot.bottom - scaleY(4.5)}
-                    fill={COLORS.cyan}
-                    fillOpacity={flashRegion === "LL" ? 0.28 : 0.08}
-                    className="transition-all duration-300"
-                  />
-                  {/* Left-Right region: x < 5.0 and y >= 4.5 (Yellow) */}
-                  <rect
-                    x={leftPlot.left}
-                    y={leftPlot.top}
-                    width={scaleX(5.0) - leftPlot.left}
-                    height={scaleY(4.5) - leftPlot.top}
-                    fill={COLORS.yellow}
-                    fillOpacity={flashRegion === "LR" ? 0.28 : 0.08}
-                    className="transition-all duration-300"
-                  />
-                  {/* Right region: x >= 5.0 (Pink) */}
-                  <rect
-                    x={scaleX(5.0)}
-                    y={leftPlot.top}
-                    width={leftPlot.right - scaleX(5.0)}
-                    height={leftPlot.height}
-                    fill={COLORS.pink}
-                    fillOpacity={flashRegion === "R" ? 0.28 : 0.08}
-                    className="transition-all duration-300"
-                  />
-                </>
-              )}
+  const renderNode = (x: number, y: number, text: string, active: boolean, w = 78) => (
+    <g>
+      <rect x={x - w / 2} y={y - 13} width={w} height={26} rx={3} fill="rgba(250,248,242,0.95)" stroke={active ? COLORS.yellow : COLORS.border} strokeWidth={active ? 2.5 : 1} />
+      <text x={x} y={y + 4} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={800}>{text}</text>
+    </g>
+  );
+  const renderLeaf = (x: number, y: number, text: string, color: string, active: boolean) => (
+    <g>
+      <rect x={x - 42} y={y - 13} width={84} height={26} rx={3} fill="rgba(250,248,242,0.95)" stroke={active ? color : COLORS.border} strokeWidth={active ? 3 : 1} />
+      <text x={x} y={y + 4} textAnchor="middle" fill={color} fontSize={10} fontWeight={800}>{text}</text>
+    </g>
+  );
 
-              {/* Split lines */}
-              {/* Split 1: x = 5.0 */}
-              <line x1={scaleX(5.0)} y1={leftPlot.top} x2={scaleX(5.0)} y2={leftPlot.bottom} stroke={COLORS.yellow} strokeWidth={2.5} />
-              
-              {/* Split 2 (if grown): y = 4.5 for x < 5.0 */}
-              {isTreeGrown && (
-                <motion.line
-                  x1={leftPlot.left}
-                  y1={scaleY(4.5)}
-                  x2={scaleX(5.0)}
-                  y2={scaleY(4.5)}
-                  stroke={COLORS.yellow}
-                  strokeWidth={2}
-                  strokeDasharray="4 3"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.5 }}
-                />
-              )}
+  const branch = (from: { x: number; y: number }, to: { x: number; y: number }, on: boolean) => (
+    <line x1={from.x} y1={from.y + 13} x2={to.x} y2={to.y - 13} stroke={on ? COLORS.yellow : COLORS.border} strokeWidth={on ? 3.5 : 1.5} className="transition-all" />
+  );
 
-              {/* Grid Ticks */}
-              {leftTicks.map((tick) => (
-                <g key={`l-tick-${tick}`}>
-                  <line x1={scaleX(tick)} x2={scaleX(tick)} y1={leftPlot.top} y2={leftPlot.bottom} stroke={COLORS.grid} strokeWidth={1} strokeOpacity={0.5} />
-                  <line x1={leftPlot.left} x2={leftPlot.right} y1={scaleY(tick)} y2={scaleY(tick)} stroke={COLORS.grid} strokeWidth={1} strokeOpacity={0.5} />
-                </g>
-              ))}
+  const canvas = (
+    <svg className="block h-auto w-full cursor-crosshair" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Decision Tree Loan Approval" onPointerDown={onDown}>
+      <title>Decision Tree Diagram</title>
+      <SVGFilters />
+      <rect width={W} height={H} fill={COLORS.bg} />
 
-              {/* Border Axes */}
-              <line x1={leftPlot.left} x2={leftPlot.left} y1={leftPlot.top} y2={leftPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
-              <line x1={leftPlot.left} x2={leftPlot.right} y1={leftPlot.bottom} y2={leftPlot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
-              <text x={leftPlot.right + 8} y={leftPlot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>x1 (Feature 1)</text>
-              <text x={leftPlot.left - 8} y={leftPlot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={700}>x2</text>
-              <text x={leftPlot.left + 5} y={leftPlot.top - 8} fill={COLORS.muted} fontSize={12} fontWeight={800}>FEATURE PARTITION</text>
+      {/* LEFT: applicant feature map */}
+      <text x={map.left} y={map.top - 14} fill={COLORS.muted} fontSize={12} fontWeight={800}>APPLICANT MAP</text>
+      {regions}
+      {ticks.map((t) => (
+        <g key={`t${t}`}>
+          <line x1={scaleX(t)} y1={map.top} x2={scaleX(t)} y2={map.bottom} stroke={COLORS.grid} strokeWidth={1} strokeOpacity={0.5} />
+          <line x1={map.left} y1={scaleY(t)} x2={map.right} y2={scaleY(t)} stroke={COLORS.grid} strokeWidth={1} strokeOpacity={0.5} />
+        </g>
+      ))}
+      {/* split lines */}
+      <line x1={scaleX(INCOME_SPLIT)} y1={map.top} x2={scaleX(INCOME_SPLIT)} y2={map.bottom} stroke={COLORS.yellow} strokeWidth={2.5} />
+      {grown && (
+        <motion.line x1={map.left} y1={scaleY(CREDIT_SPLIT)} x2={scaleX(INCOME_SPLIT)} y2={scaleY(CREDIT_SPLIT)} stroke={COLORS.yellow} strokeWidth={2} strokeDasharray="4 3" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.5 }} />
+      )}
+      <line x1={map.left} y1={map.top} x2={map.left} y2={map.bottom} stroke={COLORS.border} strokeWidth={1.5} />
+      <line x1={map.left} y1={map.bottom} x2={map.right} y2={map.bottom} stroke={COLORS.border} strokeWidth={1.5} />
+      {ticks.filter((t) => t % 5 === 0).map((t) => (
+        <text key={`xl${t}`} x={scaleX(t)} y={map.bottom + 15} textAnchor="middle" fill={COLORS.muted} fontSize={9}>£{income(t)}k</text>
+      ))}
+      <text x={map.right} y={map.bottom + 30} textAnchor="end" fill={COLORS.muted} fontSize={11} fontWeight={700}>income →</text>
+      <text x={map.left - 8} y={map.top - 2} textAnchor="end" fill={COLORS.muted} fontSize={11} fontWeight={700}>credit</text>
 
-              {/* Data points */}
-              {basePoints.map((p) => (
-                <AnimatedPointMark key={p.id} px={scaleX(p.x)} py={scaleY(p.y)} color={p.label ? COLORS.pink : COLORS.cyan} r={5} />
-              ))}
+      {/* applicants */}
+      {APPS.map((a) => (
+        <circle key={a.id} cx={scaleX(a.x)} cy={scaleY(a.y)} r={5} fill={a.repaid ? APPROVE : DENY} stroke={COLORS.bg} strokeWidth={1.5} />
+      ))}
+      {query && (
+        <g pointerEvents="none">
+          <circle cx={scaleX(query.x)} cy={scaleY(query.y)} r={8} fill={COLORS.yellow} stroke={COLORS.bg} strokeWidth={1.5} />
+          <circle cx={scaleX(query.x)} cy={scaleY(query.y)} r={2.5} fill={COLORS.bg} />
+        </g>
+      )}
 
-              {/* Query Point placed in Feature Space */}
-              {query && (
-                <g>
-                  <circle cx={scaleX(query.x)} cy={scaleY(query.y)} r={8} fill={COLORS.yellow} stroke={COLORS.bg} strokeWidth={1.5} />
-                  <circle cx={scaleX(query.x)} cy={scaleY(query.y)} r={2} fill={COLORS.bg} />
-                </g>
-              )}
-            </g>
+      {/* RIGHT: tree of yes/no questions */}
+      <rect x={330} y={map.top} width={300} height={mapH} fill="none" stroke={COLORS.border} strokeDasharray="3 3" />
+      <text x={340} y={map.top + 16} fill={COLORS.muted} fontSize={12} fontWeight={800}>DECISION TREE</text>
 
-            {/* RIGHT PLOT: Tree Structure Diagram */}
-            <g>
-              {/* Tree boundary box */}
-              <rect x={315} y={leftPlot.top} width={295} height={leftPlot.height} fill="none" stroke={COLORS.border} strokeDasharray="3 3" />
-              <text x={325} y={leftPlot.top + 16} fill={COLORS.muted} fontSize={12} fontWeight={800}>DECISION TREE</text>
+      {branch(nodes.root, nodes.left, !!query && query.x < INCOME_SPLIT)}
+      {branch(nodes.root, nodes.right, !!query && query.x >= INCOME_SPLIT)}
+      <text x={(nodes.root.x + nodes.left.x) / 2 - 6} y={(nodes.root.y + nodes.left.y) / 2} textAnchor="end" fill={COLORS.muted} fontSize={8} fontWeight={800}>yes</text>
+      <text x={(nodes.root.x + nodes.right.x) / 2 + 6} y={(nodes.root.y + nodes.right.y) / 2} textAnchor="start" fill={COLORS.muted} fontSize={8} fontWeight={800}>no</text>
 
-              {/* Tree connection lines */}
-              {/* Root -> Left */}
-              <line
-                x1={nodes.root.x}
-                y1={nodes.root.y + 12}
-                x2={nodes.nodeL.x}
-                y2={nodes.nodeL.y - 12}
-                stroke={animStep >= 1 && query && query.x < 5.0 ? COLORS.yellow : COLORS.border}
-                strokeWidth={animStep >= 1 && query && query.x < 5.0 ? 3.5 : 1.5}
-                className="transition-all"
-              />
-              <text x={(nodes.root.x + nodes.nodeL.x) / 2 - 12} y={(nodes.root.y + nodes.nodeL.y) / 2} fill={COLORS.cyan} fontSize={8} fontWeight={800} textAnchor="end">YES</text>
+      {grown && (
+        <>
+          {branch(nodes.left, nodes.leafLL, !!query && query.x < INCOME_SPLIT && query.y < CREDIT_SPLIT)}
+          {branch(nodes.left, nodes.leafLR, !!query && query.x < INCOME_SPLIT && query.y >= CREDIT_SPLIT)}
+          <text x={(nodes.left.x + nodes.leafLL.x) / 2 - 6} y={(nodes.left.y + nodes.leafLL.y) / 2 + 4} textAnchor="end" fill={COLORS.muted} fontSize={8} fontWeight={800}>yes</text>
+          <text x={(nodes.left.x + nodes.leafLR.x) / 2 + 6} y={(nodes.left.y + nodes.leafLR.y) / 2 + 4} textAnchor="start" fill={COLORS.muted} fontSize={8} fontWeight={800}>no</text>
+        </>
+      )}
 
-              {/* Root -> Right (Leaf B) */}
-              <line
-                x1={nodes.root.x}
-                y1={nodes.root.y + 12}
-                x2={nodes.leafR.x}
-                y2={nodes.leafR.y - 12}
-                stroke={animStep >= 1 && query && query.x >= 5.0 ? COLORS.yellow : COLORS.border}
-                strokeWidth={animStep >= 1 && query && query.x >= 5.0 ? 3.5 : 1.5}
-                className="transition-all"
-              />
-              <text x={(nodes.root.x + nodes.leafR.x) / 2 + 12} y={(nodes.root.y + nodes.leafR.y) / 2} fill={COLORS.pink} fontSize={8} fontWeight={800} textAnchor="start">NO</text>
+      {renderNode(nodes.root.x, nodes.root.y, "income < £60k?", flash === null && animPos !== null && animPos.y === nodes.root.y, 92)}
+      {renderLeaf(nodes.right.x, nodes.right.y, "APPROVE", APPROVE, flash === "R")}
+      {!grown ? (
+        renderLeaf(nodes.left.x, nodes.left.y, "DENY", DENY, flash === "L")
+      ) : (
+        <>
+          {renderNode(nodes.left.x, nodes.left.y, "credit < 550?", animPos !== null && animPos.x === nodes.left.x && flash === null, 82)}
+          {renderLeaf(nodes.leafLL.x, nodes.leafLL.y, "DENY", DENY, flash === "LL")}
+          {renderLeaf(nodes.leafLR.x, nodes.leafLR.y, "APPROVE", APPROVE, flash === "LR")}
+        </>
+      )}
 
-              {/* Level 2 connection lines (if grown) */}
-              {isTreeGrown && (
-                <>
-                  {/* Node L -> Leaf LL */}
-                  <line
-                    x1={nodes.nodeL.x}
-                    y1={nodes.nodeL.y + 12}
-                    x2={nodes.leafL_LL.x}
-                    y2={nodes.leafL_LL.y - 12}
-                    stroke={animStep >= 2 && query && query.y < 4.5 ? COLORS.yellow : COLORS.border}
-                    strokeWidth={animStep >= 2 && query && query.y < 4.5 ? 3.5 : 1.5}
-                    className="transition-all"
-                  />
-                  <text x={(nodes.nodeL.x + nodes.leafL_LL.x) / 2 - 12} y={(nodes.nodeL.y + nodes.leafL_LL.y) / 2 + 4} fill={COLORS.cyan} fontSize={8} fontWeight={800} textAnchor="end">YES</text>
+      {animPos && (
+        <motion.circle cx={animPos.x} cy={animPos.y} r={5} fill={COLORS.yellow} stroke={COLORS.bg} strokeWidth={1} animate={{ cx: animPos.x, cy: animPos.y }} transition={{ type: "tween", ease: "easeInOut", duration: 0.55 }} />
+      )}
+    </svg>
+  );
 
-                  {/* Node L -> Leaf LR */}
-                  <line
-                    x1={nodes.nodeL.x}
-                    y1={nodes.nodeL.y + 12}
-                    x2={nodes.leafL_LR.x}
-                    y2={nodes.leafL_LR.y - 12}
-                    stroke={animStep >= 2 && query && query.y >= 4.5 ? COLORS.yellow : COLORS.border}
-                    strokeWidth={animStep >= 2 && query && query.y >= 4.5 ? 3.5 : 1.5}
-                    className="transition-all"
-                  />
-                  <text x={(nodes.nodeL.x + nodes.leafL_LR.x) / 2 + 12} y={(nodes.nodeL.y + nodes.leafL_LR.y) / 2 + 4} fill={COLORS.yellow} fontSize={8} fontWeight={800} textAnchor="start">NO</text>
-                </>
-              )}
-
-              {/* Render Tree Nodes */}
-              {/* Root Decision Node */}
-              <g>
-                <rect x={nodes.root.x - 36} y={nodes.root.y - 12} width={72} height={24} fill="rgba(250,248,242,0.95)" stroke={animStep === 0 ? COLORS.yellow : COLORS.border} strokeWidth={animStep === 0 ? 2.5 : 1} rx={2} />
-                <text x={nodes.root.x} y={nodes.root.y + 4} fill={COLORS.muted} fontSize={9} fontWeight={800} textAnchor="middle">{nodes.root.label}</text>
-              </g>
-
-              {/* Right Leaf B (always Leaf B) */}
-              <g>
-                <rect x={nodes.leafR.x - 42} y={nodes.leafR.y - 12} width={84} height={24} fill="rgba(250,248,242,0.95)" stroke={flashRegion === "R" ? COLORS.pink : COLORS.border} strokeWidth={flashRegion === "R" ? 3 : 1} rx={2} />
-                <text x={nodes.leafR.x} y={nodes.leafR.y + 4} fill={COLORS.pink} fontSize={9} fontWeight={800} textAnchor="middle">{nodes.leafR.label}</text>
-              </g>
-
-              {/* Left Node (either Leaf A or Decision Node) */}
-              {!isTreeGrown ? (
-                /* Leaf A */
-                <g>
-                  <rect x={nodes.leafL_A.x - 42} y={nodes.leafL_A.y - 12} width={84} height={24} fill="rgba(250,248,242,0.95)" stroke={flashRegion === "L" ? COLORS.cyan : COLORS.border} strokeWidth={flashRegion === "L" ? 3 : 1} rx={2} />
-                  <text x={nodes.leafL_A.x} y={nodes.leafL_A.y + 4} fill={COLORS.cyan} fontSize={9} fontWeight={800} textAnchor="middle">{nodes.leafL_A.label}</text>
-                </g>
-              ) : (
-                /* Decision Split Node */
-                <>
-                  <g>
-                    <rect x={nodes.nodeL.x - 36} y={nodes.nodeL.y - 12} width={72} height={24} fill="rgba(250,248,242,0.95)" stroke={animStep === 1 ? COLORS.yellow : COLORS.border} strokeWidth={animStep === 1 ? 2.5 : 1} rx={2} />
-                    <text x={nodes.nodeL.x} y={nodes.nodeL.y + 4} fill={COLORS.muted} fontSize={12} fontWeight={800} textAnchor="middle">x2 &lt; 4.5</text>
-                  </g>
-
-                  {/* Level 2 Leaves */}
-                  {/* Left-Left: Leaf A */}
-                  <g>
-                    <rect x={nodes.leafL_LL.x - 42} y={nodes.leafL_LL.y - 12} width={84} height={24} fill="rgba(250,248,242,0.95)" stroke={flashRegion === "LL" ? COLORS.cyan : COLORS.border} strokeWidth={flashRegion === "LL" ? 3 : 1} rx={2} />
-                    <text x={nodes.leafL_LL.x} y={nodes.leafL_LL.y + 4} fill={COLORS.cyan} fontSize={9} fontWeight={800} textAnchor="middle">{nodes.leafL_LL.label}</text>
-                  </g>
-                  {/* Left-Right: Leaf C */}
-                  <g>
-                    <rect x={nodes.leafL_LR.x - 42} y={nodes.leafL_LR.y - 12} width={84} height={24} fill="rgba(250,248,242,0.95)" stroke={flashRegion === "LR" ? COLORS.yellow : COLORS.border} strokeWidth={flashRegion === "LR" ? 3 : 1} rx={2} />
-                    <text x={nodes.leafL_LR.x} y={nodes.leafL_LR.y + 4} fill={COLORS.yellow} fontSize={9} fontWeight={800} textAnchor="middle">{nodes.leafL_LR.label}</text>
-                  </g>
-                </>
-              )}
-
-              {/* Falling Query dot animation inside tree */}
-              {animStep >= 0 && (
-                <motion.circle
-                  cx={animPos.x}
-                  cy={animPos.y}
-                  r={5}
-                  fill={COLORS.yellow}
-                  stroke={COLORS.bg}
-                  strokeWidth={1}
-                  animate={{ cx: animPos.x, cy: animPos.y }}
-                  transition={{ type: "tween", ease: "easeInOut", duration: 0.58 }}
-                />
-              )}
-            </g>
-          </svg>
-        </div>
+  const controls = (
+    <>
+      <div className="flex flex-col justify-center gap-2 border border-outline bg-surface p-3">
+        <span className="font-mono text-[12px] font-bold uppercase tracking-wide text-primary">Tree depth</span>
+        <button
+          aria-label={grown ? "Prune the tree back to one question" : "Grow the tree by adding a credit-score question"}
+          onClick={() => {
+            clearTimers();
+            setGrown((g) => !g);
+            setQuery(null);
+            setAnimPos(null);
+            setFlash(null);
+          }}
+          className="flex h-9 items-center justify-center border border-outline bg-cyan px-3 font-mono text-[12px] font-bold uppercase tracking-wide text-white hover:bg-cyan/90"
+        >
+          {grown ? "Prune tree" : "Grow tree"}
+        </button>
+        <span className="font-sans text-[12px] text-on-surface-variant">Click anywhere on the applicant map to drop a new applicant and watch it fall through the questions.</span>
       </div>
 
-      <div className="flex min-w-0 flex-col gap-3">
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between gap-4 font-bold uppercase tracking-wide">
-            <span>Controls</span>
-          </div>
-
-          <button aria-label="REDUCE TREE SIZE (SHRINK) GROW TREE (ADD LEVEL 2 SPLIT)"
-            onClick={() => {
-              setIsTreeGrown(!isTreeGrown);
-              setQuery(null);
-              setAnimStep(-1);
-            }}
-            className="w-full flex h-9 items-center justify-center border border-outline bg-surface-container hover:bg-outline-variant text-on-surface hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer mb-2"
-          >
-            {isTreeGrown ? "REDUCE TREE SIZE (SHRINK)" : "GROW TREE (ADD LEVEL 2 SPLIT)"}
-          </button>
-
-          <VisualizationInstruction
-            title="Direct Manipulation:"
-            content="Click anywhere inside the left feature box. A query point will appear and visually fall through the split test nodes down to a leaf in the tree."
-            className="uppercase"
-          />
+      <div className="flex flex-1 flex-col justify-center gap-1.5 border border-outline bg-surface p-3 font-mono text-xs">
+        <div className="flex items-baseline justify-between gap-3">
+          <span className="text-[11px] font-bold uppercase text-on-surface-variant">Past applicants judged right</span>
+          <span data-testid="tree-accuracy" className="text-lg font-bold" style={{ color: correct === APPS.length ? APPROVE : DENY }}>{correct}/{APPS.length}</span>
         </div>
-
-        {query && (
-          <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-            <div className="mb-2 block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant">
-              DECISION TRACE
+        {query ? (
+          <>
+            <div className="flex justify-between gap-3"><span className="text-on-surface-variant">income</span><span className="font-bold text-on-surface">£{income(query.x)}k</span></div>
+            <div className="flex justify-between gap-3"><span className="text-on-surface-variant">credit score</span><span className="font-bold text-on-surface">{credit(query.y)}</span></div>
+            <div className="mt-1 flex items-baseline justify-between gap-3 border-t border-outline pt-2">
+              <span className="text-[11px] font-bold uppercase text-on-surface-variant">Verdict</span>
+              <span data-testid="tree-verdict" className="text-base font-bold" style={{ color: verdict ? APPROVE : DENY }}>{verdict ? "APPROVE" : "DENY"}</span>
             </div>
-            <div className="bg-surface-container p-3 border border-outline space-y-1.5 text-xs">
-              <div className="flex justify-between">
-                <span>Query Coordinate:</span>
-                <span className="font-bold text-primary">({query.x.toFixed(2)}, {query.y.toFixed(2)})</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Test 1 (x1 &lt; 5.0?):</span>
-                <span className="font-bold">{query.x < 5.0 ? "YES (Go Left)" : "NO (Go Right)"}</span>
-              </div>
-              {isTreeGrown && query.x < 5.0 && (
-                <div className="flex justify-between">
-                  <span>Test 2 (x2 &lt; 4.5?):</span>
-                  <span className="font-bold">{query.y < 4.5 ? "YES (Go Left-Left)" : "NO (Go Left-Right)"}</span>
-                </div>
-              )}
-              <div className="border-t border-outline my-2 pt-2 flex justify-between text-sm font-bold">
-                <span>FINAL DECISION:</span>
-                {(() => {
-                  if (query.x >= 5.0) return <span className="text-pink">Leaf B (Class 1)</span>;
-                  if (!isTreeGrown) return <span className="text-cyan">Leaf A (Class 0)</span>;
-                  return query.y < 4.5 ? <span className="text-cyan">Leaf A (Class 0)</span> : <span className="text-yellow">Leaf C (Class 1)</span>;
-                })()}
-              </div>
-            </div>
-          </div>
+          </>
+        ) : (
+          <span className="text-[12px] text-on-surface-variant">Drop an applicant to trace a verdict.</span>
         )}
       </div>
-    </div>
+    </>
   );
+
+  const mentalModel = (
+    <p>
+      A decision tree is just a <strong>flowchart of yes/no questions</strong>
+      learned from data. Each question is a straight cut on one feature, so the
+      tree carves the space into <strong>axis-aligned boxes</strong> — and you can
+      read the exact rule behind any decision (&quot;denied because income &lt;
+      £60k and credit &lt; 550&quot;). <strong>Deeper trees ask more questions</strong>,
+      fitting finer regions: that fixes underfitting here, but pushed too far a
+      tree memorises noise and overfits — which is why random forests and gradient
+      boosting average many shallow trees instead.
+    </p>
+  );
+
+  return <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />;
 }

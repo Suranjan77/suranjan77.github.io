@@ -14,38 +14,27 @@ function renderVisualization(algorithmId: string) {
 }
 
 describe("algorithm visualization interaction contracts", () => {
-  it("keeps Bayesian update stepper ordered and gates feed-to-prior until the posterior step", () => {
+  it("collects A/B evidence and leaves the no-data state", () => {
     renderVisualization("bayesian-inference");
 
-    const feedButton = screen.getByRole("button", { name: /feed to prior/i });
-    expect(screen.getByText("STEP 1 / 5")).toBeInTheDocument();
-    expect(feedButton).toBeDisabled();
+    // No data yet: beliefs are flat and the decision is undecided.
+    expect(screen.getByText(/no data yet/i)).toBeInTheDocument();
+    expect(screen.getByText(/keep testing — too close/i)).toBeInTheDocument();
+    expect(screen.getAllByText("Variant A").length).toBeGreaterThan(0);
 
-    for (let i = 0; i < 4; i += 1) {
-      fireEvent.click(screen.getByTitle("Step Forward"));
-    }
-
-    expect(screen.getByText("STEP 5 / 5")).toBeInTheDocument();
-    expect(screen.getByText(/MAP:/)).toBeInTheDocument();
-    expect(feedButton).not.toBeDisabled();
-
-    fireEvent.click(feedButton);
-    expect(screen.getByText("STEP 1 / 5")).toBeInTheDocument();
-    expect(screen.getByText("#2")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: /reset all/i }));
-    expect(screen.getByText("#1")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /collect 200 visitors/i }));
+    expect(screen.queryByText(/no data yet/i)).not.toBeInTheDocument();
   });
 
-  it("updates Bayesian batch controls while preserving k <= n", () => {
+  it("resets the A/B experiment and exposes the true-gap slider", () => {
     renderVisualization("bayesian-inference");
 
-    expect(screen.getByText("6 / 12 successes (50%)")).toBeInTheDocument();
-    fireEvent.click(controlRegion(/Successes k:/).getByRole("button", { name: "+" }));
-    expect(screen.getByText("7 / 12 successes (58%)")).toBeInTheDocument();
-
-    fireEvent.click(controlRegion(/Trials n:/).getByRole("button", { name: "-" }));
-    expect(screen.getByText("7 / 11 successes (64%)")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /collect 50 visitors/i }));
+    fireEvent.click(screen.getByRole("button", { name: /reset the experiment/i }));
+    expect(screen.getByText(/no data yet/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("slider", { name: /variant b true rate/i }),
+    ).toBeInTheDocument();
   });
 
   it("keeps neural network stepper, target toggle, and feature controls coherent", () => {
@@ -91,7 +80,7 @@ describe("algorithm visualization interaction contracts", () => {
     expect(screen.getByText("STEP 1 / 3")).toBeInTheDocument();
   });
 
-  it("updates KNN k in odd increments and toggles the decision boundary", () => {
+  it("updates KNN k in odd increments and toggles the genre map", () => {
     renderVisualization("knn");
 
     expect(screen.getByText("k = 3")).toBeInTheDocument();
@@ -103,68 +92,91 @@ describe("algorithm visualization interaction contracts", () => {
     fireEvent.click(controlRegion(/Neighbor Count/).getByRole("button", { name: "+" }));
     expect(screen.getByText("k = 5")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /show decision boundary/i }));
-    expect(screen.getByRole("button", { name: /hide decision boundary/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /show the genre map/i }));
+    expect(screen.getByRole("button", { name: /hide the genre map/i })).toBeInTheDocument();
   });
 
-  it("runs linear regression fit controls and exposes SSE/formula readouts", async () => {
+  it("fits multivariable regression so error drops and R^2 rises", () => {
     renderVisualization("linear-regression");
 
-    expect(screen.getByText("SUM OF SQUARES (SSE)")).toBeInTheDocument();
-    expect(screen.getByText("FITTED LINE FORMULA")).toBeInTheDocument();
+    const sseEl = screen.getByTestId("linear-regression-sse");
+    const sse0 = Number(sseEl.textContent);
+    expect(screen.getByTestId("linear-regression-r2")).toHaveTextContent("0.00");
 
-    fireEvent.click(screen.getByRole("button", { name: /snap to ols fit/i }));
-    await waitFor(() => {
-      expect(screen.getByTestId("linear-regression-formula")).toHaveTextContent(
-        /y = 0\.70 · x \+ 1\.81/,
-      );
-    });
+    // Scrub the training slider to fully fitted.
+    const slider = screen.getByRole("slider", { name: /training progress/i });
+    fireEvent.change(slider, { target: { value: "1" } });
+    expect(Number(screen.getByTestId("linear-regression-sse").textContent)).toBeLessThan(sse0);
+    expect(Number(screen.getByTestId("linear-regression-r2").textContent)).toBeGreaterThan(0.95);
 
-    fireEvent.click(screen.getByRole("button", { name: /run gradient descent/i }));
-    const pauseButton = screen.getByRole("button", { name: /pause gradient descent/i });
-    expect(pauseButton).toBeInTheDocument();
-    fireEvent.click(pauseButton);
-    expect(screen.getByRole("button", { name: /run gradient descent/i })).toBeInTheDocument();
+    // Scrubbing back returns to the untrained state.
+    fireEvent.change(slider, { target: { value: "0" } });
+    expect(screen.getByTestId("linear-regression-r2")).toHaveTextContent("0.00");
+    expect(screen.getByRole("button", { name: /fit the weights/i })).toBeInTheDocument();
   });
 
-  it("keeps SVM soft-margin slider and metrics visible", () => {
+  it("advances the SVM kernel-trick narrative and scrubs the lift control", () => {
     renderVisualization("support-vector-machines");
 
-    expect(screen.getByText("MARGIN WIDTH (2/||w||)")).toBeInTheDocument();
-    expect(screen.getByText("SUPPORT VECTORS")).toBeInTheDocument();
-    fireEvent.change(screen.getByRole("slider"), { target: { value: "0.5" } });
-    expect(screen.getByRole("slider")).toHaveValue("0.5");
-    expect(screen.getByText("SOFT PENALTY (C)")).toBeInTheDocument();
+    // Guided narrative starts on the flat 2D tangle beat.
+    expect(screen.getByText("STEP 1 / 4")).toBeInTheDocument();
+    expect(screen.getByText(/trapped inside/i)).toBeInTheDocument();
+
+    // The free-play lift slider scrubs the 2D->3D morph and overrides the beat.
+    const slider = screen.getByRole("slider", { name: /lift into third dimension/i });
+    fireEvent.change(slider, { target: { value: "1" } });
+    expect(slider).toHaveValue("1");
+    expect(screen.getByText(/flat plane now sits cleanly/i)).toBeInTheDocument();
+
+    // Using the narrative controls resumes guided mode at the next beat.
+    fireEvent.click(screen.getByTitle("Step Forward"));
+    expect(screen.getByText("STEP 2 / 4")).toBeInTheDocument();
+    expect(screen.getByText(/outer ring floats up/i)).toBeInTheDocument();
   });
 
-  it("keeps logistic regression accuracy and sigmoid threshold panels visible", () => {
+  it("moves the logistic-regression threshold and trades misses for false alarms", () => {
     renderVisualization("logistic-regression");
 
-    expect(screen.getByText("FEATURE SPACE")).toBeInTheDocument();
-    expect(screen.getByText("SIGMOID LINK")).toBeInTheDocument();
-    expect(screen.getByText("CLASSIFICATION ACCURACY")).toBeInTheDocument();
+    expect(screen.getByTestId("logistic-accuracy")).toHaveTextContent("80% (8/10)");
+    const slider = screen.getByRole("slider", { name: /decision threshold/i });
+    fireEvent.change(slider, { target: { value: "0.9" } });
+    expect(slider).toHaveValue("0.9");
+    // raising the bar should change how many real passes get missed
+    expect(screen.getByText(/missed passes/i)).toBeInTheDocument();
   });
 
-  it("increments ensemble learners only within the supported stump range", () => {
+  it("grows the weak-rule committee within range and raises committee accuracy", () => {
     renderVisualization("ensemble-learning");
 
-    expect(screen.getByText("1 Stumps")).toBeInTheDocument();
-    expect(controlRegion("Weak Learners (Stumps):").getByRole("button", { name: "-" })).toBeDisabled();
+    // One weak rule alone is mediocre.
+    expect(screen.getByTestId("ensemble-count")).toHaveTextContent("1 of 5 rules");
+    expect(screen.getByRole("button", { name: /remove a weak rule/i })).toBeDisabled();
+    const singleAcc = Number(screen.getByTestId("ensemble-committee-acc").textContent!.replace("%", ""));
 
     for (let i = 0; i < 4; i += 1) {
-      fireEvent.click(controlRegion("Weak Learners (Stumps):").getByRole("button", { name: "+" }));
+      fireEvent.click(screen.getByRole("button", { name: /add a weak rule/i }));
     }
 
-    expect(screen.getByText("5 Stumps")).toBeInTheDocument();
-    expect(controlRegion("Weak Learners (Stumps):").getByRole("button", { name: "+" })).toBeDisabled();
+    // Full committee is bounded and strictly better than the single rule.
+    expect(screen.getByTestId("ensemble-count")).toHaveTextContent("5 of 5 rules");
+    expect(screen.getByRole("button", { name: /add a weak rule/i })).toBeDisabled();
+    expect(screen.getByTestId("ensemble-committee-acc")).toHaveTextContent("100%");
+    expect(singleAcc).toBeLessThan(100);
   });
 
-  it("toggles PCA projection without losing the variance readout", () => {
+  it("keeps more variance as the PCA component slider increases", () => {
     renderVisualization("dimensionality-reduction");
 
-    expect(screen.getByText(/Variance Captured/i)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /collapse points onto axis/i }));
-    expect(screen.getByRole("button", { name: /restore 2d coordinates/i })).toBeInTheDocument();
+    const slider = screen.getByRole("slider", { name: /number of components k/i });
+    fireEvent.change(slider, { target: { value: "1" } });
+    expect(screen.getByText(/of variance kept/i)).toBeInTheDocument();
+    expect(screen.getByText(/barely there|average tone/i)).toBeInTheDocument();
+
+    fireEvent.change(slider, { target: { value: "40" } });
+    expect(slider).toHaveValue("40");
+    expect(
+      screen.getAllByText(/compression win of dimensionality reduction/i).length,
+    ).toBeGreaterThan(0);
   });
 
   it("stages MCMC proposals, resolves them, and resets collected samples", () => {
@@ -257,13 +269,18 @@ describe("algorithm visualization interaction contracts", () => {
     expect(screen.getByText("RECONSTRUCTION ERROR")).toBeInTheDocument();
   });
 
-  it("toggles regularization geometry and keeps sparse weight readouts visible", () => {
+  it("toggles regularization geometry and narrates L1 sparsity vs L2 shrinkage", () => {
     renderVisualization("regularization");
 
+    // L1 default snaps a weight to exactly zero (sparsity).
     expect(screen.getByRole("button", { name: /l1 lasso/i })).toBeInTheDocument();
+    expect(screen.getByText(/Regularized weights/i)).toBeInTheDocument();
+    expect(screen.getByText(/0 — dropped/i)).toBeInTheDocument();
+
+    // Switching to L2 slides smoothly — no weight is zeroed out.
     fireEvent.click(screen.getByRole("button", { name: /l2 ridge/i }));
-    expect(screen.getByText("REGULARIZED WEIGHTS")).toBeInTheDocument();
-    expect(screen.getByText(/L2 Ridge/i)).toBeInTheDocument();
+    expect(screen.getByText(/shrinks; it does not select/i)).toBeInTheDocument();
+    expect(screen.queryByText(/0 — dropped/i)).not.toBeInTheDocument();
   });
 
   it("updates evaluation threshold metrics from the slider", () => {

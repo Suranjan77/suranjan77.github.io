@@ -5,10 +5,7 @@ import ComputerVisionViz from "./ComputerVisionViz";
 import EvaluationMetricsViz from "./EvaluationMetricsViz";
 import LinearRegressionViz from "./LinearRegressionViz";
 import LogisticRegressionViz from "./LogisticRegressionViz";
-import {
-  isPcaAxisAlignedWithPc1,
-  pcaVariancePercentForAngle,
-} from "./PCAViz";
+import { pcaVarianceCapturedPercent } from "./PCAViz";
 
 function cvOutputGrid() {
   return Array.from({ length: 4 }, (_, row) =>
@@ -19,19 +16,36 @@ function cvOutputGrid() {
 }
 
 describe("visualization algorithm accuracy", () => {
-  it("computes the linear regression SSE and displayed line formula from the current fit", () => {
+  it("drops multivariable regression error toward zero as the model trains", () => {
     render(<LinearRegressionViz />);
 
-    expect(screen.getByTestId("linear-regression-sse")).toHaveTextContent("26.910");
-    expect(screen.getByTestId("linear-regression-formula")).toHaveTextContent(
-      /y = 0\.00\s*·\s*x \+ 5\.30/,
-    );
+    // Untrained (progress 0): predictions are all the mean, so error is high
+    // and R^2 is 0.
+    const sse0 = Number(screen.getByTestId("linear-regression-sse").textContent);
+    expect(sse0).toBeGreaterThan(0);
+    expect(screen.getByTestId("linear-regression-r2")).toHaveTextContent("0.00");
+
+    // Scrub training to fully fitted: error collapses and R^2 approaches 1.
+    fireEvent.change(screen.getByRole("slider", { name: /training progress/i }), {
+      target: { value: "1" },
+    });
+    const sse1 = Number(screen.getByTestId("linear-regression-sse").textContent);
+    expect(sse1).toBeLessThan(sse0);
+    expect(Number(screen.getByTestId("linear-regression-r2").textContent)).toBeGreaterThan(0.95);
   });
 
-  it("classifies the default logistic regression points with the displayed boundary", () => {
+  it("scores logistic-regression accuracy and shifts it with the threshold", () => {
     render(<LogisticRegressionViz />);
 
-    expect(screen.getByTestId("logistic-accuracy")).toHaveTextContent("100% (8/8)");
+    // Default 50% threshold: two honest outliers are misclassified -> 80%.
+    expect(screen.getByTestId("logistic-accuracy")).toHaveTextContent("80% (8/10)");
+
+    // A very strict threshold predicts almost everyone "fail", so it catches the
+    // failures but misses passes — accuracy changes.
+    fireEvent.change(screen.getByRole("slider", { name: /decision threshold/i }), {
+      target: { value: "0.95" },
+    });
+    expect(screen.getByTestId("logistic-accuracy")).not.toHaveTextContent("80% (8/10)");
   });
 
   it("computes the computer-vision Sobel convolution output grid exactly", () => {
@@ -88,16 +102,19 @@ describe("visualization algorithm accuracy", () => {
     expect(screen.getByTestId("metrics-f1")).toHaveTextContent("8.4%");
   });
 
-  it("only labels the true PCA max-variance axis as PC1", () => {
-    const pc1Angle = 0.654;
-    const mirroredLowVarianceAngle = Math.PI - pc1Angle;
+  it("captures monotonically more variance as PCA keeps more components", () => {
+    // Variance captured is a non-decreasing function of k, starts above zero
+    // (the first component already carries real structure) and approaches 100%.
+    const v1 = pcaVarianceCapturedPercent(1);
+    const v10 = pcaVarianceCapturedPercent(10);
+    const v40 = pcaVarianceCapturedPercent(40);
 
-    expect(pcaVariancePercentForAngle(pc1Angle)).toBeCloseTo(98.2, 1);
-    expect(pcaVariancePercentForAngle(0.2)).toBeCloseTo(81.9, 1);
-    expect(pcaVariancePercentForAngle(mirroredLowVarianceAngle)).toBeCloseTo(9.7, 1);
-
-    expect(isPcaAxisAlignedWithPc1(pc1Angle)).toBe(true);
-    expect(isPcaAxisAlignedWithPc1(pc1Angle + Math.PI)).toBe(true);
-    expect(isPcaAxisAlignedWithPc1(mirroredLowVarianceAngle)).toBe(false);
+    expect(v1).toBeGreaterThan(0);
+    expect(v10).toBeGreaterThan(v1);
+    expect(v40).toBeGreaterThanOrEqual(v10);
+    expect(v40).toBeLessThanOrEqual(100);
+    expect(v40).toBeGreaterThan(90);
+    // A small fraction of components should already dominate the variance.
+    expect(v10).toBeGreaterThan(70);
   });
 });

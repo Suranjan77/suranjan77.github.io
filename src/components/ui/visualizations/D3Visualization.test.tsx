@@ -52,8 +52,7 @@ describe("D3Visualization router", () => {
 
     rerender(<D3Visualization algorithmId="probability-theory" />);
     fireEvent.click(screen.getByRole("button", { name: /drop 1 sample/i }));
-    expect(screen.getByText(/TOTAL TRIALS/)).toBeInTheDocument();
-    expect(screen.getByText(/TOTAL VARIATION DISTANCE/)).toBeInTheDocument();
+    expect(screen.getByText(/Trials n/i)).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByTestId("probability-total-trials")).toHaveTextContent("1");
     });
@@ -67,8 +66,8 @@ describe("D3Visualization router", () => {
     rerender(<D3Visualization algorithmId="knn" />);
     fireEvent.click(screen.getByRole("button", { name: "+" }));
     expect(screen.getByText("k = 5")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /show decision boundary/i }));
-    expect(screen.getByRole("button", { name: /hide decision boundary/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /show the genre map/i }));
+    expect(screen.getByRole("button", { name: /hide the genre map/i })).toBeInTheDocument();
 
     rerender(<D3Visualization algorithmId="llms" />);
     fireEvent.click(screen.getByRole("button", { name: /random sample/i }));

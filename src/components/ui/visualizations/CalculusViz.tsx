@@ -1,76 +1,75 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import MarkdownRenderer from "../MarkdownRenderer";
-import { animate, motion, type AnimationPlaybackControls } from "framer-motion";
+import React, { useState, useRef } from "react";
+import { animate, type AnimationPlaybackControls } from "framer-motion";
 import {
   COLORS,
   SVGFilters,
   AnimatedPointMark,
   PulseRing,
-  VisualizationInstruction,
+  VizShell,
 } from "../visualizationPrimitives";
 
-const W = 640;
-const H = 420;
-const plot = { left: 64, top: 44, right: 406, bottom: 338 };
+const W = 720;
+const H = 440;
+const plot = { left: 70, top: 48, right: 650, bottom: 372 };
 
-// Coordinate helpers
-const scaleX = (val: number) => +(plot.left + (val / 10) * (plot.right - plot.left)).toFixed(3);
-const scaleY = (val: number) => +(plot.bottom - (val / 10) * (plot.bottom - plot.top)).toFixed(3);
+const scaleX = (val: number) =>
+  +(plot.left + (val / 10) * (plot.right - plot.left)).toFixed(3);
+const scaleY = (val: number) =>
+  +(plot.bottom - (val / 10) * (plot.bottom - plot.top)).toFixed(3);
 const invertX = (px: number) => ((px - plot.left) / (plot.right - plot.left)) * 10;
 
-// Function and derivative definitions
-const f = (x: number) => 5 + 2.4 * Math.sin(x * 0.82 - 1.1);
-const df = (x: number) => 2.4 * 0.82 * Math.cos(x * 0.82 - 1.1);
+// A smooth hump: slope is clearly positive on the left, flat at the peak,
+// negative on the right — so the tangent direction is visually obvious.
+const f = (x: number) => 1 + 7 * Math.exp(-(((x - 5) / 2.6) ** 2));
+const df = (x: number) =>
+  7 * Math.exp(-(((x - 5) / 2.6) ** 2)) * (-(x - 5) / 3.38);
 
-// Generate curve coordinates
-const curvePoints: { x: number; y: number }[] = [];
-for (let i = 0; i <= 10.05; i += 0.1) {
-  curvePoints.push({ x: scaleX(i), y: scaleY(f(i)) });
+const curvePoints: string[] = [];
+for (let i = 0; i <= 10.01; i += 0.1) {
+  curvePoints.push(`${scaleX(i)} ${scaleY(f(i))}`);
 }
-const curvePath = "M " + curvePoints.map((p) => `${p.x} ${p.y}`).join(" L ");
+const curvePath = "M " + curvePoints.join(" L ");
+
+const H_WIDE = 4.0;
 
 export default function CalculusViz() {
-  const [focusX, setFocusX] = useState(5.5);
-  const [h, setH] = useState(4.0);
+  const [focusX, setFocusX] = useState(3.2);
+  const [h, setH] = useState(H_WIDE);
   const [isAnimating, setIsAnimating] = useState(false);
   const [pulse, setPulse] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const animationRef = useRef<AnimationPlaybackControls | null>(null);
 
-  // Compute points
   const sec = focusX + h;
   const fy = f(focusX);
-  const sy = f(sec);
-
-  // Compute slopes
   const exactSlope = df(focusX);
-  const secantSlope = (sy - fy) / h;
+  const isTangent = h < 0.12;
 
   const startLimitAnimation = () => {
-    if (animationRef.current) {
-      animationRef.current.stop();
-    }
+    if (animationRef.current) animationRef.current.stop();
     setIsAnimating(true);
-    // Animate h from current h to 0.001
-    animationRef.current = animate(h, 0.001, {
+    animationRef.current = animate(h, 0.002, {
       duration: 1.8,
-      ease: [0.22, 1, 0.36, 1], // Slow down dramatically at the end
+      ease: [0.22, 1, 0.36, 1],
       onUpdate: (latest) => setH(latest),
       onComplete: () => {
         setIsAnimating(false);
         setPulse(true);
-        setTimeout(() => setPulse(false), 800);
+        setTimeout(() => setPulse(false), 850);
       },
     });
   };
 
   const stopAnimation = () => {
-    if (animationRef.current) {
-      animationRef.current.stop();
-    }
+    if (animationRef.current) animationRef.current.stop();
     setIsAnimating(false);
+  };
+
+  const resetWide = () => {
+    stopAnimation();
+    setH(H_WIDE);
   };
 
   const handlePointerDown = (e: React.PointerEvent<SVGElement>) => {
@@ -84,248 +83,234 @@ export default function CalculusViz() {
     if (!isDragging) return;
     const svg = e.currentTarget.ownerSVGElement;
     if (!svg) return;
-
     const point = svg.createSVGPoint();
     point.x = e.clientX;
     point.y = e.clientY;
-
     const screenCTM = svg.getScreenCTM();
     if (!screenCTM) return;
-
     const svgCoords = point.matrixTransform(screenCTM.inverse());
     if (svgCoords) {
       const rawX = invertX(svgCoords.x);
-      // Constrain focus point so secant point h stays inside [0, 10]
-      const clampedX = Math.max(0.5, Math.min(6.0, rawX));
-      setFocusX(clampedX);
-      setH(4.0); // Reset h to see the secant line
+      setFocusX(Math.max(0.6, Math.min(9.4, rawX)));
     }
   };
 
   const handlePointerUp = (e: React.PointerEvent<SVGElement>) => {
     (e.currentTarget as SVGElement).releasePointerCapture(e.pointerId);
     setIsDragging(false);
-    // Auto-trigger limit animation
-    setTimeout(() => {
-      startLimitAnimation();
-    }, 150);
   };
 
-  // Magnification lens center
-  const lensCx = scaleX(focusX);
-  const lensCy = scaleY(fy);
-  const lensRadius = 42;
+  // Keep the second point and triangle inside the plotting window.
+  const dir = sec <= 9.4 ? 1 : -1;
+  const qx = focusX + dir * h;
+  const qy = f(qx);
+  const triSlope = (qy - fy) / (qx - focusX);
+  const lineYatDir = (x: number) => fy + triSlope * (x - focusX);
 
-  // Tangent line endpoints
-  const tanX1 = scaleX(focusX - 2.2);
-  const tanY1 = scaleY(fy - exactSlope * 2.2);
-  const tanX2 = scaleX(focusX + 2.2);
-  const tanY2 = scaleY(fy + exactSlope * 2.2);
-
-  // Secant line endpoints
-  const secX1 = scaleX(focusX - 2.2);
-  const secY1 = scaleY(fy - secantSlope * 2.2);
-  const secX2 = scaleX(sec + 1.2);
-  const secY2 = scaleY(sy + secantSlope * (sec + 1.2 - sec));
-
-  // Ticks for Grid
   const ticks = [0, 2.5, 5, 7.5, 10];
 
-  return (
-    <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(340px,1fr)]">
-      <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Derivative Limit Visualizer">
-            <title>Derivative Limit Visualizer</title>
-            <SVGFilters />
-            <rect width={W} height={H} fill={COLORS.bg} />
+  // Interpret the slope as the steepness of the hill under your feet.
+  const displayedSlope = isTangent ? exactSlope : triSlope;
+  const direction =
+    displayedSlope > 0.15
+      ? { word: "climbing uphill", arrow: "↑" }
+      : displayedSlope < -0.15
+        ? { word: "heading downhill", arrow: "↓" }
+        : { word: "flat — at the summit", arrow: "→" };
 
-            {/* Grid Axes */}
-            <g>
-              {ticks.map((tick) => (
-                <g key={tick}>
-                  <line x1={scaleX(tick)} x2={scaleX(tick)} y1={plot.top} y2={plot.bottom} stroke={COLORS.grid} strokeWidth={1} />
-                  <line x1={plot.left} x2={plot.right} y1={scaleY(tick)} y2={scaleY(tick)} stroke={COLORS.grid} strokeWidth={1} />
-                </g>
-              ))}
-              <line x1={plot.left} x2={plot.left} y1={plot.top} y2={plot.bottom} stroke={COLORS.border} strokeWidth={2} />
-              <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={COLORS.border} strokeWidth={2} />
-              <text x={plot.right + 16} y={plot.bottom + 4} fill={COLORS.muted} fontSize={13} fontWeight={700}>x</text>
-              <text x={plot.left - 20} y={plot.top - 8} fill={COLORS.muted} fontSize={13} fontWeight={700}>f(x)</text>
-            </g>
+  const meaningClause = isTangent
+    ? exactSlope > 0.15
+      ? "a positive slope means the hill is climbing here"
+      : exactSlope < -0.15
+        ? "a negative slope means the hill is descending here"
+        : "a slope of zero means you are on the flat summit"
+    : "";
 
-            {/* Main Plot elements */}
-            <g>
-              {/* Curve */}
-              <path d={curvePath} fill="none" stroke={COLORS.cyan} strokeWidth={3} />
+  const caption = isTangent
+    ? `The two points have merged, so the chord has become the tangent — the line that just grazes the hill at one spot. Its slope ${exactSlope.toFixed(2)} is the steepness of the ground right here: ${meaningClause}. Drag the point along the hill and watch this number fall as you climb toward the summit, hit 0 at the flat top, then go negative on the way down.`
+    : h > 2
+      ? `The yellow line is a chord joining two far-apart points on the hill. Its slope, rise ÷ run = ${triSlope.toFixed(2)}, is the average rate of change over that whole stretch — it averages the steep and the shallow parts together, so it is not the steepness at any single point. Slide the points together to fix that.`
+      : `As the two points slide together the chord pivots toward the slope right at the point — its value ${triSlope.toFixed(2)} (${direction.word}) is closing in on the true steepness. Keep going until they merge into the tangent.`;
 
-              {/* Tangent line (pink) */}
-              <line x1={tanX1} y1={tanY1} x2={tanX2} y2={tanY2} stroke={COLORS.pink} strokeWidth={2.5} filter={h < 0.05 ? "url(#glow)" : undefined} />
+  const canvas = (
+    <svg
+      className="block h-auto w-full"
+      viewBox={`0 0 ${W} ${H}`}
+      role="img"
+      aria-label="Derivative Limit Visualizer"
+    >
+      <title>Derivative Limit Visualizer</title>
+      <SVGFilters />
+      <defs>
+        <clipPath id="calc-plot">
+          <rect x={plot.left} y={plot.top} width={plot.right - plot.left} height={plot.bottom - plot.top} />
+        </clipPath>
+      </defs>
+      <rect width={W} height={H} fill={COLORS.bg} />
 
-              {/* Secant line (yellow) */}
-              {h > 0.01 && (
-                <line x1={secX1} y1={secY1} x2={secX2} y2={secY2} stroke={COLORS.yellow} strokeWidth={2} strokeDasharray="5 4" opacity={h < 0.1 ? h * 10 : 1} />
-              )}
+      {/* Axes */}
+      <g>
+        {ticks.map((tick) => (
+          <g key={tick}>
+            <line x1={scaleX(tick)} x2={scaleX(tick)} y1={plot.top} y2={plot.bottom} stroke={COLORS.grid} strokeWidth={1} />
+            <line x1={plot.left} x2={plot.right} y1={scaleY(tick)} y2={scaleY(tick)} stroke={COLORS.grid} strokeWidth={1} />
+          </g>
+        ))}
+        <line x1={plot.left} x2={plot.left} y1={plot.top} y2={plot.bottom} stroke={COLORS.border} strokeWidth={2} />
+        <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={COLORS.border} strokeWidth={2} />
+        <text x={plot.right + 4} y={plot.bottom + 22} fill={COLORS.muted} fontSize={12} fontWeight={700} textAnchor="end">distance x →</text>
+        <text x={plot.left - 22} y={plot.top - 8} fill={COLORS.muted} fontSize={12} fontWeight={700}>height f(x)</text>
+      </g>
 
-              {/* Helper secant height indicators */}
-              {h > 0.3 && (
-                <g opacity={Math.min(1, (h - 0.3) * 2)}>
-                  {/* dx label line */}
-                  <line x1={scaleX(focusX)} y1={scaleY(fy)} x2={scaleX(sec)} y2={scaleY(fy)} stroke={COLORS.muted} strokeWidth={1} strokeDasharray="3 3" />
-                  <text x={scaleX(focusX + h / 2)} y={scaleY(fy) + 14} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={700}>h</text>
+      <g clipPath="url(#calc-plot)">
+        {/* Curve — read it as the profile of a hill */}
+        <path d={curvePath} fill="none" stroke={COLORS.cyan} strokeWidth={3.5} />
 
-                  {/* dy label line */}
-                  <line x1={scaleX(sec)} y1={scaleY(fy)} x2={scaleX(sec)} y2={scaleY(sy)} stroke={COLORS.muted} strokeWidth={1} strokeDasharray="3 3" />
-                  <text x={scaleX(sec) + 8} y={scaleY(fy + (sy - fy) / 2)} textAnchor="start" fill={COLORS.muted} fontSize={12} fontWeight={700}>f(x+h)-f(x)</text>
-                </g>
-              )}
+        {/* Rise / run triangle between the two points */}
+        {!isTangent && (
+          <g opacity={Math.min(1, h * 1.5)}>
+            <polygon
+              points={`${scaleX(focusX)},${scaleY(fy)} ${scaleX(qx)},${scaleY(fy)} ${scaleX(qx)},${scaleY(qy)}`}
+              fill={COLORS.yellow}
+              fillOpacity={0.12}
+            />
+            {/* run (Δx) */}
+            <line x1={scaleX(focusX)} y1={scaleY(fy)} x2={scaleX(qx)} y2={scaleY(fy)} stroke={COLORS.muted} strokeWidth={1.5} />
+            <text x={scaleX((focusX + qx) / 2)} y={scaleY(fy) + (qy > fy ? 18 : -8)} textAnchor="middle" fill={COLORS.muted} fontSize={13} fontWeight={700}>
+              run
+            </text>
+            {/* rise (Δy) */}
+            <line x1={scaleX(qx)} y1={scaleY(fy)} x2={scaleX(qx)} y2={scaleY(qy)} stroke={COLORS.muted} strokeWidth={1.5} />
+            <text x={scaleX(qx) + (dir > 0 ? 8 : -8)} y={scaleY((fy + qy) / 2)} textAnchor={dir > 0 ? "start" : "end"} fill={COLORS.muted} fontSize={13} fontWeight={700}>
+              rise
+            </text>
+          </g>
+        )}
 
-              {/* Secant point (yellow) */}
-              {h > 0.005 && (
-                <circle cx={scaleX(sec)} cy={scaleY(sy)} r={5} fill={COLORS.yellow} stroke={COLORS.bg} strokeWidth={1.5} />
-              )}
+        {/* The pivoting chord -> tangent line, full width */}
+        <line
+          x1={scaleX(0)}
+          y1={scaleY(lineYatDir(0))}
+          x2={scaleX(10)}
+          y2={scaleY(lineYatDir(10))}
+          stroke={isTangent ? COLORS.pink : COLORS.yellow}
+          strokeWidth={isTangent ? 3.5 : 2.5}
+          strokeDasharray={isTangent ? undefined : "6 5"}
+          filter={isTangent ? "url(#glow)" : undefined}
+        />
 
-              {/* Pulse effect on limit convergence */}
-              {pulse && <PulseRing px={scaleX(focusX)} py={scaleY(fy)} color={COLORS.pink} maxRadius={35} />}
+        {pulse && <PulseRing px={scaleX(focusX)} py={scaleY(fy)} color={COLORS.pink} maxRadius={42} />}
 
-              {/* Draggable focus point (pink) */}
-              <g
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                className="cursor-grab active:cursor-grabbing"
-              >
-                <circle cx={scaleX(focusX)} cy={scaleY(fy)} r={16} fill="transparent" />
-                <AnimatedPointMark px={scaleX(focusX)} py={scaleY(fy)} color={COLORS.pink} r={7} label="focus x" />
-              </g>
-            </g>
+        {/* Second point Q (slides toward P) */}
+        {!isTangent && (
+          <circle cx={scaleX(qx)} cy={scaleY(qy)} r={6} fill={COLORS.yellow} stroke={COLORS.bg} strokeWidth={2} />
+        )}
 
-            {/* Magnification Lens */}
-            <g>
-              <defs>
-                <clipPath id="lens-clip">
-                  <circle cx={lensCx} cy={lensCy} r={lensRadius} />
-                </clipPath>
-              </defs>
+        {/* Focus point P (draggable) */}
+        <g
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          className="cursor-grab active:cursor-grabbing"
+        >
+          <circle cx={scaleX(focusX)} cy={scaleY(fy)} r={18} fill="transparent" />
+          <AnimatedPointMark px={scaleX(focusX)} py={scaleY(fy)} color={COLORS.pink} r={7.5} label="drag me" />
+        </g>
+      </g>
 
-              {/* Zoomed Content (only visible inside clip path) */}
-              <g clipPath="url(#lens-clip)">
-                {/* Background grid representation */}
-                <rect x={lensCx - lensRadius} y={lensCy - lensRadius} width={lensRadius * 2} height={lensRadius * 2} fill={COLORS.bg} />
-                <g transform={`translate(${lensCx}, ${lensCy}) scale(3.5) translate(${-lensCx}, ${-lensCy})`}>
-                  {/* Re-render the curve and lines at 3.5x scale */}
-                  <path d={curvePath} fill="none" stroke={COLORS.cyan} strokeWidth={1} />
-                  <line x1={tanX1} y1={tanY1} x2={tanX2} y2={tanY2} stroke={COLORS.pink} strokeWidth={1.5} />
-                  {h > 0.002 && (
-                    <line x1={secX1} y1={secY1} x2={secX2} y2={secY2} stroke={COLORS.yellow} strokeWidth={1} strokeDasharray="2 1" />
-                  )}
-                  <circle cx={scaleX(focusX)} cy={scaleY(fy)} r={2} fill={COLORS.pink} />
-                  {h > 0.002 && <circle cx={scaleX(sec)} cy={scaleY(sy)} r={1.5} fill={COLORS.yellow} />}
-                </g>
-              </g>
+    </svg>
+  );
 
-              {/* Lens physical border */}
-              <circle cx={lensCx} cy={lensCy} r={lensRadius} fill="none" stroke={COLORS.border} strokeWidth={2} />
-              <circle cx={lensCx} cy={lensCy} r={lensRadius + 1} fill="none" stroke="#000" strokeOpacity={0.08} strokeWidth={1} />
-              <text x={lensCx} y={lensCy - lensRadius - 6} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800} letterSpacing="0.05em">LOCAL LINEARITY</text>
-            </g>
+  const controls = (
+    <>
+      <div className="flex min-w-[200px] flex-col justify-center gap-1 border border-outline bg-surface p-3">
+        <span className="font-mono text-[11px] font-bold uppercase tracking-wide text-on-surface-variant">
+          {isTangent ? "Steepness here" : "Average steepness"}
+        </span>
+        <div className="flex items-baseline gap-2">
+          <span
+            className="font-mono text-2xl font-bold"
+            style={{ color: isTangent ? COLORS.pink : COLORS.yellow }}
+          >
+            {displayedSlope.toFixed(2)}
+          </span>
+          <span className="font-sans text-[12px] text-on-surface-variant">
+            {direction.arrow} {direction.word}
+          </span>
+        </div>
+        <span className="font-sans text-[11px] text-on-surface-variant">
+          height gained per step across (rise ÷ run)
+        </span>
+      </div>
 
-            {/* SVG In-Plot Stats */}
-            <g>
-              {/* Secant Slope Readout */}
-              <g transform="translate(440, 44)">
-                <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>SECANT SLOPE (Δy/Δx)</text>
-                <text x={12} y={36} fill={COLORS.yellow} fontSize={15} fontWeight={800}>{h > 0.002 ? secantSlope.toFixed(3) : "—"}</text>
-              </g>
-
-              {/* Tangent Slope Readout */}
-              <g transform="translate(440, 102)">
-                <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>TANGENT SLOPE (f&apos;(x))</text>
-                <text x={12} y={36} fill={COLORS.pink} fontSize={15} fontWeight={800}>{exactSlope.toFixed(3)}</text>
-              </g>
-
-              {/* Visual Slope Error Bar */}
-              <g transform="translate(440, 168)">
-                <rect x={0} y={0} width={166} height={170} fill="rgba(250,248,242,0.6)" stroke={COLORS.border} rx={2} />
-
-                {/* Error Bar Container */}
-                <rect x={20} y={30} width={24} height={110} fill={COLORS.grid} rx={2} />
-
-                {/* Filled Error Bar */}
-                {(() => {
-                  const errorVal = h > 0.002 ? Math.abs(secantSlope - exactSlope) : 0;
-                  const maxErr = 1.5;
-                  const ratio = Math.min(1, errorVal / maxErr);
-                  const barHeight = ratio * 110;
-                  return (
-                    <motion.rect
-                      x={20}
-                      y={30 + (110 - barHeight)}
-                      width={24}
-                      height={barHeight}
-                      fill={COLORS.pink}
-                      rx={2}
-                      animate={{ height: barHeight, y: 30 + (110 - barHeight) }}
-                      transition={{ duration: 0.1 }}
-                    />
-                  );
-                })()}
-
-                <text x={56} y={44} fill={COLORS.muted} fontSize={12} fontWeight={700}>SLOPE ERROR</text>
-                <text x={56} y={64} fill={COLORS.pink} fontSize={16} fontWeight={800}>
-                  {h > 0.002 ? Math.abs(secantSlope - exactSlope).toFixed(4) : "0.0000"}
-                </text>
-                <foreignObject x={52} y={72} width={105} height={70}>
-                  <div className="font-sans text-[12px] font-medium leading-snug opacity-80" style={{ color: COLORS.muted }}>
-                    As h → 0, secant slope converges to tangent slope.
-                  </div>
-                </foreignObject>
-
-                <text x={20} y={154} fill={COLORS.muted} fontSize={8} fontWeight={700}>MAX ERROR: 1.50</text>
-              </g>
-            </g>
-          </svg>
+      <div className="flex flex-1 flex-col justify-center gap-1.5 border border-outline bg-surface p-3">
+        <label htmlFor="calc-h" className="font-mono text-[12px] font-bold uppercase tracking-wide text-primary">
+          Slide the points together (the run)
+        </label>
+        <input
+          id="calc-h"
+          aria-label="Gap distance h"
+          type="range"
+          min={0.02}
+          max={H_WIDE}
+          step={0.02}
+          value={h}
+          onChange={(e) => {
+            stopAnimation();
+            setH(Number(e.target.value));
+          }}
+          className="w-full cursor-pointer accent-primary"
+        />
+        <div className="flex justify-between font-mono text-[10px] uppercase tracking-wide text-on-surface-variant">
+          <span>together (tangent)</span>
+          <span>far apart (average)</span>
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-col gap-3">
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between gap-4 font-bold uppercase tracking-wide">
-            <span>Interactions</span>
-          </div>
-
-          <button aria-label="LIMIT IN PROGRESS... TAKE THE LIMIT (h → 0)"
-            onClick={startLimitAnimation}
-            disabled={isAnimating}
-            className="w-full flex h-9 items-center justify-center border border-outline bg-surface-container hover:bg-outline-variant text-on-surface hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed mb-2"
-          >
-            {isAnimating ? "LIMIT IN PROGRESS..." : "TAKE THE LIMIT (h → 0)"}
-          </button>
-
-          <button aria-label="RESET LIMIT DISTANCE"
-            onClick={() => setH(4.0)}
-            disabled={h === 4.0 && !isAnimating}
-            className="w-full flex h-8 items-center justify-center border border-outline bg-surface hover:bg-surface-container text-on-surface-variant text-[12px] active:scale-[0.98] transition-all tracking-wider cursor-pointer disabled:opacity-50"
-          >
-            RESET LIMIT DISTANCE
-          </button>
-
-          <VisualizationInstruction
-            title="Direct Manipulation:"
-            content="Drag the pink **focus x** dot along the curve to change where the derivative is evaluated."
-            className="uppercase"
-          />
-        </div>
-
-        <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">
-          <span className="font-mono text-xs sm:text-sm font-bold uppercase tracking-wide text-primary">Mental model</span>
-          <div className="mt-3 text-sm sm:text-[15px] leading-relaxed text-on-surface-variant">
-            <MarkdownRenderer content={`Magnifying a differentiable curve reveals a straight line (local linearity). The secant line represents average change, which converges to the instantaneous derivative as the interval length $h$ shrinks to zero.`} />
-          </div>
-        </div>
+      <div className="flex items-stretch gap-2">
+        <button
+          aria-label={isAnimating ? "LIMIT IN PROGRESS" : "TAKE THE LIMIT (h → 0)"}
+          onClick={startLimitAnimation}
+          disabled={isAnimating}
+          className="flex items-center justify-center border border-outline bg-surface-container px-4 font-mono text-[12px] font-bold uppercase tracking-wider text-on-surface transition-colors hover:bg-outline-variant hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isAnimating ? "Limit in progress…" : "Take the limit (h → 0)"}
+        </button>
+        <button
+          aria-label="Reset gap"
+          onClick={resetWide}
+          disabled={h === H_WIDE && !isAnimating}
+          className="flex items-center justify-center border border-outline bg-surface px-4 font-mono text-[12px] font-bold uppercase tracking-wider text-on-surface-variant transition-colors hover:bg-surface-container disabled:opacity-50"
+        >
+          Reset
+        </button>
       </div>
+    </>
+  );
+
+  const mentalModel = (
+    <div className="flex flex-col gap-2">
+      <p>
+        Read the curve as the profile of a <strong>hill</strong>: the height
+        f(x) at each distance x. The <strong>derivative</strong> is just the
+        steepness of the ground under your feet at one spot.
+      </p>
+      <p>
+        To measure it, take two points and compute the chord&apos;s{" "}
+        <strong>rise ÷ run</strong> — the average steepness between them. Slide
+        the points together and the chord pivots until it grazes the hill at a
+        single point: the <strong>tangent</strong>, whose slope is the
+        instantaneous derivative f&apos;(x).
+      </p>
+      <p>
+        Drag the point along the hill and watch the number: <strong>positive</strong>{" "}
+        while climbing the left side, exactly <strong>zero</strong> at the flat
+        summit, and <strong>negative</strong> going down the right side.
+      </p>
     </div>
+  );
+
+  return (
+    <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />
   );
 }

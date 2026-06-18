@@ -1,421 +1,157 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import MarkdownRenderer from "../MarkdownRenderer";
-import { animate, motion, type AnimationPlaybackControls } from "framer-motion";
-import {
-  COLORS,
-  SVGFilters,
-  AnimatedPointMark,
-  PulseRing,
-  VisualizationInstruction,
-} from "../visualizationPrimitives";
+import React, { useState } from "react";
+import { COLORS, SVGFilters, VizShell } from "../visualizationPrimitives";
 
-const W = 640;
+const W = 720;
 const H = 420;
-const origin = { x: 220, y: 210 };
-const scaleFactor = 25; // 1 unit = 25 pixels
-const plot = { left: 64, top: 44, right: 406, bottom: 338 };
+const CX = 300;
+const CY = 230;
+const UNIT = 42;
 
-// Coord transformations
-const scaleX = (val: number) => origin.x + val * scaleFactor;
-const scaleY = (val: number) => origin.y - val * scaleFactor;
+const scaleX = (v: number) => CX + v * UNIT;
+const scaleY = (v: number) => CY - v * UNIT;
+const invertX = (px: number) => (px - CX) / UNIT;
+const invertY = (py: number) => (CY - py) / UNIT;
 
-const invertX = (px: number) => (px - origin.x) / scaleFactor;
-const invertY = (py: number) => (origin.y - py) / scaleFactor;
+// A tiny 2-D "embedding space". Similar things point the same way.
+const ITEMS = [
+  { id: "dog", label: "dog", x: 3.4, y: 1.9 },
+  { id: "puppy", label: "puppy", x: 2.9, y: 2.6 },
+  { id: "cat", label: "cat", x: 1.8, y: 3.1 },
+  { id: "car", label: "car", x: -2.4, y: 2.4 },
+  { id: "boat", label: "boat", x: -3.0, y: -1.4 },
+];
+
+const cosine = (a: { x: number; y: number }, b: { x: number; y: number }) => {
+  const dot = a.x * b.x + a.y * b.y;
+  const mag = Math.hypot(a.x, a.y) * Math.hypot(b.x, b.y);
+  return mag > 1e-6 ? dot / mag : 0;
+};
 
 export default function LinearAlgebraViz() {
-  const [a, setA] = useState({ x: 3.0, y: 4.5 });
-  const [b, setB] = useState({ x: 5.5, y: 1.5 });
-  const [morph, setMorph] = useState(0); // 0 = standard grid, 1 = {a,b} grid
-  const [isMorphed, setIsMorphed] = useState(false);
-  const [activeDrag, setActiveDrag] = useState<"a" | "b" | null>(null);
+  const [query, setQuery] = useState({ x: 3.2, y: 1.3 });
+  const [dragging, setDragging] = useState(false);
 
-  // Animation reference
-  const animationRef = useRef<AnimationPlaybackControls | null>(null);
+  const scored = ITEMS.map((it) => ({ ...it, sim: cosine(query, it) })).sort((a, b) => b.sim - a.sim);
+  const best = scored[0];
 
-  // Projection math
-  const dotProd = a.x * b.x + a.y * b.y;
-  const bMagSq = b.x * b.x + b.y * b.y;
-  const projScalar = bMagSq > 0.001 ? dotProd / bMagSq : 0;
-  const projVec = { x: projScalar * b.x, y: projScalar * b.y };
-
-  // Orthogonal error vector
-  const errVec = { x: a.x - projVec.x, y: a.y - projVec.y };
-  const errMag = Math.sqrt(errVec.x * errVec.x + errVec.y * errVec.y);
-
-  // Determinant (Parallelogram Area)
-  const det = a.x * b.y - a.y * b.x;
-  const area = Math.abs(det);
-  const isCollinear = area < 0.15;
-
-  // Detect 90 degrees (orthogonality)
-  const isOrthogonal = Math.abs(dotProd) < 0.15;
-
-  // Custom morphing basis vectors
-  // e1 = (1, 0) -> morphs to a
-  // e2 = (0, 1) -> morphs to b
-  const u = {
-    x: (1 - morph) * 1 + morph * a.x,
-    y: (1 - morph) * 0 + morph * a.y,
+  const applyFromEvent = (e: React.PointerEvent<SVGSVGElement>) => {
+    const svg = e.currentTarget;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const c = pt.matrixTransform(ctm.inverse());
+    const nx = Math.max(-4.5, Math.min(4.5, invertX(c.x)));
+    const ny = Math.max(-3.5, Math.min(3.5, invertY(c.y)));
+    if (Math.hypot(nx, ny) > 0.4) setQuery({ x: nx, y: ny });
   };
-  const v = {
-    x: (1 - morph) * 0 + morph * b.x,
-    y: (1 - morph) * 1 + morph * b.y,
-  };
-
-  const handlePointerDown = (e: React.PointerEvent<SVGElement>, vector: "a" | "b") => {
+  const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
     e.preventDefault();
-    (e.currentTarget as SVGElement).setPointerCapture(e.pointerId);
-    setActiveDrag(vector);
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDragging(true);
+    applyFromEvent(e);
+  };
+  const onMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (!dragging) return;
+    applyFromEvent(e);
+  };
+  const onUp = (e: React.PointerEvent<SVGSVGElement>) => {
+    e.currentTarget.releasePointerCapture(e.pointerId);
+    setDragging(false);
   };
 
-  const handlePointerMove = (e: React.PointerEvent<SVGElement>) => {
-    if (!activeDrag) return;
-    const svg = e.currentTarget.ownerSVGElement;
-    if (!svg) return;
-
-    const point = svg.createSVGPoint();
-    point.x = e.clientX;
-    point.y = e.clientY;
-
-    const screenCTM = svg.getScreenCTM();
-    if (!screenCTM) return;
-
-    const svgCoords = point.matrixTransform(screenCTM.inverse());
-    if (svgCoords) {
-      const rawX = invertX(svgCoords.x);
-      const rawY = invertY(svgCoords.y);
-      const clamped = {
-        x: Math.max(-7.0, Math.min(7.0, rawX)),
-        y: Math.max(-7.0, Math.min(7.0, rawY)),
-      };
-
-      if (activeDrag === "a") {
-        setA(clamped);
-      } else {
-        setB(clamped);
-      }
-    }
+  const arrow = (to: { x: number; y: number }, color: string, width: number) => {
+    const x2 = scaleX(to.x);
+    const y2 = scaleY(to.y);
+    const ang = Math.atan2(scaleY(to.y) - CY, scaleX(to.x) - CX);
+    const head = 11;
+    return (
+      <g>
+        <line x1={CX} y1={CY} x2={x2} y2={y2} stroke={color} strokeWidth={width} strokeLinecap="round" />
+        <path d={`M${x2},${y2} L${x2 - head * Math.cos(ang - 0.4)},${y2 - head * Math.sin(ang - 0.4)} L${x2 - head * Math.cos(ang + 0.4)},${y2 - head * Math.sin(ang + 0.4)} Z`} fill={color} />
+      </g>
+    );
   };
 
-  const handlePointerUp = (e: React.PointerEvent<SVGElement>) => {
-    (e.currentTarget as SVGElement).releasePointerCapture(e.pointerId);
-    setActiveDrag(null);
-  };
+  const caption = `Your query points most the same way as “${best.label}” (cosine similarity ${best.sim.toFixed(2)}), so that's the top match. Drag the query around: items pointing the same way score near 1, perpendicular ones near 0, opposite ones go negative. This direction-matching is how embeddings power semantic search, recommendations, and attention.`;
 
-  const toggleBasis = () => {
-    if (animationRef.current) {
-      animationRef.current.stop();
-    }
-    const target = isMorphed ? 0 : 1;
-    setIsMorphed(!isMorphed);
-    animationRef.current = animate(morph, target, {
-      duration: 1.2,
-      ease: "easeInOut",
-      onUpdate: (latest) => setMorph(latest),
-    });
-  };
+  const canvas = (
+    <svg className="block h-auto w-full cursor-grab active:cursor-grabbing" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Embedding Similarity Search" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp}>
+      <title>Embedding Similarity Diagram</title>
+      <SVGFilters />
+      <rect width={W} height={H} fill={COLORS.bg} />
 
-  // Parallelogram path points
-  const p0 = `${scaleX(0)} ${scaleY(0)}`;
-  const p1 = `${scaleX(a.x)} ${scaleY(a.y)}`;
-  const p2 = `${scaleX(a.x + b.x)} ${scaleY(a.y + b.y)}`;
-  const p3 = `${scaleX(b.x)} ${scaleY(b.y)}`;
-  const parallelogramPath = `M ${p0} L ${p1} L ${p2} L ${p3} Z`;
+      {/* faint axes */}
+      <line x1={scaleX(-5)} y1={CY} x2={scaleX(5)} y2={CY} stroke={COLORS.grid} strokeWidth={1} />
+      <line x1={CX} y1={scaleY(-4)} x2={CX} y2={scaleY(4)} stroke={COLORS.grid} strokeWidth={1} />
+      <text x={W - 16} y={CY - 8} textAnchor="end" fill={COLORS.muted} fontSize={11}>embedding space (2-D)</text>
 
-  // Draw morphing grid lines
-  const gridCoords = [-6, -4, -2, 0, 2, 4, 6];
-  const gridRange = [-8, 8];
+      {/* item vectors */}
+      {scored.map((it) => {
+        const isBest = it.id === best.id;
+        return (
+          <g key={it.id}>
+            {arrow(it, isBest ? COLORS.pink : COLORS.cyan, isBest ? 3.5 : 2)}
+            <text x={scaleX(it.x) + (it.x >= 0 ? 8 : -8)} y={scaleY(it.y) + (it.y >= 0 ? -6 : 14)} textAnchor={it.x >= 0 ? "start" : "end"} fill={isBest ? COLORS.pink : COLORS.muted} fontSize={13} fontWeight={isBest ? 800 : 600} stroke={COLORS.bg} strokeWidth={2.5} paintOrder="stroke">
+              {it.label}
+            </text>
+          </g>
+        );
+      })}
 
-  // Right-angle symbol points at the projection foot
-  let rightAnglePath = "";
-  if (errMag > 0.1 && bMagSq > 0.001) {
-    const s = 0.4; // symbol size in units
-    // Direction of b (along projection)
-    const bLen = Math.sqrt(bMagSq);
-    const ux = b.x / bLen;
-    const uy = b.y / bLen;
-    // Direction of error (toward a)
-    const ex = errVec.x / errMag;
-    const ey = errVec.y / errMag;
+      {/* highlight the wedge between query and best match */}
+      <path
+        d={`M ${CX} ${CY} L ${scaleX(query.x)} ${scaleY(query.y)} L ${scaleX(best.x)} ${scaleY(best.y)} Z`}
+        fill={COLORS.yellow}
+        fillOpacity={0.12}
+      />
 
-    // We want the symbol to follow the projection direction correctly
-    const sign = projScalar >= 0 ? 1 : -1;
-    const r1 = { x: projVec.x + s * ux * -sign, y: projVec.y + s * uy * -sign };
-    const r2 = { x: projVec.x + s * ux * -sign + s * ex, y: projVec.y + s * uy * -sign + s * ey };
-    const r3 = { x: projVec.x + s * ex, y: projVec.y + s * ey };
+      {/* query vector (drag anywhere on the canvas to move it) */}
+      {arrow(query, COLORS.yellow, 4)}
+      <circle cx={scaleX(query.x)} cy={scaleY(query.y)} r={7} fill={COLORS.yellow} stroke={COLORS.bg} strokeWidth={2} />
+      <text x={scaleX(query.x) + 10} y={scaleY(query.y) - 8} fill={COLORS.yellow} fontSize={12} fontWeight={800} stroke={COLORS.bg} strokeWidth={2.5} paintOrder="stroke">query · drag</text>
+    </svg>
+  );
 
-    rightAnglePath = `M ${scaleX(r1.x)} ${scaleY(r1.y)} L ${scaleX(r2.x)} ${scaleY(r2.y)} L ${scaleX(r3.x)} ${scaleY(r3.y)}`;
-  }
-
-  // Highlight data point for mapping coordinates demonstration
-  const demoPoint = { x: 4.0, y: 3.0 };
-  // Find coordinates c1, c2 in morphing grid {u, v}
-  // demoPoint = c1 * u + c2 * v
-  // Solve:
-  // c1 * u.x + c2 * v.x = P.x
-  // c1 * u.y + c2 * v.y = P.y
-  const morphDet = u.x * v.y - u.y * v.x;
-  let c1 = 0;
-  let c2 = 0;
-  if (Math.abs(morphDet) > 0.001) {
-    c1 = (demoPoint.x * v.y - demoPoint.y * v.x) / morphDet;
-    c2 = (-demoPoint.x * u.y + demoPoint.y * u.x) / morphDet;
-  }
-
-  return (
-    <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(340px,1fr)]">
-      <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <svg
-            className="h-full w-full"
-            viewBox={`0 0 ${W} ${H}`}
-            role="img"
-            aria-label="Linear Algebra Projection & Basis"
-          >
-            <title>Linear Algebra Diagram</title>
-            <SVGFilters />
-            <rect width={W} height={H} fill={COLORS.bg} />
-
-            {/* Shaded Parallelogram (Determinant area) */}
-            <motion.path
-              d={parallelogramPath}
-              fill={COLORS.yellow}
-              fillOpacity={isCollinear ? 0.05 : 0.12}
-              stroke={COLORS.yellow}
-              strokeWidth={1.5}
-              strokeDasharray={isCollinear ? "3 3" : undefined}
-              animate={{ fillOpacity: isCollinear ? 0.05 : 0.15 }}
-              className="transition-all"
+  const controls = (
+    <div className="flex flex-1 flex-col gap-1.5 border border-outline bg-surface p-3 font-mono text-xs">
+      <div className="text-[12px] font-bold uppercase text-primary">Ranked by cosine similarity</div>
+      {scored.map((it) => (
+        <div key={it.id} className="flex items-center gap-2">
+          <span className={`w-12 ${it.id === best.id ? "font-bold" : "text-on-surface"}`} style={it.id === best.id ? { color: COLORS.pink } : undefined}>{it.label}</span>
+          <div className="relative h-3 flex-1 bg-surface-container">
+            {/* centre line for sim = 0 */}
+            <div className="absolute inset-y-0 left-1/2 w-px bg-outline" />
+            <div
+              className="absolute inset-y-0"
+              style={{
+                backgroundColor: it.id === best.id ? COLORS.pink : COLORS.cyan,
+                left: it.sim >= 0 ? "50%" : `${50 + it.sim * 50}%`,
+                width: `${Math.abs(it.sim) * 50}%`,
+              }}
             />
-
-            {/* Morphed Grid System */}
-            <g>
-              {/* Lines of constant u (parallel to v) */}
-              {gridCoords.map((c) => {
-                const x1 = c * u.x + gridRange[0] * v.x;
-                const y1 = c * u.y + gridRange[0] * v.y;
-                const x2 = c * u.x + gridRange[1] * v.x;
-                const y2 = c * u.y + gridRange[1] * v.y;
-                return (
-                  <line
-                    key={`u-${c}`}
-                    x1={scaleX(x1)}
-                    y1={scaleY(y1)}
-                    x2={scaleX(x2)}
-                    y2={scaleY(y2)}
-                    stroke={c === 0 ? COLORS.border : COLORS.grid}
-                    strokeWidth={c === 0 ? 1.5 : 1}
-                    strokeOpacity={c === 0 ? 0.7 : 0.4}
-                  />
-                );
-              })}
-              {/* Lines of constant v (parallel to u) */}
-              {gridCoords.map((c) => {
-                const x1 = gridRange[0] * u.x + c * v.x;
-                const y1 = gridRange[0] * u.y + c * v.y;
-                const x2 = gridRange[1] * u.x + c * v.x;
-                const y2 = gridRange[1] * u.y + c * v.y;
-                return (
-                  <line
-                    key={`v-${c}`}
-                    x1={scaleX(x1)}
-                    y1={scaleY(y1)}
-                    x2={scaleX(x2)}
-                    y2={scaleY(y2)}
-                    stroke={c === 0 ? COLORS.border : COLORS.grid}
-                    strokeWidth={c === 0 ? 1.5 : 1}
-                    strokeOpacity={c === 0 ? 0.7 : 0.4}
-                  />
-                );
-              })}
-            </g>
-
-            {/* Plot Border */}
-            <rect x={plot.left} y={plot.top} width={plot.right - plot.left} height={plot.bottom - plot.top} fill="none" stroke={COLORS.border} strokeWidth={1} />
-
-            {/* Projection vector components */}
-            <g>
-              {/* Projection vector (yellow) */}
-              {bMagSq > 0.01 && (
-                <g>
-                  {/* Dashed drop line from a to projection point */}
-                  <line
-                    x1={scaleX(a.x)}
-                    y1={scaleY(a.y)}
-                    x2={scaleX(projVec.x)}
-                    y2={scaleY(projVec.y)}
-                    stroke={COLORS.yellow}
-                    strokeWidth={2}
-                    strokeDasharray="4 4"
-                  />
-                  {/* Right angle symbol at foot */}
-                  {rightAnglePath && (
-                    <motion.path
-                      d={rightAnglePath}
-                      fill="none"
-                      stroke={isOrthogonal ? COLORS.pink : COLORS.yellow}
-                      strokeWidth={2}
-                      animate={isOrthogonal ? { scale: [1, 1.25, 1] } : {}}
-                      transition={{ duration: 0.4 }}
-                    />
-                  )}
-                  {/* Projection arrow */}
-                  <line
-                    x1={scaleX(0)}
-                    y1={scaleY(0)}
-                    x2={scaleX(projVec.x)}
-                    y2={scaleY(projVec.y)}
-                    stroke={COLORS.yellow}
-                    strokeWidth={4.5}
-                    strokeLinecap="round"
-                  />
-                </g>
-              )}
-
-              {/* Basis vector b (cyan) */}
-              <g>
-                <line
-                  x1={scaleX(0)}
-                  y1={scaleY(0)}
-                  x2={scaleX(b.x)}
-                  y2={scaleY(b.y)}
-                  stroke={COLORS.cyan}
-                  strokeWidth={3}
-                  strokeLinecap="round"
-                />
-                <circle cx={scaleX(b.x)} cy={scaleY(b.y)} r={4} fill={COLORS.cyan} />
-              </g>
-
-              {/* Target vector a (pink) */}
-              <g>
-                <line
-                  x1={scaleX(0)}
-                  y1={scaleY(0)}
-                  x2={scaleX(a.x)}
-                  y2={scaleY(a.y)}
-                  stroke={COLORS.pink}
-                  strokeWidth={3.5}
-                  strokeLinecap="round"
-                />
-                <circle cx={scaleX(a.x)} cy={scaleY(a.y)} r={4} fill={COLORS.pink} />
-              </g>
-
-              {/* Parallelogram area warning pulse when collinear */}
-              {isCollinear && (
-                <PulseRing px={scaleX(a.x)} py={scaleY(a.y)} color={COLORS.yellow} maxRadius={30} />
-              )}
-
-              {/* Draggable handles on tips */}
-              {/* Handle A */}
-              <g
-                onPointerDown={(e) => handlePointerDown(e, "a")}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                className="cursor-grab active:cursor-grabbing"
-              >
-                <circle cx={scaleX(a.x)} cy={scaleY(a.y)} r={16} fill="transparent" />
-                <AnimatedPointMark px={scaleX(a.x)} py={scaleY(a.y)} color={COLORS.pink} r={7} label="vector a" />
-              </g>
-
-              {/* Handle B */}
-              <g
-                onPointerDown={(e) => handlePointerDown(e, "b")}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                className="cursor-grab active:cursor-grabbing"
-              >
-                <circle cx={scaleX(b.x)} cy={scaleY(b.y)} r={16} fill="transparent" />
-                <AnimatedPointMark px={scaleX(b.x)} py={scaleY(b.y)} color={COLORS.cyan} r={7} label="basis b" />
-              </g>
-            </g>
-
-            {/* Static coordinate demo point */}
-            <g>
-              <circle cx={scaleX(demoPoint.x)} cy={scaleY(demoPoint.y)} r={4} fill={COLORS.muted} />
-              <text x={scaleX(demoPoint.x) + 8} y={scaleY(demoPoint.y) - 6} fill={COLORS.muted} fontSize={10} fontWeight={800} stroke={COLORS.bg} strokeWidth={2.5} paintOrder="stroke">
-                P(4, 3)
-              </text>
-            </g>
-
-            {/* SVG In-Plot Stats */}
-            <g>
-              {/* Dot Product */}
-              <g transform="translate(440, 44)">
-                <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>DOT PRODUCT (a · b)</text>
-                <text x={12} y={36} fill={isOrthogonal ? COLORS.pink : COLORS.muted} fontSize={15} fontWeight={800}>
-                  {dotProd.toFixed(2)} {isOrthogonal && " (ORTHO!)"}
-                </text>
-              </g>
-
-              {/* Projection Scalar */}
-              <g transform="translate(440, 102)">
-                <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>PROJECTION SCALAR (p)</text>
-                <text x={12} y={36} fill={COLORS.yellow} fontSize={15} fontWeight={800}>{projScalar.toFixed(2)}</text>
-              </g>
-
-              {/* Determinant Area */}
-              <g transform="translate(440, 160)">
-                <rect width={166} height={46} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>DETERMINANT AREA</text>
-                <text x={12} y={36} fill={isCollinear ? COLORS.yellow : COLORS.muted} fontSize={15} fontWeight={800}>
-                  {area.toFixed(2)} {isCollinear && " (COLLINEAR)"}
-                </text>
-              </g>
-
-              {/* Coordinate basis tracker */}
-              <g transform="translate(440, 218)">
-                <rect width={166} height={120} fill="rgba(250,248,242,0.86)" stroke={COLORS.border} rx={2} />
-                <text x={12} y={18} fill={COLORS.muted} fontSize={12} fontWeight={700}>COORDINATES OF P(4,3)</text>
-
-                <text x={12} y={40} fill={COLORS.muted} fontSize={12} fontWeight={600}>CURRENT GRID BASIS:</text>
-                <text x={12} y={55} fill={COLORS.pink} fontSize={11} fontWeight={800}>
-                  u = ({u.x.toFixed(1)}, {u.y.toFixed(1)})
-                </text>
-                <text x={12} y={70} fill={COLORS.cyan} fontSize={11} fontWeight={800}>
-                  v = ({v.x.toFixed(1)}, {v.y.toFixed(1)})
-                </text>
-
-                <text x={12} y={92} fill={COLORS.muted} fontSize={12} fontWeight={600}>COORDINATE VALUE [c1, c2]:</text>
-                <text x={12} y={108} fill={COLORS.pink} fontSize={13} fontWeight={800}>
-                  [{c1.toFixed(2)}, {c2.toFixed(2)}]
-                </text>
-              </g>
-            </g>
-          </svg>
-        </div>
-      </div>
-
-      <div className="flex min-w-0 flex-col gap-3">
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between gap-4 font-bold uppercase tracking-wide">
-            <span>Interactions</span>
           </div>
-
-          <button aria-label="WARP BACK TO STANDARD GRID MORPH GRID TO BASIS {a, b}"
-            onClick={toggleBasis}
-            className="w-full flex h-9 items-center justify-center border border-outline bg-surface-container hover:bg-outline-variant text-on-surface hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer mb-2"
-          >
-            {isMorphed ? "WARP BACK TO STANDARD GRID" : "MORPH GRID TO BASIS {a, b}"}
-          </button>
-
-          <VisualizationInstruction
-            title="Direct Manipulation:"
-            content="Drag the tips of **vector a** and **basis b** to recalculate projection, dot product, and parallelogram area (determinant) live."
-            className="uppercase"
-          />
+          <span className="w-10 text-right font-bold" style={{ color: it.sim >= 0 ? COLORS.cyan : COLORS.pink }}>{it.sim.toFixed(2)}</span>
         </div>
-
-        <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">
-          <span className="font-mono text-xs sm:text-sm font-bold uppercase tracking-wide text-primary">Mental model</span>
-          <div className="mt-3 text-sm sm:text-[15px] leading-relaxed text-on-surface-variant">
-            <MarkdownRenderer content={`Vectors represent direction and magnitude. The dot product $a \cdot b$ measures directional alignment, while projections represent decomposition onto new bases. Shifting grid lines visually demonstrates how coordinates coordinates warp under a basis transformation.`} />
-          </div>
-        </div>
-      </div>
+      ))}
     </div>
   );
+
+  const mentalModel = (
+    <p>
+      An embedding turns each item into a vector whose <strong>direction</strong>{" "}
+      carries its meaning. To find what is similar to a query, you compare
+      directions with a <strong>dot product</strong> (here normalised to{" "}
+      <strong>cosine similarity</strong>): same direction ≈ 1, perpendicular ≈ 0,
+      opposite ≈ −1. Ranking items by this score is exactly how semantic search,
+      recommender systems, and the attention mechanism in transformers decide
+      what is &quot;close&quot; — the dot product is the similarity engine of
+      modern ML.
+    </p>
+  );
+
+  return <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />;
 }
