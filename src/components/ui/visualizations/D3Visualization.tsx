@@ -454,13 +454,13 @@ const configs: Record<string, SceneConfig> = {
   },
   "transformers": {
     kind: "transformer",
-    title: "Transformers Route Information With Attention",
-    subtitle: "The selected query token attends across context through a matrix and matching arc diagram.",
-    insight: "Attention lets each token choose which other tokens should influence its representation.",
+    title: "Attention: How \"it\" Knows What It Means",
+    subtitle: "The pronoun \"it\" is meaningless alone. Self-attention lets it look across the sentence and bind to the right word — and flipping the final adjective flips the referent.",
+    insight: "Self-attention scores how relevant every other word is to each word, so an ambiguous token like \"it\" is resolved by whichever context word it attends to most.",
     legend: [
-      { label: "Query", color: COLORS.pink },
-      { label: "Strong attention", color: COLORS.yellow },
-      { label: "Context", color: COLORS.cyan },
+      { label: "Query word", color: COLORS.pink },
+      { label: "Strongest attention", color: COLORS.yellow },
+      { label: "Attention arcs", color: COLORS.cyan },
     ],
     control: {
       label: "Query Token",
@@ -600,7 +600,7 @@ const accessibleLabels: Record<string, string> = {
   "computer-vision": "Computer Vision Sandbox",
   nlp: "NLP Embeddings Analogy Grid",
   autoencoders: "Autoencoder Bottleneck Compression",
-  transformers: "Transformer Self-Attention Layer",
+  transformers: "Transformer Self-Attention",
   llms: "LLM Temperature Sampling",
   "reinforcement-learning": "Q-Learning Reinforcement Learning Gridworld",
   "generative-models": "Generative Models Latent Space Walk",

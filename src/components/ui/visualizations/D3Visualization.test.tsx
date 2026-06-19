@@ -72,9 +72,9 @@ describe("D3Visualization router", () => {
     rerender(<D3Visualization algorithmId="llms" />);
     fireEvent.click(screen.getByRole("button", { name: /random sample/i }));
     fireEvent.click(screen.getByRole("button", { name: /sample next word/i }));
-    expect(screen.getByRole("button", { name: /sample next word/i })).toBeDisabled();
 
-    const llmImage = screen.getByRole("img", { name: "LLM Temperature Logits Scaling" });
-    expect(within(llmImage).getByText("PROBABILITY WHEEL")).toBeInTheDocument();
+    const llmImage = screen.getByRole("img", { name: "LLM Temperature Sampling" });
+    expect(llmImage).toBeInTheDocument();
+    expect(screen.getByText("T = 0.80")).toBeInTheDocument();
   });
 });

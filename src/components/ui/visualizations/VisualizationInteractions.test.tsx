@@ -229,13 +229,15 @@ describe("algorithm visualization interaction contracts", () => {
     expect(screen.getByRole("button", { name: /clear arrows/i })).toBeDisabled();
   });
 
-  it("toggles transformer single-head and multi-head attention modes", () => {
+  it("resolves the pronoun referent and flips it with the sentence ending", () => {
     renderVisualization("transformers");
 
-    expect(screen.getByRole("button", { name: /single-head attention/i })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /single-head attention/i }));
-    expect(screen.getByRole("button", { name: /multi-head attention/i })).toBeInTheDocument();
-    expect(screen.getByText("ATTENTION HEATMAP")).toBeInTheDocument();
+    // Default query is "it"; with "...too tired" it binds to the animal.
+    expect(screen.getByTestId("transformer-referent")).toHaveTextContent("animal");
+
+    // Flip the ending to "wide" and the referent flips to the road.
+    fireEvent.click(screen.getByRole("button", { name: /ending too wide/i }));
+    expect(screen.getByTestId("transformer-referent")).toHaveTextContent("road");
   });
 
   it("updates LLM temperature and sampling mode UI without corrupting context", () => {

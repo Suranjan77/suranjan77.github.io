@@ -130,9 +130,9 @@ describe("Practitioner Track Visualization Accuracy", () => {
     expect(screen.getAllByText(/COMPRESSION RATIO/i).length).toBeGreaterThan(0);
   });
 
-  it("verifies Transformer attention weight mappings", () => {
+  it("verifies Transformer attention resolves the pronoun by context", () => {
     render(<TransformerViz />);
-    expect(screen.getByText(/ATTENTION HEATMAP/i)).toBeInTheDocument();
+    expect(screen.getByTestId("transformer-referent")).toHaveTextContent("animal");
   });
 
   it("verifies LLM temperature token distribution scores", () => {
