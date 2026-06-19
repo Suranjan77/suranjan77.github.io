@@ -254,15 +254,23 @@ describe("algorithm visualization interaction contracts", () => {
     expect(screen.getByText(/Machine learning models generate/)).toBeInTheDocument();
   });
 
-  it("toggles autoencoder bottleneck width readouts via pointer drag", () => {
+  it("denoises through the autoencoder bottleneck and over-squeezes when too tight", () => {
     renderVisualization("autoencoders");
     const image = screen.getByRole("img", { name: /autoencoder bottleneck/i });
 
-    expect(screen.getByText("COMPRESSION RATIO")).toBeInTheDocument();
+    // Pointer drag is wired (CTM is null in jsdom, so it must not throw).
     fireEvent.pointerDown(image, { pointerId: 1, clientX: 320, clientY: 220 });
     fireEvent.pointerMove(image, { pointerId: 1, clientX: 410, clientY: 220 });
     fireEvent.pointerUp(image, { pointerId: 1 });
-    expect(screen.getByText("RECONSTRUCTION ERROR")).toBeInTheDocument();
+
+    // A roomy bottleneck (6) passes the noise straight through.
+    const slider = screen.getByRole("slider", { name: /bottleneck size/i });
+    fireEvent.change(slider, { target: { value: "6" } });
+    expect(screen.getByText(/no cleaner than the input/i)).toBeInTheDocument();
+
+    // A mid bottleneck (3) denoises: reconstruction is cleaner than the input.
+    fireEvent.change(slider, { target: { value: "3" } });
+    expect(screen.getByText(/the bottleneck denoised it/i)).toBeInTheDocument();
   });
 
   it("toggles regularization geometry and narrates L1 sparsity vs L2 shrinkage", () => {

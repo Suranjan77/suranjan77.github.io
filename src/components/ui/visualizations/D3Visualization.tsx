@@ -437,12 +437,12 @@ const configs: Record<string, SceneConfig> = {
   },
   "autoencoders": {
     kind: "autoencoder",
-    title: "Autoencoders Compress Through a Bottleneck",
-    subtitle: "The encoder squeezes input structure into a latent code, then reconstructs what it can preserve.",
-    insight: "A tight bottleneck forces the model to learn the most reusable structure in the input.",
+    title: "The Bottleneck That Cleans Up Noise",
+    subtitle: "Feed a speckled image through a tiny latent code and a clean one comes out. The bottleneck is too small to store the random noise, so the decoder rebuilds only the real signal — until you over-squeeze it.",
+    insight: "Forcing data through a few latent numbers makes the network keep only essential structure; random noise won't fit, so a denoising autoencoder hands back the clean original.",
     legend: [
-      { label: "Input", color: COLORS.cyan },
-      { label: "Latent code", color: COLORS.yellow },
+      { label: "Noisy input", color: COLORS.cyan },
+      { label: "Latent code z", color: COLORS.yellow },
       { label: "Reconstruction", color: COLORS.pink },
     ],
     control: {

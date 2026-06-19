@@ -125,9 +125,11 @@ describe("Practitioner Track Visualization Accuracy", () => {
     expect(screen.getByText(/Semantic Analogies/i)).toBeInTheDocument();
   });
 
-  it("verifies Autoencoder bottleneck dimensionality", () => {
+  it("verifies Autoencoder denoises at its default bottleneck", () => {
     render(<AutoencoderViz />);
-    expect(screen.getAllByText(/COMPRESSION RATIO/i).length).toBeGreaterThan(0);
+    // Default bottleneck (3) denoises, so reconstruction error <= input error.
+    expect(screen.getByText(/the bottleneck denoised it/i)).toBeInTheDocument();
+    expect(screen.getByTestId("ae-recon-error")).toBeInTheDocument();
   });
 
   it("verifies Transformer attention resolves the pronoun by context", () => {
