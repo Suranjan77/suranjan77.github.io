@@ -197,12 +197,13 @@ const configs: Record<string, SceneConfig> = {
   },
   "probability-theory": {
     kind: "probability",
-    title: "Random Noise Settles Into Probability",
-    subtitle: "Rain down random trials and watch the solid bars climb toward the dashed true probabilities — jumpy at first, rock-steady once n is large.",
-    insight: "Any single trial is unpredictable, but empirical frequencies converge to the true probabilities as trials pile up — the Law of Large Numbers.",
+    title: "Every Column of Data Has a Shape",
+    subtitle: "Pick something a model might measure — heights, conversions, arrivals, wait times — and watch its probability distribution reshape as you drag the parameters. Draw samples and they fill in under the curve.",
+    insight: "A probability distribution captures the whole shape of a data column with just a parameter or two; draw enough samples and they converge onto that shape — the Law of Large Numbers.",
     legend: [
-      { label: "True probability", color: COLORS.muted },
-      { label: "Sampled so far", color: COLORS.cyan },
+      { label: "Distribution (theory)", color: COLORS.pink },
+      { label: "Samples drawn", color: COLORS.cyan },
+      { label: "Mean", color: COLORS.yellow },
     ],
     control: {
       label: "Sample Count",
@@ -578,7 +579,7 @@ const visualizationComponents: Record<string, React.ComponentType> = {
 const accessibleLabels: Record<string, string> = {
   calculus: "Derivative Limit Visualizer",
   "linear-algebra": "Embedding Similarity Search",
-  "probability-theory": "Probability Sampling Convergence",
+  "probability-theory": "Probability Distribution Explorer",
   "maximum-likelihood": "Maximum Likelihood Optimization",
   "bayesian-inference": "Bayesian A/B Test Belief Update",
   "statistics-estimation": "Bootstrap Confidence on Model Accuracy",

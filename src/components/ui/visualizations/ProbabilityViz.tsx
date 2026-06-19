@@ -1,246 +1,549 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { COLORS, SVGFilters, VizShell } from "../visualizationPrimitives";
 
-const W = 470;
-const H = 380;
-const plot = { left: 64, top: 36, right: 406, bottom: 300 };
+const W = 720;
+const H = 420;
+const plot = { left: 70, top: 40, right: 690, bottom: 340 };
 
-const binCenterX = (i: number) => 90 + i * 54;
-const binWidth = 36;
-const theoreticalProbs = [0.1, 0.19, 0.26, 0.21, 0.15, 0.09];
-const binColors = [COLORS.pink, COLORS.yellow, COLORS.cyan, COLORS.green, COLORS.muted, "#8F6FA8"];
+// ---- Distribution math -----------------------------------------------------
 
-interface FallingDot {
-  id: number;
-  binIndex: number;
-  startX: number;
-  startY: number;
-  targetY: number;
-  color: string;
+function gaussianZ(): number {
+  // Box–Muller
+  let u = 0;
+  let v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+function choose(n: number, k: number): number {
+  if (k < 0 || k > n) return 0;
+  let r = 1;
+  for (let i = 0; i < k; i++) r = (r * (n - i)) / (i + 1);
+  return r;
+}
+
+interface Bin {
+  center: number; // value at the centre of the bin
+  x0px: number;
+  x1px: number;
+  cxpx: number;
+  pTheory: number; // probability mass attributed to this bin
+}
+
+type Scenario = {
+  id: string;
+  tab: string; // short tab label
+  family: string; // distribution name
+  column: string; // the data column being measured
+  unit: string; // x-axis label
+  discrete: boolean;
+  params: { key: string; label: string; min: number; max: number; step: number; def: number }[];
+  domain: (p: Record<string, number>) => [number, number]; // continuous x-range OR [0, kmax]
+  bins: number; // number of bins for continuous; ignored for discrete (uses kmax+1)
+  density: (p: Record<string, number>, x: number) => number; // pdf (continuous) at x
+  pmf: (p: Record<string, number>, k: number) => number; // pmf (discrete) at integer k
+  draw: (p: Record<string, number>) => number; // one sample
+  stats: (p: Record<string, number>) => { mean: number; variance: number };
+  caption: (p: Record<string, number>) => string;
+};
+
+const SCENARIOS: Scenario[] = [
+  {
+    id: "normal",
+    tab: "Heights",
+    family: "Normal (Gaussian)",
+    column: "Adult heights",
+    unit: "height (cm)",
+    discrete: false,
+    bins: 26,
+    params: [
+      { key: "mu", label: "average μ", min: 150, max: 190, step: 1, def: 170 },
+      { key: "sigma", label: "spread σ", min: 4, max: 16, step: 0.5, def: 8 },
+    ],
+    domain: (p) => [p.mu - 4 * p.sigma, p.mu + 4 * p.sigma],
+    density: (p, x) =>
+      Math.exp(-((x - p.mu) ** 2) / (2 * p.sigma ** 2)) / (p.sigma * Math.sqrt(2 * Math.PI)),
+    pmf: () => 0,
+    draw: (p) => p.mu + p.sigma * gaussianZ(),
+    stats: (p) => ({ mean: p.mu, variance: p.sigma ** 2 }),
+    caption: (p) =>
+      `Heights pile up around the average and fade symmetrically on both sides — the classic bell. μ = ${p.mu} cm slides the centre; σ = ${p.sigma} cm sets how wide the spread is.`,
+  },
+  {
+    id: "binomial",
+    tab: "Conversions",
+    family: "Binomial (n = 20)",
+    column: "Buyers per 20 visitors",
+    unit: "buyers (out of 20)",
+    discrete: true,
+    bins: 0,
+    params: [{ key: "p", label: "buy chance p", min: 0.05, max: 0.95, step: 0.05, def: 0.3 }],
+    domain: () => [0, 20],
+    density: () => 0,
+    pmf: (p, k) => choose(20, k) * p.p ** k * (1 - p.p) ** (20 - k),
+    draw: (p) => {
+      let s = 0;
+      for (let i = 0; i < 20; i++) if (Math.random() < p.p) s++;
+      return s;
+    },
+    stats: (p) => ({ mean: 20 * p.p, variance: 20 * p.p * (1 - p.p) }),
+    caption: (p) =>
+      `Each of 20 visitors independently buys with probability p = ${p.p.toFixed(
+        2,
+      )}. Count the buyers and the totals cluster near 20p = ${(20 * p.p).toFixed(
+        1,
+      )} — the Binomial distribution.`,
+  },
+  {
+    id: "poisson",
+    tab: "Arrivals",
+    family: "Poisson",
+    column: "Support tickets per hour",
+    unit: "tickets in one hour",
+    discrete: true,
+    bins: 0,
+    params: [{ key: "lambda", label: "rate λ", min: 1, max: 12, step: 0.5, def: 4 }],
+    domain: (p) => [0, Math.min(28, Math.ceil(p.lambda + 4 * Math.sqrt(p.lambda)) + 2)],
+    density: () => 0,
+    pmf: (p, k) => {
+      // iterative term = e^-λ λ^k / k!
+      let term = Math.exp(-p.lambda);
+      for (let i = 1; i <= k; i++) term = (term * p.lambda) / i;
+      return term;
+    },
+    draw: (p) => {
+      const L = Math.exp(-p.lambda);
+      let k = 0;
+      let prod = 1;
+      do {
+        k++;
+        prod *= Math.random();
+      } while (prod > L);
+      return k - 1;
+    },
+    stats: (p) => ({ mean: p.lambda, variance: p.lambda }),
+    caption: (p) =>
+      `Independent events landing in a fixed window. With rate λ = ${p.lambda.toFixed(
+        1,
+      )} tickets/hour the counts are skewed, and — uniquely — both the mean and the variance equal λ.`,
+  },
+  {
+    id: "exponential",
+    tab: "Wait times",
+    family: "Exponential",
+    column: "Minutes until next signup",
+    unit: "minutes",
+    discrete: false,
+    bins: 26,
+    params: [{ key: "rate", label: "rate λ", min: 0.2, max: 2, step: 0.1, def: 0.5 }],
+    domain: (p) => [0, 5 / p.rate],
+    density: (p, x) => (x < 0 ? 0 : p.rate * Math.exp(-p.rate * x)),
+    pmf: () => 0,
+    draw: (p) => -Math.log(1 - Math.random()) / p.rate,
+    stats: (p) => ({ mean: 1 / p.rate, variance: 1 / p.rate ** 2 }),
+    caption: (p) =>
+      `Waiting time between random events: mostly short gaps with a long tail of rare long waits. Rate λ = ${p.rate.toFixed(
+        1,
+      )}/min means an average wait of 1/λ = ${(1 / p.rate).toFixed(1)} min.`,
+  },
+];
+
+function buildBins(s: Scenario, p: Record<string, number>): Bin[] {
+  const [xmin, xmax] = s.domain(p);
+  if (s.discrete) {
+    const kmax = Math.round(xmax);
+    const count = kmax + 1;
+    const span = plot.right - plot.left;
+    const bw = span / count;
+    const bins: Bin[] = [];
+    for (let k = 0; k <= kmax; k++) {
+      const x0px = plot.left + k * bw;
+      bins.push({
+        center: k,
+        x0px,
+        x1px: x0px + bw,
+        cxpx: x0px + bw / 2,
+        pTheory: s.pmf(p, k),
+      });
+    }
+    return bins;
+  }
+  const N = s.bins;
+  const bw = (xmax - xmin) / N;
+  const spanpx = plot.right - plot.left;
+  const bwpx = spanpx / N;
+  const bins: Bin[] = [];
+  for (let i = 0; i < N; i++) {
+    const center = xmin + (i + 0.5) * bw;
+    const x0px = plot.left + i * bwpx;
+    bins.push({
+      center,
+      x0px,
+      x1px: x0px + bwpx,
+      cxpx: x0px + bwpx / 2,
+      pTheory: s.density(p, center) * bw, // probability mass in the bin
+    });
+  }
+  return bins;
 }
 
 export default function ProbabilityViz() {
-  const [counts, setCounts] = useState<number[]>([0, 0, 0, 0, 0, 0]);
-  const [dots, setDots] = useState<FallingDot[]>([]);
-  const [autoPlayMode, setAutoPlayMode] = useState<"off" | "slow" | "fast" | "ultra">("off");
+  const [scenarioId, setScenarioId] = useState("normal");
+  const scenario = SCENARIOS.find((s) => s.id === scenarioId) as Scenario;
+
+  const [params, setParams] = useState<Record<string, number>>(() =>
+    Object.fromEntries(scenario.params.map((pp) => [pp.key, pp.def])),
+  );
+  const [counts, setCounts] = useState<number[]>([]);
+  const [auto, setAuto] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const n = counts.reduce((sum, c) => sum + c, 0);
-  const empProbs = theoreticalProbs.map((_, i) => (n > 0 ? counts[i] / n : 0));
-  const tvd = 0.5 * theoreticalProbs.reduce((sum, p, i) => sum + Math.abs(empProbs[i] - p), 0);
+  const bins = useMemo(() => buildBins(scenario, params), [scenario, params]);
+  const n = counts.reduce((a, b) => a + b, 0);
 
-  const selectRandomBin = () => {
-    const r = Math.random();
-    let cumulative = 0;
-    for (let i = 0; i < theoreticalProbs.length; i++) {
-      cumulative += theoreticalProbs[i];
-      if (r < cumulative) return i;
-    }
-    return 5;
+  // y-scale anchored to the theoretical peak so the shape always fills the frame.
+  const yMax = useMemo(() => {
+    const peak = Math.max(0.05, ...bins.map((b) => b.pTheory));
+    return peak * 1.18;
+  }, [bins]);
+  const barH = (prob: number) => (prob / yMax) * (plot.bottom - plot.top);
+
+  const switchScenario = (s: Scenario) => {
+    setAuto(false);
+    setScenarioId(s.id);
+    setParams(Object.fromEntries(s.params.map((pp) => [pp.key, pp.def])));
+    setCounts([]);
   };
 
-  const spawnSingleSample = () => {
-    const binIndex = selectRandomBin();
-    const currentEmpProb = n > 0 ? counts[binIndex] / n : 0;
-    const targetY = plot.bottom - currentEmpProb * 800 - 4;
-    setDots((prev) => [
-      ...prev,
-      {
-        id: Math.random() + Date.now(),
-        binIndex,
-        startX: binCenterX(binIndex) + (Math.random() - 0.5) * 8,
-        startY: plot.top - 24,
-        targetY,
-        color: binColors[binIndex],
-      },
-    ]);
+  const setParam = (key: string, value: number) => {
+    setAuto(false);
+    setParams((prev) => ({ ...prev, [key]: value }));
+    setCounts([]); // samples were drawn from the old shape; start fresh
   };
 
-  const absorbDot = (id: number, binIndex: number) => {
+  const drawSamples = (amount: number) => {
     setCounts((prev) => {
-      const next = [...prev];
-      next[binIndex] += 1;
+      const next = prev.length === bins.length ? [...prev] : new Array(bins.length).fill(0);
+      const [xmin, xmax] = scenario.domain(params);
+      for (let i = 0; i < amount; i++) {
+        const v = scenario.draw(params);
+        let idx: number;
+        if (scenario.discrete) {
+          idx = Math.round(v);
+        } else {
+          const N = scenario.bins;
+          idx = Math.floor(((v - xmin) / (xmax - xmin)) * N);
+        }
+        if (idx >= 0 && idx < next.length) next[idx] += 1;
+      }
       return next;
     });
-    setDots((prev) => prev.filter((d) => d.id !== id));
-  };
-
-  const addBulkSamples = (amount: number) => {
-    setCounts((prev) => {
-      const next = [...prev];
-      for (let i = 0; i < amount; i++) next[selectRandomBin()] += 1;
-      return next;
-    });
-    const newDots: FallingDot[] = [];
-    for (let i = 0; i < Math.min(12, amount); i++) {
-      const binIndex = selectRandomBin();
-      newDots.push({
-        id: Math.random() + i + Date.now(),
-        binIndex,
-        startX: binCenterX(binIndex) + (Math.random() - 0.5) * 16,
-        startY: plot.top - 24 + Math.random() * 20,
-        targetY: plot.bottom - 4,
-        color: binColors[binIndex],
-      });
-    }
-    setDots((prev) => [...prev, ...newDots]);
   };
 
   useEffect(() => {
     if (timerRef.current) clearInterval(timerRef.current);
-    if (autoPlayMode === "slow") timerRef.current = setInterval(spawnSingleSample, 150);
-    else if (autoPlayMode === "fast") timerRef.current = setInterval(() => addBulkSamples(5), 100);
-    else if (autoPlayMode === "ultra") timerRef.current = setInterval(() => addBulkSamples(25), 50);
+    if (auto) timerRef.current = setInterval(() => drawSamples(40), 90);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [autoPlayMode, counts]);
+  }, [auto, scenarioId, params]);
 
-  const handleReset = () => {
-    setAutoPlayMode("off");
-    if (timerRef.current) clearInterval(timerRef.current);
-    setCounts([0, 0, 0, 0, 0, 0]);
-    setDots([]);
-  };
+  const { mean, variance } = scenario.stats(params);
 
-  const converged = tvd < 0.04 && n > 200;
-  const caption =
-    n === 0
-      ? "Each bar is a possible outcome; the dashed outline is its true probability. Drop samples and watch the solid bars climb toward those outlines."
-      : n < 60
-        ? `Only ${n} trials so far — the empirical bars are jumpy and uneven. Small samples are noisy and can look nothing like the true probabilities.`
-        : converged
-          ? `After ${n} trials the empirical bars have locked onto the dashed true probabilities (gap ${tvd.toFixed(3)}). That settling is the Law of Large Numbers.`
-          : `${n} trials in: the bars are settling toward the dashed theoretical outline (gap to theory ${tvd.toFixed(3)} and shrinking).`;
+  // average absolute gap between sampled bars and theory, as a convergence cue
+  const gap =
+    n > 0
+      ? bins.reduce((acc, b, i) => acc + Math.abs((counts[i] ?? 0) / n - b.pTheory), 0)
+      : 0;
+  const converged = n >= 400 && gap < 0.06;
+
+  const yTicks = useMemo(() => {
+    const top = yMax;
+    const step = top > 0.3 ? 0.1 : top > 0.15 ? 0.05 : 0.02;
+    const ticks: number[] = [];
+    for (let t = 0; t <= top + 1e-9; t += step) ticks.push(+t.toFixed(3));
+    return ticks;
+  }, [yMax]);
+
+  const xLabels = useMemo(() => {
+    const [xmin, xmax] = scenario.domain(params);
+    if (scenario.discrete) {
+      const kmax = Math.round(xmax);
+      const stepK = kmax > 16 ? 4 : kmax > 8 ? 2 : 1;
+      const out: { px: number; text: string }[] = [];
+      for (let k = 0; k <= kmax; k += stepK) {
+        const b = bins[k];
+        if (b) out.push({ px: b.cxpx, text: String(k) });
+      }
+      return out;
+    }
+    const out: { px: number; text: string }[] = [];
+    for (let i = 0; i <= 4; i++) {
+      const val = xmin + (i / 4) * (xmax - xmin);
+      const px = plot.left + (i / 4) * (plot.right - plot.left);
+      out.push({ px, text: val >= 100 ? val.toFixed(0) : val.toFixed(1) });
+    }
+    return out;
+  }, [scenario, params, bins]);
+
+  // Theory polygon (continuous) through bin tops — cheap, computed each render.
+  const theoryArea = scenario.discrete
+    ? ""
+    : `M${plot.left},${plot.bottom} L${bins
+        .map((b) => `${b.cxpx.toFixed(1)},${(plot.bottom - barH(b.pTheory)).toFixed(1)}`)
+        .join(" L")} L${plot.right},${plot.bottom} Z`;
 
   const canvas = (
     <svg
       className="block h-auto w-full"
       viewBox={`0 0 ${W} ${H}`}
       role="img"
-      aria-label="Probability Sampling Convergence"
+      aria-label="Probability Distribution Explorer"
     >
-      <title>Probability Diagram</title>
+      <title>Probability Distribution Explorer</title>
       <SVGFilters />
       <rect width={W} height={H} fill={COLORS.bg} />
 
-      {/* Axes */}
-      <line x1={plot.left} x2={plot.left} y1={plot.top} y2={plot.bottom} stroke={COLORS.border} strokeWidth={2} />
-      <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={COLORS.border} strokeWidth={2} />
-      {[0, 0.1, 0.2, 0.3].map((tick) => {
-        const yPos = plot.bottom - tick * 800;
+      {/* gridlines + y ticks (probability) */}
+      {yTicks.map((t) => {
+        const yp = plot.bottom - barH(t);
         return (
-          <g key={tick}>
-            <line x1={plot.left} x2={plot.right} y1={yPos} y2={yPos} stroke={COLORS.grid} strokeWidth={1} />
-            <text x={plot.left - 8} y={yPos + 4} textAnchor="end" fill={COLORS.muted} fontSize={10} fontWeight={700}>
-              {(tick * 100).toFixed(0)}%
+          <g key={`y-${t}`}>
+            <line x1={plot.left} x2={plot.right} y1={yp} y2={yp} stroke={COLORS.grid} strokeWidth={1} />
+            <text x={plot.left - 8} y={yp + 4} textAnchor="end" fill={COLORS.muted} fontSize={10} fontWeight={700}>
+              {(t * 100).toFixed(0)}%
             </text>
           </g>
         );
       })}
-      <text x={plot.left - 8} y={plot.top - 10} textAnchor="end" fill={COLORS.muted} fontSize={11} fontWeight={700}>probability</text>
 
-      {/* Bars: dashed = true probability, solid = empirical so far */}
-      {theoreticalProbs.map((pTheory, i) => {
-        const cx = binCenterX(i);
-        const theoryH = pTheory * 800;
-        const empH = empProbs[i] * 800;
-        return (
-          <g key={`bin-${i}`}>
-            <rect x={cx - binWidth / 2} y={plot.bottom - theoryH} width={binWidth} height={theoryH} fill="none" stroke={binColors[i]} strokeWidth={1.5} strokeDasharray="4 3" strokeOpacity={0.6} />
+      {/* axes */}
+      <line x1={plot.left} x2={plot.left} y1={plot.top} y2={plot.bottom} stroke={COLORS.border} strokeWidth={2} />
+      <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={COLORS.border} strokeWidth={2} />
+      <text x={plot.left - 8} y={plot.top - 14} textAnchor="end" fill={COLORS.muted} fontSize={11} fontWeight={700}>
+        chance
+      </text>
+
+      {/* sampled histogram (what you actually observed) */}
+      {n > 0 &&
+        bins.map((b, i) => {
+          const emp = (counts[i] ?? 0) / n;
+          const h = barH(emp);
+          if (h < 0.5) return null;
+          const w = Math.max(2, (b.x1px - b.x0px) * (scenario.discrete ? 0.6 : 0.92));
+          return (
             <motion.rect
-              x={cx - binWidth / 2}
-              y={plot.bottom - empH}
-              width={binWidth}
-              height={empH}
-              fill={binColors[i]}
-              fillOpacity={0.8}
-              animate={{ height: empH, y: plot.bottom - empH }}
-              transition={{ type: "spring", stiffness: 120, damping: 15 }}
+              key={`emp-${i}`}
+              x={b.cxpx - w / 2}
+              width={w}
+              fill={COLORS.cyan}
+              fillOpacity={0.85}
+              initial={false}
+              animate={{ y: plot.bottom - h, height: h }}
+              transition={{ type: "spring", stiffness: 140, damping: 18 }}
             />
-            <text x={cx} y={plot.bottom + 18} textAnchor="middle" fill={COLORS.muted} fontSize={11} fontWeight={700}>x{i}</text>
-            <text x={cx} y={plot.bottom + 32} textAnchor="middle" fill={binColors[i]} fontSize={10} fontWeight={800}>{counts[i]}</text>
+          );
+        })}
+
+      {/* theoretical distribution (the model of the column) */}
+      {scenario.discrete ? (
+        bins.map((b, i) => {
+          const yp = plot.bottom - barH(b.pTheory);
+          return (
+            <g key={`th-${i}`}>
+              <line x1={b.cxpx} x2={b.cxpx} y1={plot.bottom} y2={yp} stroke={COLORS.pink} strokeWidth={2} strokeOpacity={0.55} />
+              <motion.circle
+                cx={b.cxpx}
+                r={4.5}
+                fill={COLORS.pink}
+                initial={false}
+                animate={{ cy: yp }}
+                transition={{ type: "spring", stiffness: 160, damping: 20 }}
+              />
+            </g>
+          );
+        })
+      ) : (
+        <motion.path
+          d={theoryArea}
+          fill={COLORS.pink}
+          fillOpacity={0.12}
+          stroke={COLORS.pink}
+          strokeWidth={2.5}
+          initial={false}
+          animate={{ d: theoryArea }}
+          transition={{ type: "spring", stiffness: 120, damping: 22 }}
+        />
+      )}
+
+      {/* mean marker */}
+      {(() => {
+        const [xmin, xmax] = scenario.domain(params);
+        const mpx = scenario.discrete
+          ? plot.left + ((mean + 0.5) / (Math.round(xmax) + 1)) * (plot.right - plot.left)
+          : plot.left + ((mean - xmin) / (xmax - xmin)) * (plot.right - plot.left);
+        if (mpx < plot.left || mpx > plot.right) return null;
+        return (
+          <g>
+            <line x1={mpx} x2={mpx} y1={plot.top} y2={plot.bottom} stroke={COLORS.yellow} strokeWidth={1.5} strokeDasharray="5 4" />
+            <text x={mpx} y={plot.top - 4} textAnchor="middle" fill={COLORS.yellow} fontSize={11} fontWeight={800} stroke={COLORS.bg} strokeWidth={3} paintOrder="stroke">
+              mean
+            </text>
           </g>
         );
-      })}
+      })()}
 
-      {/* Falling samples */}
-      {dots.map((dot) => (
-        <motion.circle
-          key={dot.id}
-          cx={dot.startX}
-          r={4.5}
-          fill={dot.color}
-          initial={{ cy: dot.startY }}
-          animate={{ cy: dot.targetY }}
-          transition={{ duration: 0.38, ease: "easeIn" }}
-          onAnimationComplete={() => absorbDot(dot.id, dot.binIndex)}
-        />
+      {/* x-axis labels + unit */}
+      {xLabels.map((l, i) => (
+        <text key={`xl-${i}`} x={l.px} y={plot.bottom + 18} textAnchor="middle" fill={COLORS.muted} fontSize={11} fontWeight={700}>
+          {l.text}
+        </text>
       ))}
+      <text x={(plot.left + plot.right) / 2} y={plot.bottom + 38} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={700}>
+        {scenario.unit}
+      </text>
     </svg>
+  );
+
+  const caption = (
+    <span>
+      <strong>{scenario.column}</strong> follow a{" "}
+      <strong style={{ color: COLORS.pink }}>{scenario.family}</strong> distribution.{" "}
+      {scenario.caption(params)}{" "}
+      {n === 0
+        ? "Draw samples and the bars will fill in under the shape."
+        : converged
+          ? `After ${n} samples the observed bars match the distribution (gap ${gap.toFixed(3)}).`
+          : `${n} samples drawn — the bars are settling onto the shape (gap ${gap.toFixed(3)}).`}
+    </span>
   );
 
   const controls = (
     <>
-      <div className="flex flex-col justify-center gap-1 border border-outline bg-surface p-3">
-        <span className="font-mono text-[11px] font-bold uppercase tracking-wide text-on-surface-variant">Trials n</span>
-        <span data-testid="probability-total-trials" className="font-mono text-2xl font-bold text-pink-700" style={{ color: COLORS.pink }}>
-          {n}
+      {/* scenario picker */}
+      <div className="flex flex-col gap-2 border border-outline bg-surface p-3">
+        <span className="font-mono text-[11px] font-bold uppercase tracking-wide text-on-surface-variant">
+          What are you measuring?
         </span>
-        <span className="font-sans text-[12px] text-on-surface-variant">
-          gap to theory {n > 0 ? tvd.toFixed(3) : "—"}
-          {converged ? " · converged" : ""}
-        </span>
+        <div className="flex flex-wrap gap-1.5">
+          {SCENARIOS.map((s) => (
+            <button
+              key={s.id}
+              aria-label={`Measure ${s.column}`}
+              aria-pressed={s.id === scenarioId}
+              onClick={() => switchScenario(s)}
+              className={`border px-2.5 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wide transition-colors ${
+                s.id === scenarioId
+                  ? "border-primary bg-primary text-on-primary"
+                  : "border-outline bg-surface text-on-surface-variant hover:bg-surface-container hover:text-primary"
+              }`}
+            >
+              {s.tab}
+            </button>
+          ))}
+        </div>
       </div>
 
+      {/* parameter sliders */}
       <div className="flex flex-1 flex-col justify-center gap-2 border border-outline bg-surface p-3">
-        <div className="flex flex-wrap gap-2">
-          <button aria-label="DROP 1 SAMPLE" onClick={spawnSingleSample} className="flex h-9 items-center justify-center border border-outline bg-surface px-3 font-mono text-[12px] font-bold uppercase tracking-wide text-on-surface transition-colors hover:bg-surface-container hover:text-primary">
-            Drop 1 sample
-          </button>
-          <button aria-label="DROP 100 SAMPLES" onClick={() => addBulkSamples(100)} className="flex h-9 items-center justify-center border border-outline bg-surface px-3 font-mono text-[12px] font-bold uppercase tracking-wide text-on-surface transition-colors hover:bg-surface-container hover:text-primary">
-            Drop 100
-          </button>
-          <button aria-label="RESET SIMULATION" onClick={handleReset} disabled={n === 0} className="flex h-9 items-center justify-center border border-outline bg-surface px-3 font-mono text-[12px] font-bold uppercase tracking-wide text-on-surface-variant transition-colors hover:bg-surface-container disabled:opacity-50">
-            Reset
-          </button>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-[11px] font-bold uppercase tracking-wide text-on-surface-variant">Auto-rain</span>
-          <div className="flex gap-1 border border-outline bg-surface-container-low p-1">
-            {(["off", "slow", "fast", "ultra"] as const).map((mode) => (
-              <button
-                key={mode}
-                aria-label={`Auto sampler ${mode}`}
-                onClick={() => setAutoPlayMode(mode)}
-                className={`px-2 py-1 font-mono text-[11px] font-bold uppercase tracking-wide transition-colors ${
-                  autoPlayMode === mode ? "bg-primary text-on-primary" : "text-on-surface-variant hover:bg-outline-variant"
-                }`}
-              >
-                {mode}
-              </button>
-            ))}
+        {scenario.params.map((pp) => (
+          <div key={pp.key} className="flex flex-col gap-1">
+            <label htmlFor={`prob-${pp.key}`} className="flex items-center justify-between font-mono text-[12px] font-bold uppercase tracking-wide text-primary">
+              <span>{pp.label}</span>
+              <span className="text-on-surface">{params[pp.key]}</span>
+            </label>
+            <input
+              id={`prob-${pp.key}`}
+              aria-label={pp.label}
+              type="range"
+              min={pp.min}
+              max={pp.max}
+              step={pp.step}
+              value={params[pp.key]}
+              onChange={(e) => setParam(pp.key, Number(e.target.value))}
+              className="w-full cursor-pointer accent-primary"
+            />
           </div>
+        ))}
+        <div className="mt-1 flex items-center justify-between border-t border-outline pt-2 font-mono text-[11px] text-on-surface-variant">
+          <span>mean <span className="font-bold text-on-surface">{mean.toFixed(scenario.discrete ? 1 : 1)}</span></span>
+          <span>variance <span className="font-bold text-on-surface">{variance.toFixed(1)}</span></span>
+        </div>
+      </div>
+
+      {/* sampling */}
+      <div className="flex flex-col justify-center gap-2 border border-outline bg-surface p-3">
+        <span className="font-mono text-[11px] font-bold uppercase tracking-wide text-on-surface-variant">
+          Samples drawn: <span data-testid="probability-sample-count" className="text-base font-bold text-primary">{n}</span>
+        </span>
+        <div className="flex flex-wrap gap-2">
+          <button
+            aria-label="DRAW 1 SAMPLE"
+            onClick={() => drawSamples(1)}
+            className="flex h-9 items-center justify-center border border-outline bg-surface px-3 font-mono text-[12px] font-bold uppercase tracking-wide text-on-surface transition-colors hover:bg-surface-container hover:text-primary"
+          >
+            Draw 1
+          </button>
+          <button
+            aria-label="DRAW 200 SAMPLES"
+            onClick={() => drawSamples(200)}
+            className="flex h-9 items-center justify-center border border-outline bg-surface px-3 font-mono text-[12px] font-bold uppercase tracking-wide text-on-surface transition-colors hover:bg-surface-container hover:text-primary"
+          >
+            Draw 200
+          </button>
+          <button
+            aria-label="TOGGLE AUTO SAMPLER"
+            aria-pressed={auto}
+            onClick={() => setAuto((a) => !a)}
+            className={`flex h-9 items-center justify-center border px-3 font-mono text-[12px] font-bold uppercase tracking-wide transition-colors ${
+              auto ? "border-primary bg-primary text-on-primary" : "border-outline bg-surface text-on-surface-variant hover:bg-surface-container"
+            }`}
+          >
+            {auto ? "Stop" : "Auto-rain"}
+          </button>
+          <button
+            aria-label="CLEAR SAMPLES"
+            onClick={() => {
+              setAuto(false);
+              setCounts([]);
+            }}
+            disabled={n === 0}
+            className="flex h-9 items-center justify-center border border-outline bg-surface px-3 font-mono text-[12px] font-bold uppercase tracking-wide text-on-surface-variant transition-colors hover:bg-surface-container disabled:opacity-50"
+          >
+            Clear
+          </button>
         </div>
       </div>
     </>
   );
 
   const mentalModel = (
-    <p>
-      A single random trial is unpredictable. But run <strong>many</strong>{" "}
-      independent trials and the share of outcomes in each bin closes in on its
-      true probability — the dashed outline. That reliable convergence of
-      empirical frequency to theoretical probability is the{" "}
-      <strong>Law of Large Numbers</strong>, and it is why averages over big
-      samples are trustworthy even though any one draw is not.
-    </p>
+    <div className="flex flex-col gap-2">
+      <p>
+        A <strong>probability distribution</strong> is the shape of a single column of data — it
+        says which values are common, which are rare, and how spread out they are. The{" "}
+        <span style={{ color: COLORS.pink }}>filled shape / stems</span> are the idealized
+        distribution; the <span style={{ color: COLORS.cyan }}>solid bars</span> are actual samples
+        drawn from it.
+      </p>
+      <p>
+        Different real-world quantities have characteristically different shapes, and each is pinned
+        down by just a parameter or two: a <strong>Normal</strong> bell (average and spread), a{" "}
+        <strong>Binomial</strong> count of successes, a skewed <strong>Poisson</strong> of arrivals,
+        an <strong>Exponential</strong> of waiting times. Picking the right distribution for a
+        feature is the first modelling decision in a probabilistic model.
+      </p>
+      <p>
+        Draw enough samples and the bars converge onto the curve — the{" "}
+        <strong>Law of Large Numbers</strong> — which is why averages over big samples are
+        trustworthy even though any single draw is not.
+      </p>
+    </div>
   );
 
-  return (
-    <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />
-  );
+  return <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />;
 }

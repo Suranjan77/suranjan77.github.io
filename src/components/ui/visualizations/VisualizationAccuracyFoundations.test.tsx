@@ -54,15 +54,30 @@ describe("Foundations Track Visualization Accuracy", () => {
   });
 
   describe("Probability Theory (ProbabilityViz)", () => {
-    it("starts at zero trials and accumulates one on a single drop", async () => {
+    it("starts on the Normal scenario with zero samples and a distribution caption", () => {
       render(<ProbabilityViz />);
-      expect(screen.getByTestId("probability-total-trials")).toHaveTextContent("0");
-      expect(screen.getByText(/Drop samples and watch the solid bars climb/i)).toBeInTheDocument();
+      expect(
+        screen.getByRole("img", { name: /probability distribution explorer/i }),
+      ).toBeInTheDocument();
+      expect(screen.getByTestId("probability-sample-count")).toHaveTextContent("0");
+      expect(screen.getByText(/Normal \(Gaussian\)/i)).toBeInTheDocument();
+    });
 
-      fireEvent.click(screen.getByRole("button", { name: /drop 1 sample/i }));
+    it("accumulates samples when drawing", async () => {
+      render(<ProbabilityViz />);
+      expect(screen.getByTestId("probability-sample-count")).toHaveTextContent("0");
+      fireEvent.click(screen.getByRole("button", { name: /draw 1 sample/i }));
       await waitFor(() => {
-        expect(screen.getByTestId("probability-total-trials")).toHaveTextContent("1");
+        expect(screen.getByTestId("probability-sample-count")).toHaveTextContent("1");
       });
+    });
+
+    it("switches distribution family when a new scenario is picked", () => {
+      render(<ProbabilityViz />);
+      fireEvent.click(screen.getByRole("button", { name: /support tickets per hour/i }));
+      expect(screen.getAllByText(/Poisson/i).length).toBeGreaterThan(0);
+      // switching resets the sample count
+      expect(screen.getByTestId("probability-sample-count")).toHaveTextContent("0");
     });
   });
 

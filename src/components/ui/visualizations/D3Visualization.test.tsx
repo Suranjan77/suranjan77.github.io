@@ -52,10 +52,9 @@ describe("D3Visualization router", () => {
     expect(screen.getByRole("button", { name: /limit in progress/i })).toBeDisabled();
 
     rerender(<D3Visualization algorithmId="probability-theory" />);
-    fireEvent.click(screen.getByRole("button", { name: /drop 1 sample/i }));
-    expect(screen.getByText(/Trials n/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /draw 1 sample/i }));
     await waitFor(() => {
-      expect(screen.getByTestId("probability-total-trials")).toHaveTextContent("1");
+      expect(screen.getByTestId("probability-sample-count")).toHaveTextContent("1");
     });
   });
 
