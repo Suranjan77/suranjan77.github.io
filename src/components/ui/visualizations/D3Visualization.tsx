@@ -146,9 +146,9 @@ const extendedVisualizations: Record<
   },
   rag: {
     component: RAGViz,
-    title: "Retrieval-Augmented Generation",
-    subtitle: "Step through query, retrieval, context assembly, and grounded generation.",
-    insight: "RAG improves grounding by supplying retrieved evidence at inference time.",
+    title: "Retrieval-Augmented Generation: Grounding the Answer",
+    subtitle: "Ask about a private fact the model never trained on. With retrieval off it confidently makes one up; turn it on and the matching document is pulled from the knowledge base, so the answer becomes correct and cited.",
+    insight: "RAG fixes hallucination without retraining by retrieving the most relevant documents at question time and answering from them — so quality hinges on the retrieval step.",
   },
   "fine-tuning": {
     component: FineTuningViz,

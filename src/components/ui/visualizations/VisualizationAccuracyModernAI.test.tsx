@@ -38,9 +38,13 @@ describe("Modern AI Track Visualization Accuracy", () => {
     expect(toks).toBeGreaterThan(words);
   });
 
-  it("verifies RAG context assembly similarity scores", () => {
+  it("verifies RAG grounds the answer only when retrieval is on", () => {
     render(<RAGViz />);
-    expect(screen.getByText(/Retrieval-Augmented/i)).toBeInTheDocument();
+    // Retrieval starts off: the model hallucinates the wrong number.
+    expect(screen.getByTestId("rag-answer")).toHaveTextContent(/30-day/i);
+    fireEvent.click(screen.getByRole("button", { name: /toggle retrieval/i }));
+    // Retrieval on: grounded, correct answer with a citation.
+    expect(screen.getByTestId("rag-answer")).toHaveTextContent(/45-day/i);
   });
 
   it("verifies Fine Tuning parameter weight adapter sizes", () => {
