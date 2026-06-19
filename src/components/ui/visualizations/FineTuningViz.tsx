@@ -1,172 +1,109 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { COLORS } from "../visualizationPrimitives";
+import React, { useState } from "react";
+import { COLORS, SVGFilters, VizShell } from "../visualizationPrimitives";
+
+const W = 720;
+const H = 360;
+const D = 4096; // weight matrix is D x D
 
 export default function FineTuningViz() {
-  const [rank, setRank] = useState<number>(8);
-  const [dIn] = useState<number>(4096);
-  const [dOut] = useState<number>(4096);
+  const [rank, setRank] = useState(8);
 
-  const stats = useMemo(() => {
-    const fullParams = dIn * dOut;
-    const loraParams = (dIn * rank) + (rank * dOut);
-    const ratio = loraParams / fullParams;
-    const savingPercent = (1.0 - ratio) * 100.0;
+  const fullParams = D * D;
+  const loraParams = 2 * D * rank;
+  const pct = (loraParams / fullParams) * 100;
+  const factor = Math.round(fullParams / loraParams);
 
-    return {
-      fullParams,
-      loraParams,
-      savingPercent
-    };
-  }, [rank, dIn, dOut]);
+  const fmt = (n: number) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `${(n / 1e3).toFixed(0)}K` : `${n}`);
 
-  return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2">
-        <div className="relative border border-outline bg-surface overflow-hidden rounded">
-          <svg
-            viewBox="0 0 640 420"
-            className="w-full h-auto select-none"
-            role="img"
-            aria-label="LoRA vs Full Fine-Tuning Parameter Update Diagram"
-          >
-            <title>Full Fine-Tuning vs LoRA Updates</title>
-            <defs>
-              <pattern id="ft-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke={COLORS.grid} strokeWidth="0.5" />
-              </pattern>
-            </defs>
-            <rect width="640" height="420" fill="url(#ft-grid)" />
+  // matrix squares
+  const sq = 150;
+  const leftX = 70;
+  const rightX = 430;
+  const topY = 70;
+  const strip = Math.max(4, (rank / 64) * 26); // visual thickness of the adapter
 
-            {/* Left Box: Full Fine-Tuning */}
-            <g transform="translate(40, 60)">
-              <text x={70} y={-15} textAnchor="middle" fontSize={11} fontWeight={800} fill={COLORS.muted}>
-                FULL FINE-TUNING
-              </text>
-              {/* Large weight matrix (trainable, pink/red) */}
-              <rect width="140" height="140" fill={COLORS.pink} opacity={0.3} stroke={COLORS.pink} strokeWidth={2} />
-              {/* Crossed lines to show everything updates */}
-              <line x1={0} y1={0} x2={140} y2={140} stroke={COLORS.pink} strokeWidth={1} opacity={0.6} />
-              <line x1={0} y1={140} x2={140} y2={0} stroke={COLORS.pink} strokeWidth={1} opacity={0.6} />
-              <text x={70} y={75} textAnchor="middle" fontSize={10} fontWeight={800} fill={COLORS.pink}>
-                TRAINABLE W
-              </text>
-              <text x={70} y={95} textAnchor="middle" fontSize={9} fontWeight={700} fill={COLORS.muted}>
-                {(dIn * dOut / 1000000).toFixed(1)}M weights
-              </text>
-            </g>
+  const caption = `Fine-tuning normally retrains the whole ${fmt(fullParams)}-parameter weight matrix. LoRA freezes it and trains only two thin rank-${rank} matrices — ${fmt(
+    loraParams,
+  )} parameters, just ${pct.toFixed(2)}% of the model, about ${factor}× fewer. Drag the rank: even large ranks stay a sliver of the whole.`;
 
-            {/* Right Box: LoRA (Parameter Efficient) */}
-            <g transform="translate(290, 60)">
-              <text x={145} y={-15} textAnchor="middle" fontSize={11} fontWeight={800} fill={COLORS.muted}>
-                LOW-RANK ADAPTATION (LoRA)
-              </text>
-              
-              {/* Base weight matrix (frozen, gray) */}
-              <rect width="140" height="140" fill={COLORS.grid} opacity={0.6} stroke={COLORS.border} strokeWidth={2} />
-              <text x={70} y={70} textAnchor="middle" fontSize={10} fontWeight={800} fill={COLORS.muted}>
-                FROZEN W0
-              </text>
-              <text x={70} y={90} textAnchor="middle" fontSize={9} fontWeight={700} fill={COLORS.muted}>
-                (Locked)
-              </text>
+  const canvas = (
+    <svg className="block h-auto w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="LoRA vs Full Fine-Tuning Parameter Update Diagram">
+      <title>LoRA vs Full Fine-Tuning Parameter Update Diagram</title>
+      <SVGFilters />
+      <rect width={W} height={H} fill={COLORS.bg} />
 
-              {/* Plus sign */}
-              <text x={165} y={75} fontSize={20} fontWeight={800} fill={COLORS.muted} textAnchor="middle">+</text>
+      {/* Full fine-tuning: the whole matrix is trainable */}
+      <text x={leftX + sq / 2} y={topY - 16} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>FULL FINE-TUNING</text>
+      <rect x={leftX} y={topY} width={sq} height={sq} fill={COLORS.pink} fillOpacity={0.28} stroke={COLORS.pink} strokeWidth={2} />
+      <text x={leftX + sq / 2} y={topY + sq / 2 - 4} textAnchor="middle" fill={COLORS.pink} fontSize={12} fontWeight={900}>train all</text>
+      <text x={leftX + sq / 2} y={topY + sq / 2 + 14} textAnchor="middle" fill={COLORS.pink} fontSize={12} fontWeight={900}>{fmt(fullParams)}</text>
+      <text x={leftX + sq / 2} y={topY + sq + 22} textAnchor="middle" fill={COLORS.muted} fontSize={11} fontWeight={700}>every weight updates</text>
 
-              {/* LoRA A matrix (rank x d_in) - horizontal rect */}
-              {/* Width depends on rank visually (e.g. rank 8 = width 16, rank 32 = width 32) */}
-              <g transform="translate(195, 30)">
-                <rect
-                  width={Math.max(10, rank * 2)}
-                  height="80"
-                  fill={COLORS.cyan}
-                  opacity={0.3}
-                  stroke={COLORS.cyan}
-                  strokeWidth={1.5}
-                />
-                <text x={Math.max(10, rank * 2) / 2} y={105} textAnchor="middle" fontSize={9} fontWeight={800} fill={COLORS.cyan}>
-                  Matrix A
-                </text>
-                <text x={Math.max(10, rank * 2) / 2} y={118} textAnchor="middle" fontSize={8} fontWeight={700} fill={COLORS.muted}>
-                  r={rank}
-                </text>
-              </g>
+      {/* LoRA: frozen W + two small trainable strips */}
+      <text x={rightX + sq / 2} y={topY - 16} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>LOW-RANK ADAPTATION (LoRA)</text>
+      <rect x={rightX} y={topY} width={sq} height={sq} fill={COLORS.muted} fillOpacity={0.18} stroke={COLORS.border} strokeWidth={2} />
+      <text x={rightX + sq / 2} y={topY + sq / 2 - 2} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={900}>frozen W₀</text>
+      <text x={rightX + sq / 2} y={topY + sq / 2 + 14} textAnchor="middle" fill={COLORS.muted} fontSize={10} fontWeight={700}>🔒 not trained</text>
 
-              {/* LoRA B matrix (d_out x rank) - vertical rect */}
-              <g transform="translate(250, 60)">
-                <rect
-                  width="70"
-                  height={Math.max(10, rank * 2)}
-                  fill={COLORS.cyan}
-                  opacity={0.3}
-                  stroke={COLORS.cyan}
-                  strokeWidth={1.5}
-                />
-                <text x={35} y={-15} textAnchor="middle" fontSize={9} fontWeight={800} fill={COLORS.cyan}>
-                  Matrix B
-                </text>
-                <text x={35} y={-5} textAnchor="middle" fontSize={8} fontWeight={700} fill={COLORS.muted}>
-                  r={rank}
-                </text>
-              </g>
-            </g>
+      {/* adapter A (left strip) and B (top strip) — the only trainable bits */}
+      <rect x={rightX - strip - 8} y={topY} width={strip} height={sq} fill={COLORS.cyan} fillOpacity={0.85} stroke={COLORS.cyan} strokeWidth={1} />
+      <rect x={rightX} y={topY - strip - 8} width={sq} height={strip} fill={COLORS.cyan} fillOpacity={0.85} stroke={COLORS.cyan} strokeWidth={1} />
+      <text x={rightX + sq / 2} y={topY + sq + 22} textAnchor="middle" fill={COLORS.cyan} fontSize={11} fontWeight={800}>train only A and B (rank {rank})</text>
 
-            {/* General Description */}
-            <text x={320} y={380} fill={COLORS.muted} fontSize={10} fontWeight={600} textAnchor="middle">
-              LoRA freezes the primary weights and trains only two low-rank matrices, saving substantial memory.
-            </text>
-          </svg>
+      {/* headline comparison */}
+      <text x={W / 2} y={H - 22} textAnchor="middle" fill={COLORS.muted} fontSize={13} fontWeight={700}>
+        LoRA trains{" "}
+        <tspan fill={COLORS.cyan} fontWeight={900}>{fmt(loraParams)}</tspan>{" "}
+        params —{" "}
+        <tspan fill={COLORS.pink} fontWeight={900}>{pct.toFixed(2)}%</tspan>{" "}
+        of the layer (~{factor}× fewer)
+      </text>
+    </svg>
+  );
+
+  const controls = (
+    <>
+      <div className="flex flex-1 flex-col justify-center gap-2 border border-outline bg-surface p-3">
+        <label htmlFor="lora-rank" className="flex items-center justify-between font-mono text-[12px] font-bold uppercase tracking-wide text-primary">
+          <span>LoRA rank r</span>
+          <span className="text-on-surface">{rank}</span>
+        </label>
+        <input id="lora-rank" aria-label="LoRA rank" type="range" min={2} max={64} step={2} value={rank} onChange={(e) => setRank(Number(e.target.value))} className="w-full cursor-pointer accent-primary" />
+        <div className="flex justify-between font-mono text-[10px] uppercase tracking-wide text-on-surface-variant">
+          <span>2 · tiny</span>
+          <span>64 · richer adapter</span>
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-col gap-3">
-        {/* Sliders and controls */}
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between font-bold uppercase tracking-wide">
-            <span>LoRA Settings</span>
-          </div>
-
-          <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="lora-rank-slider">
-              LoRA Rank (r = {rank})
-            </label>
-            <input
-              id="lora-rank-slider"
-              type="range"
-              min={2}
-              max={32}
-              step={2}
-              value={rank}
-              onChange={e => setRank(Number(e.target.value))}
-              className="w-full h-1.5 bg-grid rounded-lg appearance-none cursor-pointer accent-cyan"
-              aria-label="LoRA adaptation rank range slider from 2 to 32"
-            />
-          </div>
-        </div>
-
-        {/* Dynamic comparison stats */}
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Parameter Efficiency</div>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div>Full Tuning:</div>
-            <div className="font-bold text-right text-pink">
-              {(stats.fullParams / 1000000).toFixed(2)}M parameters
-            </div>
-            
-            <div>LoRA (r={rank}):</div>
-            <div className="font-bold text-right text-cyan">
-              {(stats.loraParams / 1000).toFixed(1)}K parameters
-            </div>
-
-            <div className="border-t border-outline pt-2 font-bold">Reduction:</div>
-            <div className="border-t border-outline pt-2 font-bold text-right text-cyan">
-              {stats.savingPercent.toFixed(3)}% less
-            </div>
-          </div>
-        </div>
+      <div className="flex min-w-[210px] flex-col justify-center gap-1 border border-outline bg-surface p-3 font-mono text-[12px]">
+        <div className="flex items-center justify-between"><span className="uppercase tracking-wide text-on-surface-variant">full tuning</span><span className="font-bold" style={{ color: COLORS.pink }}>{fmt(fullParams)}</span></div>
+        <div className="flex items-center justify-between"><span className="uppercase tracking-wide text-on-surface-variant">LoRA (r={rank})</span><span className="font-bold" style={{ color: COLORS.cyan }}>{fmt(loraParams)}</span></div>
+        <div className="mt-1 flex items-center justify-between border-t border-outline pt-2"><span className="uppercase tracking-wide text-on-surface-variant">trainable</span><span data-testid="ft-percent" className="text-base font-bold text-on-surface">{pct.toFixed(2)}%</span></div>
       </div>
+    </>
+  );
+
+  const mentalModel = (
+    <div className="flex flex-col gap-2">
+      <p>
+        Adapting a pretrained model to a new task by <strong>full fine-tuning</strong> means updating
+        — and storing a fresh copy of — every weight. For a large model that is billions of
+        parameters per task: expensive to train and to serve.
+      </p>
+      <p>
+        <strong>LoRA</strong> freezes the original weights and learns a small update in factored
+        form: instead of a full D×D change, it trains two thin matrices A (D×r) and B (r×D) whose
+        product approximates the update. Because the <strong>rank r</strong> is tiny (often 8), the
+        trainable count drops by hundreds of times with little loss in quality.
+      </p>
+      <p>
+        That is why parameter-efficient fine-tuning is everywhere: many small swappable adapters can
+        specialize one frozen base model, and each costs a fraction of the memory.
+      </p>
     </div>
   );
+
+  return <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />;
 }

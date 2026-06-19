@@ -152,9 +152,9 @@ const extendedVisualizations: Record<
   },
   "fine-tuning": {
     component: FineTuningViz,
-    title: "Fine-Tuning and Parameter-Efficient Adaptation",
-    subtitle: "Compare full-model updates with low-rank adaptation.",
-    insight: "Low-rank adapters can specialize a model while training far fewer parameters.",
+    title: "LoRA: Adapt a Giant Model by Training a Sliver",
+    subtitle: "Full fine-tuning retrains every weight in a layer. LoRA freezes them and trains two thin low-rank matrices instead — drag the rank and watch the trainable count stay a tiny fraction of the whole.",
+    insight: "A weight update can be approximated by two small low-rank matrices, so LoRA specializes a model by training under ~1% of its parameters — cheap to train, store, and swap.",
   },
   "llm-evaluation-safety": {
     component: LLMEvalSafetyViz,

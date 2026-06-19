@@ -47,9 +47,14 @@ describe("Modern AI Track Visualization Accuracy", () => {
     expect(screen.getByTestId("rag-answer")).toHaveTextContent(/45-day/i);
   });
 
-  it("verifies Fine Tuning parameter weight adapter sizes", () => {
+  it("verifies LoRA trains a tiny fraction of parameters and grows with rank", () => {
     render(<FineTuningViz />);
     expect(screen.getByText(/Low-Rank Adaptation/i)).toBeInTheDocument();
+    const pctAt8 = parseFloat(screen.getByTestId("ft-percent").textContent ?? "0");
+    expect(pctAt8).toBeLessThan(1); // under 1% of the layer
+    fireEvent.change(screen.getByRole("slider", { name: /lora rank/i }), { target: { value: "64" } });
+    const pctAt64 = parseFloat(screen.getByTestId("ft-percent").textContent ?? "0");
+    expect(pctAt64).toBeGreaterThan(pctAt8);
   });
 
   it("verifies LLM Evaluation multi-objective radar parameters", () => {
