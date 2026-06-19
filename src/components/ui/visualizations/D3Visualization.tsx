@@ -487,13 +487,13 @@ const configs: Record<string, SceneConfig> = {
   },
   "reinforcement-learning": {
     kind: "rl",
-    title: "Reinforcement Learning Improves a Policy by Rollout",
-    subtitle: "Grid values, policy arrows, and an agent path connect reward to action choice.",
-    insight: "RL learns action preferences from delayed outcomes rather than labeled examples.",
+    title: "Reward Floods Back From the Goal",
+    subtitle: "The agent has no map and no labels — only a reward at the goal. Auto-explore and watch value spread backward cell by cell until the policy arrows form a route that steps around the trap.",
+    insight: "Q-learning solves long-horizon credit assignment by backing value up one step at a time, so a single delayed reward ripples outward into a policy that knows which way to go from anywhere.",
     legend: [
-      { label: "Policy", color: COLORS.yellow },
-      { label: "Reward", color: COLORS.cyan },
-      { label: "Penalty", color: COLORS.pink },
+      { label: "High value", color: COLORS.green },
+      { label: "Policy / agent", color: COLORS.yellow },
+      { label: "Trap", color: COLORS.pink },
     ],
     control: {
       label: "Rollout Step",

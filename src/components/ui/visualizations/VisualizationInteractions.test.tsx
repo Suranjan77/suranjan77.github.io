@@ -289,15 +289,18 @@ describe("algorithm visualization interaction contracts", () => {
 
 
 
-  it("moves reinforcement-learning policy controls and resets Q-table", () => {
+  it("runs reinforcement-learning exploration and resets the Q-table", () => {
     renderVisualization("reinforcement-learning");
 
-    expect(screen.getByText("SIMULATION STATUS")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "RIGHT" }));
-    expect(screen.getByText("ACCUMULATED REWARD:")).toBeInTheDocument();
+    expect(screen.getByTestId("rl-status")).toBeInTheDocument();
 
+    // A manual step backs up value; the policy starts forming.
+    fireEvent.click(screen.getByRole("button", { name: /take one step/i }));
+
+    // Auto-explore toggles to a pause control, and reset returns to it.
     fireEvent.click(screen.getByRole("button", { name: /auto explore/i }));
     expect(screen.getByRole("button", { name: /pause auto run/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /pause auto run/i }));
     fireEvent.click(screen.getByRole("button", { name: /reset q-table/i }));
     expect(screen.getByRole("button", { name: /auto explore/i })).toBeInTheDocument();
   });

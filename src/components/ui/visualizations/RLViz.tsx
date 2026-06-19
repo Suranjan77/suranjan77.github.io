@@ -1,353 +1,285 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import MarkdownRenderer from "../MarkdownRenderer";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  COLORS,
-  SVGFilters,
-  PulseRing,
-  VisualizationInstruction,
-} from "../visualizationPrimitives";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { COLORS, SVGFilters, VizShell } from "../visualizationPrimitives";
 
-const W = 640;
+const W = 720;
 const H = 420;
+const GRID = 5;
+const cellSize = 60;
+const ox = 70;
+const oy = 70;
 
-// Actions: 0 = Up, 1 = Right, 2 = Down, 3 = Left
-const dx = [0, 1, 0, -1];
-const dy = [-1, 0, 1, 0];
-const actionNames = ["UP", "RIGHT", "DOWN", "LEFT"];
+// 0=Up 1=Right 2=Down 3=Left
+const dr = [-1, 0, 1, 0];
+const dc = [0, 1, 0, -1];
+
+const START = { r: 4, c: 0 };
+const GOAL = { r: 0, c: 4 };
+const TRAP = { r: 2, c: 2 };
+
+const alpha = 0.6;
+const gamma = 0.9;
+const epsilon = 0.25;
+
+const zeroQ = () =>
+  Array.from({ length: GRID }, () => Array.from({ length: GRID }, () => [0, 0, 0, 0]));
+
+function lerpColor(t: number) {
+  // pale background -> warm green as value rises
+  const a = [250, 248, 242];
+  const b = [85, 107, 74];
+  const m = a.map((av, i) => Math.round(av + (b[i] - av) * t));
+  return `rgb(${m[0]}, ${m[1]}, ${m[2]})`;
+}
 
 export default function RLViz() {
-  const [agentPos, setAgentPos] = useState({ r: 4, c: 0 });
-  const [goalPos, setGoalPos] = useState({ r: 0, c: 4 });
-  const [penaltyPos, setPenaltyPos] = useState({ r: 2, c: 2 });
-  
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [cumulativeReward, setCumulativeReward] = useState(0);
+  const [agent, setAgent] = useState(START);
+  const [q, setQ] = useState<number[][][]>(zeroQ);
   const [episodes, setEpisodes] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const timer = useRef<NodeJS.Timeout | null>(null);
+  const qRef = useRef(q);
+  const agentRef = useRef(agent);
+  useEffect(() => {
+    qRef.current = q;
+    agentRef.current = agent;
+  });
 
-  // Q-values table state: Q[row][col][action]
-  const [qTable, setQTable] = useState<number[][][]>(() =>
-    Array(5)
-      .fill(null)
-      .map(() =>
-        Array(5)
-          .fill(null)
-          .map(() => Array(4).fill(0))
-      )
-  );
+  const reward = (r: number, c: number) => (r === GOAL.r && c === GOAL.c ? 10 : r === TRAP.r && c === TRAP.c ? -10 : -0.1);
+  const clamp = (v: number) => Math.max(0, Math.min(GRID - 1, v));
 
-  const [activeUpdateCell, setActiveUpdateCell] = useState<{ r: number; c: number } | null>(null);
-
-  const playTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Reinforcement Learning parameters
-  const alpha = 0.5; // learning rate
-  const gamma = 0.9; // discount factor
-  const epsilon = 0.2; // exploration rate
-
-  const getReward = (r: number, c: number) => {
-    if (r === goalPos.r && c === goalPos.c) return 10;
-    if (r === penaltyPos.r && c === penaltyPos.c) return -5;
-    return -0.1; // step penalty to find shortest path
-  };
-
-  const handleStep = (manualAction?: number) => {
-    let act = 0;
-    if (manualAction !== undefined) {
-      act = manualAction;
-    } else {
-      // Epsilon-greedy action selection
+  // Run n Q-learning steps, threading agent + Q-table locally so a whole batch
+  // chains correctly, then commit once. Refs are touched only here (a callback),
+  // never during render.
+  const advance = (n: number) => {
+    const ql = qRef.current.map((row) => row.map((cell) => [...cell]));
+    let a = { ...agentRef.current };
+    let addedEpisodes = 0;
+    for (let i = 0; i < n; i++) {
+      const qs = ql[a.r][a.c];
+      let act: number;
       if (Math.random() < epsilon) {
-        act = Math.floor(Math.random() * 4); // explore
+        act = Math.floor(Math.random() * 4);
       } else {
-        // exploit: find max Q-value index
-        const qs = qTable[agentPos.r][agentPos.c];
-        let maxQ = -999;
-        let bestActions: number[] = [];
-        qs.forEach((q, idx) => {
-          if (q > maxQ) {
-            maxQ = q;
-            bestActions = [idx];
-          } else if (q === maxQ) {
-            bestActions.push(idx);
-          }
-        });
-        act = bestActions[Math.floor(Math.random() * bestActions.length)];
+        const mx = Math.max(...qs);
+        const best = qs.map((v, idx) => (v === mx ? idx : -1)).filter((idx) => idx >= 0);
+        act = best[Math.floor(Math.random() * best.length)];
+      }
+      const nr = clamp(a.r + dr[act]);
+      const nc = clamp(a.c + dc[act]);
+      const rwd = reward(nr, nc);
+      const maxNext = Math.max(...ql[nr][nc]);
+      ql[a.r][a.c][act] = qs[act] + alpha * (rwd + gamma * maxNext - qs[act]);
+      const terminal = (nr === GOAL.r && nc === GOAL.c) || (nr === TRAP.r && nc === TRAP.c);
+      if (terminal) {
+        a = { ...START };
+        addedEpisodes++;
+      } else {
+        a = { r: nr, c: nc };
       }
     }
-
-    // Compute next state coordinates
-    const nextR = Math.max(0, Math.min(4, agentPos.r + dy[act]));
-    const nextC = Math.max(0, Math.min(4, agentPos.c + dx[act]));
-
-    // Q-value update rule
-    const reward = getReward(nextR, nextC);
-    const maxNextQ = Math.max(...qTable[nextR][nextC]);
-    const oldQ = qTable[agentPos.r][agentPos.c][act];
-    const newQ = oldQ + alpha * (reward + gamma * maxNextQ - oldQ);
-
-    // Update Q-table state
-    setQTable((prev) => {
-      const nextTable = prev.map((row) => row.map((actions) => [...actions]));
-      nextTable[agentPos.r][agentPos.c][act] = parseFloat(newQ.toFixed(2));
-      return nextTable;
-    });
-
-    setActiveUpdateCell({ r: agentPos.r, c: agentPos.c });
-    setTimeout(() => setActiveUpdateCell(null), 300);
-
-    // Update coordinates and accumulation metrics
-    setCumulativeReward((prev) => parseFloat((prev + reward).toFixed(1)));
-    setAgentPos({ r: nextR, c: nextC });
-
-    // Check terminal conditions
-    if ((nextR === goalPos.r && nextC === goalPos.c) || (nextR === penaltyPos.r && nextC === penaltyPos.c)) {
-      // reset agent
-      setAgentPos({ r: 4, c: 0 });
-      setEpisodes((prev) => prev + 1);
-    }
+    qRef.current = ql;
+    agentRef.current = a;
+    setQ(ql);
+    setAgent(a);
+    if (addedEpisodes) setEpisodes((e) => e + addedEpisodes);
   };
 
-  // Autoplay simulation tick
+  const step = () => advance(1);
+
   useEffect(() => {
-    if (playTimerRef.current) clearInterval(playTimerRef.current);
-    if (isPlaying) {
-      playTimerRef.current = setInterval(() => {
-        handleStep();
-      }, 300);
+    if (timer.current) clearInterval(timer.current);
+    if (playing) {
+      timer.current = setInterval(() => advance(6), 110);
     }
     return () => {
-      if (playTimerRef.current) clearInterval(playTimerRef.current);
+      if (timer.current) clearInterval(timer.current);
     };
-  }, [isPlaying, agentPos, qTable, goalPos, penaltyPos]);
+    // advance reads/writes refs and is stable enough for the interval
+  }, [playing]);
 
-  const handleReset = () => {
-    setAgentPos({ r: 4, c: 0 });
-    setQTable(
-      Array(5)
-        .fill(null)
-        .map(() =>
-          Array(5)
-            .fill(null)
-            .map(() => Array(4).fill(0))
-        )
-    );
-    setCumulativeReward(0);
+  const reset = () => {
+    setPlaying(false);
+    setQ(zeroQ());
+    setAgent(START);
     setEpisodes(0);
-    setIsPlaying(false);
   };
 
-  // Drag goal destination to change Q values policy maps
-  const moveGoal = (r: number, c: number) => {
-    if (r === penaltyPos.r && c === penaltyPos.c) return;
-    setGoalPos({ r, c });
-    setAgentPos({ r: 4, c: 0 });
-  };
-
-  const gridOffset = { x: 74, y: 70 };
-  const cellSize = 54;
-
-  // Derive active policy direction for arrows inside cell
-  const getPolicyArrowAngle = (r: number, c: number) => {
-    if (r === goalPos.r && c === goalPos.c) return null;
-    if (r === penaltyPos.r && c === penaltyPos.c) return null;
-
-    const qs = qTable[r][c];
-    if (qs.every((q) => q === 0)) return null;
-
-    let maxQ = -999;
-    let bestAct = 0;
-    qs.forEach((q, idx) => {
-      if (q > maxQ) {
-        maxQ = q;
-        bestAct = idx;
+  // value V(s) = max_a Q and best action per cell
+  const { V, bestAct, vmax, learned } = useMemo(() => {
+    const V: number[][] = [];
+    const bestAct: (number | null)[][] = [];
+    let vmax = 0.001;
+    let learned = 0;
+    for (let r = 0; r < GRID; r++) {
+      V[r] = [];
+      bestAct[r] = [];
+      for (let c = 0; c < GRID; c++) {
+        const qs = q[r][c];
+        const m = Math.max(...qs);
+        V[r][c] = m;
+        if (m > vmax) vmax = m;
+        const isTerminal = (r === GOAL.r && c === GOAL.c) || (r === TRAP.r && c === TRAP.c);
+        if (!isTerminal && qs.some((v) => v !== 0)) {
+          bestAct[r][c] = qs.indexOf(m);
+          learned++;
+        } else {
+          bestAct[r][c] = null;
+        }
       }
-    });
+    }
+    return { V, bestAct, vmax, learned };
+  }, [q]);
 
-    // 0=Up (0 deg), 1=Right (90 deg), 2=Down (180 deg), 3=Left (270 deg)
-    return bestAct * 90;
-  };
+  const solved = bestAct[START.r][START.c] !== null && learned >= 10;
+  const status = episodes === 0 ? "exploring blindly" : solved ? "policy found — agent routes to the goal" : "value spreading back from the goal…";
 
-  return (
-    <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(340px,1fr)]">
-      <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Q-Learning Reinforcement Learning Gridworld">
-            <title>R L Diagram</title>
-            <SVGFilters />
-            <rect width={W} height={H} fill={COLORS.bg} />
+  const caption =
+    episodes === 0
+      ? "Every cell starts equally worthless — the agent has no idea where reward is and wanders. Press Auto-explore and watch what happens once it stumbles onto the goal."
+      : solved
+        ? `After ${episodes} episodes the value has flooded back from the goal across the grid, and the arrows form a clear route that steps around the trap. The agent learned long-horizon behavior from a single delayed reward.`
+        : `${episodes} episodes in: reward discovered at the goal is backing up one step at a time (greener = more valuable to stand here). The policy arrows are still forming.`;
 
-            {/* 5x5 Grid Cells */}
-            {Array(5).fill(null).map((_, r) =>
-              Array(5).fill(null).map((__, c) => {
-                const isGoal = r === goalPos.r && c === goalPos.c;
-                const isPenalty = r === penaltyPos.r && c === penaltyPos.c;
-                const isAgent = r === agentPos.r && c === agentPos.c;
-                const isUpdating = activeUpdateCell?.r === r && activeUpdateCell?.c === c;
+  const cx = (c: number) => ox + c * cellSize + cellSize / 2;
+  const cy = (r: number) => oy + r * cellSize + cellSize / 2;
 
-                // Color coding cells
-                let fillVal = COLORS.bg;
-                if (isGoal) fillVal = COLORS.green;
-                else if (isPenalty) fillVal = COLORS.pink;
+  const canvas = (
+    <svg className="block h-auto w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Q-Learning Reinforcement Learning Gridworld">
+      <title>Q-Learning Reinforcement Learning Gridworld</title>
+      <SVGFilters />
+      <rect width={W} height={H} fill={COLORS.bg} />
 
-                const opacityVal = isGoal || isPenalty ? 0.35 : 1;
-                const arrowAngle = getPolicyArrowAngle(r, c);
-
-                const cx = gridOffset.x + c * cellSize + cellSize / 2;
-                const cy = gridOffset.y + r * cellSize + cellSize / 2;
-
-                return (
-                  <g key={`${r}-${c}`}>
-                    <rect
-                      x={gridOffset.x + c * cellSize}
-                      y={gridOffset.y + r * cellSize}
-                      width={cellSize - 2}
-                      height={cellSize - 2}
-                      fill={fillVal}
-                      fillOpacity={opacityVal}
-                      stroke={isUpdating ? COLORS.yellow : COLORS.grid}
-                      strokeWidth={isUpdating ? 3.5 : 1}
-                      className="cursor-pointer transition-colors duration-150 hover:stroke-yellow-600"
-                      onPointerDown={() => moveGoal(r, c)}
-                    />
-
-                    {/* Q-Values summaries text inside cells */}
-                    {!isGoal && !isPenalty && (
-                      <g className="pointer-events-none select-none" opacity={0.65}>
-                        <text x={cx} y={cy - cellSize / 3 + 1} textAnchor="middle" fill={COLORS.muted} fontSize={7} fontWeight={700}>
-                          {qTable[r][c][0] > 0 ? `+${qTable[r][c][0]}` : qTable[r][c][0]}
-                        </text>
-                        <text x={cx + cellSize / 3} y={cy + 3} textAnchor="middle" fill={COLORS.muted} fontSize={7} fontWeight={700}>
-                          {qTable[r][c][1] > 0 ? `+${qTable[r][c][1]}` : qTable[r][c][1]}
-                        </text>
-                        <text x={cx} y={cy + cellSize / 3 + 4} textAnchor="middle" fill={COLORS.muted} fontSize={7} fontWeight={700}>
-                          {qTable[r][c][2] > 0 ? `+${qTable[r][c][2]}` : qTable[r][c][2]}
-                        </text>
-                        <text x={cx - cellSize / 3} y={cy + 3} textAnchor="middle" fill={COLORS.muted} fontSize={7} fontWeight={700}>
-                          {qTable[r][c][3] > 0 ? `+${qTable[r][c][3]}` : qTable[r][c][3]}
-                        </text>
-                      </g>
-                    )}
-
-                    {/* Policy arrows */}
-                    {arrowAngle !== null && (
-                      <g transform={`translate(${cx}, ${cy}) rotate(${arrowAngle})`} className="pointer-events-none select-none opacity-40">
-                        <line x1={0} y1={10} x2={0} y2={-10} stroke={COLORS.yellow} strokeWidth={2} />
-                        <polygon points="-4,-4 4,-4 0,-10" fill={COLORS.yellow} />
-                      </g>
-                    )}
-                  </g>
-                );
-              })
-            )}
-
-            {/* Agent Dot (Yellow) */}
-            <motion.circle
-              cx={gridOffset.x + agentPos.c * cellSize + cellSize / 2}
-              cy={gridOffset.y + agentPos.r * cellSize + cellSize / 2}
-              r={12}
-              fill={COLORS.yellow}
-              stroke={COLORS.bg}
-              strokeWidth={2}
-              animate={{
-                cx: gridOffset.x + agentPos.c * cellSize + cellSize / 2,
-                cy: gridOffset.y + agentPos.r * cellSize + cellSize / 2,
-              }}
-              transition={{ type: "spring", stiffness: 150, damping: 15 }}
-            />
-
-            {/* Cell Markers Labels (Goal, Penalty) */}
-            <text x={gridOffset.x + goalPos.c * cellSize + cellSize / 2} y={gridOffset.y + goalPos.r * cellSize + cellSize / 2 + 4} textAnchor="middle" fill={COLORS.green} fontSize={12} fontWeight={900} className="pointer-events-none select-none">GOAL</text>
-            <text x={gridOffset.x + penaltyPos.c * cellSize + cellSize / 2} y={gridOffset.y + penaltyPos.r * cellSize + cellSize / 2 + 4} textAnchor="middle" fill={COLORS.pink} fontSize={12} fontWeight={900} className="pointer-events-none select-none">TRAP</text>
-
-            {/* In-Plot Info board */}
-            <g transform="translate(426, 70)">
-              <rect width={140} height={120} fill="rgba(250,248,242,0.85)" stroke={COLORS.border} rx={2} />
-              <text x={12} y={22} fill={COLORS.muted} fontSize={12} fontWeight={800}>SIMULATION STATUS</text>
-              
-              <text x={12} y={48} fill={COLORS.muted} fontSize={12} fontWeight={700}>EPISODES COMPLETED:</text>
-              <text x={12} y={64} fill={COLORS.cyan} fontSize={14} fontWeight={900}>{episodes}</text>
-
-              <text x={12} y={88} fill={COLORS.muted} fontSize={12} fontWeight={700}>ACCUMULATED REWARD:</text>
-              <text x={12} y={104} fill={COLORS.pink} fontSize={14} fontWeight={900}>{cumulativeReward}</text>
+      {Array.from({ length: GRID }).map((_, r) =>
+        Array.from({ length: GRID }).map((__, c) => {
+          const isGoal = r === GOAL.r && c === GOAL.c;
+          const isTrap = r === TRAP.r && c === TRAP.c;
+          const t = Math.max(0, Math.min(1, V[r][c] / vmax));
+          const fill = isGoal ? COLORS.green : isTrap ? COLORS.pink : lerpColor(t);
+          return (
+            <g key={`${r}-${c}`}>
+              <rect
+                x={ox + c * cellSize}
+                y={oy + r * cellSize}
+                width={cellSize - 2}
+                height={cellSize - 2}
+                fill={fill}
+                fillOpacity={isGoal || isTrap ? 0.85 : 1}
+                stroke={COLORS.border}
+                strokeWidth={1}
+                className="cursor-pointer"
+                onPointerDown={() => {
+                  setAgent({ r, c });
+                }}
+              />
+              {bestAct[r][c] !== null && (
+                <g transform={`translate(${cx(c)}, ${cy(r)}) rotate(${(bestAct[r][c] as number) * 90})`} className="pointer-events-none">
+                  <line x1={0} y1={11} x2={0} y2={-9} stroke={COLORS.yellow} strokeWidth={2.5} />
+                  <polygon points="-5,-5 5,-5 0,-13" fill={COLORS.yellow} />
+                </g>
+              )}
+              {isGoal && <text x={cx(c)} y={cy(r) + 4} textAnchor="middle" fill={COLORS.bg} fontSize={11} fontWeight={900} className="pointer-events-none">GOAL</text>}
+              {isTrap && <text x={cx(c)} y={cy(r) + 4} textAnchor="middle" fill={COLORS.bg} fontSize={11} fontWeight={900} className="pointer-events-none">TRAP</text>}
             </g>
+          );
+        }),
+      )}
 
-            {/* Title / Legend */}
-            <text x={gridOffset.x + 2.5 * cellSize} y={40} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>GRIDWORLD (Click cell to reposition GOAL)</text>
-          </svg>
+      {/* agent */}
+      <motion.circle
+        r={13}
+        fill={COLORS.cyan}
+        stroke={COLORS.bg}
+        strokeWidth={2.5}
+        initial={false}
+        animate={{ cx: cx(agent.c), cy: cy(agent.r) }}
+        transition={{ type: "spring", stiffness: 200, damping: 18 }}
+      />
+
+      {/* value colour key */}
+      <text x={ox + GRID * cellSize + 16} y={oy + 6} fill={COLORS.muted} fontSize={11} fontWeight={800}>VALUE</text>
+      {[1, 0.66, 0.33, 0].map((t, i) => (
+        <g key={i}>
+          <rect x={ox + GRID * cellSize + 16} y={oy + 16 + i * 26} width={18} height={18} fill={lerpColor(t)} stroke={COLORS.border} />
+          <text x={ox + GRID * cellSize + 40} y={oy + 30 + i * 26} fill={COLORS.muted} fontSize={10} fontWeight={700}>
+            {t === 1 ? "high" : t === 0 ? "low" : ""}
+          </text>
+        </g>
+      ))}
+      <text x={ox + GRID * cellSize + 16} y={oy + 16 + 4 * 26 + 18} fill={COLORS.yellow} fontSize={10} fontWeight={800}>↑ policy</text>
+    </svg>
+  );
+
+  const controls = (
+    <>
+      <div className="flex min-w-[200px] flex-col justify-center gap-1 border border-outline bg-surface p-3 font-mono text-[12px]">
+        <span className="font-bold uppercase tracking-wide text-on-surface-variant">Simulation status</span>
+        <span data-testid="rl-status" className="font-sans text-[13px] font-semibold text-primary">{status}</span>
+        <div className="mt-1 flex items-center justify-between border-t border-outline pt-2">
+          <span className="text-on-surface-variant">episodes</span>
+          <span className="font-bold text-on-surface">{episodes}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-on-surface-variant">cells with a policy</span>
+          <span className="font-bold text-on-surface">{learned} / {GRID * GRID - 2}</span>
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-col gap-3">
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between gap-4 font-bold uppercase tracking-wide">
-            <span>Manual Agent Controls</span>
-          </div>
-
-          {/* Navigation Button Pad */}
-          <div className="flex flex-col items-center gap-1.5 mb-4">
-            <button aria-label="UP"
-              onClick={() => handleStep(0)}
-              className="h-8 w-16 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer"
-            >
-              UP
-            </button>
-            <div className="flex gap-2">
-              <button aria-label="LEFT"
-                onClick={() => handleStep(3)}
-                className="h-8 w-16 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer"
-              >
-                LEFT
-              </button>
-              <button aria-label="RIGHT"
-                onClick={() => handleStep(1)}
-                className="h-8 w-16 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer"
-              >
-                RIGHT
-              </button>
-            </div>
-            <button aria-label="DOWN"
-              onClick={() => handleStep(2)}
-              className="h-8 w-16 border border-outline bg-surface hover:bg-outline-variant font-bold cursor-pointer"
-            >
-              DOWN
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <button aria-label="PAUSE AUTO RUN AUTO EXPLORE"
-              onClick={() => setIsPlaying(!isPlaying)}
-              className={`flex h-9 items-center justify-center border font-bold cursor-pointer transition-colors text-[12px] ${
-                isPlaying ? "bg-warning/20 border-warning text-warning" : "bg-surface border-outline hover:bg-surface-container"
-              }`}
-            >
-              {isPlaying ? "PAUSE AUTO RUN" : "AUTO EXPLORE"}
-            </button>
-            <button aria-label="RESET Q-TABLE"
-              onClick={handleReset}
-              className="flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container active:scale-[0.98] transition-all font-bold cursor-pointer text-[12px]"
-            >
-              RESET Q-TABLE
-            </button>
-          </div>
-
-          <VisualizationInstruction
-            title="Concept instruction:"
-            content={`1. Move agent manually, or run **Auto Explore** to start Q-learning.
-2. As Q-values accumulate in the cell quadrants, policy arrows will orient toward the highest valued path.`}
-            className="uppercase"
-          />
+      <div className="flex flex-1 flex-col justify-center gap-2 border border-outline bg-surface p-3">
+        <div className="flex flex-wrap gap-2">
+          <button
+            aria-label={playing ? "Pause auto run" : "Auto explore"}
+            onClick={() => setPlaying((p) => !p)}
+            className={`flex h-9 items-center justify-center border px-4 font-mono text-[12px] font-bold uppercase tracking-wide transition-colors ${
+              playing ? "border-warning bg-warning/20 text-warning" : "border-primary bg-primary text-on-primary"
+            }`}
+          >
+            {playing ? "Pause" : "Auto-explore"}
+          </button>
+          <button
+            aria-label="Take one step"
+            onClick={step}
+            className="flex h-9 items-center justify-center border border-outline bg-surface px-4 font-mono text-[12px] font-bold uppercase tracking-wide text-on-surface transition-colors hover:bg-surface-container hover:text-primary"
+          >
+            Step
+          </button>
+          <button
+            aria-label="Reset Q-table"
+            onClick={reset}
+            className="flex h-9 items-center justify-center border border-outline bg-surface px-4 font-mono text-[12px] font-bold uppercase tracking-wide text-on-surface-variant transition-colors hover:bg-surface-container"
+          >
+            Reset
+          </button>
         </div>
-
-        <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">
-          <span className="font-mono text-xs sm:text-sm font-bold uppercase tracking-wide text-primary">Mental model</span>
-          <div className="mt-3 text-sm sm:text-[15px] leading-relaxed text-on-surface-variant">
-            <MarkdownRenderer content={`Reinforcement learning agents learn optimal behavior through trial and error. The Q-learning algorithm estimates the expected future cumulative reward for taking an action in a state: $Q(s,a) = Q(s,a) + \alpha[R + \gamma \max Q(s',a') - Q(s,a)]$.`} />
-          </div>
-        </div>
+        <p className="font-sans text-[12px] leading-snug text-on-surface-variant">
+          The cyan agent moves mostly toward its best-known action but sometimes explores at random.
+          Each move backs up a little value from where it landed. Click any cell to drop the agent
+          there.
+        </p>
       </div>
+    </>
+  );
+
+  const mentalModel = (
+    <div className="flex flex-col gap-2">
+      <p>
+        In reinforcement learning an agent gets no labelled answers — only a <strong>reward</strong>{" "}
+        signal, and usually only at the end (reaching the goal). The hard part is{" "}
+        <strong>credit assignment</strong> over a long horizon: which of the many earlier moves
+        deserve credit for the eventual reward?
+      </p>
+      <p>
+        <strong>Q-learning</strong> solves it by backing value up one step at a time:
+        {" "}
+        <em>Q(s,a) ← Q(s,a) + α[r + γ·maxₐ′ Q(s′,a′) − Q(s,a)]</em>. A cell becomes valuable when it
+        leads to a valuable cell, so the goal&apos;s reward ripples outward across episodes until
+        every cell knows which way to go — the greedy arrows trace the learned route around the
+        trap.
+      </p>
     </div>
   );
+
+  return <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />;
 }

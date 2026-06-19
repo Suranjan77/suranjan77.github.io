@@ -143,9 +143,9 @@ describe("Practitioner Track Visualization Accuracy", () => {
     expect(screen.getByText(/Machine learning models generate/)).toBeInTheDocument();
   });
 
-  it("verifies Reinforcement Learning action state policy", () => {
+  it("verifies Reinforcement Learning starts before any value has spread", () => {
     render(<RLViz />);
-    expect(screen.getByText("SIMULATION STATUS")).toBeInTheDocument();
+    expect(screen.getByTestId("rl-status")).toHaveTextContent(/exploring blindly/i);
   });
 
   it("verifies Generative latent space walk coords", () => {
