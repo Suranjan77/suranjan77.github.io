@@ -1,219 +1,161 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { COLORS, SVGFilters, VizShell } from "../visualizationPrimitives";
+
 type Precision = "fp16" | "int8" | "int4";
 
+const W = 720;
+const H = 220;
+const barX = 60;
+const barW = 600;
+const barY = 70;
+const barH = 52;
+
+const GPUS = [
+  { name: "RTX 4090", vram: 24 },
+  { name: "A100", vram: 80 },
+  { name: "8× A100", vram: 640 },
+];
+
 export default function AIInferenceViz() {
-  const [paramsBillion, setParamsBillion] = useState<number>(8); // 1B to 70B
+  const [params, setParams] = useState(8); // billions
   const [precision, setPrecision] = useState<Precision>("fp16");
-  const [seqLength, setSeqLength] = useState<number>(2048); // 512 to 8192
-  const [batchSize, setBatchSize] = useState<number>(16); // 1 to 64
+  const [seq, setSeq] = useState(2048);
+  const [batch, setBatch] = useState(8);
+  const [gpuIdx, setGpuIdx] = useState(1);
 
-  const results = useMemo(() => {
-    // 1. Precision multiplier (bytes per parameter)
-    let precisionBytes = 2.0;
-    if (precision === "int8") precisionBytes = 1.0;
-    if (precision === "int4") precisionBytes = 0.5;
+  const bytes = precision === "fp16" ? 2 : precision === "int8" ? 1 : 0.5;
+  const weightsGB = params * bytes;
 
-    // 2. Model Weight size in GB
-    const weightMemGB = paramsBillion * precisionBytes;
+  // KV cache scales with layers, hidden dim, precision, batch, sequence length
+  const layers = params < 3 ? 24 : params > 30 ? 80 : 32;
+  const hidden = params < 3 ? 2048 : params > 30 ? 8192 : 4096;
+  const kvGB = (2 * layers * hidden * bytes * batch * seq) / 1024 ** 3;
+  const totalGB = weightsGB + kvGB;
 
-    // 3. KV Cache size in GB
-    // Llama-3-like configuration presets depending on parameter size:
-    // Scale layers and hidden dims dynamically to make it realistic
-    let numLayers = 32;
-    let hiddenDim = 4096;
-    if (paramsBillion < 3) {
-      numLayers = 24;
-      hiddenDim = 2048;
-    } else if (paramsBillion > 30) {
-      numLayers = 80;
-      hiddenDim = 8192;
-    }
+  const gpu = GPUS[gpuIdx];
+  const fits = totalGB <= gpu.vram;
 
-    // KV Cache = 2 * layers * hidden_dim * precisionBytes * batchSize * seqLength (in bytes)
-    const kvCacheBytes = 2 * numLayers * hiddenDim * precisionBytes * batchSize * seqLength;
-    const kvCacheMemGB = kvCacheBytes / (1024 * 1024 * 1024);
+  const baseSpeed = 160;
+  const throughput = baseSpeed * (1 / Math.pow(params, 0.7)) * (2 / bytes) * Math.sqrt(batch);
 
-    // 4. Total Memory
-    const totalMemGB = weightMemGB + kvCacheMemGB;
+  const xmax = Math.max(gpu.vram * 1.2, totalGB * 1.05);
+  const px = (gb: number) => (gb / xmax) * barW;
+  const capX = barX + px(gpu.vram);
 
-    // 5. Throughput Estimation (tokens/sec)
-    // Speed increases as precision bits drop, but decreases with parameter size and batch size
-    const baseSpeed = 160; // tokens/sec for 1B model in FP16, batch 1
-    const sizeScale = 1.0 / Math.pow(paramsBillion, 0.7);
-    const precisionScale = 2.0 / precisionBytes;
-    // Batching scales overall throughput (more tokens processed in parallel), but increases per-request latency slightly
-    const batchScale = Math.sqrt(batchSize);
-    const estimatedThroughput = baseSpeed * sizeScale * precisionScale * batchScale;
+  const caption = fits
+    ? `This setup needs ${totalGB.toFixed(0)} GB and fits inside the ${gpu.name}'s ${gpu.vram} GB. Notice the KV cache (${kvGB.toFixed(0)} GB) — it grows with every extra token of context and every request in the batch, so a long-context, high-batch server can be dominated by cache, not weights.`
+    : `${totalGB.toFixed(0)} GB needed but only ${gpu.vram} GB available — OUT OF MEMORY. Inference is memory-bound: either shrink the weights (quantize to INT8/INT4), cut context or batch, or move to a bigger GPU. Try dropping precision and watch it fit.`;
 
-    return {
-      weightMemGB,
-      kvCacheMemGB,
-      totalMemGB,
-      estimatedThroughput
-    };
-  }, [paramsBillion, precision, seqLength, batchSize]);
+  const canvas = (
+    <svg className="block h-auto w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="AI inference memory and throughput calculator">
+      <title>AI inference memory and throughput calculator</title>
+      <SVGFilters />
+      <rect width={W} height={H} fill={COLORS.bg} />
 
-  // VRAM Limit presets for comparison
-  const vramLimit = 80.0; // scale visualizations to 80GB A100 limit
+      <text x={barX} y={44} fill={COLORS.muted} fontSize={12} fontWeight={800}>GPU MEMORY (VRAM)</text>
+      <text x={barX + barW} y={44} textAnchor="end" fill={fits ? COLORS.green : COLORS.pink} fontSize={13} fontWeight={900}>
+        {totalGB.toFixed(0)} GB needed / {gpu.vram} GB {gpu.name}
+      </text>
 
-  return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2">
-        <div
-          className="relative border border-outline bg-surface overflow-hidden rounded p-4 font-mono text-xs text-on-surface"
-          role="img"
-          aria-label="AI inference memory and throughput calculator"
-        >
-          <div className="mb-4 font-mono text-[12px] font-bold uppercase tracking-wider text-primary">
-            GPU Memory (VRAM) Allocation Calculator
-          </div>
+      {/* track */}
+      <rect x={barX} y={barY} width={barW} height={barH} fill={COLORS.grid} fillOpacity={0.5} stroke={COLORS.border} />
 
-          <div className="mb-6 space-y-4">
-            <div>
-              <div className="flex justify-between font-bold mb-1">
-                <span>VRAM Usage:</span>
-                <span className={results.totalMemGB > vramLimit ? "text-pink" : "text-cyan"}>
-                  {results.totalMemGB.toFixed(2)} GB / {vramLimit} GB (A100)
-                </span>
-              </div>
+      {/* weights segment */}
+      <motion.rect x={barX} y={barY} height={barH} fill={COLORS.cyan} fillOpacity={0.85} initial={false} animate={{ width: px(weightsGB) }} transition={{ type: "spring", stiffness: 140, damping: 22 }} />
+      {/* kv cache segment */}
+      <motion.rect y={barY} height={barH} fill={COLORS.pink} fillOpacity={0.8} initial={false} animate={{ x: barX + px(weightsGB), width: px(kvGB) }} transition={{ type: "spring", stiffness: 140, damping: 22 }} />
 
-              {/* VRAM Bar chart */}
-              <div className="w-full bg-grid h-8 rounded overflow-hidden flex relative border border-outline">
-                {/* Weights Segment */}
-                <div
-                  className="bg-cyan h-full transition-all duration-300 flex items-center justify-center text-[12px] text-white font-bold"
-                  style={{ width: `${Math.min(100, (results.weightMemGB / vramLimit) * 100)}%` }}
-                  title={`Weights: ${results.weightMemGB.toFixed(1)} GB`}
-                >
-                  {results.weightMemGB > 6 && `Weights (${results.weightMemGB.toFixed(1)}G)`}
-                </div>
-                
-                {/* KV Cache Segment */}
-                <div
-                  className="bg-pink h-full transition-all duration-300 flex items-center justify-center text-[12px] text-white font-bold"
-                  style={{ width: `${Math.min(100 - (results.weightMemGB / vramLimit) * 100, (results.kvCacheMemGB / vramLimit) * 100)}%` }}
-                  title={`KV Cache: ${results.kvCacheMemGB.toFixed(1)} GB`}
-                >
-                  {results.kvCacheMemGB > 6 && `KV Cache (${results.kvCacheMemGB.toFixed(1)}G)`}
-                </div>
+      {/* capacity line */}
+      <line x1={capX} y1={barY - 12} x2={capX} y2={barY + barH + 12} stroke={fits ? COLORS.green : COLORS.pink} strokeWidth={2.5} strokeDasharray="5 4" />
+      <text x={capX} y={barY - 16} textAnchor="middle" fill={fits ? COLORS.green : COLORS.pink} fontSize={10} fontWeight={800}>{gpu.vram} GB limit</text>
 
-                {results.totalMemGB > vramLimit && (
-                  <div className="absolute right-2 top-0 bottom-0 flex items-center text-[12px] font-bold text-pink animate-pulse">
-                    OUT OF MEMORY
-                  </div>
-                )}
-              </div>
-            </div>
+      {/* OOM overlay */}
+      {!fits && (
+        <text x={barX + barW / 2} y={barY + barH / 2 + 5} textAnchor="middle" fill={COLORS.pink} fontSize={18} fontWeight={900} stroke={COLORS.bg} strokeWidth={4} paintOrder="stroke">
+          OUT OF MEMORY
+        </text>
+      )}
 
-            <div className="grid grid-cols-2 gap-4 border-t border-outline pt-4">
-              <div className="bg-surface-container p-3 rounded border border-outline">
-                <div className="text-muted text-[12px] uppercase font-bold">Weights footprint</div>
-                <div className="text-xl font-bold text-cyan">{results.weightMemGB.toFixed(2)} GB</div>
-                <div className="text-[12px] text-on-surface-variant leading-snug mt-1">
-                  Parameters × precision size. (e.g. {paramsBillion}B × {precision === "fp16" ? "2" : precision === "int8" ? "1" : "0.5"} bytes)
-                </div>
-              </div>
+      {/* legend */}
+      <g transform={`translate(${barX}, ${barY + barH + 30})`}>
+        <rect x={0} y={-9} width={12} height={12} fill={COLORS.cyan} />
+        <text x={18} y={1} fill={COLORS.muted} fontSize={11} fontWeight={700}>weights {weightsGB.toFixed(0)} GB ({precision})</text>
+        <rect x={220} y={-9} width={12} height={12} fill={COLORS.pink} />
+        <text x={238} y={1} fill={COLORS.muted} fontSize={11} fontWeight={700}>KV cache {kvGB.toFixed(0)} GB (context × batch)</text>
+      </g>
+    </svg>
+  );
 
-              <div className="bg-surface-container p-3 rounded border border-outline">
-                <div className="text-muted text-[12px] uppercase font-bold">KV Cache Size</div>
-                <div className="text-xl font-bold text-pink">{results.kvCacheMemGB.toFixed(2)} GB</div>
-                <div className="text-[12px] text-on-surface-variant leading-snug mt-1">
-                  Grows linearly with sequence length ({seqLength}) and batch size ({batchSize}).
-                </div>
-              </div>
-            </div>
-          </div>
+  const controls = (
+    <>
+      <div className="flex flex-1 flex-col justify-center gap-1.5 border border-outline bg-surface p-3">
+        <div className="flex items-center gap-2">
+          <label htmlFor="inf-params" className="w-24 font-mono text-[11px] font-bold uppercase text-primary">Params</label>
+          <input id="inf-params" aria-label="Model parameters in billions" type="range" min={1} max={70} step={1} value={params} onChange={(e) => setParams(Number(e.target.value))} className="flex-1 cursor-pointer accent-primary" />
+          <span className="w-10 text-right font-mono text-[11px] font-bold text-on-surface">{params}B</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <label htmlFor="inf-seq" className="w-24 font-mono text-[11px] font-bold uppercase text-primary">Context</label>
+          <input id="inf-seq" aria-label="Context length" type="range" min={512} max={8192} step={512} value={seq} onChange={(e) => setSeq(Number(e.target.value))} className="flex-1 cursor-pointer accent-primary" />
+          <span className="w-10 text-right font-mono text-[11px] font-bold text-on-surface">{seq}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <label htmlFor="inf-batch" className="w-24 font-mono text-[11px] font-bold uppercase text-primary">Batch</label>
+          <input id="inf-batch" aria-label="Batch size" type="range" min={1} max={64} step={1} value={batch} onChange={(e) => setBatch(Number(e.target.value))} className="flex-1 cursor-pointer accent-primary" />
+          <span className="w-10 text-right font-mono text-[11px] font-bold text-on-surface">{batch}</span>
+        </div>
+        <div className="mt-1 flex flex-wrap items-center gap-2">
+          <span className="font-mono text-[11px] font-bold uppercase text-on-surface-variant">Precision</span>
+          {(["fp16", "int8", "int4"] as const).map((p) => (
+            <button key={p} aria-label={`Precision ${p}`} aria-pressed={precision === p} onClick={() => setPrecision(p)} className={`border px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-wide transition-colors ${precision === p ? "border-primary bg-primary text-on-primary" : "border-outline bg-surface text-on-surface-variant hover:bg-surface-container"}`}>
+              {p}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-col gap-3">
-        {/* Sliders */}
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between font-bold uppercase tracking-wide text-primary text-[12px]">
-            <span>Model Inputs</span>
-          </div>
-
-          <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="inf-params-slider">
-              Parameters ({paramsBillion} Billion)
-            </label>
-            <input
-              id="inf-params-slider"
-              type="range"
-              min={1}
-              max={70}
-              step={1}
-              value={paramsBillion}
-              onChange={e => setParamsBillion(Number(e.target.value))}
-              className="w-full h-1.5 bg-grid rounded-lg appearance-none cursor-pointer accent-cyan"
-              aria-label="Model parameters size range slider in billions"
-            />
-          </div>
-
-          <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="inf-precision-select">
-              Precision Format
-            </label>
-            <select
-              id="inf-precision-select"
-              value={precision}
-              onChange={e => setPrecision(e.target.value as Precision)}
-              className="w-full border border-outline bg-surface p-2 text-xs rounded"
-              aria-label="Select quantization precision format"
-            >
-              <option value="fp16">16-bit float (FP16 / BF16)</option>
-              <option value="int8">8-bit integer (INT8)</option>
-              <option value="int4">4-bit integer (INT4 Quantized)</option>
-            </select>
-          </div>
-
-          <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="inf-seq-slider">
-              Sequence Length ({seqLength})
-            </label>
-            <input
-              id="inf-seq-slider"
-              type="range"
-              min={512}
-              max={8192}
-              step={512}
-              value={seqLength}
-              onChange={e => setSeqLength(Number(e.target.value))}
-              className="w-full h-1.5 bg-grid rounded-lg appearance-none cursor-pointer accent-cyan"
-              aria-label="Context sequence length range slider"
-            />
-          </div>
-
-          <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="inf-batch-slider">
-              Batch Size ({batchSize})
-            </label>
-            <input
-              id="inf-batch-slider"
-              type="range"
-              min={1}
-              max={64}
-              step={1}
-              value={batchSize}
-              onChange={e => setBatchSize(Number(e.target.value))}
-              className="w-full h-1.5 bg-grid rounded-lg appearance-none cursor-pointer accent-cyan"
-              aria-label="Serving batch size range slider"
-            />
-          </div>
+      <div className="flex min-w-[200px] flex-col justify-center gap-2 border border-outline bg-surface p-3 font-mono text-[12px]">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="font-bold uppercase tracking-wide text-on-surface-variant">GPU</span>
+          {GPUS.map((g, i) => (
+            <button key={g.name} aria-label={`GPU ${g.name}`} aria-pressed={i === gpuIdx} onClick={() => setGpuIdx(i)} className={`border px-1.5 py-1 text-[10px] font-bold uppercase transition-colors ${i === gpuIdx ? "border-primary bg-primary text-on-primary" : "border-outline bg-surface text-on-surface-variant hover:bg-surface-container"}`}>
+              {g.vram}G
+            </button>
+          ))}
         </div>
-
-        {/* Throughput Output */}
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Serving Throughput</div>
-          <div className="text-2xl font-bold text-cyan">{results.estimatedThroughput.toFixed(0)}</div>
-          <div className="text-[12px] text-muted font-bold">TOKENS / SECOND</div>
-          <p className="mt-2 text-[12px] leading-snug font-sans text-on-surface-variant">
-            *Throughput measures the total volume of generated text tokens processed per second across the GPU. Small batch sizes yield fast single-user speeds, while large batch sizes maximize overall system efficiency.
-          </p>
+        <div className="flex items-center justify-between border-t border-outline pt-2">
+          <span className="uppercase tracking-wide text-on-surface-variant">memory</span>
+          <span data-testid="inf-status" className="font-bold" style={{ color: fits ? COLORS.green : COLORS.pink }}>{fits ? "FITS" : "OUT OF MEMORY"}</span>
         </div>
+        <div className="font-bold uppercase tracking-wide text-on-surface-variant">Serving Throughput</div>
+        <div className="text-xl font-bold" style={{ color: COLORS.cyan }}>{throughput.toFixed(0)} <span className="text-[11px] text-on-surface-variant">tok/s</span></div>
       </div>
+    </>
+  );
+
+  const mentalModel = (
+    <div className="flex flex-col gap-2">
+      <p>
+        Running a trained model (inference) is mostly a <strong>memory</strong> problem. Two things
+        must fit in GPU VRAM: the <strong>weights</strong> (parameters × bytes-per-number) and the{" "}
+        <strong>KV cache</strong> — the per-token attention state the model keeps for the whole
+        conversation.
+      </p>
+      <p>
+        Weights are fixed, but the KV cache grows <em>linearly</em> with context length and batch
+        size, so long prompts and many concurrent users can make the cache larger than the model
+        itself. Exceed the card&apos;s VRAM and inference simply <strong>won&apos;t run</strong>.
+      </p>
+      <p>
+        The main lever is <strong>quantization</strong>: storing weights in INT8 or INT4 halves or
+        quarters their footprint (and speeds things up), which is how big models are squeezed onto
+        smaller GPUs. Batching trades latency for throughput.
+      </p>
     </div>
   );
+
+  return <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />;
 }

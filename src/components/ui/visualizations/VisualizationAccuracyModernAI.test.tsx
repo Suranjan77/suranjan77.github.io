@@ -68,8 +68,16 @@ describe("Modern AI Track Visualization Accuracy", () => {
     expect(screen.getByTestId("eval-winner")).toHaveTextContent(/small edge/i);
   });
 
-  it("verifies AI Inference memory and hardware bandwidth bounds", () => {
+  it("verifies AI Inference hits the memory wall and quantization relieves it", () => {
     render(<AIInferenceViz />);
     expect(screen.getByText(/Serving Throughput/i)).toBeInTheDocument();
+    // A 70B model in FP16 needs ~140GB of weights alone -> OOM on the A100.
+    fireEvent.change(screen.getByRole("slider", { name: /model parameters in billions/i }), {
+      target: { value: "70" },
+    });
+    expect(screen.getByTestId("inf-status")).toHaveTextContent(/out of memory/i);
+    // INT4 quarters the weights -> it fits.
+    fireEvent.click(screen.getByRole("button", { name: /precision int4/i }));
+    expect(screen.getByTestId("inf-status")).toHaveTextContent(/fits/i);
   });
 });

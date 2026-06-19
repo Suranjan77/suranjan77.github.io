@@ -164,9 +164,9 @@ const extendedVisualizations: Record<
   },
   "ai-inference": {
     component: AIInferenceViz,
-    title: "AI Inference Systems",
-    subtitle: "Estimate memory and throughput as model size, precision, context, and batching change.",
-    insight: "Serving performance is governed by model weights, KV cache growth, and hardware limits.",
+    title: "The Memory Wall: Will This Model Even Run?",
+    subtitle: "Weights plus a growing KV cache must fit in GPU VRAM. Push the model size, context, or batch and the bar overflows the GPU's limit into OUT OF MEMORY — then quantize and watch it fit again.",
+    insight: "Inference is memory-bound: weights are fixed but the KV cache grows with context and batch, so quantization and hardware limits decide whether a model can serve at all.",
   },
 };
 
