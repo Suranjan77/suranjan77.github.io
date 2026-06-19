@@ -134,9 +134,9 @@ const extendedVisualizations: Record<
   },
   "sequence-models": {
     component: SequenceModelsViz,
-    title: "Sequence Models and Gradient Flow",
-    subtitle: "Compare vanishing, stable, and exploding gradients through an unrolled recurrent model.",
-    insight: "Long-range learning depends on preserving useful gradient magnitude across time steps.",
+    title: "Why RNNs Forget: Memory Decays Exponentially",
+    subtitle: "Each time step multiplies the signal by the same factor. Drag it: below 1 the start of the sequence fades to nothing, above 1 it explodes, and only near 1 does memory survive a long sequence.",
+    insight: "Repeated multiplication across time steps is exponential, so a plain RNN's memory either vanishes or explodes — which is exactly why LSTMs, gradient clipping, and attention exist.",
   },
   "embeddings-tokenization": {
     component: EmbeddingsTokenizationViz,
@@ -605,7 +605,7 @@ const accessibleLabels: Record<string, string> = {
   "reinforcement-learning": "Q-Learning Reinforcement Learning Gridworld",
   "generative-models": "Generative Models Latent Space Walk",
   backpropagation: "Backpropagation Credit Assignment",
-  "sequence-models": "Sequence Models RNN Unrolled Graph Visualizer",
+  "sequence-models": "Sequence Models Gradient Flow Through Time",
   "embeddings-tokenization": "Tokenization and embedding comparison",
   rag: "RAG Pipeline Flow Diagram",
   "fine-tuning": "LoRA vs Full Fine-Tuning Parameter Update Diagram",

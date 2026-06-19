@@ -18,9 +18,15 @@ describe("Modern AI Track Visualization Accuracy", () => {
     expect(lossAfter).toBeLessThan(lossBefore);
   });
 
-  it("verifies Sequence Models gradient magnitude flow", () => {
+  it("verifies Sequence Models gradient regimes shift with the recurrent factor", () => {
     render(<SequenceModelsViz />);
     expect(screen.getByText(/Gradient Modes/i)).toBeInTheDocument();
+    // Default factor 0.7 vanishes; pushing it above 1 makes it explode.
+    expect(screen.getByTestId("seq-regime")).toHaveTextContent(/vanishing/i);
+    fireEvent.change(screen.getByRole("slider", { name: /recurrent factor/i }), {
+      target: { value: "1.4" },
+    });
+    expect(screen.getByTestId("seq-regime")).toHaveTextContent(/exploding/i);
   });
 
   it("verifies Embeddings & Tokenization mapping dimensions", () => {
