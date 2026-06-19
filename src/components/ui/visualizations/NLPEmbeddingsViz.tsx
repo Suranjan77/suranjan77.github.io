@@ -1,371 +1,213 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  COLORS,
-  SVGFilters,
-  VisualizationInstruction,
-} from "../visualizationPrimitives";
+import { COLORS, SVGFilters, Vector, VizShell } from "../visualizationPrimitives";
 
-const W = 640;
-const H = 420;
+const W = 720;
+const H = 430;
+const plot = { left: 70, right: 560, top: 48, bottom: 384 };
+const DX = 8;
+const DY = 8;
+const sx = (v: number) => plot.left + (v / DX) * (plot.right - plot.left);
+const sy = (v: number) => plot.bottom - (v / DY) * (plot.bottom - plot.top);
 
-const plot = { left: 60, top: 40, right: 380, bottom: 340, width: 320, height: 300 };
+type Word = { w: string; x: number; y: number };
+type Preset = {
+  name: string;
+  words: Word[];
+  base: string;
+  minus: string;
+  plus: string;
+  answer: string;
+  note: string;
+};
 
-const scaleX = (val: number) => plot.left + (val / 10) * plot.width;
-const scaleY = (val: number) => plot.bottom - (val / 10) * plot.height;
-const invertX = (px: number) => ((px - plot.left) / plot.width) * 10;
-const invertY = (py: number) => ((plot.bottom - py) / plot.height) * 10;
-
-interface WordToken {
-  id: string;
-  word: string;
-  x: number;
-  y: number;
-}
+const PRESETS: Record<string, Preset> = {
+  royalty: {
+    name: "Royalty",
+    words: [
+      { w: "man", x: 1.6, y: 2.2 },
+      { w: "woman", x: 5.6, y: 2.2 },
+      { w: "king", x: 1.6, y: 6.0 },
+      { w: "queen", x: 5.6, y: 6.0 },
+      { w: "prince", x: 3.1, y: 5.1 },
+      { w: "throne", x: 6.9, y: 7.0 },
+    ],
+    base: "king",
+    minus: "man",
+    plus: "woman",
+    answer: "queen",
+    note: "man → woman is the same arrow as king → queen: a consistent “gender” direction in the space.",
+  },
+  capitals: {
+    name: "Capitals",
+    words: [
+      { w: "France", x: 1.6, y: 2.2 },
+      { w: "Italy", x: 5.6, y: 2.2 },
+      { w: "Paris", x: 1.6, y: 6.0 },
+      { w: "Rome", x: 5.6, y: 6.0 },
+      { w: "Berlin", x: 7.0, y: 6.7 },
+      { w: "Spain", x: 6.9, y: 1.5 },
+    ],
+    base: "Paris",
+    minus: "France",
+    plus: "Italy",
+    answer: "Rome",
+    note: "France → Italy is the same arrow as Paris → Rome: a consistent “swap the country” direction.",
+  },
+};
 
 export default function NLPEmbeddingsViz() {
-  // Draggable tokens
-  const [tokens, setTokens] = useState<WordToken[]>([
-    { id: "king", word: "king", x: 2.5, y: 7.5 },
-    { id: "queen", word: "queen", x: 7.0, y: 7.5 },
-    { id: "man", word: "man", x: 2.5, y: 3.5 },
-    { id: "woman", word: "woman", x: 7.0, y: 3.5 },
-    { id: "royal", word: "royal", x: 4.8, y: 8.5 },
-    { id: "city", word: "city", x: 8.2, y: 1.5 },
-  ]);
+  const [presetId, setPresetId] = useState("royalty");
+  const [solved, setSolved] = useState(false);
+  const preset = PRESETS[presetId];
 
-  const [hoveredTokenId, setHoveredTokenId] = useState<string | null>(null);
-  const [dragTokenId, setDragTokenId] = useState<string | null>(null);
-  const [showAnalogy, setShowAnalogy] = useState(false);
-  const [analogyStep, setAnalogyStep] = useState(0); // 0: Idle, 1: King, 2: Subtract Man, 3: Add Woman (Final result)
+  const find = (w: string) => preset.words.find((t) => t.w === w) as Word;
 
-  // Drag handlers
-  const handlePointerDown = (e: React.PointerEvent<SVGElement>, id: string) => {
-    e.preventDefault();
-    (e.currentTarget as SVGElement).setPointerCapture(e.pointerId);
-    setDragTokenId(id);
+  const base = find(preset.base);
+  const minus = find(preset.minus);
+  const plus = find(preset.plus);
+  const result = { x: base.x - minus.x + plus.x, y: base.y - minus.y + plus.y };
+  const nearest = preset.words
+    .filter((t) => ![preset.base, preset.minus, preset.plus].includes(t.w))
+    .map((t) => ({ ...t, d: Math.hypot(t.x - result.x, t.y - result.y) }))
+    .sort((a, b) => a.d - b.d)[0];
+
+  const switchPreset = (id: string) => {
+    setPresetId(id);
+    setSolved(false);
   };
 
-  const handlePointerMove = (e: React.PointerEvent<SVGElement>) => {
-    if (!dragTokenId) return;
-    const svg = e.currentTarget.ownerSVGElement;
-    if (!svg) return;
+  const caption = !solved
+    ? `Each word is a point; what carries meaning is the directions between them. ${preset.note} Solve the analogy to add that arrow to “${preset.base}”.`
+    : `${preset.base} − ${preset.minus} + ${preset.plus} lands right on “${nearest.w}”. Adding the ${preset.minus}→${preset.plus} arrow to ${preset.base} is the same move, so the nearest word is the analogy’s answer — meaning is arithmetic on directions.`;
 
-    const point = svg.createSVGPoint();
-    point.x = e.clientX;
-    point.y = e.clientY;
-    const svgCoords = point.matrixTransform(svg.getScreenCTM()?.inverse());
-    if (!svgCoords) return;
+  const canvas = (
+    <svg className="block h-auto w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="NLP Embeddings Analogy Grid">
+      <title>NLP Embeddings Analogy Grid</title>
+      <SVGFilters />
+      <rect width={W} height={H} fill={COLORS.bg} />
 
-    const unitsX = Math.max(0.5, Math.min(9.5, invertX(svgCoords.x)));
-    const unitsY = Math.max(0.5, Math.min(9.5, invertY(svgCoords.y)));
+      {/* grid */}
+      {[0, 2, 4, 6, 8].map((t) => (
+        <g key={t}>
+          <line x1={sx(t)} x2={sx(t)} y1={plot.top} y2={plot.bottom} stroke={COLORS.grid} strokeWidth={1} />
+          <line x1={plot.left} x2={plot.right} y1={sy(t)} y2={sy(t)} stroke={COLORS.grid} strokeWidth={1} />
+        </g>
+      ))}
+      <line x1={plot.left} x2={plot.left} y1={plot.top} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
+      <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
+      <text x={plot.right} y={plot.bottom + 22} textAnchor="end" fill={COLORS.muted} fontSize={11} fontWeight={700}>embedding dimension →</text>
 
-    setTokens((prev) =>
-      prev.map((t) => (t.id === dragTokenId ? { ...t, x: unitsX, y: unitsY } : t))
-    );
-  };
+      {/* reference relationship arrow: minus -> plus */}
+      <Vector x1={sx(minus.x)} y1={sy(minus.y)} x2={sx(plus.x)} y2={sy(plus.y)} color={COLORS.yellow} />
+      <text x={(sx(minus.x) + sx(plus.x)) / 2} y={sy(minus.y) - 10} textAnchor="middle" fill={COLORS.yellow} fontSize={10} fontWeight={800} stroke={COLORS.bg} strokeWidth={3} paintOrder="stroke">
+        {preset.minus} → {preset.plus}
+      </text>
 
-  const handlePointerUp = (e: React.PointerEvent<SVGElement>) => {
-    if (dragTokenId) {
-      (e.currentTarget as SVGElement).releasePointerCapture(e.pointerId);
-      setDragTokenId(null);
-    }
-  };
+      {/* applied arrow: base -> result (same direction) */}
+      {solved && (
+        <>
+          <Vector x1={sx(base.x)} y1={sy(base.y)} x2={sx(result.x)} y2={sy(result.y)} color={COLORS.pink} />
+          <circle cx={sx(result.x)} cy={sy(result.y)} r={16} fill="none" stroke={COLORS.pink} strokeWidth={2} strokeDasharray="3 2" />
+        </>
+      )}
 
-  // Find nearest neighbors of the hovered token
-  const getNeighbors = (id: string, count = 2) => {
-    const source = tokens.find((t) => t.id === id);
-    if (!source) return [];
+      {/* words */}
+      {preset.words.map((t) => {
+        const isAnswer = solved && t.w === nearest.w;
+        const role = t.w === preset.base || t.w === preset.minus || t.w === preset.plus;
+        return (
+          <g key={t.w}>
+            <circle cx={sx(t.x)} cy={sy(t.y)} r={isAnswer ? 8 : 6} fill={isAnswer ? COLORS.pink : role ? COLORS.cyan : COLORS.muted} stroke={COLORS.bg} strokeWidth={1.5} />
+            <text x={sx(t.x) + 11} y={sy(t.y) + 4} fill={isAnswer ? COLORS.pink : COLORS.muted} fontSize={12} fontWeight={isAnswer ? 900 : 700} stroke={COLORS.bg} strokeWidth={3} paintOrder="stroke">
+              {t.w}
+            </text>
+          </g>
+        );
+      })}
 
-    return tokens
-      .filter((t) => t.id !== id)
-      .map((t) => ({
-        ...t,
-        dist: Math.hypot(t.x - source.x, t.y - source.y),
-      }))
-      .sort((a, b) => a.dist - b.dist)
-      .slice(0, count);
-  };
+      {solved && (
+        <text x={sx(result.x)} y={sy(result.y) + 30} textAnchor="middle" fill={COLORS.pink} fontSize={11} fontWeight={800} stroke={COLORS.bg} strokeWidth={3} paintOrder="stroke">
+          {preset.base} − {preset.minus} + {preset.plus}
+        </text>
+      )}
+    </svg>
+  );
 
-  const hoveredToken = tokens.find((t) => t.id === hoveredTokenId);
-  const neighbors = hoveredTokenId ? getNeighbors(hoveredTokenId) : [];
-
-  // Analogy math: King - Man + Woman = target
-  const king = tokens.find((t) => t.id === "king")!;
-  const man = tokens.find((t) => t.id === "man")!;
-  const woman = tokens.find((t) => t.id === "woman")!;
-
-  // Target coordinates:
-  const targetX = king.x - man.x + woman.x;
-  const targetY = king.y - man.y + woman.y;
-
-  // Closest word token to the target analogy point (excluding King, Man, Woman)
-  const getAnalogyResult = () => {
-    const list = tokens.filter((t) => !["king", "man", "woman"].includes(t.id));
-    let closest = list[0];
-    let minDist = 999;
-    list.forEach((t) => {
-      const d = Math.hypot(t.x - targetX, t.y - targetY);
-      if (d < minDist) {
-        minDist = d;
-        closest = t;
-      }
-    });
-    return closest;
-  };
-
-  const analogyResultToken = getAnalogyResult();
-
-  const handleNextAnalogy = () => {
-    setShowAnalogy(true);
-    setAnalogyStep((prev) => (prev < 3 ? prev + 1 : 0));
-  };
-
-  const handleResetAnalogy = () => {
-    setShowAnalogy(false);
-    setAnalogyStep(0);
-  };
-
-  const ticks = [0, 2.5, 5, 7.5, 10];
-
-  return (
-    <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(340px,1fr)]">
-      <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="NLP Embeddings Analogy Grid">
-            <title>N L P Embeddings Diagram</title>
-            <SVGFilters />
-            <rect width={W} height={H} fill={COLORS.bg} />
-
-            {/* Grid Axes */}
-            <g>
-              {ticks.map((tick) => (
-                <g key={tick}>
-                  <line x1={scaleX(tick)} x2={scaleX(tick)} y1={plot.top} y2={plot.bottom} stroke={COLORS.grid} strokeWidth={1} />
-                  <line x1={plot.left} x2={plot.right} y1={scaleY(tick)} y2={scaleY(tick)} stroke={COLORS.grid} strokeWidth={1} />
-                </g>
-              ))}
-              <line x1={plot.left} x2={plot.left} y1={plot.top} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
-              <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
-              <text x={plot.right + 10} y={plot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>Dimension X</text>
-              <text x={plot.left - 8} y={plot.top - 8} textAnchor="end" fill={COLORS.muted} fontSize={12} fontWeight={700}>Dim Y</text>
-            </g>
-
-            {/* Nearest Neighbors Lines */}
-            {hoveredToken && neighbors.map((n) => (
-              <line
-                key={`n-line-${n.id}`}
-                x1={scaleX(hoveredToken.x)}
-                y1={scaleY(hoveredToken.y)}
-                x2={scaleX(n.x)}
-                y2={scaleY(n.y)}
-                stroke={COLORS.yellow}
-                strokeWidth={2}
-                strokeDasharray="3 3"
-              />
-            ))}
-
-            {/* Word Tokens */}
-            {tokens.map((t) => {
-              const isHovered = hoveredTokenId === t.id;
-              const isDrag = dragTokenId === t.id;
-              const isAnalogyFocus =
-                analogyStep === 3 &&
-                showAnalogy &&
-                (t.id === "queen" || t.id === analogyResultToken?.id);
-
-              return (
-                <g
-                  key={t.id}
-                  onPointerDown={(e) => handlePointerDown(e, t.id)}
-                  onPointerMove={handlePointerMove}
-                  onPointerUp={handlePointerUp}
-                  onPointerOver={() => setHoveredTokenId(t.id)}
-                  onPointerOut={() => setHoveredTokenId(null)}
-                  className="cursor-grab active:cursor-grabbing"
-                >
-                  <circle
-                    cx={scaleX(t.x)}
-                    cy={scaleY(t.y)}
-                    r={isHovered || isAnalogyFocus ? 9 : 6.5}
-                    fill={isAnalogyFocus ? COLORS.pink : isHovered ? COLORS.yellow : COLORS.cyan}
-                    stroke={COLORS.bg}
-                    strokeWidth={1.5}
-                    className="transition-all duration-150"
-                  />
-                  {isAnalogyFocus && (
-                    <circle
-                      cx={scaleX(t.x)}
-                      cy={scaleY(t.y)}
-                      r={18}
-                      fill="none"
-                      stroke={COLORS.pink}
-                      strokeWidth={1.5}
-                      strokeDasharray="3 2"
-                    />
-                  )}
-                  <text
-                    x={scaleX(t.x) + 12}
-                    y={scaleY(t.y) + 4}
-                    fill={isAnalogyFocus ? COLORS.pink : COLORS.muted}
-                    fontSize={11}
-                    fontWeight={isAnalogyFocus || isHovered ? 900 : 700}
-                    stroke={COLORS.bg}
-                    strokeWidth={2.5}
-                    paintOrder="stroke"
-                  >
-                    {t.word}
-                  </text>
-                </g>
-              );
-            })}
-
-            {/* Vector analogy drawing */}
-            {showAnalogy && analogyStep >= 1 && (
-              <g>
-                {/* 1. Vector: Origin (0,0) to King */}
-                <motion.line
-                  x1={scaleX(0)}
-                  y1={scaleY(0)}
-                  x2={scaleX(king.x)}
-                  y2={scaleY(king.y)}
-                  stroke={COLORS.yellow}
-                  strokeWidth={2.5}
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.6 }}
-                />
-
-                {/* 2. Vector: Subtract Man (points down-left) */}
-                {analogyStep >= 2 && (
-                  <motion.line
-                    x1={scaleX(king.x)}
-                    y1={scaleY(king.y)}
-                    x2={scaleX(king.x - man.x)}
-                    y2={scaleY(king.y - man.y)}
-                    stroke={COLORS.pink}
-                    strokeWidth={2.5}
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.6 }}
-                  />
-                )}
-
-                {/* 3. Vector: Add Woman */}
-                {analogyStep >= 3 && (
-                  <g>
-                    <motion.line
-                      x1={scaleX(king.x - man.x)}
-                      y1={scaleY(king.y - man.y)}
-                      x2={scaleX(targetX)}
-                      y2={scaleY(targetY)}
-                      stroke={COLORS.cyan}
-                      strokeWidth={3}
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ duration: 0.6 }}
-                    />
-                    {/* Analogy intersection target marker */}
-                    <circle
-                      cx={scaleX(targetX)}
-                      cy={scaleY(targetY)}
-                      r={7}
-                      fill="none"
-                      stroke={COLORS.pink}
-                      strokeWidth={2.5}
-                    />
-                    <circle cx={scaleX(targetX)} cy={scaleY(targetY)} r={2} fill={COLORS.pink} />
-                    <text
-                      x={scaleX(targetX)}
-                      y={scaleY(targetY) - 12}
-                      textAnchor="middle"
-                      fill={COLORS.pink}
-                      fontSize={9}
-                      fontWeight={900}
-                    >
-                      Analogy Destination
-                    </text>
-                  </g>
-                )}
-              </g>
-            )}
-          </svg>
+  const controls = (
+    <>
+      <div className="flex flex-col justify-center gap-2 border border-outline bg-surface p-3">
+        <span className="font-mono text-[11px] font-bold uppercase tracking-wide text-on-surface-variant">Semantic Analogies</span>
+        <div className="flex gap-2">
+          {Object.entries(PRESETS).map(([id, p]) => (
+            <button
+              key={id}
+              aria-label={`Analogy preset ${p.name}`}
+              aria-pressed={id === presetId}
+              onClick={() => switchPreset(id)}
+              className={`flex h-9 items-center justify-center border px-3 font-mono text-[12px] font-bold uppercase tracking-wide transition-colors ${
+                id === presetId ? "border-primary bg-primary text-on-primary" : "border-outline bg-surface text-on-surface-variant hover:bg-surface-container"
+              }`}
+            >
+              {p.name}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-col gap-3">
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between gap-4 font-bold uppercase tracking-wide">
-            <span>Semantic Analogies</span>
-          </div>
-
-          <button aria-label="RUN ANALOGY STEP SUBTRACT MAN ADD WOMAN RESET ANALOGY"
-            onClick={handleNextAnalogy}
-            className="w-full flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold tracking-wider cursor-pointer mb-2"
-          >
-            {analogyStep === 0 && "RUN ANALOGY STEP"}
-            {analogyStep === 1 && "SUBTRACT MAN"}
-            {analogyStep === 2 && "ADD WOMAN"}
-            {analogyStep === 3 && "RESET ANALOGY"}
-          </button>
-
-          {showAnalogy && (
-            <div className="bg-surface-container p-3 border border-outline space-y-1.5 text-xs mb-3">
-              <div className="flex justify-between">
-                <span>Current Vector Math:</span>
-                <span className="font-bold text-primary">
-                  {analogyStep === 1 && "Vector(king)"}
-                  {analogyStep === 2 && "Vector(king) - Vector(man)"}
-                  {analogyStep === 3 && "Vector(king) - Vector(man) + Vector(woman)"}
-                </span>
-              </div>
-              {analogyStep === 3 && (
-                <div className="flex justify-between border-t border-outline pt-2 mt-2 font-bold text-sm">
-                  <span>NEAREST WORD:</span>
-                  <span className="text-pink uppercase font-extrabold">&quot;{analogyResultToken?.word}&quot;</span>
-                </div>
-              )}
-            </div>
+      <div className="flex flex-1 flex-col justify-center gap-2 border border-outline bg-surface p-3">
+        <div className="font-mono text-[14px] font-bold text-on-surface">
+          {preset.base} − {preset.minus} + {preset.plus} ={" "}
+          {solved ? (
+            <span data-testid="nlp-result" style={{ color: COLORS.pink }}>&ldquo;{nearest.w}&rdquo;</span>
+          ) : (
+            <span className="text-on-surface-variant">?</span>
           )}
-
-          <button aria-label="CLEAR ARROWS"
-            onClick={handleResetAnalogy}
-            disabled={!showAnalogy}
-            className="w-full flex h-8 items-center justify-center border border-outline bg-surface hover:bg-surface-container text-on-surface-variant text-[12px] active:scale-[0.98] transition-all tracking-wider cursor-pointer disabled:opacity-50"
-          >
-            CLEAR ARROWS
-          </button>
-
-          <VisualizationInstruction
-            title="Direct Manipulation:"
-            content={`1. Drag words to shift their coordinates.
-2. Hover words to display nearest neighbors.`}
-            className="uppercase"
-          />
         </div>
-
-        {hoveredTokenId && (
-          <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-            <div className="mb-2 block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant">
-              NEAREST NEIGHBORS (SIMILARITY)
-            </div>
-            <div className="bg-surface-container p-3 border border-outline space-y-2 text-xs">
-              <div className="font-bold mb-1 text-primary">Token: &quot;{hoveredTokenId}&quot;</div>
-              {neighbors.map((n) => {
-                const cosineSim = Math.max(0, 1 - n.dist / 10);
-                return (
-                  <div key={n.id} className="flex justify-between items-center">
-                    <span className="font-bold">&quot;{n.word}&quot;</span>
-                    <span className="text-cyan-700 font-bold">{(cosineSim * 100).toFixed(1)}% match</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        <div className="flex flex-wrap gap-2">
+          <button
+            aria-label="Solve the analogy"
+            onClick={() => setSolved(true)}
+            disabled={solved}
+            className="flex h-9 items-center justify-center border border-primary bg-primary px-3 font-mono text-[12px] font-bold uppercase tracking-wide text-on-primary transition-colors hover:opacity-90 disabled:opacity-50"
+          >
+            Solve analogy
+          </button>
+          <button
+            aria-label="Clear arrows"
+            onClick={() => setSolved(false)}
+            disabled={!solved}
+            className="flex h-9 items-center justify-center border border-outline bg-surface px-3 font-mono text-[12px] font-bold uppercase tracking-wide text-on-surface-variant transition-colors hover:bg-surface-container disabled:opacity-50"
+          >
+            Clear arrows
+          </button>
+        </div>
+        <p className="font-sans text-[12px] leading-snug text-on-surface-variant">
+          The <span style={{ color: COLORS.yellow }}>yellow</span> arrow (the relationship) and the{" "}
+          <span style={{ color: COLORS.pink }}>pink</span> arrow (applied to {preset.base}) are the
+          same vector — that is why the analogy works.
+        </p>
       </div>
+    </>
+  );
+
+  const mentalModel = (
+    <div className="flex flex-col gap-2">
+      <p>
+        An <strong>embedding</strong> turns every word into a point in a high-dimensional space,
+        learned so that words used in similar contexts land near each other. The surprise is that{" "}
+        <strong>directions</strong> become meaningful too: there is a consistent &quot;gender&quot;
+        offset, a &quot;capital-of&quot; offset, a &quot;past-tense&quot; offset.
+      </p>
+      <p>
+        Because relationships are consistent directions, analogies become plain vector arithmetic:{" "}
+        <strong>king − man + woman</strong> lands almost exactly on <strong>queen</strong>. The
+        model never learned that rule; it falls out of the geometry. The same trick — nearest point
+        in embedding space — powers semantic search, recommendations, and the retrieval step in RAG.
+      </p>
     </div>
   );
+
+  return <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />;
 }

@@ -120,9 +120,11 @@ describe("Practitioner Track Visualization Accuracy", () => {
     expect(screen.getByTestId("nn-accuracy")).toHaveTextContent("50%");
   });
 
-  it("verifies NLP cosine similarity calculations", () => {
+  it("verifies NLP analogy resolves king - man + woman to queen", () => {
     render(<NLPEmbeddingsViz />);
     expect(screen.getByText(/Semantic Analogies/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /solve the analogy/i }));
+    expect(screen.getByTestId("nlp-result")).toHaveTextContent("queen");
   });
 
   it("verifies Autoencoder denoises at its default bottleneck", () => {

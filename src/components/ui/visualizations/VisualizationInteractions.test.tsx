@@ -214,19 +214,21 @@ describe("algorithm visualization interaction contracts", () => {
     expect(screen.getByRole("button", { name: /isolate/i })).toBeInTheDocument();
   });
 
-  it("walks NLP analogy state through king - man + woman", () => {
+  it("solves the NLP analogy and switches relationship presets", () => {
     renderVisualization("nlp");
 
-    fireEvent.click(screen.getByRole("button", { name: /run analogy step/i }));
-    expect(screen.getByText("Vector(king)")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /subtract man/i }));
-    expect(screen.getByText("Vector(king) - Vector(man)")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /add woman/i }));
-    expect(screen.getByText("Vector(king) - Vector(man) + Vector(woman)")).toBeInTheDocument();
-    expect(screen.getByText(/NEAREST WORD:/)).toBeInTheDocument();
+    // king - man + woman lands on queen.
+    fireEvent.click(screen.getByRole("button", { name: /solve the analogy/i }));
+    expect(screen.getByTestId("nlp-result")).toHaveTextContent("queen");
 
+    // Clearing disables the clear button again.
     fireEvent.click(screen.getByRole("button", { name: /clear arrows/i }));
     expect(screen.getByRole("button", { name: /clear arrows/i })).toBeDisabled();
+
+    // The capitals preset generalises: Paris - France + Italy = Rome.
+    fireEvent.click(screen.getByRole("button", { name: /analogy preset capitals/i }));
+    fireEvent.click(screen.getByRole("button", { name: /solve the analogy/i }));
+    expect(screen.getByTestId("nlp-result")).toHaveTextContent("Rome");
   });
 
   it("resolves the pronoun referent and flips it with the sentence ending", () => {
