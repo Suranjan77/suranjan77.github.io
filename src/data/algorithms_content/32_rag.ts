@@ -212,14 +212,14 @@ Precision@k asks "of what I returned, how much was useful?"; recall@k asks "of e
     {
       prompt: 'A query embedding is $\\mathbf{q} = [1, 2, 0]$. Three chunk embeddings are $\\mathbf{d}_1 = [2, 1, 0]$, $\\mathbf{d}_2 = [0, 1, 3]$, $\\mathbf{d}_3 = [1, 2, 1]$. Using the **dot product** as the score, which two chunks are returned by top-2 retrieval?',
       difficulty: 'warm-up',
-      hint: 'Compute $\\mathbf{q} \\cdot \\mathbf{d}_i$ for each chunk, then take the two largest.',
+      hints: ['First, compute the dot product $\\mathbf{q} \\cdot \\mathbf{d}_i$ for each individual chunk.', 'Sort the chunks by their dot product scores and select the top two.'],
       solution: 'Dot products: $\\mathbf{q} \\cdot \\mathbf{d}_1 = (1)(2)+(2)(1)+(0)(0) = 4$; $\\mathbf{q} \\cdot \\mathbf{d}_2 = (1)(0)+(2)(1)+(0)(3) = 2$; $\\mathbf{q} \\cdot \\mathbf{d}_3 = (1)(1)+(2)(2)+(0)(1) = 5$. Ranking by score: $\\mathbf{d}_3 (5) > \\mathbf{d}_1 (4) > \\mathbf{d}_2 (2)$. Top-2 retrieval returns $\\{\\mathbf{d}_3, \\mathbf{d}_1\\}$.',
       tags: ['retrieval', 'computation'],
     },
     {
       prompt: 'For a given query there are $R = 4$ relevant chunks in the corpus. Your retriever returns $k = 5$ chunks, of which 3 are actually relevant. Compute precision@5 and recall@5, and state which one a RAG engineer should usually optimize first and why.',
       difficulty: 'core',
-      hint: 'precision@$k = \\text{rel}_k / k$ and recall@$k = \\text{rel}_k / R$.',
+      hints: ['Recall the definitions: precision@$k = \\text{rel}_k / k$.', 'And recall@$k = \\text{rel}_k / R$. Think about which metric represents missing the answer entirely.'],
       solution: 'precision@5 $= 3/5 = 0.6$ and recall@5 $= 3/4 = 0.75$. A RAG engineer should usually prioritize **recall** first: if the chunk containing the answer is never retrieved, the generator has no way to produce a correct, grounded answer — a missing fact cannot be recovered downstream. Low precision (some irrelevant chunks in context) is more tolerable and can be cleaned up with a reranker, whereas low recall is a hard ceiling on answer quality.',
       tags: ['evaluation', 'metrics'],
     },
@@ -230,9 +230,9 @@ Precision@k asks "of what I returned, how much was useful?"; recall@k asks "of e
       tags: ['diagnosis', 'chunking'],
     },
     {
-      prompt: 'You evaluate two retrievers on the same 100 queries. Retriever A has recall@3 $= 0.70$; Retriever B has recall@10 $= 0.92$ but your model context window only comfortably fits **3** chunks. Which retriever is more useful in practice, and what technique lets you benefit from B without exceeding the window?',
+      prompt: 'You evaluate two retrievers on the same 100 queries. Retriever A has recall@3 = 0.70; Retriever B has recall@10 = 0.92, but your LLM context window limits you to providing only 3 chunks. Design a system architecture that maximizes retrieval performance under this strict context limit.',
       difficulty: 'challenge',
-      hint: 'Think about what fraction of the answer-bearing chunks each setup can actually place *in front of the model*, given the window cap.',
+      hints: ['Think about the hard constraint: the model can only see 3 chunks regardless of what the retriever finds.', 'How could you use Retriever B to find a broad set of candidates, and a secondary model to filter them down to the 3 best?'],
       solution: 'Recall@10 = 0.92 only helps if you can actually feed all 10 chunks to the model, but the window fits 3, so naively B does not beat A at the budget that matters. The standard fix is **two-stage retrieval with a reranker**: use Retriever B to fetch a large candidate set (its high recall@10 means the answer chunk is present 92% of the time), then apply a cross-encoder reranker to reorder those 10 candidates and keep only the top 3. If the reranker is accurate, you preserve most of B’s 0.92 recall while sending just 3 chunks — beating A’s 0.70 within the same context budget. The key insight: recall@k and the feasible context window must be reconciled, and reranking is the bridge.',
       tags: ['evaluation', 'system-design', 'reranking'],
     },
@@ -305,6 +305,12 @@ Precision@k asks "of what I returned, how much was useful?"; recall@k asks "of e
       },
     },
   ],
+  shortAnswerQuestions: [
+    {
+      question: "Discuss the precision-recall tradeoffs of choosing a very large chunk size (e.g., an entire 2,000-token article) versus a very small chunk size (e.g., a single sentence) in a RAG system. How does chunk size affect the embedding representation?",
+      expectedAnswerRubric: "The answer should explain that a very large chunk size dilutes the embedding, as it averages many topics together; this causes the vector to lose alignment with specific queries, lowering retrieval precision/recall. Conversely, a very small chunk creates a highly specific embedding that matches queries well, but lacks the surrounding context needed by the LLM to actually formulate a comprehensive answer."
+    }
+  ],
   quiz: [
     {
       question: 'In a RAG pipeline using cosine similarity, why does normalizing the embeddings to unit length make the dot product and cosine similarity produce the same ranking?',
@@ -335,17 +341,7 @@ Precision@k asks "of what I returned, how much was useful?"; recall@k asks "of e
         { text: 'Because higher recall always lowers inference latency.', correct: false },
       ],
       explanation: 'Recall measures whether the relevant chunk made it into the retrieved set at all. A missing fact is unrecoverable downstream — no prompt or reranker can use context that was never fetched. Some irrelevant chunks (lower precision) are more tolerable and can be filtered by a reranker.',
-    },
-    {
-      question: 'You increase the chunk size from ~200 tokens to an entire 2,000-token article. What is the most likely effect on retrieval?',
-      options: [
-        { text: 'The relevant signal in each embedding gets diluted by unrelated content, lowering similarity scores for specific queries.', correct: true },
-        { text: 'Recall@k always improves because each chunk now contains more information.', correct: false },
-        { text: 'Cosine similarity becomes undefined for long text.', correct: false },
-        { text: 'The model’s context window automatically expands to fit the larger chunks.', correct: false },
-      ],
-      explanation: 'A single embedding summarizes the whole chunk. Packing many topics into one large chunk averages them together, so the vector no longer aligns tightly with a query about one specific topic. This dilution lowers similarity and can push the truly relevant chunk out of the top-k.',
-    },
+    }
   ],
   review: {
     lastReviewed: '2026-06-15',

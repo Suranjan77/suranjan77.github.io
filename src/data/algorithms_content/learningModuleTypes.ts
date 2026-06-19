@@ -50,6 +50,7 @@ export interface PracticeExercise {
   prompt: string;                 // markdown + KaTeX
   difficulty: ExerciseDifficulty;
   hint?: string;                  // optional progressive scaffold (markdown + KaTeX)
+  hints?: string[];               // multiple sequential hints for tiered hinting
   solution: string;               // collapsible (markdown + KaTeX)
   tags?: string[];                // e.g. ['derivation', 'coding', 'conceptual']
 }
@@ -63,6 +64,11 @@ export interface QuizQuestion {
   question: string;               // markdown + KaTeX
   options: QuizOption[];          // 3-5 options, at least one correct
   explanation: string;            // shown after answering (markdown + KaTeX)
+}
+
+export interface ShortAnswerQuestion {
+  question: string;               // markdown + KaTeX
+  expectedAnswerRubric: string;   // markdown + KaTeX (rubric for self-grading)
 }
 
 export interface CaseStudy {
@@ -92,7 +98,7 @@ export interface UsageGuidance {
   rulesOfThumb?: string[];        // optional quick heuristics
 }
 
-export type TrackId = 'foundations' | 'practitioner' | 'modern-ai';
+export type TrackId = 'practitioner' | 'modern-ai';
 export type Difficulty = 1 | 2 | 3 | 4;
 
 export interface LearningModule {
@@ -128,6 +134,7 @@ export interface LearningModule {
   // --- Active-learning additions (all optional, backward compatible) ---
   practiceExercises?: PracticeExercise[];
   quiz?: QuizQuestion[];
+  shortAnswerQuestions?: ShortAnswerQuestion[];
   caseStudies?: CaseStudy[];
   comparisons?: ComparisonTable[];
   usageGuidance?: UsageGuidance;

@@ -2,7 +2,7 @@ describe('Learning Tracks', () => {
   it('keeps all tracks and rich module previews on the homepage', () => {
     cy.visit('/#curriculum');
 
-    cy.contains('Mathematical Foundations').should('be.visible');
+    cy.contains('ML Practitioner').should('be.visible');
     cy.contains('ML Practitioner').should('be.visible');
     cy.contains('Modern AI Systems').should('be.visible');
 

@@ -4,7 +4,7 @@ export const neuralNetworks: LearningModule = {
   id: "neural-networks",
   title: "Neural Networks & Deep Learning",
   category: "Neural Networks / Deep Learning",
-  prerequisites: ["calculus", "linear-algebra", "logistic-regression"],
+  prerequisites: ["logistic-regression"],
   tracks: ["modern-ai"],
   difficulty: 3,
   relatedModules: ["logistic-regression", "cnn", "transformers"],
@@ -211,28 +211,28 @@ This is a simplified, discrete analogue of a more general principle that shows u
     {
       prompt: 'A tiny network has one hidden layer. Input $x = [1, 2]$, hidden weights $W^{(1)} = \\begin{bmatrix} 1 & -1 \\\\ 0 & 1 \\end{bmatrix}$, hidden bias $b^{(1)} = [0, -1]$, ReLU activation, output weights $W^{(2)} = [2, 1]$, output bias $b^{(2)} = 0$ (no output activation). Compute the forward pass.',
       difficulty: 'warm-up',
-      hint: 'First compute $z^{(1)} = W^{(1)}x + b^{(1)}$, apply ReLU, then compute the scalar output $\\hat{y} = W^{(2)} a^{(1)} + b^{(2)}$.',
+      hints: ['First compute $z^{(1)} = W^{(1)}x + b^{(1)}$ and apply ReLU.', 'Then compute the scalar output $\\hat{y} = W^{(2)} a^{(1)} + b^{(2)}$.'],
       solution: 'Pre-activations: $z^{(1)}_1 = 1(1) + (-1)(2) + 0 = -1$, $z^{(1)}_2 = 0(1) + 1(2) + (-1) = 1$. So $z^{(1)} = [-1, 1]$. After ReLU: $a^{(1)} = [\\max(0,-1), \\max(0,1)] = [0, 1]$. Output: $\\hat{y} = 2(0) + 1(1) + 0 = 1$.',
       tags: ['forward-pass', 'computation'],
     },
     {
       prompt: 'A network has an input layer of size 8, one hidden layer of size 16 with ReLU, and an output layer of size 3 (no activation listed). Both layers use a bias term per unit. Count the total number of trainable parameters.',
       difficulty: 'core',
-      hint: 'Each dense layer of size $(in, out)$ contributes $in \\times out$ weights plus $out$ biases.',
+      hints: ['A dense layer with input size IN and output size OUT has IN * OUT weights.', 'Remember to add the biases for each output unit.'],
       solution: 'Layer 1 (input to hidden): weights $8 \\times 16 = 128$, biases $16$, subtotal $144$. Layer 2 (hidden to output): weights $16 \\times 3 = 48$, biases $3$, subtotal $51$. Total parameters $= 144 + 51 = 195$.',
       tags: ['architecture', 'parameter-counting'],
     },
     {
       prompt: 'Explain why a single-layer perceptron (no hidden layer) cannot represent the XOR function, where the four labeled points are $(0,0)\\to 0$, $(0,1)\\to 1$, $(1,0)\\to 1$, $(1,1)\\to 0$.',
       difficulty: 'core',
-      hint: 'Think about what a single linear decision boundary $w_1 x_1 + w_2 x_2 + b = 0$ can separate in the plane.',
+      hints: ['Plot the four XOR points on a 2D plane.', 'Think about what a single linear decision boundary can separate.'],
       solution: 'A single-layer perceptron with no hidden layer computes a single linear decision boundary (a line in 2D): it predicts class 1 on one side of the line and class 0 on the other. Plotting the XOR points shows the two "1" points $(0,1)$ and $(1,0)$ lie on opposite corners from the two "0" points $(0,0)$ and $(1,1)$ — the classes are arranged diagonally, so **no single straight line** can separate the 1s from the 0s. XOR is the textbook example of a function that is **not linearly separable** (the historical Minsky-Papert critique of perceptrons). Adding a hidden layer lets the network first transform the input into a space (e.g. via two hidden units acting like AND/OR-style gates) where the classes become linearly separable, after which the output layer can draw a line in that new space.',
       tags: ['conceptual', 'XOR', 'linear-separability'],
     },
     {
-      prompt: 'Using ReLU units of the form $\\text{ReLU}(x - c)$, construct a sum of ReLUs that exactly reproduces the piecewise-linear target $g(x) = 0$ for $x \\le 1$, $g(x) = x - 1$ for $1 < x \\le 3$, and $g(x) = 2$ for $x > 3$ (i.e. a ramp from $(1,0)$ to $(3,2)$ that then flattens).',
+      prompt: 'Construct a neural network with a single hidden layer of ReLU units that exactly reproduces the piecewise-linear target $g(x) = 0$ for $x \\le 1$, $g(x) = x - 1$ for $1 < x \\le 3$, and $g(x) = 2$ for $x > 3$. Provide the weights and biases for your construction.',
       difficulty: 'challenge',
-      hint: 'You need one ReLU to start the ramp at $x=1$ and a second, oppositely-signed ReLU to cancel the slope and flatten the function at $x=3$.',
+      hints: ['You need one ReLU to start the ramp at $x=1$.', 'Use a second, oppositely-signed ReLU to cancel the slope and flatten the function at $x=3$.'],
       solution: 'Use $g(x) = \\text{ReLU}(x - 1) - \\text{ReLU}(x - 3)$. For $x \\le 1$: both terms are $0$, so $g(x) = 0$. For $1 < x \\le 3$: only the first ReLU is active, $g(x) = (x-1) - 0 = x - 1$, which rises from $0$ at $x=1$ to $2$ at $x=3$ — matching the ramp. For $x > 3$: $g(x) = (x-1) - (x-3) = 2$, a constant — matching the flat segment. So just **two** ReLU hidden units (with weight $1$ on the output for the first, $-1$ for the second) exactly reproduce this three-piece function, illustrating how a small number of ReLUs stitch together arbitrary piecewise-linear shapes.',
       tags: ['derivation', 'ReLU', 'universal-approximation'],
     },
@@ -296,6 +296,12 @@ This is a simplified, discrete analogue of a more general principle that shows u
       },
     },
   ],
+  shortAnswerQuestions: [
+    {
+      question: 'According to the Universal Approximation Theorem, a single hidden layer with enough units can approximate any continuous function. Explain why modern deep learning architectures favor deeper networks over extremely wide single-layer networks despite this theorem.',
+      expectedAnswerRubric: 'The answer should contrast representational capacity with efficiency. While a single wide layer is theoretically sufficient (capacity), the number of hidden units required can grow exponentially with function complexity. Deeper networks can represent the same hierarchical or compositional functions with exponentially fewer total parameters (efficiency), making them more practical to train and less prone to overfitting.'
+    }
+  ],
   quiz: [
     {
       question: 'Why does a feedforward network need a non-linear activation function between layers?',
@@ -306,16 +312,6 @@ This is a simplified, discrete analogue of a more general principle that shows u
         { text: 'Linear layers cannot be trained with backpropagation.', correct: false },
       ],
       explanation: 'A composition of purely linear maps, $W_2(W_1x + b_1) + b_2$, is itself an affine function of $x$ — equivalent to one linear layer. The non-linear activation between layers is what allows depth to create genuinely more expressive, curved decision boundaries.',
-    },
-    {
-      question: 'According to the Universal Approximation Theorem, a single hidden layer with enough units can approximate any continuous function on a bounded domain. What is the main practical catch?',
-      options: [
-        { text: 'The number of hidden units required can grow extremely large (often exponentially) for complex functions, even though a deeper network might represent the same function far more compactly.', correct: true },
-        { text: 'The theorem only applies to functions of a single binary input.', correct: false },
-        { text: 'The theorem requires the activation function to be linear.', correct: false },
-        { text: 'A single hidden layer can never achieve zero training error.', correct: false },
-      ],
-      explanation: 'Universal approximation is an existence result about capacity, not efficiency. Achieving low error for complex functions may require an impractically wide single layer, whereas composing several narrower layers can often represent the same function with far fewer total parameters.',
     },
     {
       question: 'Why is the XOR function a classic illustration of the need for hidden layers?',

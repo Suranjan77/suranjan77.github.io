@@ -221,28 +221,31 @@ Balancing the two (sometimes with an explicit weight $\\beta$ on the KL term, as
     {
       prompt: 'Given input $x = [2.0, 4.0, 6.0]$ and reconstruction $\\hat{x} = [2.5, 3.5, 6.5]$, compute the Mean Squared Error reconstruction loss.',
       difficulty: 'warm-up',
-      hint: 'MSE is the average of the squared per-component differences.',
+      hints: ['MSE is the average of the squared per-component differences.'],
       solution: 'Squared errors: $(2.0-2.5)^2 = 0.25$, $(4.0-3.5)^2 = 0.25$, $(6.0-6.5)^2 = 0.25$. $\\text{MSE} = \\frac{0.25+0.25+0.25}{3} = 0.25$.',
       tags: ['computation'],
     },
     {
       prompt: 'An autoencoder has an encoder that is a single fully-connected layer mapping $\\mathbb{R}^{100}$ to $\\mathbb{R}^{10}$ (with bias), and a decoder that mirrors it, mapping $\\mathbb{R}^{10}$ back to $\\mathbb{R}^{100}$ (with bias). How many trainable parameters does the whole autoencoder have?',
       difficulty: 'core',
-      hint: 'A fully-connected layer from size $a$ to size $b$ has $a \\times b$ weights plus $b$ biases.',
+      hints: ['A fully-connected layer from size $a$ to size $b$ has $a \\times b$ weights plus $b$ biases.'],
       solution: 'Encoder: weights $100 \\times 10 = 1000$, biases $10$, total $1010$. Decoder: weights $10 \\times 100 = 1000$, biases $100$, total $1100$. Grand total: $1010 + 1100 = 2110$ trainable parameters.',
       tags: ['architecture', 'computation'],
     },
     {
       prompt: 'Why does setting the bottleneck dimension exactly equal to the input dimension (e.g. encoding $\\mathbb{R}^{784}$ down to $\\mathbb{R}^{784}$) make the autoencoder trivial and useless for representation learning, even though it can achieve zero reconstruction loss?',
       difficulty: 'core',
-      hint: 'Think about whether the encoder is forced to discard any information at all.',
+      hints: ['Think about whether the encoder is forced to discard any information at all.'],
       solution: 'When the latent dimension equals the input dimension, the encoder is no longer a genuine bottleneck — it has enough capacity to learn an invertible (or even literally identity) mapping, e.g. $z = x$ and $\\hat{x} = z$. The network can drive reconstruction loss to exactly zero without learning anything about the structure, correlations, or redundancy in the data, because it never had to throw any information away. Useful representation learning specifically requires an **undercomplete** bottleneck ($k < d$) — or some other constraint like sparsity or added noise — that forces the network to discover and keep only the most informative, compressed structure rather than just copying.',
       tags: ['conceptual', 'failure-mode'],
     },
     {
-      prompt: 'In the VAE ELBO, $\\mathcal{L} = \\mathbb{E}_{q_\\phi(z|x)}[\\log p_\\theta(x|z)] - D_{KL}(q_\\phi(z|x)\\,\\|\\,p(z))$, explain what would happen during training if the KL term were removed entirely (i.e. you only maximized the reconstruction term).',
+      prompt: 'Analyze the objective function of a Variational Autoencoder (VAE). If the KL divergence term was removed from the ELBO, leaving only the reconstruction term, how would the latent space and the model\'s generative capabilities be affected during training?',
       difficulty: 'challenge',
-      hint: 'Consider what stops the encoder from making each $q_\\phi(z|x)$ an arbitrarily narrow spike at a different, unconstrained location for every input.',
+      hints: [
+        'Consider what stops the encoder from making each $q_\\phi(z|x)$ an arbitrarily narrow spike at an unconstrained location.',
+        'Relate the structure of this unregularized latent space to the model\'s ability to generate valid new samples.'
+      ],
       solution: 'Without the KL penalty, nothing constrains $q_\\phi(z|x)$ to resemble the prior $p(z) = \\mathcal{N}(0,I)$. The optimizer would be free to shrink each $\\sigma(x)$ toward zero (making the encoder near-deterministic, like a plain autoencoder) and scatter the means $\\mu(x)$ wherever is most convenient for reconstruction, with no requirement that nearby latent points decode to similar outputs or that the latent space be densely packed around the origin. The model would essentially degrade into a vanilla autoencoder: it could still achieve excellent reconstruction, but the latent space would likely have large empty/unstructured regions. Sampling a random $z \\sim \\mathcal{N}(0,I)$ and decoding it would then often land in one of those gaps and produce garbage — destroying the modelʼs ability to generate new, realistic samples, which is the entire point of the KL regularization term.',
       tags: ['conceptual', 'derivation'],
     },
@@ -310,6 +313,12 @@ Balancing the two (sometimes with an explicit weight $\\beta$ on the KL term, as
       },
     },
   ],
+  shortAnswerQuestions: [
+    {
+      question: 'Explain why standard vanilla autoencoders are generally ineffective at generating new, realistic samples from random latent vectors. How does a Variational Autoencoder (VAE) overcome this limitation?',
+      expectedAnswerRubric: 'The answer should state that a vanilla autoencoder has an unregularized latent space that often contains large discontinuous regions. It should then explain that a VAE introduces a KL divergence penalty to explicitly regularize the approximate posterior toward a known prior, ensuring the latent space is smooth, continuous, and suitable for sampling.'
+    }
+  ],
   quiz: [
     {
       question: 'A linear autoencoder (no nonlinear activations) with a bottleneck of size $k$, trained to minimize reconstruction MSE, converges to a solution that:',
@@ -320,16 +329,6 @@ Balancing the two (sometimes with an explicit weight $\\beta$ on the KL term, as
         { text: 'Only works if the input data is already zero-mean and unit-variance.', correct: false },
       ],
       explanation: 'Without nonlinearities, the autoencoder objective reduces to a rank-$k$ matrix approximation problem, whose optimal solution (by Eckart–Young) is the projection onto the top-$k$ singular/eigen directions — exactly PCA. Gradient descent does not find a "better" subspace; at best it converges to the same optimum (and may do worse if poorly tuned).',
-    },
-    {
-      question: 'Why are standard (vanilla) autoencoders generally poor at generating new, realistic samples by feeding random vectors into the decoder?',
-      options: [
-        { text: 'Their latent spaces are not regularized, so they often contain large gaps/discontinuous regions that decode to garbage.', correct: true },
-        { text: 'Autoencoder decoders cannot process any input other than encoder outputs, by construction.', correct: false },
-        { text: 'They always have a bottleneck dimension of exactly 1.', correct: false },
-        { text: 'They are trained using labeled data, so they cannot generalize to unlabeled random vectors.', correct: false },
-      ],
-      explanation: 'Nothing in a vanilla autoencoderʼs loss encourages the latent space to be smooth, dense, or distributed like any particular probability distribution. Random latent points often fall outside the regions the encoder actually populated, producing meaningless decoder outputs. VAEs fix this by explicitly regularizing $q_\\phi(z|x)$ toward a known prior with the KL term.',
     },
     {
       question: 'In the VAE loss $\\mathcal{L} = \\mathbb{E}_{q_\\phi(z|x)}[\\log p_\\theta(x|z)] - D_{KL}(q_\\phi(z|x)\\|p(z))$, what is the role of the KL divergence term?',

@@ -6,12 +6,6 @@ import {
   VisualizationShell,
 } from "../visualizationPrimitives";
 
-import CalculusViz from "./CalculusViz";
-import LinearAlgebraViz from "./LinearAlgebraViz";
-import ProbabilityViz from "./ProbabilityViz";
-import MaximumLikelihoodViz from "./MaximumLikelihoodViz";
-import BayesianInferenceViz from "./BayesianInferenceViz";
-
 import LinearRegressionViz from "./LinearRegressionViz";
 import LogisticRegressionViz from "./LogisticRegressionViz";
 import KNNViz from "./KNNViz";
@@ -33,8 +27,6 @@ import RLViz from "./RLViz";
 import GenerativeViz from "./GenerativeViz";
 
 import RegularizationViz from "./RegularizationViz";
-import StatisticsViz from "./StatisticsViz";
-import GradientDescentViz from "./GradientDescentViz";
 import NaiveBayesViz from "./NaiveBayesViz";
 import GMMEMViz from "./GMMEMViz";
 import BackpropagationViz from "./BackpropagationViz";
@@ -61,18 +53,6 @@ const extendedVisualizations: Record<
     insight: string;
   }
 > = {
-  "statistics-estimation": {
-    component: StatisticsViz,
-    title: "Is Your Model's Accuracy Real, or Luck?",
-    subtitle: "A single test-set score hides error bars. Resample the test set to reveal them — and to judge whether one model truly beats another.",
-    insight: "The bootstrap turns one test set into a confidence interval on a metric, so you can tell a real improvement from noise.",
-  },
-  "gradient-descent": {
-    component: GradientDescentViz,
-    title: "Optimizer Race: Why Momentum and Adam Beat Plain SGD",
-    subtitle: "Three optimizers descend the same 3D loss landscape from the same point. A shallow pit traps plain SGD, while momentum and Adam coast through it to the deep valley.",
-    insight: "Gradient descent only feels the local slope, so plain SGD stalls in the first dip; momentum's accumulated speed and Adam's adaptive steps carry training past traps.",
-  },
   "naive-bayes": {
     component: NaiveBayesViz,
     title: "Spam Filter: Every Word Tugs the Verdict",
@@ -379,13 +359,6 @@ export interface VisualizationRegistryEntry {
 }
 
 const visualizationComponents: Record<string, React.ComponentType> = {
-  calculus: CalculusViz,
-  "linear-algebra": LinearAlgebraViz,
-  "probability-theory": ProbabilityViz,
-  "maximum-likelihood": MaximumLikelihoodViz,
-  "bayesian-inference": BayesianInferenceViz,
-  "statistics-estimation": StatisticsViz,
-  "gradient-descent": GradientDescentViz,
   "linear-regression": LinearRegressionViz,
   "logistic-regression": LogisticRegressionViz,
   knn: KNNViz,
@@ -417,13 +390,6 @@ const visualizationComponents: Record<string, React.ComponentType> = {
 };
 
 const accessibleLabels: Record<string, string> = {
-  calculus: "Derivative Limit Visualizer",
-  "linear-algebra": "Embedding Similarity Search",
-  "probability-theory": "Probability Distribution Explorer",
-  "maximum-likelihood": "Maximum Likelihood Optimization",
-  "bayesian-inference": "Bayesian A/B Test Belief Update",
-  "statistics-estimation": "Bootstrap Confidence on Model Accuracy",
-  "gradient-descent": "Gradient Descent Optimizer Race",
   "linear-regression": "Multivariable Linear Regression Fit",
   "logistic-regression": "Logistic Regression Probability Curve",
   knn: "K-Nearest Neighbors Genre Vote",

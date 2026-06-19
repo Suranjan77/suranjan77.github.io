@@ -15,12 +15,6 @@ interface CurriculumExplorerProps {
   defaultExpanded?: boolean;
 }
 
-const foundationCategories = new Set([
-  "Calculus",
-  "Linear Algebra",
-  "Probability Theory",
-]);
-
 const deepCategories = new Set([
   "Neural Networks / Deep Learning",
   "Convolutional Neural Networks",
@@ -32,7 +26,6 @@ const deepCategories = new Set([
 ]);
 
 function getDifficulty(category: Algorithm["category"]): 1 | 2 | 3 {
-  if (foundationCategories.has(category)) return 1;
   if (deepCategories.has(category)) return 3;
   return 2;
 }
@@ -250,7 +243,7 @@ export default function CurriculumExplorer({
                   index={algorithms.findIndex((item) => item.id === algo.id)}
                   title={algo.title}
                   description={algo.shortDescription}
-                  category={foundationCategories.has(algo.category) ? "Foundation" : deepCategories.has(algo.category) ? "Advanced" : "Method"}
+                  category={deepCategories.has(algo.category) ? "Advanced" : "Method"}
                   difficulty={getDifficulty(algo.category)}
                   active={selectedId === algo.id}
                   controls={

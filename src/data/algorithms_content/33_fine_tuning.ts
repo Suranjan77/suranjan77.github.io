@@ -205,14 +205,20 @@ Several techniques mitigate it:
     {
       prompt: 'A transformer layer has a weight matrix of size $d = k = 2048$. Using LoRA with rank $r = 16$, how many trainable parameters does the adapter add, and how does that compare to full fine-tuning of that matrix?',
       difficulty: 'warm-up',
-      hint: 'LoRA adds $r(d + k)$ parameters; full fine-tuning trains $d \\times k$.',
+      hints: [
+        'LoRA adds $r(d + k)$ parameters.',
+        'Full fine-tuning trains $d \\times k$.'
+      ],
       solution: 'LoRA: $r(d + k) = 16 \\times (2048 + 2048) = 16 \\times 4096 = 65{,}536$ parameters. Full fine-tuning: $d \\times k = 2048 \\times 2048 = 4{,}194{,}304$ parameters. The ratio is $4{,}194{,}304 / 65{,}536 = 64\\times$ fewer trainable parameters with LoRA.',
       tags: ['computation', 'lora'],
     },
     {
       prompt: 'You apply LoRA with rank $r = 8$ to the query and value projections of every transformer block. The model has 32 blocks, and each projection is a $4096 \\times 4096$ matrix. What is the total number of trainable LoRA parameters?',
       difficulty: 'core',
-      hint: 'Count adapters: 2 projections per block, 32 blocks. Each adapter has $r(d + k)$ params.',
+      hints: [
+        'Count adapters: 2 projections per block, 32 blocks.',
+        'Each adapter has $r(d + k)$ params.'
+      ],
       solution: 'Per adapter: $r(d + k) = 8 \\times (4096 + 4096) = 65{,}536$ params. Number of adapters: $2 \\text{ projections} \\times 32 \\text{ blocks} = 64$. Total: $64 \\times 65{,}536 = 4{,}194{,}304 \\approx 4.19$M trainable parameters. For a model with billions of parameters, this is well under $0.1\\%$ of the total — which is exactly why LoRA fits on a single consumer GPU.',
       tags: ['computation', 'lora'],
     },
@@ -223,9 +229,12 @@ Several techniques mitigate it:
       tags: ['conceptual', 'forgetting'],
     },
     {
-      prompt: 'You must ship 50 customer-specific variants of a 7B-parameter model, and inference latency budget is tight. Would you choose full fine-tuning or LoRA for each customer, and why? Address both storage and latency.',
+      prompt: 'You must ship 50 customer-specific variants of a 7B-parameter model under a strict latency and storage budget. Propose an adaptation strategy and justify it quantitatively.',
       difficulty: 'challenge',
-      hint: 'Think about how much disk each variant needs, and whether the adapter can be merged at inference.',
+      hints: [
+        'Think about how much disk each variant needs.',
+        'Consider whether the adapter can be merged at inference.'
+      ],
       solution: 'Choose LoRA. **Storage:** full fine-tuning means 50 complete copies of a 7B model (tens of gigabytes each — well over a terabyte total), whereas 50 LoRA adapters are only a few megabytes each, so they share one frozen base model and add negligible storage. **Latency:** a LoRA adapter $BA$ can be merged back into the base weights ($W \\leftarrow W + \\tfrac{\\alpha}{r}BA$) at deploy time, so the served model has the exact same shape and runs with zero added latency versus the base. You also get reduced catastrophic forgetting for free since the base weights are frozen. Full fine-tuning would only be justified if a customer needed a sweeping behavior change that a low-rank update genuinely cannot express.',
       tags: ['conceptual', 'deployment', 'lora'],
     },
@@ -293,6 +302,12 @@ Several techniques mitigate it:
       },
     },
   ],
+  shortAnswerQuestions: [
+    {
+      question: "Explain the mathematical and architectural mechanisms by which Parameter-Efficient Fine-Tuning methods like LoRA mitigate catastrophic forgetting compared to full fine-tuning.",
+      expectedAnswerRubric: "A strong answer should mention that base weights are frozen ($W_0$ is unchanged), so the general knowledge encoded during pretraining is preserved by construction. It should also note that adaptation is mathematically confined to a low-rank additive correction ($\\Delta W = BA$), which acts as a structural regularizer preventing the model from shifting its distribution too radically."
+    }
+  ],
   quiz: [
     {
       question: 'In LoRA, given a frozen weight matrix $W \\in \\mathbb{R}^{d \\times k}$, the update is written as $\\Delta W = BA$. What are the shapes of $B$ and $A$?',
@@ -323,16 +338,6 @@ Several techniques mitigate it:
         { text: 'About $33.6$M parameters — twice as many as full fine-tuning.', correct: false },
       ],
       explanation: 'LoRA adds $r(d + k) = 8 \\times (4096 + 4096) = 65{,}536$ parameters, while a full update is $4096 \\times 4096 = 16{,}777{,}216$. The ratio is $256\\times$ fewer trainable parameters.',
-    },
-    {
-      question: 'Why does freezing the base weights in LoRA help reduce catastrophic forgetting?',
-      options: [
-        { text: 'The general knowledge encoded in the frozen base weights cannot be overwritten; only a small additive low-rank correction is learned.', correct: true },
-        { text: 'Freezing the weights increases the learning rate, which speeds convergence.', correct: false },
-        { text: 'Freezing the weights deletes the pretraining data so it cannot interfere.', correct: false },
-        { text: 'Frozen weights force the model to use a larger rank, capturing more of the task.', correct: false },
-      ],
-      explanation: 'Because $W$ is frozen, the knowledge it stores is preserved by construction — gradient descent can only adjust the tiny $BA$ adapter. This acts as a structural regularizer, confining adaptation to a small correction and protecting general capabilities.',
     },
   ],
   review: {

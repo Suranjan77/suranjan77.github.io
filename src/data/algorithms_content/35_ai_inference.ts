@@ -207,7 +207,10 @@ So increasing batch size amortizes the expensive weight load across many tokens,
     {
       prompt: 'A model has $L = 40$ layers and hidden dimension $d = 5120$ ($H \\times D_{\\text{head}} = 5120$). Using FP16 (2 bytes), compute the KV cache size for a **single** sequence of length $N_{\\text{seq}} = 2048$ tokens.',
       difficulty: 'warm-up',
-      hint: 'Bytes per token $= 2 \\times L \\times d \\times B_{\\text{precision}}$ (the leading $2$ is for storing both keys and values). Then multiply by the sequence length.',
+      hints: [
+        'Bytes per token $= 2 \\times L \\times d \\times B_{\\text{precision}}$.',
+        'The leading $2$ is for storing both keys and values. Then multiply by the sequence length.'
+      ],
       solution: 'Bytes per token $= 2 \\times 40 \\times 5120 \\times 2 = 819{,}200$ bytes $\\approx 0.78$ MB. For $N_{\\text{seq}} = 2048$ tokens: $819{,}200 \\times 2048 = 1{,}677{,}721{,}600$ bytes $\\approx 1.56$ GB. So a single 2048-token sequence already needs about **1.56 GB** of KV cache — multiply by batch size to see why long-context serving is memory-hungry.',
       tags: ['core-formula', 'memory'],
     },
@@ -220,14 +223,20 @@ So increasing batch size amortizes the expensive weight load across many tokens,
     {
       prompt: 'A serving system generates at a steady rate where each token takes $20$ ms (time-per-output-token). (a) What is the single-stream throughput in tokens/sec? (b) If continuous batching lets the GPU serve $B = 16$ concurrent requests at the same $20$ ms per-token step, what is the aggregate throughput, and what happens to each user’s perceived latency?',
       difficulty: 'core',
-      hint: 'Tokens/sec for one stream $= 1000 / \\text{ms-per-token}$. With batching, each step still emits one token *per request*.',
+      hints: [
+        'Tokens/sec for one stream $= 1000 / \\text{ms-per-token}$.',
+        'With batching, each step still emits one token *per request*.'
+      ],
       solution: '(a) Single stream: $1000 \\text{ ms} / 20 \\text{ ms} = 50$ tokens/sec. (b) With $B = 16$ requests advancing together, each 20 ms step emits 16 tokens (one per request), so aggregate throughput $= 16 \\times 50 = 800$ tokens/sec. Per-user latency is essentially unchanged at $\\approx 50$ tokens/sec *if* the batched step still takes 20 ms — but in practice the larger matmul is somewhat slower per step, so individual latency degrades slightly while total throughput rises roughly $16\\times$. This is the throughput-vs-latency trade-off of batching.',
       tags: ['throughput', 'batching'],
     },
     {
-      prompt: 'Explain quantitatively why raising the batch size from $1$ to $64$ increases throughput but can also increase the latency of an individual request. Tie your answer to arithmetic intensity.',
+      prompt: 'Analyze the throughput-latency tradeoff when scaling inference batch size from 1 to 64. Justify your answer using arithmetic intensity and hardware utilization.',
       difficulty: 'challenge',
-      hint: 'Think about (1) how weight bytes are amortized across the batch, and (2) what a request must wait for before its tokens are produced.',
+      hints: [
+        'Think about how weight bytes are amortized across the batch.',
+        'Consider what a request must wait for before its tokens are produced.'
+      ],
       solution: 'At batch size $1$, a decode step reads the full weight matrix ($\\approx 2 d^2$ bytes) to do only $\\approx 2 d^2$ FLOPs, giving arithmetic intensity $\\approx 1$ FLOP/byte — deeply memory-bound, so the GPU is mostly idle while streaming weights. Raising the batch to $64$ reuses each loaded weight across $64$ tokens, lifting intensity to $\\approx 64$ FLOP/byte and pushing utilization toward (or past) the hardware ridge point, so total tokens/sec climbs nearly linearly until compute-bound. **Latency cost:** (i) a request may have to wait to be grouped into the batch (queuing delay), and (ii) the per-step matmul on a $d \\times 64$ activation is larger than on $d \\times 1$, so each step takes somewhat longer in wall-clock time, slowing the token cadence felt by any single user. Thus throughput (system-level) and latency (user-level) trade off against each other, which is the core scheduling tension continuous batching tries to balance.',
       tags: ['batching', 'roofline', 'conceptual'],
     },
@@ -296,6 +305,12 @@ So increasing batch size amortizes the expensive weight load across many tokens,
       },
     },
   ],
+  shortAnswerQuestions: [
+    {
+      question: "Explain the relationship between serving batch size, arithmetic intensity, and total system throughput versus individual request latency in autoregressive decoding.",
+      expectedAnswerRubric: "A strong answer should note that increasing batch size reuses loaded weights across multiple tokens, thereby increasing arithmetic intensity and raising total throughput towards the hardware compute ridge point. It must also correctly identify that this optimization comes at the cost of higher individual request latency due to queuing delays and larger per-step matrix multiplications, alongside increased KV cache memory requirements."
+    }
+  ],
   quiz: [
     {
       question: 'During single-stream autoregressive decoding of a large transformer, the GPU is typically:',
@@ -326,16 +341,6 @@ So increasing batch size amortizes the expensive weight load across many tokens,
         { text: '90%.', correct: false },
       ],
       explanation: 'FP16 uses 2 bytes per parameter and INT4 uses 0.5 bytes, a 4:1 ratio. So INT4 occupies $1/4$ of the FP16 footprint, a 75% reduction. INT8 (1 byte) would be the 50% / factor-of-2 case.',
-    },
-    {
-      question: 'Increasing the serving batch size from 1 to 32 generally:',
-      options: [
-        { text: 'Raises arithmetic intensity and total throughput, but can increase individual request latency.', correct: true },
-        { text: 'Decreases total throughput because each step does more work.', correct: false },
-        { text: 'Has no effect on GPU utilization for memory-bound decoding.', correct: false },
-        { text: 'Reduces the KV cache memory required.', correct: false },
-      ],
-      explanation: 'Batching reuses each loaded weight across all requests in the batch, so FLOPs scale with batch size while weight bytes read stay fixed — arithmetic intensity and throughput rise toward the hardware ridge point. The costs are higher per-request latency (queuing to form the batch plus larger per-step matmuls) and a KV cache that grows linearly with batch size.',
     },
   ],
   review: {

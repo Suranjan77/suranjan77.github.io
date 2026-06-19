@@ -212,21 +212,21 @@ This is the same intuition as a residual/skip connection in a feedforward networ
     {
       prompt: 'A chain of 10 BPTT Jacobian factors each have approximate magnitude $0.7$ (from $(1-h_t^2) \\cdot w_{hh} \\approx 0.7$). Estimate the surviving gradient magnitude after propagating back 10 steps, and state whether this is vanishing or exploding.',
       difficulty: 'warm-up',
-      hint: 'The total attenuation is the product of all 10 per-step factors: $0.7^{10}$.',
+      hints: ["Calculate the total attenuation by multiplying the factors.", "Since it's 10 steps of 0.7, compute $0.7^{10}$."],
       solution: '$0.7^{10} \\approx 0.0282$. The gradient signal has shrunk to about 2.8% of its original magnitude after only 10 steps — this is the **vanishing gradient** regime. Extrapolating further, after 30 steps it would be $0.7^{30} \\approx 2.2 \\times 10^{-5}$, effectively zero, which is why vanilla RNNs cannot learn dependencies spanning many tens of steps.',
       tags: ['gradient-flow', 'conceptual'],
     },
     {
       prompt: 'An LSTM forget gate, input gate, and candidate are computed as $f_t = 0.9$, $i_t = 0.2$, $\\tilde{c}_t = 0.8$ (all scalars, one dimension for simplicity). Given the previous cell state $c_{t-1} = 1.5$, compute the new cell state $c_t$. Then explain qualitatively what would happen to long-range gradient flow if $f_t$ were instead close to $0$.',
       difficulty: 'core',
-      hint: 'Use $c_t = f_t \\cdot c_{t-1} + i_t \\cdot \\tilde{c}_t$, then think about $\\partial c_t/\\partial c_{t-1} = f_t$.',
+      hints: ['First compute the forward pass using $c_t = f_t \\cdot c_{t-1} + i_t \\cdot \\tilde{c}_t$.', 'For the gradient, think about what happens to $\\partial c_t/\\partial c_{t-1} = f_t$ when $f_t$ is close to 0.'],
       solution: 'First the forward computation: $c_t = f_t \\cdot c_{t-1} + i_t \\cdot \\tilde{c}_t = 0.9 \\times 1.5 + 0.2 \\times 0.8 = 1.35 + 0.16 = 1.51$. The gate values mean the cell mostly keeps its old memory ($f_t = 0.9$ retains 90% of $c_{t-1}$) while writing in a small amount of new information ($i_t = 0.2$ scales the candidate). For the gradient question: since $\\partial c_t/\\partial c_{t-1} = f_t$, if $f_t$ were close to $0$ instead of $0.9$, the backward path through the cell state at this particular step would strongly attenuate the gradient (multiplying by $\\approx 0$), effectively "cutting" the memory — exactly mirroring the *intent* of the forget gate: erase information that is no longer relevant. A consistently high $f_t \\approx 1$ across many steps is what lets gradients (and information) survive over long sequences; the network learns to set $f_t$ near 1 only for the dimensions/time steps where memory should persist.',
       tags: ['lstm', 'gradient-flow'],
     },
     {
-      prompt: 'Compare how GRUs and LSTMs control information flow. Specifically: (a) how many gates does each use and what are they, (b) does a GRU maintain a separate cell state distinct from its hidden state, and (c) why does this make GRUs more parameter-efficient?',
+      prompt: 'Compare how GRUs and LSTMs control information flow. Focus on their gating architectures, state management, and parameter efficiency.',
       difficulty: 'challenge',
-      hint: 'Recall that a GRU merges the LSTM forget and input gates into a single "update gate" $z_t$, and adds a "reset gate" $r_t$.',
+      hints: ['Recall how a GRU handles the forget and input functions compared to an LSTM.', 'Consider whether a GRU maintains a separate cell state or just a hidden state.'],
       solution: '(a) An LSTM uses **three** gates — forget $f_t$, input $i_t$, and output $o_t$ — plus a candidate cell-state computation, giving four weight matrices (and four bias vectors) per layer that map $[h_{t-1}, x_t]$ to gate/candidate pre-activations. A GRU uses only **two** gates — an update gate $z_t$ (which plays the combined role of LSTM forget+input, deciding how much of the past hidden state to retain vs. overwrite with a new candidate) and a reset gate $r_t$ (which controls how much past hidden state is used when computing the candidate) — requiring only three weight matrices. (b) No: a GRU does **not** maintain a separate cell state. It folds the LSTM cell state and hidden state into a single hidden state $h_t$, with the update $h_t = (1-z_t) \\odot h_{t-1} + z_t \\odot \\tilde{h}_t$, which is structurally analogous to the LSTM cell-state update but operates directly on the externally-visible hidden state. (c) Because the GRU has one fewer gate and no separate cell-state pathway, it has roughly **25% fewer parameters** than an LSTM of the same hidden size (3 weight matrices vs. 4, ignoring the output projection). In practice GRUs often match LSTM accuracy on small-to-medium datasets while training faster, though LSTMs can have a slight edge on tasks demanding very long-range memory because the separate, undiluted cell state gives a cleaner long-term storage channel.',
       tags: ['comparison', 'conceptual'],
     },
@@ -314,6 +314,12 @@ This is the same intuition as a residual/skip connection in a feedforward networ
       },
     },
   ],
+  shortAnswerQuestions: [
+    {
+      question: "Mathematically explain how the LSTM cell-state update mitigates the vanishing gradient problem compared to a vanilla RNN. Focus on the nature of the backward gradient through time.",
+      expectedAnswerRubric: "The answer should contrast the multiplicative recurrent Jacobian of a vanilla RNN (which repeatedly multiplies the same weight matrix and a squashing derivative, causing exponential decay) with the LSTM's additive cell-state update. It must highlight that the local derivative of the cell state $\\partial C_t / \\partial C_{t-1}$ is simply the forget gate $f_t$. Because $f_t$ can learn to be close to 1, the gradient can flow backward additively and largely unattenuated over many time steps."
+    }
+  ],
   quiz: [
     {
       question: 'In the BPTT gradient $\\frac{\\partial \\mathcal{L}_T}{\\partial h_k} = \\frac{\\partial \\mathcal{L}_T}{\\partial h_T} \\prod_{t=k+1}^{T} \\frac{\\partial h_t}{\\partial h_{t-1}}$, what primarily causes vanishing or exploding gradients in a vanilla RNN?',
@@ -326,14 +332,14 @@ This is the same intuition as a residual/skip connection in a feedforward networ
       explanation: 'The gradient is a product of $T-k$ Jacobian factors, each roughly $(1-h_t^2) W_{hh}$. Repeated multiplication of values consistently below 1 in magnitude shrinks the product exponentially (vanishing); values above 1 cause exponential growth (exploding). This has nothing to do with differentiability of the loss or the sign of the inputs.',
     },
     {
-      question: 'Why does the LSTM cell-state update $C_t = f_t \\odot C_{t-1} + i_t \\odot \\tilde{C}_t$ help mitigate vanishing gradients compared to a vanilla RNN?',
+      question: 'In the BPTT gradient $\\frac{\\partial \\mathcal{L}_T}{\\partial h_k} = \\frac{\\partial \\mathcal{L}_T}{\\partial h_T} \\prod_{t=k+1}^{T} \\frac{\\partial h_t}{\\partial h_{t-1}}$, what primarily causes vanishing or exploding gradients in a vanilla RNN?',
       options: [
-        { text: 'The local derivative $\\partial C_t / \\partial C_{t-1} = f_t$ is an element-wise gate rather than a shared weight matrix, and can be learned to be close to 1 to let gradients pass through largely unattenuated.', correct: true },
-        { text: 'The LSTM does not use backpropagation, so the vanishing gradient problem cannot occur.', correct: false },
-        { text: 'The cell state is recomputed from scratch at every time step with no dependency on $C_{t-1}$.', correct: false },
-        { text: 'LSTMs use a larger learning rate that compensates for vanishing gradients.', correct: false },
+        { text: 'The same Jacobian factor (involving $W_{hh}$ and the tanh derivative) is multiplied repeatedly across many time steps, shrinking or growing the product exponentially.', correct: true },
+        { text: 'The loss function $\\mathcal{L}_T$ is not differentiable.', correct: false },
+        { text: 'The input sequence $x_t$ contains negative values.', correct: false },
+        { text: 'Backpropagation through time only works for sequences shorter than 5 steps.', correct: false },
       ],
-      explanation: 'The additive cell-state update gives a backward Jacobian of just $\\operatorname{diag}(f_t)$ — an element-wise, learned gate — instead of a fixed shared matrix multiplied through a squashing nonlinearity at every step. When the network learns $f_t \\approx 1$, gradient flows through nearly unchanged across many steps, unlike the vanilla RNN where the same contractive (or expansive) factor compounds every step.',
+      explanation: 'The gradient is a product of $T-k$ Jacobian factors, each roughly $(1-h_t^2) W_{hh}$. Repeated multiplication of values consistently below 1 in magnitude shrinks the product exponentially (vanishing); values above 1 cause exponential growth (exploding). This has nothing to do with differentiability of the loss or the sign of the inputs.',
     },
     {
       question: 'Which statement correctly distinguishes a GRU from an LSTM?',

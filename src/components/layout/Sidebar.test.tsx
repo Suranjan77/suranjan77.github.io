@@ -4,7 +4,7 @@ import Sidebar from './Sidebar';
 import { algorithmsList } from '@/data/algorithms_content';
 
 vi.mock('next/navigation', () => ({
-  usePathname: () => '/algorithms/calculus',
+  usePathname: () => '/algorithms/linear-regression',
 }));
 
 describe('Sidebar', () => {
@@ -13,10 +13,10 @@ describe('Sidebar', () => {
 
     expect(screen.getByRole('complementary', { name: 'Study navigator' })).toBeInTheDocument();
     expect(screen.getByText('Current module')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Calculus & Optimisation' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Mathematical Foundations' })).toHaveAttribute(
+    expect(screen.getByRole('heading', { name: 'Linear Regression' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'ML Practitioner' })).toHaveAttribute(
       'href',
-      '/#track-foundations',
+      '/#track-practitioner',
     );
     expect(screen.getByText(`${algorithmsList.length} modules · 1 interactive lab`)).toBeInTheDocument();
   });

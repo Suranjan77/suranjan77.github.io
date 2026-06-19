@@ -13,9 +13,9 @@ const suranjanQrSvg =
 
 const pillars = [
   {
-    glyph: "∂",
-    title: "Mathematical Rigor",
-    text: "Every concept grounded in formal theory. Proofs, derivations, and precise notation throughout.",
+    glyph: "◇",
+    title: "Model Intuition",
+    text: "Concepts are introduced through behavior, tradeoffs, and concrete failure modes before implementation.",
   },
   {
     glyph: "◎",
@@ -193,17 +193,17 @@ export default function Home() {
               ))}
             </div>
             <h1 className="w-full max-w-full text-balance font-headline text-[2.75rem] font-medium leading-[1.04] tracking-normal text-on-surface sm:max-w-[520px] sm:text-[4.05rem] lg:text-[4rem] xl:text-[4.35rem]">
-              Understand AI, Mathematically{" "}
+              Understand AI, Visually{" "}
               <span className="text-on-surface-variant">& Intuitively.</span>
             </h1>
             <p className="mt-8 w-full max-w-full text-base font-medium leading-8 text-on-surface-variant sm:max-w-2xl sm:text-[17px]">
               A structured curriculum that teaches machine learning through
-              mathematical foundations, visual intuition, and code-oriented
-              thinking from calculus through modern models.
+              visual intuition, model behavior, and code-oriented thinking
+              from classical ML workflows through modern AI systems.
             </p>
             <div className="mt-9 flex flex-col gap-4 sm:flex-row">
               <Link
-                href="/algorithms/calculus"
+                href="/algorithms/linear-regression"
                 className="inline-flex min-h-10 items-center justify-center border border-accent bg-accent px-8 py-3 text-[15px] font-medium tracking-tight text-on-accent hover:bg-accent-hover hover:border-accent-hover"
               >
                 Begin Curriculum

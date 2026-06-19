@@ -4,10 +4,10 @@ export const generativeModels: LearningModule = {
   id: "generative-models",
   title: "Generative Adversarial Networks",
   category: "Generative Models",
-  prerequisites: ["neural-networks", "probability-theory"],
+  prerequisites: ["neural-networks"],
   tracks: ["modern-ai"],
   difficulty: 4,
-  relatedModules: ["neural-networks", "probability-theory", "autoencoders"],
+  relatedModules: ["neural-networks", "autoencoders"],
   shortDescription: "Training a generator and a discriminator in a minimax game to generate highly realistic, synthetic data.",
   estimatedMinutes: 25,
   learningObjectives: [
@@ -201,28 +201,37 @@ This is equivalent to learning the **score** (gradient of the log-density) of pr
     {
       prompt: 'A discriminator outputs $D(x) = 0.7$ for a real sample and $D(G(z)) = 0.4$ for a fake sample. Using $L_D = -\\log D(x) - \\log(1 - D(G(z)))$, compute the discriminator loss.',
       difficulty: 'warm-up',
-      hint: 'Plug the two probabilities directly into the formula and evaluate each log term separately.',
+      hints: [
+        'Plug the two probabilities directly into the formula and evaluate each log term separately.'
+      ],
       solution: '$L_D = -\\log(0.7) - \\log(1 - 0.4) = -\\log(0.7) - \\log(0.6) \\approx 0.357 + 0.511 = 0.868$. Compare this to the worked example in the lesson ($D(x)=0.9$, $D(G(z))=0.2$, loss $\\approx 0.328$): a weaker discriminator (closer to 0.5 on both real and fake inputs) produces a higher loss, reflecting that it is doing a worse job separating real from fake.',
       tags: ['computation'],
     },
     {
       prompt: 'During training, a generator for a digit-generation task (digits 0-9) starts producing only the digit "1" with high confidence, regardless of the input noise $z$. Explain what is happening and why the discriminator does not immediately stop this behavior.',
       difficulty: 'core',
-      hint: 'Think about what the generator is actually optimizing — fooling the *current* discriminator, not maximizing diversity.',
+      hints: [
+        'Think about what the generator is actually optimizing — fooling the *current* discriminator, not maximizing diversity.'
+      ],
       solution: 'This is **mode collapse**: the generator has found a single output (or a narrow region of outputs) that reliably fools the current discriminator, and since its objective is only to minimize $\\log(1-D(G(z)))$ — i.e. to fool $D$ — it has no direct incentive to produce diverse samples. The discriminator does not immediately punish this because, against a discriminator that has only ever seen this one convincing fake digit, "1" may genuinely look indistinguishable from real "1"s; the discriminator would need to learn that *all* outputs being identical is itself suspicious, but it only ever sees one fake at a time per minibatch comparison, not the aggregate diversity of $G$. Mitigations include minibatch discrimination (letting $D$ compare samples within a batch), unrolled GANs, or switching to a Wasserstein loss with gradient penalty, which provides a smoother, more informative gradient signal that discourages collapse.',
       tags: ['conceptual', 'failure-modes'],
     },
     {
       prompt: 'Explain why GAN training is described as finding a **saddle point** rather than simply minimizing a loss function, and why this makes standard convergence guarantees from convex optimization inapplicable.',
       difficulty: 'core',
-      hint: 'Consider what happens to $V(D,G)$ when you move along the $D$ direction versus the $G$ direction.',
+      hints: [
+        'Consider what happens to $V(D,G)$ when you move along the $D$ direction versus the $G$ direction.'
+      ],
       solution: 'The value function $V(D, G)$ is being **maximized** with respect to $D$ and **minimized** with respect to $G$ simultaneously: $\\min_G \\max_D V(D, G)$. A solution to this is a saddle point — a point that is a local maximum along the $D$ axis and a local minimum along the $G$ axis — not a single minimum of one fixed function. Standard convergence proofs (e.g. gradient descent converging on a convex loss) assume a single, static objective being minimized by one set of parameters. Here, every gradient step on $G$ changes the loss landscape that $D$ is trying to climb, and every step on $D$ changes the landscape $G$ is trying to descend. Each player is chasing a moving target, so gradient updates derived for convex minimization (descent guarantees, fixed Lipschitz constants, etc.) do not transfer; in practice this manifests as oscillation, cycling, or failure to converge, which is why GAN training is empirically much less stable than training a single network against a fixed loss (as in supervised learning or diffusion models).',
       tags: ['conceptual', 'optimization'],
     },
     {
-      prompt: 'A diffusion model is trained with $T = 1000$ timesteps. At inference, a practitioner switches to a faster sampler that only takes $T_{sample} = 20$ steps using the same trained noise-prediction network $\\epsilon_\\theta$. What trade-off does this introduce, and why is it possible at all?',
+      prompt: 'You train a diffusion model with $T = 1000$ timesteps, but for deployment, you must reduce latency by using a sampler with $T_{sample} = 20$ steps without retraining $\\epsilon_\\theta$. Justify the theoretical mechanism that allows you to skip steps, and evaluate the trade-offs involved in taking larger sampling jumps.',
       difficulty: 'challenge',
-      hint: 'Think about what changes between training and sampling: is $\\epsilon_\\theta$ retrained for 20 steps, or just queried differently?',
+      hints: [
+        'Consider what the noise-prediction network actually learns. Does it learn to invert a specific step index, or does it learn to predict noise as a function of the noise level?',
+        'What assumption about the transition distributions is made during the derivation of the reverse process, and what happens to this assumption when jump sizes increase?'
+      ],
       solution: 'It is possible because $\\epsilon_\\theta(x_t, t)$ was trained to predict the noise in $x_t$ for (effectively) any noise level $t$, not to perform one specific fixed-size denoising step — the network learns an estimate of the score/noise as a continuous-ish function of the noise level. Samplers like DDIM exploit this by taking larger jumps between noise levels at inference time, using the same trained network, skipping most of the original 1000 timesteps. The trade-off is a **quality-versus-speed** one: each large jump is a coarser approximation of the true reverse process (which was derived assuming small per-step Gaussian transitions), so fewer steps generally means each remaining step has to remove a larger, less Gaussian-like chunk of noise, increasing approximation error and typically reducing sample fidelity or introducing artifacts compared to using more steps. In practice, modern fast samplers can get $T_{sample}$ down to 20-50 steps with only a modest quality loss relative to the full 1000, but pushing too far (e.g. 1-4 steps) usually requires a model specifically distilled for few-step sampling rather than just truncating the original schedule.',
       tags: ['conceptual', 'sampling'],
     },
@@ -321,16 +330,12 @@ This is equivalent to learning the **score** (gradient of the log-density) of pr
       ],
       explanation: 'GANs require solving $\\min_G \\max_D V(D,G)$, a saddle-point problem where $D$ and $G$ are each other’s moving targets, so classic convex minimization guarantees do not apply. Diffusion models instead train $\\epsilon_\\theta$ against a fixed noise-prediction regression target, which behaves like ordinary supervised learning and is comparatively stable.',
     },
+  ],
+  shortAnswerQuestions: [
     {
-      question: 'A team wants to both generate high-quality images and obtain a meaningful estimate of how likely a given image is under the trained model. Which model family is best suited, and why?',
-      options: [
-        { text: 'Diffusion model or VAE, because both provide a tractable (or boundable) likelihood, unlike a vanilla GAN.', correct: true },
-        { text: 'GAN, because the discriminator output directly gives the likelihood of any input image.', correct: false },
-        { text: 'Any of the three are equally suited since all generative models compute exact likelihoods.', correct: false },
-        { text: 'None of these models can estimate likelihoods; only autoregressive models can.', correct: false },
-      ],
-      explanation: 'Vanilla GANs have no mechanism to assign a probability/density to an arbitrary input — the discriminator score is not a calibrated likelihood. VAEs provide a tractable evidence lower bound (ELBO) on log-likelihood, and diffusion models provide an analogous (typically tighter) variational bound, making either a better fit than a GAN when likelihood estimates are required alongside sample quality.',
-    },
+      question: 'Compare GANs, VAEs, and Diffusion Models for an application that requires generating high-quality images while also computing a meaningful estimate of how likely a given image is under the trained model. Which framework is the most suitable and why?',
+      expectedAnswerRubric: 'A strong answer should explain that vanilla GANs do not provide a tractable likelihood or density estimate, as the discriminator score is uncalibrated. VAEs provide an ELBO on the log-likelihood but can produce blurrier images. Diffusion models are typically best because they provide a variational bound on likelihood while producing state-of-the-art sample quality. Therefore, Diffusion or VAEs are suitable, with Diffusion favored for quality.'
+    }
   ],
   review: {
     lastReviewed: '2026-06-15',

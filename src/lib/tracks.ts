@@ -8,12 +8,6 @@ export interface LearningTrack {
 
 export const learningTracks: LearningTrack[] = [
   {
-    id: "foundations",
-    title: "Mathematical Foundations",
-    description:
-      "Build the mathematical language behind machine learning, from calculus and linear algebra to probability and statistical inference.",
-  },
-  {
     id: "practitioner",
     title: "ML Practitioner",
     description:

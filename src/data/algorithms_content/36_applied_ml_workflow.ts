@@ -225,8 +225,14 @@ Unlike standard classification, anomaly detection datasets are wildly imbalanced
     },
     {
       difficulty: "challenge",
-      prompt: "You are building a model to predict mechanical failure in a jet engine (an extremely rare but catastrophic event). You achieve 99.9% accuracy. Why should you still be concerned, and what metrics would give you a better picture?",
+      prompt: "You achieve 99.9% accuracy on a jet engine mechanical failure prediction model. Diagnose the potential flaw in this evaluation and propose an alternative evaluation framework.",
       solution: "Because engine failure is extremely rare (perhaps 1 in 10,000 flights), a naive model that always predicts 'No Failure' will achieve 99.99% accuracy. Accuracy hides the fact that the model fails to detect the minority class. You should use **Recall** (to ensure you aren't missing catastrophic failures) and look at the **Precision-Recall Curve (PR-AUC)** rather than just accuracy or ROC-AUC, since PR-AUC is more informative for highly imbalanced datasets."
+    }
+  ],
+  shortAnswerQuestions: [
+    {
+      question: "Explain the geometric and algorithmic intuition behind how the Isolation Forest algorithm identifies anomalies in a dataset.",
+      expectedAnswerRubric: "A good answer should explain that Isolation Forests build random decision trees to isolate points. Anomalies, which are typically 'few and different', are easier to separate from the bulk of the data. Geometrically and algorithmically, this means they will be isolated closer to the root of the tree, requiring fewer random splits or partitions than normal data points."
     }
   ],
   quiz: [
@@ -259,16 +265,6 @@ Unlike standard classification, anomaly detection datasets are wildly imbalanced
         { text: "A healthy patient diagnosed as healthy.", correct: false }
       ],
       explanation: "A False Positive occurs when the model predicts the positive class (Disease) but the actual class is negative (Healthy)."
-    },
-    {
-      question: "How does the Isolation Forest algorithm identify anomalies?",
-      options: [
-        { text: "By fitting a Gaussian distribution and finding points with low probability.", correct: false },
-        { text: "By mapping data to a high-dimensional space and finding a hyper-sphere that encloses normal data.", correct: false },
-        { text: "By randomly partitioning data and isolating points; anomalies require fewer partitions to be isolated.", correct: true },
-        { text: "By finding points that have the fewest nearest neighbors within a specific radius.", correct: false }
-      ],
-      explanation: "Isolation Forests build random decision trees. Anomalies, being 'few and different', are separated from the rest of the data closer to the root of the tree (requiring fewer splits/partitions)."
     }
   ],
   caseStudies: [

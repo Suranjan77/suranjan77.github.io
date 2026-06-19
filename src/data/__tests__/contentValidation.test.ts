@@ -162,9 +162,7 @@ describe("Published-module active-learning rubric", () => {
   );
 
   it.each(
-    publishedModules
-      .filter((m) => m.tracks?.some((t) => t !== "foundations"))
-      .map((m) => [m.id, m] as const),
+    publishedModules.map((m) => [m.id, m] as const),
   )(
     "%s: (practitioner/modern-ai) has at least 1 comparison table",
     (_id, mod) => {

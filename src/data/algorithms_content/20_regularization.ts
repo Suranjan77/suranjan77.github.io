@@ -184,25 +184,34 @@ Whenever the unregularized estimate $z$ falls inside the band $[-\\lambda, \\lam
     {
       prompt: 'You have one standardized predictor ($X^TX = 1$) with OLS estimate $z = X^Ty = 4$. Compute the Ridge coefficient with $\\lambda = 1$.',
       difficulty: 'warm-up',
-      hint: 'Use $\\hat\\beta_{\\text{ridge}} = \\dfrac{z}{1+2\\lambda}$.',
+      hints: [
+        'Use $\\hat\\beta_{\\text{ridge}} = \\dfrac{z}{1+2\\lambda}$.'
+      ],
       solution: '$\\hat\\beta_{\\text{ridge}} = \\dfrac{4}{1 + 2(1)} = \\dfrac{4}{3} \\approx 1.33$. Compare to the unregularized OLS estimate of $z = 4$: Ridge has shrunk it toward zero by a factor of $1/3$, but it remains non-zero.',
     },
     {
       prompt: 'For the same predictor ($z = 4$), compute the Lasso coefficient using soft-thresholding with $\\lambda = 1$ and then with $\\lambda = 5$.',
       difficulty: 'warm-up',
-      hint: 'Use $\\hat\\beta_{\\text{lasso}} = \\operatorname{sign}(z)\\max(|z| - \\lambda, 0)$.',
+      hints: [
+        'Use $\\hat\\beta_{\\text{lasso}} = \\operatorname{sign}(z)\\max(|z| - \\lambda, 0)$.'
+      ],
       solution: 'With $\\lambda = 1$: $|z| = 4 > \\lambda$, so $\\hat\\beta = \\operatorname{sign}(4)(4 - 1) = 3$. With $\\lambda = 5$: $|z| = 4 \\le \\lambda$, so $\\hat\\beta = 0$ — the coefficient is killed entirely because the penalty exceeds the strength of evidence for that feature. This illustrates the sparsity threshold explicitly: any $|z| \\le \\lambda$ is zeroed out by Lasso, whereas Ridge would only ever approach (never reach) zero as $\\lambda$ grows.',
     },
     {
       prompt: 'Explain what happens to the Ridge solution $\\hat\\beta_{\\text{ridge}} = (X^TX + \\lambda I)^{-1}X^Ty$ as $\\lambda \\to 0$ and as $\\lambda \\to \\infty$. Connect each limit to the bias-variance tradeoff.',
       difficulty: 'core',
-      hint: 'Think about what each limit does to the eigenvalues $\\mu_j + \\lambda$ of $X^TX + \\lambda I$.',
+      hints: [
+        'Think about what each limit does to the eigenvalues $\\mu_j + \\lambda$ of $X^TX + \\lambda I$.'
+      ],
       solution: 'As $\\lambda \\to 0$, $X^TX + \\lambda I \\to X^TX$, so $\\hat\\beta_{\\text{ridge}} \\to \\hat\\beta_{\\text{OLS}} = (X^TX)^{-1}X^Ty$ (when this inverse exists) — zero bias from regularization but potentially high variance, especially with correlated or many features. As $\\lambda \\to \\infty$, every eigenvalue $\\mu_j + \\lambda$ is dominated by $\\lambda$, so $(X^TX+\\lambda I)^{-1} \\to \\frac{1}{\\lambda}I \\to 0$, forcing $\\hat\\beta_{\\text{ridge}} \\to 0$. This is maximal bias (the model predicts a constant, ignoring all features) but minimal variance (the estimate no longer depends on the noise in $y$ at all). The useful operating point is some intermediate $\\lambda$, chosen by cross-validation, that minimizes total expected test error = bias$^2$ + variance.',
     },
     {
-      prompt: 'You train Ridge and Lasso on a dataset where two predictors $x_1$ and $x_2$ are nearly perfectly correlated (duplicates of each other) and both are genuinely predictive. Describe and justify how the fitted coefficient *paths* differ between the two methods as $\\lambda$ increases from $0$.',
+      prompt: 'Given a dataset where $x_1$ and $x_2$ are perfectly correlated and both highly predictive, analyze the behavior of the coefficient paths for Ridge and Lasso as $\\lambda$ increases. Defend why Elastic Net is often preferred in real-world high-dimensional datasets with correlated features.',
       difficulty: 'challenge',
-      hint: 'Think about the diamond-vs-circle constraint geometry directly along the line $\\beta_1 = \\beta_2$, and recall that Ridge’s penalty is a strictly convex function of each weight while Lasso’s is only convex (with a flat-ish region of indifference).',
+      hints: [
+        'Consider the strict convexity of the L2 penalty vs the non-strict convexity of the L1 penalty along the line $\\beta_1 + \\beta_2 = k$.',
+        'How does Elastic Net combine the properties of both penalties for correlated groups?'
+      ],
       solution: 'With $x_1 \\approx x_2$, the loss is nearly constant along the line $\\beta_1 + \\beta_2 = k$ for any fixed combined contribution $k$ (the data cannot distinguish how credit is split between two identical columns). For **Ridge**, among all $(\\beta_1, \\beta_2)$ achieving the same $\\beta_1 + \\beta_2$, the L2 penalty $\\beta_1^2 + \\beta_2^2$ is uniquely minimized by splitting the weight evenly, $\\beta_1 = \\beta_2 = k/2$, because the squared penalty is strictly convex and symmetric — so Ridge’s coefficient paths for the two correlated features stay tied together and roughly equal as $\\lambda$ grows, both shrinking smoothly toward $0$. For **Lasso**, the L1 penalty $|\\beta_1| + |\\beta_2|$ is exactly the *same* value, $k$, for *every* such split (e.g. $(\\beta_1,\\beta_2) = (k,0)$ costs the same as $(k/2,k/2)$) — the L1 ball is flat-faced along that direction, so the optimizer has no preference and effectively picks one of the two arbitrarily (sensitive to tiny numerical perturbations), driving the other to exactly $0$. In practice Lasso’s coefficient paths for near-duplicate features are erratic: one path stays large while the other collapses to zero, and which one "wins" can flip with small data changes — a known instability that Elastic Net (mixing in an L2 term) is designed to fix by re-introducing the Ridge-style grouping effect.',
       tags: ['derivation', 'conceptual'],
     },
@@ -303,18 +312,14 @@ Whenever the unregularized estimate $z$ falls inside the band $[-\\lambda, \\lam
         { text: 'The coefficient flips sign.', correct: false },
         { text: 'The solution becomes undefined.', correct: false },
       ],
-      explanation: 'When the magnitude of the unregularized estimate $z$ does not exceed the penalty strength $\\lambda$, $\\max(|z|-\\lambda, 0) = 0$, so the Lasso coefficient is snapped to exactly zero. This threshold behavior is the algebraic source of Lasso’s sparsity and has no analog in Ridge’s smooth rescaling $z/(1+2\\lambda)$.',
-    },
+      explanation: 'When the magnitude of the unregularized estimate $z$ does not exceed the penalty strength $\\lambda$, $\\max(|z|-\\lambda, 0) = 0$, so the Lasso coefficient is snapped to exactly zero. This threshold behavior is the algebraic source of Lasso’s sparsity.'
+    }
+  ],
+  shortAnswerQuestions: [
     {
-      question: 'Two features are near-perfect duplicates of each other. What is the key practical difference between how Ridge and Lasso handle them?',
-      options: [
-        { text: 'Ridge splits the weight evenly between the two (grouping effect); Lasso tends to arbitrarily keep one and zero out the other, which can be unstable.', correct: true },
-        { text: 'Both methods always keep exactly one of the two features.', correct: false },
-        { text: 'Ridge always zeros out both features; Lasso always keeps both.', correct: false },
-        { text: 'There is no practical difference between the two methods in this case.', correct: false },
-      ],
-      explanation: 'Because the L2 penalty is strictly convex, Ridge’s unique minimizer splits credit evenly across duplicated/correlated features. The L1 penalty is flat along directions that redistribute weight between duplicate features, so Lasso has no preference and can arbitrarily assign all the weight to one of them while zeroing the other — a known instability that Elastic Net mitigates by blending in an L2 term.',
-    },
+      question: "Suppose you are building a predictive model and two of your features are near-perfect duplicates of each other. Contrast the mathematical behavior of Ridge and Lasso in handling these correlated features, and deduce why Elastic Net is often preferred in such scenarios.",
+      expectedAnswerRubric: "A strong answer will explain that Ridge (L2 penalty) is strictly convex and will uniquely minimize the loss by splitting the weight evenly between the two correlated features (grouping effect). Lasso (L1 penalty) has a flat region of indifference along the sum of the weights, meaning it arbitrarily assigns all weight to one feature and zeros out the other, which is unstable to small data perturbations. Elastic Net combines both penalties, maintaining the sparsity of Lasso while recovering the stable grouping effect of Ridge."
+    }
   ],
 
   review: {

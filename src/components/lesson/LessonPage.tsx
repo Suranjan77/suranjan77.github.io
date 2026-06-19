@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
   BookOpen,
@@ -34,7 +34,6 @@ import MetadataBar from "./MetadataBar";
 import LessonNavigator from "./LessonNavigator";
 import TLDR from "./TLDR";
 import LearningObjectives from "./LearningObjectives";
-import MathDerivations from "./MathDerivations";
 import PracticeExercises from "./PracticeExercises";
 import ComparisonTable from "./ComparisonTable";
 import WhenToUse from "./WhenToUse";
@@ -50,6 +49,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
   const categoryRoute = getCategoryRoute(module.category);
   const categoryLabel = getCategoryLabel(module.category);
   const accent = getAccentClasses(getCategoryColor(module.category));
+  const [isMathOpen, setIsMathOpen] = useState(false);
 
   return (
     <div className="relative px-4 py-6 sm:px-8 sm:py-8 lg:px-12">
@@ -173,8 +173,12 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
             id="mathematics"
             className="scroll-mt-32 lg:scroll-mt-48 overflow-hidden border border-outline bg-surface-container-low"
           >
-            <div className="border-b border-outline px-6 py-5 sm:px-8">
-              <div className="mb-2 flex items-center gap-3">
+            <button
+              onClick={() => setIsMathOpen(!isMathOpen)}
+              aria-expanded={isMathOpen}
+              className="flex w-full items-center justify-between border-b border-outline px-6 py-5 sm:px-8 text-left transition-colors hover:bg-surface-container-high focus:outline-none"
+            >
+              <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center border border-primary/30 bg-primary/12 text-primary">
                   <Sigma size={18} strokeWidth={1.7} aria-hidden="true" />
                 </div>
@@ -187,17 +191,17 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
                   </p>
                 </div>
               </div>
-              <div className="mt-4">
+              <span className="shrink-0 rounded bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-medium text-primary">
+                {isMathOpen ? "Hide" : "Show math"}
+              </span>
+            </button>
+            {isMathOpen && (
+              <div className="px-6 py-5 sm:px-8">
                 <LogicContent content={module.mathematics} />
               </div>
-            </div>
+            )}
           </div>
         )}
-
-        {/* Full Derivations (foldable) */}
-        <div id="derivations" className="scroll-mt-32 lg:scroll-mt-48">
-          <MathDerivations sections={module.additionalSections} />
-        </div>
 
         {/* Worked Examples Section */}
         <div id="examples" className="scroll-mt-32 lg:scroll-mt-48">
@@ -312,7 +316,7 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
 
         {/* Self-Check Quiz */}
         <div id="quiz" className="scroll-mt-32 lg:scroll-mt-48">
-          <SelfCheckQuiz questions={module.quiz} />
+          <SelfCheckQuiz questions={module.quiz} shortAnswerQuestions={module.shortAnswerQuestions} />
         </div>
 
         {/* References */}

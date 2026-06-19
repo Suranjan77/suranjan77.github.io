@@ -4,7 +4,7 @@ export const naiveBayes: LearningModule = {
   id: "naive-bayes",
   title: "Naive Bayes",
   category: "Naive Bayes",
-  prerequisites: ["probability-theory", "bayesian-inference"],
+  prerequisites: ["nlp"],
   tracks: ["practitioner"],
   difficulty: 2,
   estimatedMinutes: 30,
@@ -153,7 +153,7 @@ export class MultinomialNaiveBayes {
     return bestClass;
   }
 }`,
-  relatedModules: ["probability-theory", "bayesian-inference", "nlp"],
+  relatedModules: ["nlp", "logistic-regression"],
   tldr: [
     'Naive Bayes is a **generative** classifier: it models how each class generates features via $P(y)$ and $P(x_i \\mid y)$, then applies Bayes’ theorem.',
     'The **naive** assumption is conditional independence of features given the class, giving $P(y \\mid \\mathbf{x}) \\propto P(y)\\prod_i P(x_i \\mid y)$.',
@@ -209,18 +209,26 @@ where $K$ is the number of distinct values the feature can take (the vocabulary 
     {
       prompt: 'In a Spam class with a vocabulary of $|V| = 5$ words, the word "deal" was seen 3 times out of 12 total Spam tokens, but the word "meeting" was never seen in Spam. Using Laplace smoothing with $\\alpha = 1$, compute $P(\\text{deal} \\mid \\text{Spam})$ and $P(\\text{meeting} \\mid \\text{Spam})$.',
       difficulty: 'core',
-      hint: 'Use $\\hat{P}(v \\mid c) = \\frac{\\text{count}(v, c) + \\alpha}{\\text{count}(c) + \\alpha |V|}$ with $\\text{count}(c) = 12$ and $|V| = 5$.',
+      hints: [
+        'Use $\\hat{P}(v \\mid c) = \\frac{\\text{count}(v, c) + \\alpha}{\\text{count}(c) + \\alpha |V|}$ with $\\text{count}(c) = 12$ and $|V| = 5$.'
+      ],
       solution: 'The smoothed denominator is $12 + 1 \\times 5 = 17$. For "deal": $\\hat{P}(\\text{deal} \\mid \\text{Spam}) = \\frac{3 + 1}{17} = \\frac{4}{17} \\approx 0.235$. For the unseen "meeting": $\\hat{P}(\\text{meeting} \\mid \\text{Spam}) = \\frac{0 + 1}{17} = \\frac{1}{17} \\approx 0.059$. Smoothing gives the unseen word a small non-zero probability instead of $0$, so it cannot single-handedly veto the Spam class.',
     },
     {
       prompt: 'Classify the document $\\mathbf{x} = (\\text{"free"}, \\text{"money"})$. Given priors $P(S)=0.5$, $P(H)=0.5$ and likelihoods $P(\\text{free}\\mid S)=0.2$, $P(\\text{money}\\mid S)=0.1$, $P(\\text{free}\\mid H)=0.05$, $P(\\text{money}\\mid H)=0.04$, compute the posterior-proportional score for each class and give the predicted label.',
       difficulty: 'core',
-      hint: 'Score $\\propto P(y)\\,P(\\text{free}\\mid y)\\,P(\\text{money}\\mid y)$. You do not need to normalize — just compare.',
+      hints: [
+        'Score $\\propto P(y)\\,P(\\text{free}\\mid y)\\,P(\\text{money}\\mid y)$. You do not need to normalize — just compare.'
+      ],
       solution: 'Spam score: $0.5 \\times 0.2 \\times 0.1 = 0.010$. Ham score: $0.5 \\times 0.05 \\times 0.04 = 0.001$. Since $0.010 > 0.001$, the prediction is **Spam**. To turn these into true posteriors, normalize: $P(S \\mid \\mathbf{x}) = 0.010 / (0.010 + 0.001) \\approx 0.91$.',
     },
     {
-      prompt: 'A 200-token email yields per-token likelihoods around $0.01$ under the Spam model. Explain quantitatively why multiplying these probabilities directly is a problem, and how log-space computation solves it without changing the predicted class.',
+      prompt: 'An email with 200 tokens yields per-token likelihoods around 0.01 under the Spam model. Demonstrate the numerical vulnerability of computing the joint probability directly via a product, and mathematically prove why transitioning to log-space resolves this issue while preserving the classification decision.',
       difficulty: 'challenge',
+      hints: [
+        'Calculate the approximate value of the raw product ($0.01^{200}$) and compare it to the limits of double-precision floating-point numbers.',
+        'Why does applying a monotonic function like the logarithm preserve the relative ordering of the class scores?'
+      ],
       solution: 'The raw product is roughly $0.01^{200} = 10^{-400}$, far below the smallest positive double-precision float (about $10^{-308}$). It underflows to exactly $0$, making every class score $0$ and the comparison meaningless. In log-space the score becomes $\\sum_i \\log(0.01) = 200 \\times (-4.6) \\approx -920$ — a perfectly representable number. Because $\\log$ is strictly increasing, the class with the largest log-score is the same class that would have had the largest product, so the $\\arg\\max$ decision is unchanged; only numerical stability improves.',
     },
   ],
@@ -318,16 +326,12 @@ where $K$ is the number of distinct values the feature can take (the vocabulary 
       ],
       explanation: 'A feature value never seen with a class has a maximum-likelihood probability of $0$, and since likelihoods are multiplied, one zero annihilates the whole posterior. Adding a pseudocount $\\alpha$ to every count guarantees strictly positive probabilities, so no single missing token can veto a class.',
     },
+  ],
+  shortAnswerQuestions: [
     {
-      question: 'Naive Bayes is described as a "generative" classifier. What does that mean?',
-      options: [
-        { text: 'It models how each class generates the features via $P(y)$ and $P(x_i \\mid y)$, then uses Bayes’ theorem to get $P(y \\mid \\mathbf{x})$.', correct: true },
-        { text: 'It learns the decision boundary $P(y \\mid \\mathbf{x})$ directly without modelling the features.', correct: false },
-        { text: 'It can generate brand-new class labels not seen in training.', correct: false },
-        { text: 'It generates random predictions weighted by the priors.', correct: false },
-      ],
-      explanation: 'A generative model learns the joint distribution by modelling $P(y)$ and the class-conditional feature distributions $P(x_i \\mid y)$, then inverts them with Bayes’ theorem to obtain the posterior. This contrasts with discriminative models like logistic regression, which estimate $P(y \\mid \\mathbf{x})$ directly.',
-    },
+      question: 'Naive Bayes is fundamentally a "generative" classifier. Contrast the generative modeling paradigm of Naive Bayes with discriminative models (like Logistic Regression). How does Naive Bayes arrive at the posterior probability $P(y \\mid \\mathbf{x})$?',
+      expectedAnswerRubric: 'A strong answer will explain that a generative model learns the joint probability distribution by modeling the prior $P(y)$ and the class-conditional feature distributions $P(x_i \\mid y)$. It then uses Bayes’ Theorem to invert these and compute the posterior $P(y \\mid \\mathbf{x})$. This is contrasted with discriminative models, which bypass modeling the feature distributions and directly estimate the decision boundary or posterior $P(y \\mid \\mathbf{x})$.'
+    }
   ],
   review: {
     lastReviewed: '2026-06-15',

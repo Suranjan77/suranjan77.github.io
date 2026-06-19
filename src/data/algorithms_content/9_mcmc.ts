@@ -4,10 +4,10 @@ export const mcmc: LearningModule = {
   id: "mcmc",
   title: "Markov Chain Monte Carlo",
   category: "Markov Chain Monte Carlo",
-  prerequisites: ["probability-theory", "bayesian-inference"],
+  prerequisites: [],
   tracks: ["practitioner"],
   difficulty: 3,
-  relatedModules: ["bayesian-inference", "maximum-likelihood"],
+  relatedModules: ["gmm-em"],
   shortDescription: "A family of sampling algorithms that approximate hard probability distributions by constructing a Markov chain.",
   estimatedMinutes: 25,
   learningObjectives: [
@@ -177,7 +177,7 @@ where $\\rho_k$ is the lag-$k$ autocorrelation. A chain of $N = 10{,}000$ draws 
     {
       prompt: 'A Metropolis sampler uses a **symmetric** Gaussian proposal. The target is $p(x) \\propto e^{-x^2/2}$. The current state is $x = 0$ and the proposed state is $x\' = 1$. Compute the acceptance probability $A$.',
       difficulty: 'warm-up',
-      hint: 'For a symmetric proposal the $q$ terms cancel, so $A = \\min\\left(1, p(x\')/p(x)\\right)$, and only ratios of the unnormalized density matter.',
+      hints: ['For a symmetric proposal the $q$ terms cancel, so $A = \\min\\left(1, p(x\')/p(x)\\right)$.', 'Only ratios of the unnormalized density matter.'],
       solution: 'The unnormalized density ratio is $\\frac{p(x\')}{p(x)} = \\frac{e^{-1^2/2}}{e^{-0^2/2}} = e^{-1/2} \\approx 0.607$. Since the proposed state is less probable, $A = \\min(1, 0.607) = 0.607$. The move is accepted with about a $60.7\\%$ probability.',
     },
     {
@@ -188,7 +188,7 @@ where $\\rho_k$ is the lag-$k$ autocorrelation. A chain of $N = 10{,}000$ draws 
     {
       prompt: 'A target is specified only up to a constant: $\\tilde{p}(x) = e^{-x^2}$, with the true normalized density $p(x) = \\tilde{p}(x)/Z$ where $Z = \\int e^{-x^2}\\,dx = \\sqrt{\\pi}$. Using a symmetric proposal, show that the Metropolis acceptance probability for moving from $x=1$ to $x\'=0$ is identical whether you use $\\tilde{p}$ or $p$.',
       difficulty: 'core',
-      hint: 'Write out the ratio with $Z$ included and see what happens.',
+      hints: ['Write out the acceptance ratio using the full probability definitions.', 'Include the normalizing constant $Z$ and see what happens.'],
       solution: 'Using the normalized density: $\\frac{p(0)}{p(1)} = \\frac{e^{-0}/Z}{e^{-1}/Z} = \\frac{e^{0}}{e^{-1}} = e^{1} \\approx 2.718$. Using the unnormalized density: $\\frac{\\tilde{p}(0)}{\\tilde{p}(1)} = \\frac{e^{0}}{e^{-1}} = e^{1} \\approx 2.718$. The $Z = \\sqrt{\\pi}$ cancels in the ratio. Both give $A = \\min(1, e^{1}) = \\min(1, 2.718) = 1$ — the move to the higher-density state is always accepted. This cancellation is exactly why MCMC needs only an unnormalized density.',
     },
     {
@@ -197,9 +197,9 @@ where $\\rho_k$ is the lag-$k$ autocorrelation. A chain of $N = 10{,}000$ draws 
       solution: 'Burn-in (or warm-up) is the initial portion of an MCMC chain that is discarded before computing any estimates. It is necessary because the chain is initialized at an arbitrary starting point that is generally **not** drawn from the target distribution $p$; the early states therefore reflect the starting location rather than the stationary distribution, and including them biases the estimates. You decide how much to discard by inspecting **trace plots** (looking for where the chain stops drifting and settles into a stable band) and convergence diagnostics such as the Gelman-Rubin statistic $\\hat{R}$ (which should be close to $1$, e.g. $< 1.01$, once multiple chains have mixed). A common heuristic is to discard the first 25-50% of each chain.',
     },
     {
-      prompt: 'A chain of $N = 20{,}000$ post-burn-in draws has lag-$k$ autocorrelations that sum to $\\sum_{k=1}^{\\infty}\\rho_k = 49.5$. Compute the effective sample size and explain what it means for the precision of your posterior mean estimate.',
+      prompt: 'A chain of $N = 20{,}000$ post-burn-in draws has lag-$k$ autocorrelations that sum to $\\sum_{k=1}^{\\infty}\\rho_k = 49.5$. Evaluate the reliability of this chain for estimating the posterior mean compared to independent sampling.',
       difficulty: 'challenge',
-      hint: 'Use $\\text{ESS} = \\frac{N}{1 + 2\\sum_k \\rho_k}$.',
+      hints: ['Use the effective sample size formula.', '$\\text{ESS} = \\frac{N}{1 + 2\\sum_k \\rho_k}$.'],
       solution: 'The denominator is $1 + 2(49.5) = 1 + 99 = 100$. So $\\text{ESS} = 20{,}000 / 100 = 200$. Although you stored $20{,}000$ draws, the strong positive autocorrelation means the chain carries only as much information as **200 independent draws**. The Monte Carlo standard error of the posterior mean scales like $1/\\sqrt{\\text{ESS}} = 1/\\sqrt{200} \\approx 0.071$, not $1/\\sqrt{20{,}000} \\approx 0.007$ — roughly a $10\\times$ worse precision than the raw count would suggest. The fix is better mixing (tuned proposals, HMC) or thinning, not merely running longer.',
     },
   ],
@@ -265,17 +265,13 @@ where $\\rho_k$ is the lag-$k$ autocorrelation. A chain of $N = 10{,}000$ draws 
       },
     },
   ],
-  quiz: [
+  shortAnswerQuestions: [
     {
-      question: 'Why is MCMC particularly useful for Bayesian posterior inference?',
-      options: [
-        { text: 'It only needs the posterior up to a normalizing constant, because the intractable evidence integral cancels in the acceptance ratio.', correct: true },
-        { text: 'It computes the exact normalizing constant (the evidence) in closed form.', correct: false },
-        { text: 'It is faster than every other inference method in all settings.', correct: false },
-        { text: 'It guarantees independent samples at every step.', correct: false },
-      ],
-      explanation: 'The Metropolis-Hastings acceptance ratio depends on $p$ only through the ratio $p(x\')/p(x)$, so an unknown normalizing constant $Z$ cancels. This is exactly what lets MCMC handle Bayesian posteriors whose evidence integral $Z = \\int p(\\theta)p(D \\mid \\theta)\\,d\\theta$ is intractable. MCMC does not compute $Z$, is not universally fastest, and produces correlated rather than independent samples.',
-    },
+      question: 'Explain why the Metropolis-Hastings algorithm is uniquely suited for Bayesian inference where the evidence integral (normalizing constant) is intractable.',
+      expectedAnswerRubric: 'The answer should explain that the Metropolis-Hastings acceptance ratio only requires the ratio of the target probabilities $p(x\')/p(x)$. Because the intractable normalizing constant $Z$ appears in both the numerator and denominator, it cancels out completely. This allows the algorithm to sample from the posterior distribution using only the unnormalized joint distribution $p(\\theta)p(D \\mid \\theta)$.'
+    }
+  ],
+  quiz: [
     {
       question: 'What property guarantees that the Metropolis-Hastings chain leaves the target distribution $p$ invariant?',
       options: [

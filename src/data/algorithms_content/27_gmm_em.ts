@@ -4,7 +4,7 @@ export const gmmEm: LearningModule = {
   id: "gmm-em",
   title: "Gaussian Mixtures and EM",
   category: "Gaussian Mixtures and EM",
-  prerequisites: ["clustering", "maximum-likelihood"],
+  prerequisites: ["clustering"],
   tracks: ["practitioner"],
   difficulty: 3,
   estimatedMinutes: 40,
@@ -175,7 +175,7 @@ export class GMM1D {
     }
   }
 }`,
-  relatedModules: ["clustering", "maximum-likelihood", "bayesian-inference"],
+  relatedModules: ["clustering", "mcmc"],
   tldr: [
     'GMM models data as a weighted sum of $K$ Gaussian "bumps", each with its own mean $\\mu_k$ and covariance $\\Sigma_k$.',
     'EM alternates between **soft-assigning** points to clusters (E-step: compute responsibilities $\\gamma_{ik}$) and **re-fitting** each Gaussian to its weighted points (M-step).',
@@ -269,28 +269,28 @@ So each updated weight is simply the fraction of total "soft membership" claimed
     {
       prompt: 'A 2-component 1D GMM has $\\pi_1 = 0.5$, $\\pi_2 = 0.5$, and at some point $x_i$ the (unnormalized) weighted densities are $\\pi_1 \\mathcal{N}(x_i \\mid \\mu_1, \\sigma_1^2) = 0.08$ and $\\pi_2 \\mathcal{N}(x_i \\mid \\mu_2, \\sigma_2^2) = 0.02$. Compute the responsibilities $\\gamma_{i1}$ and $\\gamma_{i2}$.',
       difficulty: 'warm-up',
-      hint: 'Normalize the two weighted densities so they sum to 1, using $\\gamma_{ik} = \\frac{\\pi_k \\mathcal{N}_k}{\\sum_j \\pi_j \\mathcal{N}_j}$.',
+      hints: ['Normalize the two weighted densities so they sum to 1.', 'Use the formula $\\gamma_{ik} = \\frac{\\pi_k \\mathcal{N}_k}{\\sum_j \\pi_j \\mathcal{N}_j}$.'],
       solution: 'The denominator is $0.08 + 0.02 = 0.10$. So $\\gamma_{i1} = 0.08 / 0.10 = 0.8$ and $\\gamma_{i2} = 0.02 / 0.10 = 0.2$. As required, $\\gamma_{i1} + \\gamma_{i2} = 1$: the point is mostly (80%) explained by component 1, but component 2 still gets partial (soft) credit.',
       tags: ['e-step', 'conceptual'],
     },
     {
       prompt: 'You have three 1D data points $x_1 = 1$, $x_2 = 2$, $x_3 = 9$ with responsibilities for component $k$ given by $\\gamma_{1k} = 0.9$, $\\gamma_{2k} = 0.8$, $\\gamma_{3k} = 0.1$. Compute the updated mean $\\mu_k^{\\text{new}}$ for this component.',
       difficulty: 'core',
-      hint: 'Use $\\mu_k^{\\text{new}} = \\frac{\\sum_i \\gamma_{ik} x_i}{\\sum_i \\gamma_{ik}}$ — a weighted average, not a plain average.',
+      hints: ['Remember that this is a weighted average, not a plain average.', 'Use $\\mu_k^{\\text{new}} = \\frac{\\sum_i \\gamma_{ik} x_i}{\\sum_i \\gamma_{ik}}$.'],
       solution: 'Effective count $N_k = 0.9 + 0.8 + 0.1 = 1.8$. Weighted sum $\\sum_i \\gamma_{ik} x_i = 0.9(1) + 0.8(2) + 0.1(9) = 0.9 + 1.6 + 0.9 = 3.4$. So $\\mu_k^{\\text{new}} = 3.4 / 1.8 \\approx 1.89$. Notice the far-away outlier $x_3=9$ barely moves the mean because its responsibility (0.1) is small — this is exactly the soft, weighted averaging that distinguishes the M-step from a plain hard-assignment mean.',
       tags: ['m-step', 'computation'],
     },
     {
       prompt: 'During EM training, one Gaussian component’s covariance collapses toward a single data point, so $|\\mathbf{\\Sigma}_k| \\to 0$. Explain what happens to the log-likelihood and why this is considered a degenerate (pathological) solution rather than a "good fit".',
       difficulty: 'core',
-      hint: 'Look at the Gaussian density formula: what happens to $\\mathcal{N}(\\mathbf{x} \\mid \\mathbf{\\mu}_k, \\mathbf{\\Sigma}_k)$ as $\\Sigma_k \\to 0$ evaluated exactly at $\\mathbf{x} = \\mathbf{\\mu}_k$?',
+      hints: ['Look closely at the Gaussian density formula.', 'What happens to $\\mathcal{N}(\\mathbf{x} \\mid \\mathbf{\\mu}_k, \\mathbf{\\Sigma}_k)$ as $\\Sigma_k \\to 0$ evaluated exactly at $\\mathbf{x} = \\mathbf{\\mu}_k$?'],
       solution: 'The Gaussian density has a $1/|\\mathbf{\\Sigma}_k|^{1/2}$ normalizing factor in front. As the covariance shrinks toward a single point, $|\\mathbf{\\Sigma}_k| \\to 0$, so the density evaluated at that exact point blows up toward $+\\infty$. Since the log-likelihood includes $\\log \\mathcal{N}(\\mathbf{x}_i \\mid \\dots)$ terms, the overall log-likelihood is **unbounded above** — EM can always increase it arbitrarily by collapsing a component onto a single training point, even though this generalizes terribly (zero density anywhere else). This is a known pathology of unconstrained Gaussian MLE, not a meaningful "perfect fit"; in practice it is prevented by regularizing the covariance (e.g. adding $\\epsilon I$) or imposing a minimum variance floor.',
       tags: ['failure-mode', 'conceptual'],
     },
     {
-      prompt: 'Show informally that K-Means is a special case of GMM/EM. Specifically, describe the restrictions on $\\mathbf{\\Sigma}_k$, $\\pi_k$, and the responsibilities that recover the K-Means algorithm.',
+      prompt: 'Show informally that K-Means is a special case of GMM/EM. What constraints must be placed on the GMM to recover the exact K-Means algorithm?',
       difficulty: 'challenge',
-      hint: 'Consider forcing every covariance to be the same isotropic matrix $\\sigma^2 I$ and then letting $\\sigma^2 \\to 0$. What happens to the softmax-like responsibility formula in that limit?',
+      hints: ['Consider forcing every covariance to be the same isotropic matrix $\\sigma^2 I$.', 'What happens to the softmax-like responsibility formula as $\\sigma^2 \\to 0$?'],
       solution: 'Restrict every component to share the same isotropic covariance $\\mathbf{\\Sigma}_k = \\sigma^2 I$ and equal weights $\\pi_k = 1/K$. Then the responsibility formula reduces to a softmax over **negative squared distances**: $\\gamma_{ik} \\propto \\exp(-\\lVert \\mathbf{x}_i - \\mathbf{\\mu}_k \\rVert^2 / 2\\sigma^2)$. As $\\sigma^2 \\to 0^+$, this softmax becomes infinitely peaked: the responsibility for the **nearest** centroid (smallest distance) approaches 1, and all others approach 0 — exactly the hard assignment rule used in K-Means. In this limit, the weighted mean update $\\mu_k^{\\text{new}} = \\sum_i \\gamma_{ik}\\mathbf{x}_i / N_k$ becomes a plain average over the points hard-assigned to cluster $k$, which is precisely the K-Means centroid update. So K-Means is GMM/EM with shared spherical, vanishing-variance components and a hard-max E-step instead of a soft posterior.',
       tags: ['comparison', 'derivation'],
     },
@@ -379,6 +379,12 @@ So each updated weight is simply the fraction of total "soft membership" claimed
       },
     },
   ],
+  shortAnswerQuestions: [
+    {
+      question: "Explain the theoretical relationship between K-Means and Gaussian Mixture Models. How can the K-Means algorithm be derived as a specific limiting case of GMMs trained with Expectation-Maximization?",
+      expectedAnswerRubric: "A good answer should explain that K-Means is a constrained version of GMMs where all mixture components share the same isotropic covariance $\\sigma^2 I$ and equal mixture weights. It must explicitly mention that taking the limit as $\\sigma^2 \\to 0$ causes the soft responsibilities in the E-step to collapse into hard, binary assignments (arg-min distance), which perfectly recovers the K-Means algorithm."
+    }
+  ],
   quiz: [
     {
       question: 'In the E-step responsibility formula $\\gamma_{ik} = \\frac{\\pi_k \\mathcal{N}(x_i \\mid \\mu_k, \\Sigma_k)}{\\sum_j \\pi_j \\mathcal{N}(x_i \\mid \\mu_j, \\Sigma_j)}$, what does the denominator represent?',
@@ -409,17 +415,7 @@ So each updated weight is simply the fraction of total "soft membership" claimed
         { text: '$\\pi_k^{\\text{new}} = \\max_i \\gamma_{ik}$', correct: false },
       ],
       explanation: 'Maximizing the expected complete-data log-likelihood subject to $\\sum_k \\pi_k = 1$ via a Lagrange multiplier gives $\\pi_k^{\\text{new}} = N_k / N$ — the fraction of total soft responsibility claimed by component $k$. This is an intuitive weighted-average analog of the M-step’s mean and covariance updates.',
-    },
-    {
-      question: 'Which statement correctly relates K-Means to GMM/EM?',
-      options: [
-        { text: 'GMM with shared isotropic covariance $\\sigma^2 I$ converges to the K-Means hard-assignment rule as $\\sigma^2 \\to 0$.', correct: true },
-        { text: 'K-Means and GMM are unrelated algorithms that happen to both use the letter K.', correct: false },
-        { text: 'GMM is a special case of K-Means restricted to one cluster.', correct: false },
-        { text: 'K-Means always produces a better likelihood fit than GMM on any dataset.', correct: false },
-      ],
-      explanation: 'When every component shares the same isotropic covariance $\\sigma^2 I$ and equal weights, the responsibility formula becomes a softmax over negative squared distances. As $\\sigma^2 \\to 0$, this softmax sharpens into a hard arg-min (nearest centroid) rule, and the weighted mean update becomes a plain average — recovering K-Means exactly. The relationship runs the other way: K-Means is a restricted special case of GMM/EM, not the reverse, and K-Means cannot achieve a higher Gaussian likelihood than a fitted GMM since it is a constrained version of the same model.',
-    },
+    }
   ],
   review: {
     lastReviewed: '2026-06-15',

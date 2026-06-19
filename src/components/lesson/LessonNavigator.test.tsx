@@ -12,7 +12,7 @@ vi.mock("next/navigation", () => ({
 describe("LessonNavigator", () => {
   it("exposes track movement and section shortcuts", () => {
     const currentModule = algorithmsList.find(
-      (module) => module.id === "linear-algebra",
+      (module) => module.id === "logistic-regression",
     );
     expect(currentModule).toBeDefined();
 
@@ -28,8 +28,8 @@ describe("LessonNavigator", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("progressbar", { name: "Track progress" }),
-    ).toHaveAttribute("aria-valuenow", "2");
-    expect(screen.getByText("Module 2 of 7")).toBeInTheDocument();
+    ).toHaveAttribute("aria-valuenow", "3");
+    expect(screen.getByText(/Module 3 of \d+/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Intuition" })).toHaveAttribute(
       "aria-current",
       "location",
@@ -39,18 +39,18 @@ describe("LessonNavigator", () => {
       "#visualization",
     );
     expect(
-      screen.getAllByRole("link", { name: /Previous module: Calculus/i }),
+      screen.getAllByRole("link", { name: /Previous module: Linear Regression/i }),
     ).toSatisfy((links: HTMLElement[]) =>
       links.every(
-        (link) => link.getAttribute("href") === "/algorithms/calculus",
+        (link) => link.getAttribute("href") === "/algorithms/linear-regression",
       ),
     );
     expect(
-      screen.getAllByRole("link", { name: /Next module: Probability/i }),
+      screen.getAllByRole("link", { name: /Next module: L1 & L2 Regularization/i }),
     ).toSatisfy((links: HTMLElement[]) =>
       links.every(
         (link) =>
-          link.getAttribute("href") === "/algorithms/probability-theory",
+          link.getAttribute("href") === "/algorithms/regularization",
       ),
     );
   });
@@ -72,7 +72,7 @@ describe("LessonNavigator", () => {
     global.IntersectionObserver = mockObserver as unknown as typeof IntersectionObserver;
 
     const currentModule = algorithmsList.find(
-      (module) => module.id === "linear-algebra",
+      (module) => module.id === "logistic-regression",
     );
     expect(currentModule).toBeDefined();
 
@@ -99,7 +99,7 @@ describe("LessonNavigator", () => {
 
   it("navigates when a different track module is selected", () => {
     const currentModule = algorithmsList.find(
-      (module) => module.id === "calculus",
+      (module) => module.id === "linear-regression",
     );
 
     render(
@@ -111,9 +111,9 @@ describe("LessonNavigator", () => {
 
     fireEvent.change(
       screen.getByRole("combobox", { name: "Choose a module in this track" }),
-      { target: { value: "linear-algebra" } },
+      { target: { value: "logistic-regression" } },
     );
 
-    expect(push).toHaveBeenCalledWith("/algorithms/linear-algebra");
+    expect(push).toHaveBeenCalledWith("/algorithms/logistic-regression");
   });
 });

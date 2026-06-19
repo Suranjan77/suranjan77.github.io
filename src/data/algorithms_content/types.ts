@@ -1,9 +1,4 @@
 export type AlgorithmCategory =
-  | "Calculus"
-  | "Linear Algebra"
-  | "Probability Theory"
-  | "Maximum Likelihood"
-  | "Bayesian Inference"
   | "Linear Regression"
   | "Logistic Regression"
   | "K-Nearest Neighbors"
@@ -24,8 +19,6 @@ export type AlgorithmCategory =
   | "Machine Learning Concepts"
   | "Generative Models"
   | "Regularization"
-  | "Statistics and Estimation"
-  | "Gradient Descent and Optimization"
   | "Naive Bayes"
   | "Gaussian Mixtures and EM"
   | "Backpropagation"

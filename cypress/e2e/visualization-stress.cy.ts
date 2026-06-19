@@ -1,12 +1,12 @@
 describe('Visualization Stress Testing', () => {
-  it('handles rapid play/pause/reset cycling without crashing (Gradient Descent)', () => {
-    cy.visit('/algorithms/gradient-descent');
-    cy.get('svg[aria-label="Gradient Descent Trajectory Visualizer"]').should('exist');
+  it('handles rapid fit/reset cycling without crashing (Linear Regression)', () => {
+    cy.visit('/algorithms/linear-regression');
+    cy.get('svg[aria-label="Multivariable Linear Regression Fit"]').should('exist');
     
     // Rapidly click buttons
     for (let i = 0; i < 20; i++) {
       cy.get('body').then($body => {
-        const runPauseBtn = $body.find('button[aria-label*="Run"], button[aria-label*="Pause"]');
+        const runPauseBtn = $body.find('button[aria-label*="Fit"]');
         if (runPauseBtn.length) {
           cy.wrap(runPauseBtn.first()).click({force: true});
         }
@@ -26,7 +26,7 @@ describe('Visualization Stress Testing', () => {
   });
 
   it('survives extreme viewport resizing while animating', () => {
-    cy.visit('/algorithms/gradient-descent');
+    cy.visit('/algorithms/linear-regression');
     cy.get('body').then($body => {
       const runBtn = $body.find('button[aria-label*="Run"]');
       if (runBtn.length) {

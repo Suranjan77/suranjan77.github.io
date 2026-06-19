@@ -1,8 +1,8 @@
 describe('Visualization Interactions', () => {
   beforeEach(() => {
-    cy.visit('/algorithms/gradient-descent');
+    cy.visit('/algorithms/linear-regression');
     cy.contains('Interactive Diagram').scrollIntoView().should('be.visible');
-    cy.get('svg[aria-label="Gradient Descent Trajectory Visualizer"]').should('exist');
+    cy.get('svg[aria-label="Multivariable Linear Regression Fit"]').should('exist');
   });
 
   it('updates a range control without crashing', () => {
@@ -15,24 +15,13 @@ describe('Visualization Interactions', () => {
         .trigger('change');
     });
 
-    cy.get('svg[aria-label="Gradient Descent Trajectory Visualizer"]').should('be.visible');
+    cy.get('svg[aria-label="Multivariable Linear Regression Fit"]').should('be.visible');
     cy.contains('Visualization Error').should('not.exist');
   });
 
-  it('changes a select control without crashing', () => {
-    cy.get('select').first().then(($select) => {
-      const nextValue = $select.find('option').eq(1).val();
-      cy.wrap($select).select(String(nextValue));
-    });
-
-    cy.get('svg[aria-label="Gradient Descent Trajectory Visualizer"]').should('be.visible');
-    cy.contains('Visualization Error').should('not.exist');
-  });
-
-  it('runs and resets the visualization', () => {
-    cy.get('button[aria-label="Run optimization path"]').click();
-    cy.get('button[aria-label="Pause optimization path"]').should('exist');
-    cy.get('button[aria-label="Reset trajectory to start position"]').click();
+  it('fits and resets the visualization', () => {
+    cy.get('button[aria-label="Fit the weights with gradient descent"]').click();
+    cy.get('button[aria-label="Reset the weights"]').click();
     cy.contains('Visualization Error').should('not.exist');
   });
 });

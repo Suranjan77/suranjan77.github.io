@@ -4,9 +4,10 @@ export const linearRegression: LearningModule = {
   id: "linear-regression",
   title: "Linear Regression",
   category: "Linear Regression",
-  prerequisites: ["linear-algebra", "calculus"],
+  prerequisites: [],
   tracks: ["practitioner"],
   difficulty: 2,
+  relatedModules: ["logistic-regression", "regularization"],
   shortDescription: "A baseline model that predicts a continuous numeric value by fitting a straight line through the data.",
   estimatedMinutes: 25,
   learningObjectives: [
@@ -167,7 +168,7 @@ So the slope is just the covariance of $x$ and $y$ divided by the variance of $x
     {
       prompt: 'Fit an OLS line $y = wx + b$ to the three points $(0, 1)$, $(1, 1)$, $(2, 3)$. Report the slope and intercept.',
       difficulty: 'core',
-      hint: 'Use $w = \\frac{\\sum (x_i - \\bar{x})(y_i - \\bar{y})}{\\sum (x_i - \\bar{x})^2}$ and $b = \\bar{y} - w\\bar{x}$.',
+      hints: ['Use $w = \\frac{\\sum (x_i - \\bar{x})(y_i - \\bar{y})}{\\sum (x_i - \\bar{x})^2}$ and $b = \\bar{y} - w\\bar{x}$.'],
       solution: 'Means: $\\bar{x} = 1$, $\\bar{y} = 5/3$. Numerator $\\sum (x_i-\\bar{x})(y_i-\\bar{y}) = (-1)(1-5/3) + (0)(1-5/3) + (1)(3-5/3) = (-1)(-2/3) + 0 + (1)(4/3) = 2/3 + 4/3 = 2$. Denominator $\\sum (x_i-\\bar{x})^2 = 1 + 0 + 1 = 2$. So $w = 2/2 = 1$ and $b = 5/3 - 1 \\cdot 1 = 2/3$. The line is $\\hat{y} = x + 2/3$.',
     },
     {
@@ -176,9 +177,9 @@ So the slope is just the covariance of $x$ and $y$ divided by the variance of $x
       solution: 'The slope is unchanged. From $w = \\operatorname{Cov}(x, y)/\\operatorname{Var}(x)$, shifting every $y_i$ by $c$ shifts $\\bar{y}$ by $c$ but leaves $(y_i - \\bar{y})$ — and hence the covariance — unchanged. The intercept increases by exactly $c$: $b_{new} = (\\bar{y}+c) - w\\bar{x} = b_{old} + c$. Geometrically the whole line is translated up by $c$.',
     },
     {
-      prompt: 'Prove that when an intercept term is included, the OLS residuals always sum to zero: $\\sum_i r_i = 0$.',
+      prompt: 'Prove that when an intercept term is included, the OLS residuals always sum to zero: $\\sum_i r_i = 0$. Provide a formal proof.',
       difficulty: 'challenge',
-      hint: 'Look at the normal equation that corresponds to the intercept column (the column of ones in $X$).',
+      hints: ['Consider the normal equations $X^T(y - X\\hat{\\beta}) = 0$.', 'Look at the normal equation that corresponds to the intercept column (the column of ones in $X$).'],
       solution: 'The normal equations state $X^T(y - X\\hat{\\beta}) = X^T r = 0$, one equation per column of $X$. The intercept corresponds to a column of all ones, $\\mathbf{1}$. Its equation is $\\mathbf{1}^T r = \\sum_i r_i = 0$. Hence the residuals are mean-zero by construction whenever an intercept is fit. (Without an intercept this guarantee disappears.)',
     },
   ],
@@ -274,16 +275,12 @@ So the slope is just the covariance of $x$ and $y$ divided by the variance of $x
       ],
       explanation: '$R^2$ is the fraction of variance explained on the data it is computed on. A high *training* $R^2$ can simply reflect overfitting and tells you nothing directly about test performance. It is also not an accuracy percentage.',
     },
+  ],
+  shortAnswerQuestions: [
     {
-      question: 'You replace a feature $x$ with the pair $[x, x^2]$ and fit linear regression, producing a curved fit. The model is:',
-      options: [
-        { text: 'Still linear regression — it is linear in the parameters even though it bends in $x$.', correct: true },
-        { text: 'No longer linear regression because the fit is curved.', correct: false },
-        { text: 'Unsolvable with the normal equation.', correct: false },
-        { text: 'Guaranteed to overfit.', correct: false },
-      ],
-      explanation: '"Linear" in linear regression refers to linearity in the **parameters**, not the features. Polynomial (or other) feature transforms keep the entire closed-form machinery intact while letting the model fit curves. Overfitting is a risk with high-degree features but is not guaranteed.',
-    },
+      question: "Suppose you replace a feature $x$ with the pair $[x, x^2]$ and fit a linear regression model, producing a curved fit. Explain whether this is still considered linear regression, and discuss the implications for the model's parameters and the risk of overfitting.",
+      expectedAnswerRubric: "The answer should state that it is still linear regression because the model is linear in the parameters, even though it is non-linear in the features. It should mention that polynomial feature transforms keep the closed-form machinery intact. Finally, it should acknowledge that adding higher-degree features increases the risk of overfitting."
+    }
   ],
   review: {
     lastReviewed: '2026-06-15',

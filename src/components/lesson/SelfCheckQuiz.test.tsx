@@ -23,6 +23,7 @@ describe("SelfCheckQuiz", () => {
 
   it("hides the explanation until an option is chosen", () => {
     render(<SelfCheckQuiz questions={questions} />);
+    fireEvent.click(screen.getByRole("button", { name: /Show quiz/i }));
     expect(
       screen.queryByText("Two plus two equals four."),
     ).not.toBeInTheDocument();
@@ -30,6 +31,7 @@ describe("SelfCheckQuiz", () => {
 
   it("marks the chosen wrong answer and the correct one after answering", () => {
     render(<SelfCheckQuiz questions={questions} />);
+    fireEvent.click(screen.getByRole("button", { name: /Show quiz/i }));
     fireEvent.click(screen.getByRole("radio", { name: /Three/ }));
 
     expect(screen.getByText("Your pick")).toBeInTheDocument();
@@ -39,6 +41,7 @@ describe("SelfCheckQuiz", () => {
 
   it("locks options after answering and resets via Try again", () => {
     render(<SelfCheckQuiz questions={questions} />);
+    fireEvent.click(screen.getByRole("button", { name: /Show quiz/i }));
     fireEvent.click(screen.getByRole("radio", { name: /Four/ }));
 
     // Options are disabled once answered.

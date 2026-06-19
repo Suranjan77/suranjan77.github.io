@@ -14,29 +14,6 @@ function renderVisualization(algorithmId: string) {
 }
 
 describe("algorithm visualization interaction contracts", () => {
-  it("collects A/B evidence and leaves the no-data state", () => {
-    renderVisualization("bayesian-inference");
-
-    // No data yet: beliefs are flat and the decision is undecided.
-    expect(screen.getByText(/no data yet/i)).toBeInTheDocument();
-    expect(screen.getByText(/keep testing — too close/i)).toBeInTheDocument();
-    expect(screen.getAllByText("Variant A").length).toBeGreaterThan(0);
-
-    fireEvent.click(screen.getByRole("button", { name: /collect 200 visitors/i }));
-    expect(screen.queryByText(/no data yet/i)).not.toBeInTheDocument();
-  });
-
-  it("resets the A/B experiment and exposes the true-gap slider", () => {
-    renderVisualization("bayesian-inference");
-
-    fireEvent.click(screen.getByRole("button", { name: /collect 50 visitors/i }));
-    fireEvent.click(screen.getByRole("button", { name: /reset the experiment/i }));
-    expect(screen.getByText(/no data yet/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole("slider", { name: /variant b true rate/i }),
-    ).toBeInTheDocument();
-  });
-
   it("bends the neural-network boundary as hidden neurons are added", () => {
     renderVisualization("neural-networks");
 

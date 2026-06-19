@@ -191,13 +191,16 @@ Because the weights are non-negative and sum to one, $o$ is a **convex combinati
     {
       prompt: 'With $Q = [1, 1]$, key rows $k_1 = [1, 0]$ and $k_2 = [0, 1]$, value rows $v_1 = [2, 0]$ and $v_2 = [0, 2]$, and $d_k = 2$, compute the attention output for the query.',
       difficulty: 'core',
-      hint: 'Compute $QK^T$, divide by $\\sqrt{d_k}$, softmax, then take the weighted sum of value rows.',
+      hints: ['Compute $QK^T$, divide by $\\sqrt{d_k}$, softmax, then take the weighted sum of value rows.'],
       solution: 'Raw scores $QK^T = [\\,1, 1\\,]$. Scaled: $[1, 1]/\\sqrt{2} \\approx [0.707, 0.707]$. Softmax of equal scores gives $[0.5, 0.5]$. Output $= 0.5\\,v_1 + 0.5\\,v_2 = 0.5[2,0] + 0.5[0,2] = [1, 1]$.',
     },
     {
-      prompt: 'For a sequence of length $N$ and model dimension $d$, derive the time and memory complexity of a single self-attention layer, and identify the dominant bottleneck.',
+      prompt: 'Critically analyze the computational bottlenecks of the self-attention mechanism. For a sequence of length $N$ and model dimension $d$, derive both the time and memory complexity of a single self-attention layer.',
       difficulty: 'challenge',
-      hint: 'Focus on the shape of the $QK^T$ matrix.',
+      hints: [
+        'First, determine the dimensions of the intermediate $QK^T$ score matrix.',
+        'Then, calculate the time and memory required to compute and store this matrix.'
+      ],
       solution: 'The product $QK^T$ multiplies an $N\\times d$ matrix by a $d\\times N$ matrix, producing an $N\\times N$ score matrix at a cost of $O(N^2 d)$ time and $O(N^2)$ memory to store. The subsequent multiply by $V$ is also $O(N^2 d)$. So self-attention is **quadratic** in sequence length $N$ — the $N\\times N$ attention matrix is the bottleneck that efficient-attention methods (sparse, linear, flash) attack.',
     },
   ],
@@ -262,17 +265,13 @@ Because the weights are non-negative and sum to one, $o$ is a **convex combinati
       },
     },
   ],
-  quiz: [
+  shortAnswerQuestions: [
     {
-      question: 'Why are the $QK^T$ scores divided by $\\sqrt{d_k}$ before the softmax?',
-      options: [
-        { text: 'To keep score variance near 1 so the softmax does not saturate and kill gradients.', correct: true },
-        { text: 'To make the attention causal.', correct: false },
-        { text: 'To reduce the number of model parameters.', correct: false },
-        { text: 'To turn the value vectors into unit vectors.', correct: false },
-      ],
-      explanation: 'The variance of a dot product of two unit-variance vectors grows with the dimension $d_k$. Dividing by $\\sqrt{d_k}$ rescales scores back to unit variance, keeping the softmax in a sensitive, trainable range. Causality comes from masking, not scaling.',
-    },
+      question: 'Why is it necessary to scale the dot products by $\\frac{1}{\\sqrt{d_k}}$ in the scaled dot-product attention mechanism?',
+      expectedAnswerRubric: 'The answer should explain that the variance of the dot product grows linearly with the head dimension $d_k$. Scaling by the square root of $d_k$ keeps the variance of the scores near 1, preventing the subsequent softmax function from operating in regions with extremely small gradients (saturating), which would hinder learning.'
+    }
+  ],
+  quiz: [
     {
       question: 'A transformer processes the tokens of an input sequence:',
       options: [

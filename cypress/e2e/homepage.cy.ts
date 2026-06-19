@@ -4,14 +4,14 @@ describe('Homepage E2E Tests', () => {
   });
 
   it('displays the main header and description', () => {
-    cy.get('h1').should('contain', 'Understand AI, Mathematically');
+    cy.get('h1').should('contain', 'Understand AI, Visually');
     cy.get('p').should('contain', 'structured curriculum');
   });
 
   it('organizes modules into expandable learning tracks', () => {
-    cy.contains('button', 'Mathematical Foundations')
-      .should('have.attr', 'aria-expanded', 'true');
     cy.contains('button', 'ML Practitioner')
+      .should('have.attr', 'aria-expanded', 'true');
+    cy.contains('button', 'Modern AI Systems')
       .should('have.attr', 'aria-expanded', 'false')
       .click();
     cy.get('[id^="card-"]').should('have.length.greaterThan', 15);

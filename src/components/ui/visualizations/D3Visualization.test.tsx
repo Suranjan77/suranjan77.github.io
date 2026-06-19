@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { algorithmsList } from "@/data/algorithms_content";
 import D3Visualization, { visualizationRegistry } from "./D3Visualization";
@@ -43,19 +43,6 @@ describe("D3Visualization router", () => {
       "No interactive diagram is registered for module missing-module",
     );
     expect(screen.queryByText("Least Squares as Residual Geometry")).not.toBeInTheDocument();
-  });
-
-  it("supports direct calculus and probability controls", async () => {
-    const { rerender } = render(<D3Visualization algorithmId="calculus" />);
-
-    fireEvent.click(screen.getByRole("button", { name: /take the limit/i }));
-    expect(screen.getByRole("button", { name: /limit in progress/i })).toBeDisabled();
-
-    rerender(<D3Visualization algorithmId="probability-theory" />);
-    fireEvent.click(screen.getByRole("button", { name: /draw 1 sample/i }));
-    await waitFor(() => {
-      expect(screen.getByTestId("probability-sample-count")).toHaveTextContent("1");
-    });
   });
 
   it("supports narrative and direct-manipulation controls across representative visualizations", () => {

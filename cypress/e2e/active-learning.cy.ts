@@ -1,7 +1,7 @@
 describe('Active Learning Features', () => {
   beforeEach(() => {
-    // Visit a representative math/algorithm module page with full active learning features
-    cy.visit('/algorithms/calculus');
+    // Visit a representative algorithm module page with full active learning features
+    cy.visit('/algorithms/linear-regression');
   });
 
   it('renders Practice Exercises, Case Studies, and Self-Check Quiz sections', () => {

@@ -201,7 +201,10 @@ Smooth-L1 behaves like squared error near zero (stable gradients for small, easy
     {
       prompt: 'A ground-truth box is $(0, 0, 10, 10)$ and a predicted box is $(5, 5, 15, 15)$ (corners given as $(x_1, y_1, x_2, y_2)$). Compute the IoU.',
       difficulty: 'warm-up',
-      hint: 'First find the intersection rectangle’s corners using max for the top-left and min for the bottom-right, then apply Union = Area1 + Area2 − Intersection.',
+      hints: [
+        'First find the intersection rectangle’s corners using max for the top-left and min for the bottom-right.',
+        'Then apply Union = Area1 + Area2 − Intersection.'
+      ],
       solution: 'Both boxes have area $10 \\times 10 = 100$. Intersection corners: $x_1^{\\cap} = \\max(0,5) = 5$, $y_1^{\\cap} = \\max(0,5) = 5$, $x_2^{\\cap} = \\min(10,15) = 10$, $y_2^{\\cap} = \\min(10,15) = 10$. So the intersection is a $5 \\times 5$ square, area $25$. Union $= 100 + 100 - 25 = 175$. $IoU = 25/175 \\approx 0.143$.',
       tags: ['computation', 'iou'],
     },
@@ -214,14 +217,14 @@ Smooth-L1 behaves like squared error near zero (stable gradients for small, easy
     {
       prompt: 'A detector outputs 10 boxes at a given confidence threshold. After matching against ground truth using $IoU \\ge 0.5$: 6 are true positives, 4 are false positives, and 2 ground-truth objects were missed entirely (false negatives). Compute precision and recall at this threshold.',
       difficulty: 'core',
-      hint: 'Precision $= TP / (TP + FP)$. Recall $= TP / (TP + FN)$.',
+      hints: ['Precision $= TP / (TP + FP)$. Recall $= TP / (TP + FN)$.'],
       solution: 'Precision $= \\frac{TP}{TP+FP} = \\frac{6}{6+4} = \\frac{6}{10} = 0.6$. Recall $= \\frac{TP}{TP+FN} = \\frac{6}{6+2} = \\frac{6}{8} = 0.75$. So at this confidence threshold the detector finds 75% of the true objects, but 40% of its reported detections are spurious. Sweeping the confidence threshold and recomputing (precision, recall) at each point traces the precision–recall curve whose area gives Average Precision for this class.',
       tags: ['computation', 'metrics'],
     },
     {
-      prompt: 'Explain why semantic segmentation models must use a per-pixel loss (e.g. pixel-wise cross-entropy) rather than a single per-image classification loss, even though both tasks use a softmax over classes.',
+      prompt: 'Design a loss function setup for a semantic segmentation model. Explain why a standard image-level classification loss is fundamentally insufficient for this task.',
       difficulty: 'challenge',
-      hint: 'Think about what information a single image-level label can and cannot express about *where* something is.',
+      hints: ['Think about what information a single image-level label can and cannot express about *where* something is.'],
       solution: 'A per-image label only answers "what classes are present?" — it cannot specify *which* pixels belong to which class, so it carries no spatial/boundary information at all. Segmentation’s actual target is a dense label map $\\hat{Y} \\in \\{1,\\dots,K\\}^{H \\times W}$, one class per pixel; the natural way to supervise this is to apply cross-entropy independently at every spatial location and sum (or average) over all $H \\times W$ pixels: $\\mathcal{L} = -\\frac{1}{HW}\\sum_{h,w} \\log p_{h,w}(y_{h,w})$. This per-pixel loss directly penalizes incorrect boundaries — e.g. a model that gets every pixel right except a thin strip along an object’s edge is penalized only for that strip, with gradient signal local to exactly where the model is wrong. A single global per-image loss could be zero (all classes correctly "detected" as present) even if every individual pixel’s assignment is scrambled, since it has no mechanism to check spatial correctness at all. (In practice, per-pixel cross-entropy is often combined with region-overlap losses like Dice loss to also directly reward overall mask overlap and counter class imbalance from large background regions.)',
       tags: ['conceptual', 'loss-functions'],
     },
@@ -289,6 +292,12 @@ Smooth-L1 behaves like squared error near zero (stable gradients for small, easy
       },
     },
   ],
+  shortAnswerQuestions: [
+    {
+      question: 'In the context of semantic segmentation, why is a pixel-wise loss function typically employed, and how is it often augmented to handle real-world data distributions?',
+      expectedAnswerRubric: 'The answer should explain that image-level loss lacks spatial boundary information. It must note that pixel-wise cross-entropy provides local gradients for correct classification at every spatial location, and typically mention that it is often combined with region-overlap losses (like Dice loss) to handle class imbalance.'
+    }
+  ],
   quiz: [
     {
       question: 'A ground-truth box has area 200, a predicted box has area 180, and their intersection has area 90. What is the IoU?',
@@ -319,16 +328,6 @@ Smooth-L1 behaves like squared error near zero (stable gradients for small, easy
         { text: 'It removes the need for a classification loss entirely.', correct: false },
       ],
       explanation: 'Regressing a normalized, near-zero-centered offset relative to the matched anchor makes the regression target’s scale roughly consistent across anchors of very different absolute sizes, which stabilizes training compared to regressing raw, widely varying pixel coordinates directly.',
-    },
-    {
-      question: 'Why does semantic segmentation typically rely on pixel-wise cross-entropy (often combined with Dice loss) instead of a single image-level classification loss?',
-      options: [
-        { text: 'Because the target is a dense per-pixel label map, and an image-level loss carries no information about where class boundaries actually lie.', correct: true },
-        { text: 'Because pixel-wise losses train faster than image-level losses.', correct: false },
-        { text: 'Because segmentation models do not use softmax.', correct: false },
-        { text: 'Because Dice loss replaces the need for any neural network architecture.', correct: false },
-      ],
-      explanation: 'Segmentation needs to recover *where* each class is, pixel by pixel. A per-image loss can be satisfied without correct spatial boundaries at all, so segmentation losses are computed at every pixel location (and often paired with a region-overlap term like Dice loss to directly reward correct mask overlap and counter background class imbalance).',
     },
   ],
   review: {

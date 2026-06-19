@@ -12,7 +12,7 @@ const exercises: PracticeExercise[] = [
   {
     prompt: "First problem statement",
     difficulty: "warm-up",
-    hint: "A gentle nudge",
+    hints: ["A gentle nudge"],
     solution: "Warm-up solution text",
   },
 ];
@@ -25,6 +25,7 @@ describe("PracticeExercises", () => {
 
   it("orders exercises warm-up before challenge", () => {
     render(<PracticeExercises exercises={exercises} />);
+    fireEvent.click(screen.getByRole("button", { name: /Show exercises/i }));
     const warmUpChip = screen.getByText("Warm-up");
     const challengeChip = screen.getByText("Challenge");
     // Warm-up exercise should appear before the challenge one in the DOM.
@@ -36,6 +37,7 @@ describe("PracticeExercises", () => {
 
   it("keeps solutions hidden until revealed", () => {
     render(<PracticeExercises exercises={exercises} />);
+    fireEvent.click(screen.getByRole("button", { name: /Show exercises/i }));
     expect(screen.queryByText("Warm-up solution text")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getAllByRole("button", { name: "Reveal Solution" })[0]);
@@ -44,6 +46,7 @@ describe("PracticeExercises", () => {
 
   it("reveals a hint only when one exists and is toggled", () => {
     render(<PracticeExercises exercises={exercises} />);
+    fireEvent.click(screen.getByRole("button", { name: /Show exercises/i }));
     expect(screen.queryByText("A gentle nudge")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Show Hint" }));

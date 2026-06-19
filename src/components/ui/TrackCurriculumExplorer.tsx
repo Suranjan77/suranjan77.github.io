@@ -17,7 +17,7 @@ export default function TrackCurriculumExplorer({
   algorithms,
 }: TrackCurriculumExplorerProps) {
   const [openTracks, setOpenTracks] = useState<Set<TrackId>>(
-    () => new Set(["foundations"]),
+    () => new Set(["practitioner"]),
   );
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export default function TrackCurriculumExplorer({
               <div id={panelId} className="border-t border-outline p-3 sm:p-5">
                 <CurriculumExplorer
                   algorithms={modules}
-                  defaultExpanded={track.id === "foundations"}
+                  defaultExpanded={track.id === "practitioner"}
                 />
               </div>
             )}

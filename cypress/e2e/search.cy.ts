@@ -8,25 +8,25 @@ describe('Search E2E Tests', () => {
     cy.get('input[placeholder="Search modules..."]').as('searchInput');
     
     // Type a query
-    cy.get('@searchInput').type('Calculus');
+    cy.get('@searchInput').type('Linear Regression');
 
     // Wait for the dropdown to render the matching items
     cy.contains('Matching Modules').should('be.visible');
-    cy.contains('Calculus & Optimisation').should('be.visible');
+    cy.contains('Linear Regression').should('be.visible');
   });
 
   it('navigates to the corresponding module page when a suggestion is clicked', () => {
-    cy.get('input[placeholder="Search modules..."]').type('Linear Algebra');
+    cy.get('input[placeholder="Search modules..."]').type('Logistic Regression');
     
     // Click on the result
     cy.contains('Matching Modules')
       .parent()
-      .contains('Linear Algebra & Data Structure')
+      .contains('Logistic Regression')
       .click();
 
     // Verify page routing
-    cy.url().should('include', '/algorithms/linear-algebra');
-    cy.get('h1').should('contain', 'Linear Algebra');
+    cy.url().should('include', '/algorithms/logistic-regression');
+    cy.get('h1').should('contain', 'Logistic Regression');
   });
 
   it('displays a friendly "no results" message for unmatched queries', () => {
@@ -37,7 +37,7 @@ describe('Search E2E Tests', () => {
   });
 
   it('clears query and closes dropdown when clear button is clicked', () => {
-    cy.get('input[placeholder="Search modules..."]').type('Calculus');
+    cy.get('input[placeholder="Search modules..."]').type('Linear Regression');
     cy.contains('Matching Modules').should('be.visible');
 
     // Click on the clear (X) button

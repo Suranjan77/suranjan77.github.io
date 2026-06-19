@@ -5,6 +5,7 @@ import {
   PracticeExercise,
 } from '@/data/algorithms_content/learningModuleTypes';
 import LogicContent from '@/components/ui/LogicContent';
+import { BrainCircuit } from 'lucide-react';
 
 interface PracticeExercisesProps {
   exercises: PracticeExercise[] | undefined;
@@ -25,6 +26,8 @@ const DIFFICULTY_CHIP: Record<ExerciseDifficulty, string> = {
 };
 
 export default function PracticeExercises({ exercises }: PracticeExercisesProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
   if (!exercises || exercises.length === 0) return null;
 
   const ordered = [...exercises].sort(
@@ -34,17 +37,37 @@ export default function PracticeExercises({ exercises }: PracticeExercisesProps)
   );
 
   return (
-    <div className="mb-8 space-y-4">
-      <h3 className="font-headline text-sm font-bold uppercase tracking-wide text-primary">
-        Practice Exercises
-      </h3>
-      <p className="text-[15px] leading-relaxed text-on-surface-variant">
-        Work each problem yourself first, then reveal the solution to check your
-        approach.
-      </p>
-      {ordered.map((exercise, idx) => (
-        <ExerciseCard key={idx} exercise={exercise} index={idx} />
-      ))}
+    <div className="overflow-hidden border border-outline bg-surface-container-low">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        className="flex w-full items-center justify-between border-b border-outline px-6 py-5 sm:px-8 text-left transition-colors hover:bg-surface-container-high focus:outline-none"
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center border border-primary/30 bg-primary/12 text-primary">
+            <BrainCircuit size={18} strokeWidth={1.7} aria-hidden="true" />
+          </div>
+          <div>
+            <h2 className="font-headline text-xl font-semibold tracking-normal text-on-surface sm:text-2xl">
+              Practice Exercises
+            </h2>
+            <p className="text-sm text-on-surface-variant/70">
+              Work each problem yourself first, then reveal the solution
+            </p>
+          </div>
+        </div>
+        <span className="shrink-0 rounded bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-medium text-primary">
+          {isOpen ? "Hide" : "Show exercises"}
+        </span>
+      </button>
+
+      {isOpen && (
+        <div className="px-6 py-5 sm:px-8 space-y-4">
+          {ordered.map((exercise, idx) => (
+            <ExerciseCard key={idx} exercise={exercise} index={idx} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -56,7 +79,8 @@ function ExerciseCard({
   exercise: PracticeExercise;
   index: number;
 }) {
-  const [hintOpen, setHintOpen] = useState(false);
+  const hintsList = exercise.hints || (exercise.hint ? [exercise.hint] : []);
+  const [hintIndex, setHintIndex] = useState(-1);
   const [solutionOpen, setSolutionOpen] = useState(false);
 
   return (
@@ -78,13 +102,20 @@ function ExerciseCard({
         </div>
 
         <div className="mt-4 flex flex-wrap gap-2">
-          {exercise.hint && (
+          {hintsList.length > 0 && hintIndex < hintsList.length - 1 && (
             <button
-              onClick={() => setHintOpen(!hintOpen)}
-              aria-expanded={hintOpen}
+              onClick={() => setHintIndex(hintIndex + 1)}
               className="flex items-center gap-2 rounded bg-secondary/10 border border-secondary/20 px-4 py-2 text-sm font-medium text-secondary hover:bg-secondary/20 transition-colors"
             >
-              {hintOpen ? "Hide Hint" : "Show Hint"}
+              {hintIndex === -1 ? "Show Hint" : `Show Next Hint (${hintIndex + 2}/${hintsList.length})`}
+            </button>
+          )}
+          {hintIndex >= 0 && (
+             <button
+              onClick={() => setHintIndex(-1)}
+              className="flex items-center gap-2 rounded bg-secondary/10 border border-secondary/20 px-4 py-2 text-sm font-medium text-secondary hover:bg-secondary/20 transition-colors"
+            >
+              Hide Hints
             </button>
           )}
           <button
@@ -96,12 +127,16 @@ function ExerciseCard({
           </button>
         </div>
 
-        {exercise.hint && hintOpen && (
-          <div className="mt-4 rounded border border-secondary/20 bg-secondary/5 p-4">
-            <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-secondary">
-              Hint
-            </div>
-            <LogicContent content={exercise.hint} size="sm" />
+        {hintIndex >= 0 && (
+          <div className="mt-4 space-y-3">
+            {hintsList.slice(0, hintIndex + 1).map((h, i) => (
+              <div key={i} className="rounded border border-secondary/20 bg-secondary/5 p-4">
+                <div className="mb-2 text-[11px] font-bold uppercase tracking-wider text-secondary">
+                  Hint {hintsList.length > 1 ? i + 1 : ''}
+                </div>
+                <LogicContent content={h} size="sm" />
+              </div>
+            ))}
           </div>
         )}
 

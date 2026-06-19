@@ -209,26 +209,29 @@ This property — **translation equivariance** — is exactly what parameter sha
     {
       prompt: 'A convolutional layer takes a $28 \\times 28$ input, uses a $3 \\times 3$ kernel, no padding ($P=0$), and stride $S=1$. What is the output spatial size?',
       difficulty: 'warm-up',
-      hint: 'Use $O = \\lfloor (W - K + 2P)/S \\rfloor + 1$.',
+      hints: ['Use $O = \\lfloor (W - K + 2P)/S \\rfloor + 1$.'],
       solution: '$O = \\lfloor (28 - 3 + 0)/1 \\rfloor + 1 = \\lfloor 25 \\rfloor + 1 = 26$. The output is $26 \\times 26$ — without padding, the spatial size shrinks by $K-1 = 2$ pixels.',
     },
     {
       prompt: 'A convolutional layer has input channels $C_{in} = 16$, kernel size $3 \\times 3$, and $C_{out} = 32$ output channels (with bias). How many learnable parameters does this layer have?',
       difficulty: 'warm-up',
-      hint: 'Each output channel has its own $3\\times3\\times C_{in}$ kernel plus one bias term.',
+      hints: ['Each output channel has its own $3\\times3\\times C_{in}$ kernel plus one bias term.'],
       solution: 'Each of the $32$ output kernels has $3 \\cdot 3 \\cdot 16 = 144$ weights, plus $1$ bias: $145$ parameters per output channel. Total: $32 \\cdot 145 = 4{,}640$ parameters.',
     },
     {
       prompt: 'Manually convolve (cross-correlate, no flipping, as CNN libraries do) the $3\\times3$ input $\\begin{pmatrix}1 & 2 & 0\\\\ 0 & 1 & 2\\\\ 2 & 0 & 1\\end{pmatrix}$ with the $2\\times2$ kernel $\\begin{pmatrix}1 & 0\\\\ 0 & 1\\end{pmatrix}$, stride $1$, no padding. Report the resulting $2\\times2$ output.',
       difficulty: 'core',
-      hint: 'Slide the kernel over the four valid $2\\times2$ windows and take the element-wise product sum at each position.',
+      hints: ['Slide the kernel over the four valid $2\\times2$ windows and take the element-wise product sum at each position.'],
       solution: 'Top-left window $\\begin{pmatrix}1&2\\\\0&1\\end{pmatrix}$: $1\\cdot1 + 2\\cdot0 + 0\\cdot0 + 1\\cdot1 = 2$. Top-right window $\\begin{pmatrix}2&0\\\\1&2\\end{pmatrix}$: $2\\cdot1 + 0\\cdot0 + 1\\cdot0 + 2\\cdot1 = 4$. Bottom-left window $\\begin{pmatrix}0&1\\\\2&0\\end{pmatrix}$: $0\\cdot1 + 1\\cdot0 + 2\\cdot0 + 0\\cdot1 = 0$. Bottom-right window $\\begin{pmatrix}1&2\\\\0&1\\end{pmatrix}$: $1\\cdot1 + 2\\cdot0 + 0\\cdot0 + 1\\cdot1 = 2$. Output: $\\begin{pmatrix}2 & 4\\\\ 0 & 2\\end{pmatrix}$.',
       tags: ['derivation', 'conceptual'],
     },
     {
-      prompt: 'You stack four convolutional layers, each with a $3\\times3$ kernel and stride $1$ (no pooling). What is the receptive field — in terms of original input pixels — seen by a single unit in the output of the fourth layer? Then explain qualitatively how adding a stride-$2$ pooling layer after every conv layer would change the growth rate.',
+      prompt: 'Analyze the growth of the receptive field in a deep CNN. Compare the receptive field of a unit after four $3\\times3$ convolutional layers (stride 1) versus an architecture that alternates the same convolutional layers with stride-2 pooling.',
       difficulty: 'challenge',
-      hint: 'Each additional $3\\times3$, stride-1 layer grows the receptive field by $K - 1 = 2$ pixels per side relative to the previous layer’s receptive field.',
+      hints: [
+        'First, determine how much a single $3\\times3$, stride-1 layer increases the receptive field relative to the previous layer.',
+        'Then, consider how a stride-2 pooling layer multiplies the effective receptive field of all subsequent layers.'
+      ],
       solution: 'A single $3\\times3$ layer has a receptive field of $3$. Each subsequent $3\\times3$, stride-1 layer adds $K-1=2$ to the receptive field (one pixel of context on each side), so after $n$ layers the receptive field is $1 + n(K-1) = 1 + 4(2) = 9$ pixels (i.e. $9\\times9$) — receptive field grows **linearly** with depth when stride is $1$. If a stride-$2$ pooling (or strided convolution) layer follows each conv layer, every subsequent layer’s receptive field gets multiplied by the accumulated downsampling factor, so growth becomes **exponential** in depth rather than linear — this is exactly why deep CNNs use occasional downsampling to cover large input regions without needing an impractically large number of layers.',
       tags: ['conceptual', 'derivation'],
     },
@@ -296,6 +299,12 @@ This property — **translation equivariance** — is exactly what parameter sha
       },
     },
   ],
+  shortAnswerQuestions: [
+    {
+      question: 'Compare the performance of a Convolutional Neural Network (CNN) and a Vision Transformer (ViT) when trained from scratch on a small dataset. Explain the underlying architectural reasons for any differences in data efficiency.',
+      expectedAnswerRubric: 'A strong answer should mention the built-in spatial inductive biases of CNNs, specifically locality and translation equivariance due to weight sharing. It should contrast this with ViTs, which lack these strict inductive biases and must learn spatial relationships purely from data, generally requiring large-scale pretraining to match or exceed CNN performance.'
+    }
+  ],
   quiz: [
     {
       question: 'A $30\\times30$ input is convolved with a $4\\times4$ kernel, padding $P=1$, stride $S=2$. What is the output spatial size?',
@@ -326,16 +335,6 @@ This property — **translation equivariance** — is exactly what parameter sha
         { text: 'Training loss stays constant across epochs.', correct: false },
       ],
       explanation: 'Translation equivariance means shift-in implies shift-out: if you translate the input, the resulting feature map translates by the same amount. This is different from translation **invariance** (output completely unchanged regardless of position), which pooling layers approximate by discarding some positional information.',
-    },
-    {
-      question: 'Compared to a Vision Transformer (ViT) trained from scratch on a small dataset, why does a CNN typically perform better?',
-      options: [
-        { text: 'The CNN’s built-in locality and weight-sharing biases let it learn useful spatial features from less data, while ViTs rely on large-scale pretraining to learn similar structure from data alone.', correct: true },
-        { text: 'CNNs always have more parameters than ViTs.', correct: false },
-        { text: 'ViTs cannot be trained with backpropagation.', correct: false },
-        { text: 'CNNs do not require labeled data.', correct: false },
-      ],
-      explanation: 'ViTs have minimal built-in spatial inductive bias and must learn locality and translation structure purely from data (typically via large-scale pretraining); CNNs encode that structure architecturally via convolution, making them more data-efficient at small scale. Both can be trained with backpropagation, and both typically still need labeled data (or self-supervised objectives) to learn useful representations.',
     },
   ],
   review: {

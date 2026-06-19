@@ -4,7 +4,7 @@ export const backpropagation: LearningModule = {
   id: "backpropagation",
   title: "Backpropagation",
   category: "Backpropagation",
-  prerequisites: ["calculus", "neural-networks"],
+  prerequisites: ["neural-networks"],
   tracks: ["modern-ai"],
   difficulty: 3,
   estimatedMinutes: 40,
@@ -143,7 +143,7 @@ export class Value {
     }
   }
 }`,
-  relatedModules: ["neural-networks", "gradient-descent", "transformers"],
+  relatedModules: ["neural-networks", "transformers"],
   tldr: [
     'Backpropagation computes $\\frac{\\partial L}{\\partial W}$ for every weight in a network by applying the **chain rule** backward from the loss to the inputs.',
     'It reuses intermediate values from the forward pass and propagates a single error signal $\\delta$ layer by layer, so the cost is roughly the same as one extra forward pass — not one pass per weight.',
@@ -253,28 +253,28 @@ $$ \\frac{\\partial L}{\\partial b_1} = \\delta_1 \\approx -0.0887 $$
     {
       prompt: 'For the multiplication gate $f = a \\cdot b$ with current values $a = 3$, $b = -4$, and an incoming gradient from upstream of $\\frac{\\partial L}{\\partial f} = 2$, compute the local gradients $\\frac{\\partial L}{\\partial a}$ and $\\frac{\\partial L}{\\partial b}$.',
       difficulty: 'warm-up',
-      hint: 'For a multiply gate, the local derivative with respect to one input is just the *other* input. Then apply the chain rule with the upstream gradient.',
+      hints: ['For a multiply gate, the local derivative with respect to one input is just the *other* input.', 'Apply the chain rule by multiplying the local derivative with the upstream gradient.'],
       solution: 'Local derivatives: $\\frac{\\partial f}{\\partial a} = b = -4$ and $\\frac{\\partial f}{\\partial b} = a = 3$. Applying the chain rule with the upstream gradient of $2$: $\\frac{\\partial L}{\\partial a} = \\frac{\\partial L}{\\partial f}\\cdot\\frac{\\partial f}{\\partial a} = 2 \\times (-4) = -8$, and $\\frac{\\partial L}{\\partial b} = \\frac{\\partial L}{\\partial f}\\cdot\\frac{\\partial f}{\\partial b} = 2 \\times 3 = 6$. The multiply gate is a "gradient switcher" — it swaps the inputs to form each other’s local gradient.',
       tags: ['computational-graph', 'conceptual'],
     },
     {
       prompt: 'A 2-layer network has hidden pre-activation $z_1 = w_1 x + b_1$ with sigmoid activation $a_1 = \\sigma(z_1)$, feeding a linear output $\\hat{y} = w_2 a_1 + b_2$, trained with loss $L = \\frac{1}{2}(\\hat{y}-y)^2$. Given $x=2$, $w_1=0.3$, $b_1=0.1$, $w_2=-0.5$, $b_2=0.2$, $y=0$, manually backpropagate to find $\\frac{\\partial L}{\\partial w_1}$.',
       difficulty: 'core',
-      hint: 'First run the full forward pass to get $z_1$, $a_1$, $\\hat{y}$, then work backward: $\\delta_{\\hat y} = \\hat y - y$, push it through $w_2$, then through $\\sigma^{\\prime}(z_1) = a_1(1-a_1)$, then through $x$.',
+      hints: ['First, carefully run the full forward pass to compute $z_1$, $a_1$, and $\\hat{y}$.', 'Work backward: find $\\delta_{\\hat y}$, push it through $w_2$, then through the sigmoid derivative, and finally to $w_1$.'],
       solution: '**Forward:** $z_1 = 0.3(2)+0.1 = 0.7$. $a_1 = \\sigma(0.7) \\approx 0.6682$. $\\hat{y} = -0.5(0.6682)+0.2 \\approx -0.1341$.\n\n**Backward:** $\\delta_{\\hat y} = \\hat y - y \\approx -0.1341$. Propagate through $w_2$: $\\frac{\\partial L}{\\partial a_1} = \\delta_{\\hat y}\\cdot w_2 = (-0.1341)(-0.5) \\approx 0.0671$. Sigmoid local derivative: $\\sigma^{\\prime}(z_1) = a_1(1-a_1) \\approx 0.6682 \\times 0.3318 \\approx 0.2218$. So $\\delta_1 = \\frac{\\partial L}{\\partial a_1}\\cdot \\sigma^{\\prime}(z_1) \\approx 0.0671 \\times 0.2218 \\approx 0.0149$. Finally $\\frac{\\partial L}{\\partial w_1} = \\delta_1 \\cdot x \\approx 0.0149 \\times 2 \\approx 0.0297$.',
       tags: ['derivation', 'numeric'],
     },
     {
       prompt: 'Explain why stacking many sigmoid layers causes the **vanishing gradient** problem. Use the bound on the sigmoid derivative in your explanation.',
       difficulty: 'core',
-      hint: 'What is the maximum possible value of $\\sigma^{\\prime}(z) = \\sigma(z)(1-\\sigma(z))$, and what happens when you multiply many numbers below that maximum together?',
+      hints: ['Find the maximum possible value of the sigmoid derivative $\\sigma^{\\prime}(z) = \\sigma(z)(1-\\sigma(z))$.', 'Consider what mathematically happens when you multiply many numbers smaller than this maximum together across deep layers.'],
       solution: 'The sigmoid derivative $\\sigma^{\\prime}(z) = \\sigma(z)(1-\\sigma(z))$ is maximized at $\\sigma(z) = 0.5$, giving $\\sigma^{\\prime}(z) \\le 0.25$ for all $z$. Backpropagation through $L$ stacked sigmoid layers multiplies $L$ such factors together when computing the error signal for the earliest layers (each layer contributes one $\\sigma^{\\prime}(z^{(l)})$ factor via $\\delta^{(l)} = (W^{(l+1)T}\\delta^{(l+1)}) \\odot \\sigma^{\\prime}(z^{(l)})$). Even in the best case, the gradient reaching the first layer is bounded by roughly $0.25^L$ times the weight magnitudes, which shrinks geometrically toward zero as $L$ grows — e.g. $0.25^{10} \\approx 9.5\\times 10^{-7}$. In practice it is usually worse because $\\sigma^{\\prime}(z)$ is far below $0.25$ whenever the unit is saturated (large $|z|$). This is precisely why deep sigmoid/tanh networks train so slowly, and why ReLU (derivative exactly $0$ or $1$, no shrinking factor) and residual/skip connections became standard.',
       tags: ['conceptual', 'vanishing-gradient'],
     },
     {
-      prompt: 'Derive the backward pass through a ReLU unit $a = \\max(0, z)$. Given an upstream gradient $\\frac{\\partial L}{\\partial a}$, what is $\\frac{\\partial L}{\\partial z}$, and how does this differ from backpropagating through a sigmoid?',
+      prompt: 'Derive the backward pass through a ReLU unit $a = \\max(0, z)$. Compare its gradient flow characteristics to those of a sigmoid activation.',
       difficulty: 'challenge',
-      hint: 'Consider the two cases $z > 0$ and $z \\le 0$ separately, then apply the chain rule.',
+      hints: ['Consider the two cases $z > 0$ and $z \\le 0$ separately.', 'Apply the chain rule for each case.'],
       solution: 'The local derivative of ReLU is piecewise constant: $\\frac{\\partial a}{\\partial z} = 1$ if $z > 0$, and $\\frac{\\partial a}{\\partial z} = 0$ if $z \\le 0$ (the function is non-differentiable exactly at $z=0$, but in practice it is conventionally assigned a subgradient of $0$ or $1$ there). By the chain rule, $\\frac{\\partial L}{\\partial z} = \\frac{\\partial L}{\\partial a}\\cdot \\frac{\\partial a}{\\partial z}$, which simplifies to: pass the upstream gradient through **unchanged** if $z > 0$, or **zero it out** if $z \\le 0$. This is fundamentally different from sigmoid backprop: sigmoid always *shrinks* the gradient by a factor in $(0, 0.25]$ no matter the input, causing gradual vanishing across depth. ReLU instead either passes the gradient through with a multiplier of exactly $1$ (no shrinkage at all for active units) or kills it completely (the "dying ReLU" failure mode, where a unit that is always inactive never receives a gradient and stops learning). The upside is that active units suffer no multiplicative shrinkage, which is the main reason ReLU enables much deeper networks to train than sigmoid/tanh.',
       tags: ['derivation', 'activation-functions'],
     },
@@ -336,6 +336,12 @@ $$ \\frac{\\partial L}{\\partial b_1} = \\delta_1 \\approx -0.0887 $$
       },
     },
   ],
+  shortAnswerQuestions: [
+    {
+      question: "Analyze the root cause of the vanishing gradient problem in deep networks that use sigmoid activations. How does substituting ReLU activations mitigate this issue, and what new failure mode does ReLU introduce?",
+      expectedAnswerRubric: "A strong answer must mention that the derivative of the sigmoid function is bounded by 0.25. When propagating gradients backward via the chain rule, repeatedly multiplying values less than 1 causes the gradient to shrink exponentially with depth. ReLU mitigates this because its derivative is exactly 1 for positive inputs, allowing unattenuated gradient flow. However, it introduces the 'dying ReLU' problem, where units with negative pre-activations receive a zero gradient and stop updating."
+    }
+  ],
   quiz: [
     {
       question: 'What is the primary computational advantage of backpropagation (reverse-mode autodiff) over computing each parameter’s gradient independently via finite differences?',
@@ -356,16 +362,6 @@ $$ \\frac{\\partial L}{\\partial b_1} = \\delta_1 \\approx -0.0887 $$
         { text: 'The weight matrix transposed for the next layer.', correct: false },
       ],
       explanation: '$\\sigma^{\\prime}(z^{(l)})$ is the activation function’s local derivative evaluated at that layer’s pre-activation. It elementwise-multiplies (gates) the error signal that has been pulled back through the weights $W^{(l+1)T}$, determining how much gradient actually flows through that unit. It has nothing to do with the learning rate or the loss value itself.',
-    },
-    {
-      question: 'Why do deep networks built entirely from sigmoid activations tend to suffer from vanishing gradients, while ReLU networks are far less prone to this?',
-      options: [
-        { text: 'Sigmoid’s derivative is bounded by $0.25$ everywhere, so its repeated multiplication across many layers shrinks the gradient geometrically, whereas ReLU’s derivative is exactly $1$ for active units, causing no such shrinkage.', correct: true },
-        { text: 'Sigmoid networks do not use the chain rule, while ReLU networks do.', correct: false },
-        { text: 'ReLU networks do not need a backward pass at all.', correct: false },
-        { text: 'Sigmoid activations always output exactly $0$ or $1$, blocking all gradient flow.', correct: false },
-      ],
-      explanation: 'Since $\\sigma^{\\prime}(z) = \\sigma(z)(1-\\sigma(z)) \\le 0.25$, chaining this factor across many layers via the chain rule causes the gradient magnitude reaching early layers to shrink exponentially with depth. ReLU’s derivative is exactly $1$ for $z>0$ (no shrinkage) or $0$ for $z \\le 0$, so active paths pass gradients through undiminished. Both networks rely on the same backward-pass machinery; the difference is purely in the magnitude of the local derivative.',
     },
     {
       question: 'A colleague claims: "Backpropagation IS the optimization algorithm that updates a neural network’s weights." What is the correct way to characterize this claim?',

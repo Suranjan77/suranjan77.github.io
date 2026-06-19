@@ -4,10 +4,10 @@ export const dimensionalityReduction: LearningModule = {
   id: "dimensionality-reduction",
   title: "Dimensionality Reduction",
   category: "Dimensionality Reduction",
-  prerequisites: ["linear-algebra"],
+  prerequisites: ["clustering"],
   tracks: ["practitioner"],
   difficulty: 3,
-  relatedModules: ["linear-algebra", "clustering"],
+  relatedModules: ["clustering"],
   shortDescription: "Techniques to shrink massive datasets down to their most important core features, making them easier to visualize and faster to process.",
   estimatedMinutes: 20,
   learningObjectives: [
@@ -175,19 +175,19 @@ Plotting the cumulative ratio against $k$ (the "scree" / cumulative-variance cur
     {
       prompt: 'Using the same eigenvalues $\\lambda = [8, 4, 2, 1]$, how many components must you keep to retain at least **95%** of the variance?',
       difficulty: 'core',
-      hint: 'Accumulate the sorted eigenvalues and find the smallest $k$ whose cumulative ratio reaches 0.95.',
+      hints: ['Accumulate the sorted eigenvalues.', 'Find the smallest $k$ whose cumulative ratio reaches 0.95.'],
       solution: 'Total $= 15$. Cumulative ratios: $k=1: 8/15 = 0.533$; $k=2: 12/15 = 0.800$; $k=3: 14/15 \\approx 0.933$; $k=4: 15/15 = 1.000$. Three components ($0.933$) still fall short of $0.95$, so you must keep all **4** components to reach the 95% threshold. (This dataset has no near-zero eigenvalue, so it does not compress well at 95%.)',
     },
     {
       prompt: 'Two features measure the same physical quantity but in different units: feature A is a length in **millimetres** (values in the thousands) and feature B is the same length in **metres** (values near 1). You run PCA **without** standardizing. What happens, and how do you fix it?',
       difficulty: 'core',
-      hint: 'Variance scales with the square of the units. Compare the variance of A versus B.',
+      hints: ['Variance scales with the square of the units.', 'Compare the variance of A versus B.'],
       solution: 'Variance scales with the square of the measurement scale, so feature A (millimetres) has roughly $1000^2 = 10^6$ times the variance of feature B (metres) even though they carry identical information. PCA maximizes variance, so the first component will align almost entirely with A and essentially ignore B and every other modestly-scaled feature. The fix is to **standardize** each feature to zero mean and unit variance (z-score) before PCA, i.e. run PCA on the correlation matrix rather than the raw covariance matrix, so each feature contributes on equal footing.',
     },
     {
-      prompt: 'Show that the principal components produced by PCA are mutually **uncorrelated** — i.e. the covariance matrix of the projected data is diagonal.',
+      prompt: 'Prove that the projected data produced by PCA has mutually uncorrelated features.',
       difficulty: 'challenge',
-      hint: 'Stack the top eigenvectors as columns of $W$ and compute the covariance of $XW$ using $\\mathbf{\\Sigma} = W \\Lambda W^T$.',
+      hints: ['Stack the top eigenvectors as columns of $W$.', 'Compute the covariance of $XW$ using $\\mathbf{\\Sigma} = W \\Lambda W^T$.'],
       solution: 'Let $W = [\\mathbf{w}_1, \\dots, \\mathbf{w}_k]$ hold orthonormal eigenvectors of $\\mathbf{\\Sigma}$, so $W^T W = I$ and $\\mathbf{\\Sigma} W = W \\Lambda$ with $\\Lambda = \\operatorname{diag}(\\lambda_1, \\dots, \\lambda_k)$. The projected data is $Z = X W$. Its covariance is $\\operatorname{Cov}(Z) = W^T \\mathbf{\\Sigma} W = W^T (W \\Lambda) = (W^T W)\\Lambda = \\Lambda$, which is **diagonal**. Off-diagonal entries are zero, so distinct principal components are uncorrelated, and the variance of component $i$ is exactly $\\lambda_i$.',
     },
   ],
@@ -251,6 +251,12 @@ Plotting the cumulative ratio against $k$ (the "scree" / cumulative-variance cur
         type: 'paper',
       },
     },
+  ],
+  shortAnswerQuestions: [
+    {
+      question: 'A dataset has two features: length in millimeters and weight in kilograms. Explain what would happen if you ran PCA on this dataset without standardizing the features first, and why.',
+      expectedAnswerRubric: "The answer should state that variance scales with the square of the feature's units. Because millimeters will have much larger numeric values than kilograms, the length feature will have a massively inflated variance. Since PCA seeks to maximize variance, the first principal component will align almost entirely with the length feature, ignoring the weight feature regardless of its actual informational importance. Standardizing the features solves this."
+    }
   ],
   quiz: [
     {

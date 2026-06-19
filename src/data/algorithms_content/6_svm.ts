@@ -4,7 +4,7 @@ export const svm: LearningModule = {
   id: "support-vector-machines",
   title: "Support Vector Machines",
   category: "Support Vector Machines",
-  prerequisites: ["linear-algebra", "probability-theory"],
+  prerequisites: ["logistic-regression"],
   tracks: ["practitioner"],
   difficulty: 3,
   relatedModules: ["linear-regression", "logistic-regression"],
@@ -156,23 +156,23 @@ Only support vectors have nonzero $\\alpha_i$, so the sum runs over them alone. 
     {
       prompt: 'A linear SVM has weight vector $w = (3, 4)$. What is the geometric width of the margin $\\frac{2}{\\lVert w \\rVert}$?',
       difficulty: 'warm-up',
-      hint: 'Compute $\\lVert w \\rVert = \\sqrt{w_1^2 + w_2^2}$ first.',
+      hints: ['Compute $\\lVert w \\rVert = \\sqrt{w_1^2 + w_2^2}$ first.'],
       solution: 'The norm is $\\lVert w \\rVert = \\sqrt{3^2 + 4^2} = \\sqrt{9 + 16} = \\sqrt{25} = 5$. The margin width is $\\frac{2}{\\lVert w \\rVert} = \\frac{2}{5} = 0.4$.',
     },
     {
       prompt: 'A trained linear SVM has $w = (1, -1)$ and $b = -1$. Classify the point $x = (4, 1)$ using $f(x) = \\operatorname{sign}(w^T x + b)$, and state whether it lies inside the margin.',
       difficulty: 'core',
-      hint: 'Compute $w^T x + b$; the margin edges are at $\\pm 1$.',
+      hints: ['Compute $w^T x + b$.', 'The margin edges are at $\\pm 1$.'],
       solution: 'Score $w^T x + b = (1)(4) + (-1)(1) + (-1) = 4 - 1 - 1 = 2$. Since $2 > 0$, the predicted label is $+1$. Because $|2| \\ge 1$, the point is outside the margin (on the positive side, beyond the margin edge), so it is not a support vector for this fit.',
     },
     {
       prompt: 'Given support vectors at $x_+ = (3, 3)$ with label $+1$ and $x_- = (1, 1)$ with label $-1$, and weight vector $w = (1, 1)$, find the bias $b$ such that both points sit exactly on their margin edges.',
       difficulty: 'core',
-      hint: 'On the margin edges, $w^T x_+ + b = +1$ and $w^T x_- + b = -1$.',
+      hints: ['On the margin edges, $w^T x_+ + b = +1$ and $w^T x_- + b = -1$.'],
       solution: 'From the positive support vector: $w^T x_+ + b = (1)(3) + (1)(3) + b = 6 + b = 1 \\Rightarrow b = -5$. Check the negative one: $w^T x_- + b = (1)(1) + (1)(1) + b = 2 + b = 2 - 5 = -3$. That gives $-3 \\ne -1$, so $w = (1,1)$ does not place both points on their edges; the consistent boundary requires rescaling $w$. With $w = (\\tfrac{1}{2}, \\tfrac{1}{2})$: positive gives $3 + b = 1 \\Rightarrow b = -2$, negative gives $1 + b = 1 - 2 = -1$, which matches. So $w = (\\tfrac{1}{2}, \\tfrac{1}{2}), b = -2$.',
     },
     {
-      prompt: 'You train an RBF-kernel SVM and find it nearly memorizes the training set but generalizes poorly. Explain, in terms of $C$ and $\\gamma$, which directions to adjust them and why.',
+      prompt: 'You train an RBF-kernel SVM and find it nearly memorizes the training set but generalizes poorly. How should you adjust your hyperparameters to fix this issue, and what is the geometric effect of these adjustments?',
       difficulty: 'challenge',
       solution: 'Memorizing the training set with poor generalization is classic overfitting. Both $C$ and $\\gamma$ are too large. Decrease $C$ so the soft-margin penalty tolerates more slack, widening and smoothing the margin instead of bending it to fit every point. Decrease $\\gamma$ so the RBF kernel $\\exp(-\\gamma \\lVert x_i - x_j \\rVert^2)$ has a larger effective radius — large $\\gamma$ makes each support vector influence only its immediate neighborhood, turning the boundary into isolated bumps around training points. Tune both together with cross-validated grid search.',
     },
@@ -238,6 +238,12 @@ Only support vectors have nonzero $\\alpha_i$, so the sum runs over them alone. 
       },
     },
   ],
+  shortAnswerQuestions: [
+    {
+      question: 'Explain why maximizing the SVM margin is mathematically equivalent to minimizing $\\frac{1}{2}\\lVert w \\rVert^2$ subject to $y_i(w^T x_i + b) \\ge 1$.',
+      expectedAnswerRubric: 'A complete answer should note that the geometric margin width between the hyperplanes $w^T x + b = 1$ and $w^T x + b = -1$ is $\\frac{2}{\\lVert w \\rVert}$. Therefore, maximizing the margin means minimizing $\\lVert w \\rVert$. Minimizing $\\frac{1}{2}\\lVert w \\rVert^2$ is an equivalent convex optimization problem that is easier to solve. The constraint $y_i(w^T x_i + b) \\ge 1$ ensures that all points are correctly classified and lie outside the margin.'
+    }
+  ],
   quiz: [
     {
       question: 'What are the support vectors in a trained SVM?',
@@ -248,16 +254,6 @@ Only support vectors have nonzero $\\alpha_i$, so the sum runs over them alone. 
         { text: 'The points farthest from the decision boundary.', correct: false },
       ],
       explanation: 'Support vectors are exactly the points on or inside the margin (those with nonzero dual coefficients $\\alpha_i$). They alone define the boundary — removing a point that is far outside the margin leaves the fitted classifier unchanged.',
-    },
-    {
-      question: 'Maximizing the SVM margin is equivalent to which optimization?',
-      options: [
-        { text: 'Minimizing $\\frac{1}{2}\\lVert w \\rVert^2$ subject to $y_i(w^T x_i + b) \\ge 1$.', correct: true },
-        { text: 'Maximizing $\\lVert w \\rVert$ with no constraints.', correct: false },
-        { text: 'Minimizing the number of features used.', correct: false },
-        { text: 'Maximizing the sum of all training scores.', correct: false },
-      ],
-      explanation: 'The margin width equals $\\frac{2}{\\lVert w \\rVert}$, so maximizing it means minimizing $\\lVert w \\rVert$, equivalently $\\frac{1}{2}\\lVert w \\rVert^2$, subject to every point being correctly classified with $y_i(w^T x_i + b) \\ge 1$. This is a convex quadratic program.',
     },
     {
       question: 'What does the kernel trick accomplish?',
