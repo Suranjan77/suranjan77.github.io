@@ -114,9 +114,10 @@ describe("Practitioner Track Visualization Accuracy", () => {
     expect(screen.getByText(/L1 Lasso/i)).toBeInTheDocument();
   });
 
-  it("verifies Neural Network layer nodes and activations", () => {
+  it("starts the neural network on the failing linear boundary", () => {
     render(<NeuralNetworkViz />);
-    expect(screen.getByText("STEP 1 / 4")).toBeInTheDocument();
+    expect(screen.getByText("STEP 1 / 3")).toBeInTheDocument();
+    expect(screen.getByTestId("nn-accuracy")).toHaveTextContent("50%");
   });
 
   it("verifies NLP cosine similarity calculations", () => {

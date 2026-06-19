@@ -37,19 +37,20 @@ describe("algorithm visualization interaction contracts", () => {
     ).toBeInTheDocument();
   });
 
-  it("keeps neural network stepper, target toggle, and feature controls coherent", () => {
+  it("bends the neural-network boundary as hidden neurons are added", () => {
     renderVisualization("neural-networks");
 
-    expect(screen.getByText("STEP 1 / 4")).toBeInTheDocument();
-    fireEvent.click(controlRegion(/x1 value:/).getByRole("button", { name: "+" }));
-    expect(screen.getByText("1.0")).toBeInTheDocument();
+    // Step 1: a single line cannot separate XOR — accuracy is stuck at 50%.
+    expect(screen.getByText("STEP 1 / 3")).toBeInTheDocument();
+    expect(screen.getByTestId("nn-accuracy")).toHaveTextContent("50%");
 
-    fireEvent.click(screen.getByRole("button", { name: /class \+1.0/i }));
-    expect(screen.getByRole("button", { name: /class -1.0/i })).toBeInTheDocument();
-
+    // Adding two hidden neurons (two folds) wraps every cluster -> 100%.
     fireEvent.click(screen.getByTitle("Step Forward"));
-    expect(screen.getByText("STEP 2 / 4")).toBeInTheDocument();
-    expect(screen.getByText(/Forward pass computes hidden node activations/i)).toBeInTheDocument();
+    expect(screen.getByText("STEP 2 / 3")).toBeInTheDocument();
+    fireEvent.click(screen.getByTitle("Step Forward"));
+    expect(screen.getByText("STEP 3 / 3")).toBeInTheDocument();
+    expect(screen.getByTestId("nn-accuracy")).toHaveTextContent("100%");
+    expect(screen.getByTitle("Step Forward")).toBeDisabled();
   });
 
   it("keeps CNN kernel selection and scan controls synchronized", () => {
