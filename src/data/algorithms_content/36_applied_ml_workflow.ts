@@ -36,6 +36,90 @@ Following that, we dive into **Model Selection and Cross-Validation**. Relying o
 We then address the critical issue of **Evaluation Metrics**. Accuracy is a dangerous metric on imbalanced datasets. We unpack Confusion Matrices, Precision, Recall, F1-Score, and the ROC-AUC curve, teaching you how to align mathematical metrics with business objectives.
 
 Finally, we cover **Anomaly Detection**, a unique paradigm where the goal is not merely classification, but identifying outliers in highly skewed contexts like fraud detection or predictive maintenance.`,
+
+  intuition: `Think of building a model like cooking a meal for a restaurant. The fancy algorithm is the recipe, but **the recipe is the easy part** — anyone can copy it. What separates a working kitchen from a failing one is everything *around* the recipe: sourcing clean ingredients (data preparation), tasting as you go on a spoon you haven't already served (a held-out validation set), and judging the dish by what the customer actually ordered (the right metric) rather than by how full the plate looks (raw accuracy).
+
+A few mental images make the core ideas stick:
+
+- **Bias vs. variance is a dartboard.** High bias is a tight cluster of darts landing in the wrong corner — consistent but wrong (too simple). High variance is darts scattered all over — right on average but unreliable (too complex, chasing noise). You want a tight cluster on the bullseye, and you usually trade one for the other.
+- **Data leakage is tasting the answers before the exam.** If any information from your test set sneaks into training — even indirectly, like scaling using the test set's mean — your score looks great in the lab and collapses in production. The fix is a strict rule: *split first, then learn everything (scalers, imputers, encoders) from the training portion only.*
+- **Accuracy is a liar on rare events.** If 1 in 1000 transactions is fraud, a model that screams "not fraud" every time is 99.9% accurate and 100% useless. The whole point of precision, recall, and the confusion matrix is to stop counting the easy negatives and start measuring whether you actually catch the thing you care about.
+
+The unifying idea: **a model is only as trustworthy as the procedure that measured it.** Most real-world ML failures are not exotic algorithm bugs — they are an honest model evaluated dishonestly.`,
+
+  mathematics: `### 1. The Bias-Variance Decomposition
+
+For a model $\\hat{f}$ trained on a random dataset, the expected squared error on a fresh point $x$ decomposes into three additive pieces:
+
+$$ \\mathbb{E}\\big[(y - \\hat{f}(x))^2\\big] = \\underbrace{\\big(\\text{Bias}[\\hat{f}(x)]\\big)^2}_{\\text{underfitting}} + \\underbrace{\\text{Var}[\\hat{f}(x)]}_{\\text{overfitting}} + \\underbrace{\\sigma^2}_{\\text{irreducible noise}} $$
+
+Bias is how far the *average* model is from the truth; variance is how much the model wiggles as the training data changes. You cannot drive both to zero — increasing model complexity lowers bias but raises variance — so the goal is the complexity that **minimizes their sum**.
+
+### 2. Confusion-Matrix Metrics
+
+From the four cells $TP, FP, TN, FN$ of the confusion matrix:
+
+$$ \\text{Precision} = \\frac{TP}{TP + FP}, \\qquad \\text{Recall} = \\frac{TP}{TP + FN} $$
+
+Precision answers *"when I raise an alarm, how often am I right?"* and Recall answers *"of all the real events, how many did I catch?"* The **F1-score** is their harmonic mean, which (unlike the arithmetic mean) stays low unless *both* are high:
+
+$$ F_1 = 2 \\cdot \\frac{\\text{Precision} \\cdot \\text{Recall}}{\\text{Precision} + \\text{Recall}} $$
+
+### 3. ROC-AUC
+
+Sweeping the decision threshold traces the ROC curve of $\\text{TPR} = \\tfrac{TP}{TP+FN}$ against $\\text{FPR} = \\tfrac{FP}{FP+TN}$. The area under it has a clean probabilistic meaning:
+
+$$ \\text{AUC} = P\\big(\\hat{s}(x^{+}) > \\hat{s}(x^{-})\\big) $$
+
+the probability that the model scores a random positive above a random negative. $1.0$ is perfect ranking, $0.5$ is a coin flip.
+
+### 4. The Cross-Validation Estimate
+
+$K$-fold CV reports the mean score across folds, with its spread as a built-in error bar:
+
+$$ \\widehat{\\text{CV}} = \\frac{1}{K} \\sum_{k=1}^{K} \\text{score}\\big(\\hat{f}_{-k}, \\; \\mathcal{D}_k\\big) $$
+
+where $\\hat{f}_{-k}$ was trained on every fold except $\\mathcal{D}_k$. Averaging over $K$ independent validation sets shrinks the variance of the estimate, which is exactly why it beats a single train/test split on small data.`,
+
+  pros: [
+    "A disciplined workflow turns 'it scored well once' into a trustworthy, reproducible estimate — cross-validation averages over several validation sets to shrink the luck in any single split.",
+    "Choosing the metric that matches the business cost (recall for missed fraud, precision for false alarms) aligns what the optimizer maximizes with what actually matters.",
+    "Bias-variance diagnosis is prescriptive: comparing training vs. validation error tells you *specifically* whether to add complexity/features or to regularize and gather data.",
+    "Guarding against data leakage (split first, fit transforms on train only, transform inside the CV loop) is cheap insurance against models that look brilliant offline and fail in production.",
+  ],
+
+  cons: [
+    "Rigorous evaluation is expensive: K-fold and especially nested cross-validation multiply training cost by the number of folds, which hurts on large models or huge datasets.",
+    "No single number is enough — precision, recall, calibration, and cost trade off against each other, so picking 'the' metric requires business context that is often ambiguous or contested.",
+    "Leakage is subtle and many-headed (temporal, group, target, preprocessing leakage); it is easy to introduce by accident and produces dangerously optimistic scores.",
+    "Standard random K-fold silently breaks on time-series or grouped data (e.g. multiple rows per patient), where naive splitting still leaks information across the boundary.",
+  ],
+
+  codeSnippet: `from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+
+# A Pipeline binds preprocessing to the model so that the scaler and
+# imputer are re-fit on the TRAINING folds inside every CV iteration.
+# This is the leak-free way to evaluate: the validation fold never
+# influences imputation or scaling.
+pipe = Pipeline([
+    ("impute", SimpleImputer(strategy="median")),
+    ("scale", StandardScaler()),
+    ("clf", LogisticRegression(max_iter=1000)),
+])
+
+# Stratified folds keep the class ratio identical in every fold —
+# essential for imbalanced data so no fold is missing the rare class.
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+# Score the WHOLE pipeline, not a pre-fit model. Use a metric that
+# matches the cost of errors (here F1, robust to class imbalance).
+scores = cross_val_score(pipe, X, y, cv=cv, scoring="f1")
+print(f"F1: {scores.mean():.3f} +/- {scores.std():.3f}")`,
+
   tldr: [
     "Data preparation is the foundation of ML. Always split your data *before* applying transformations to prevent data leakage.",
     "The Bias-Variance tradeoff defines model behavior. High bias leads to underfitting; high variance leads to overfitting.",
@@ -207,20 +291,23 @@ Unlike standard classification, anomaly detection datasets are wildly imbalanced
       takeaway: "Never rely on Accuracy for rare events. Choose Precision when false alarms are expensive, and Recall when missing an event is dangerous."
     }
   ],
-  usageGuidance: [
-    {
-      useWhen: [
-        "Use K-Fold Cross-Validation for almost all tabular data problems to ensure robust model selection.",
-        "Use Stratified K-Fold for imbalanced classification tasks to ensure each fold has the same ratio of classes.",
-        "Use Precision and Recall for evaluating models on highly skewed datasets."
-      ],
-      avoidWhen: [
-        "Avoid random K-Fold splits on Time Series data; use time-based sequential splitting instead.",
-        "Avoid using standard supervised algorithms out-of-the-box for anomaly detection; use specialized outlier models.",
-        "Never use test data for any form of scaling, imputation, or hyperparameter tuning."
-      ]
-    }
-  ],
+  usageGuidance: {
+    useWhen: [
+      "Use K-Fold Cross-Validation for almost all tabular data problems to ensure robust model selection.",
+      "Use Stratified K-Fold for imbalanced classification tasks to ensure each fold has the same ratio of classes.",
+      "Use Precision and Recall (or PR-AUC) for evaluating models on highly skewed datasets.",
+    ],
+    avoidWhen: [
+      "Avoid random K-Fold splits on Time Series data; use time-based sequential splitting instead.",
+      "Avoid using standard supervised algorithms out-of-the-box for anomaly detection; use specialized outlier models.",
+      "Never use test data for any form of scaling, imputation, or hyperparameter tuning.",
+    ],
+    rulesOfThumb: [
+      "Split first, then learn every transform (scaler, imputer, encoder) from the training portion only.",
+      "Pick the metric before you model: decide the cost of a false positive vs. a false negative up front.",
+      "Wrap preprocessing in a Pipeline so transforms are re-fit inside each CV fold and cannot leak.",
+    ],
+  },
   references: [
     {
       title: "Scikit-Learn Documentation: Cross-validation",
