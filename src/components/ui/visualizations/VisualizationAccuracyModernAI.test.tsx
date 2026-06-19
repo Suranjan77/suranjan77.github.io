@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import BackpropagationViz from "./BackpropagationViz";
 import SequenceModelsViz from "./SequenceModelsViz";
@@ -9,9 +9,13 @@ import LLMEvalSafetyViz from "./LLMEvalSafetyViz";
 import AIInferenceViz from "./AIInferenceViz";
 
 describe("Modern AI Track Visualization Accuracy", () => {
-  it("verifies Backpropagation computation graph derivatives", () => {
+  it("verifies Backpropagation lowers the loss after a gradient step", () => {
     render(<BackpropagationViz />);
     expect(screen.getByText(/Calculated Gradients/i)).toBeInTheDocument();
+    const lossBefore = Number(screen.getByTestId("bp-loss").textContent);
+    fireEvent.click(screen.getByRole("button", { name: /take a gradient step/i }));
+    const lossAfter = Number(screen.getByTestId("bp-loss").textContent);
+    expect(lossAfter).toBeLessThan(lossBefore);
   });
 
   it("verifies Sequence Models gradient magnitude flow", () => {

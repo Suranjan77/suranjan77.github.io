@@ -128,9 +128,9 @@ const extendedVisualizations: Record<
   },
   backpropagation: {
     component: BackpropagationViz,
-    title: "Backpropagation Through a Computational Graph",
-    subtitle: "Change inputs and trace local derivatives backward through a graph.",
-    insight: "Backpropagation reuses local derivatives to efficiently compute parameter gradients.",
+    title: "Backprop: Assigning Blame for the Error",
+    subtitle: "A neuron predicts the wrong number. Watch the error flow backward and split into a gradient on each weight — then step downhill and watch the loss fall.",
+    insight: "Backpropagation computes every weight's gradient in one backward sweep by passing blame through the chain rule, which is what makes training large models feasible.",
   },
   "sequence-models": {
     component: SequenceModelsViz,
@@ -604,7 +604,7 @@ const accessibleLabels: Record<string, string> = {
   llms: "LLM Temperature Sampling",
   "reinforcement-learning": "Q-Learning Reinforcement Learning Gridworld",
   "generative-models": "Generative Models Latent Space Walk",
-  backpropagation: "Backpropagation Computational Graph Visualizer",
+  backpropagation: "Backpropagation Credit Assignment",
   "sequence-models": "Sequence Models RNN Unrolled Graph Visualizer",
   "embeddings-tokenization": "Tokenization and embedding comparison",
   rag: "RAG Pipeline Flow Diagram",
