@@ -439,7 +439,7 @@ new ML-purpose scenario and its one insight beat.
 - [x] Review pass (2026-06-19) — fixed the broken build at its root, completed the flagged
   "Machine Learning Concepts" (applied-ml-workflow) content, and reframed probability into a
   distribution explorer ("missing distributions" feedback).
-- [~] Phase 4/5 (superseded by full-reframe scope) — old two-column grid retired from all
-  Viz components. Remaining cleanup: remove the dead d3 `SceneConfig` path + `d3`/`@types/d3`
-  deps (the legacy `configs` block still supplies title/subtitle/insight/legend metadata, so
-  removing it needs that metadata rehomed first).
+- [x] Phase 4/5 (superseded by full-reframe scope) — old two-column grid retired from all
+  Viz components; the dead d3 `SceneConfig` scene-renderer was removed from
+  `D3Visualization.tsx` (its title/subtitle/insight/legend metadata now lives in a plain
+  `VizMetadata` map) and the `d3` / `@types/d3` dependencies were uninstalled.
