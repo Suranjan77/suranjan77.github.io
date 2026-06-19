@@ -1,290 +1,209 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { COLORS } from "../visualizationPrimitives";
+import React, { useState } from "react";
+import { COLORS, SVGFilters, VizShell } from "../visualizationPrimitives";
 
-// Deterministic mock embedding generator based on word characters
-function getMockEmbedding(word: string): number[] {
-  const clean = word.toLowerCase().replace(/[^a-z]/g, "");
-  
-  // Semantic presets
-  const presets: Record<string, number[]> = {
-    cat: [0.8, 0.5, -0.2],
-    dog: [0.75, 0.45, -0.15],
-    kitten: [0.85, 0.55, -0.25],
-    king: [0.1, -0.7, 0.8],
-    queen: [0.15, -0.65, 0.75],
-    man: [0.2, -0.3, 0.5],
-    woman: [0.25, -0.25, 0.45],
-    computer: [-0.8, 0.1, -0.7],
-    robot: [-0.75, 0.15, -0.65]
-  };
+const W = 720;
+const H = 360;
 
-  if (presets[clean]) {
-    return presets[clean];
-  }
+// A small illustrative subword vocabulary. Common whole words tokenize to one
+// piece; rarer/longer words get split greedily into known subword pieces, the
+// way a real BPE/WordPiece tokenizer does.
+const VOCAB = [
+  "the", "cat", "sat", "on", "mat", "i", "love", "machine", "learning", "model", "models",
+  "is", "are", "and", "a", "to", "of", "new", "york", "please", "help", "me", "write", "code",
+  "you", "pay", "for", "every", "see", "as", "it",
+  "token", "ization", "sub", "words", "word", "shatter", "s", "ing", "ed", "un", "happy",
+  "ness", "anti", "dis", "establish", "ment", "arian", "ism", "over", "fit", "ting", "pre",
+  "train", "trans", "former", "ers", "er", "ly", "able", "re", "present", "ation", "neighbour",
+];
+const VOCAB_SET = new Map(VOCAB.map((w, i) => [w, 1000 + i]));
 
-  // Generate deterministic vectors for other words
-  let hash1 = 0;
-  let hash2 = 0;
-  let hash3 = 0;
-  for (let i = 0; i < clean.length; i++) {
-    const code = clean.charCodeAt(i);
-    hash1 = (hash1 * 31 + code) % 1000;
-    hash2 = (hash2 * 37 + code) % 1000;
-    hash3 = (hash3 * 41 + code) % 1000;
-  }
+type Tok = { text: string; id: number; cont: boolean; kind: "word" | "sub" | "punct" };
 
-  const v1 = (hash1 / 500.0) - 1.0;
-  const v2 = (hash2 / 500.0) - 1.0;
-  const v3 = (hash3 / 500.0) - 1.0;
-
-  // Normalize
-  const len = Math.sqrt(v1 * v1 + v2 * v2 + v3 * v3) || 1.0;
-  return [v1 / len, v2 / len, v3 / len];
-}
-
-function computeCosineSimilarity(v1: number[], v2: number[]): number {
-  let dot = 0;
-  let len1 = 0;
-  let len2 = 0;
-  for (let i = 0; i < v1.length; i++) {
-    dot += v1[i] * v2[i];
-    len1 += v1[i] * v1[i];
-    len2 += v2[i] * v2[i];
-  }
-  return dot / (Math.sqrt(len1) * Math.sqrt(len2)) || 0;
-}
-
-export default function EmbeddingsTokenizationViz() {
-  const [inputText, setInputText] = useState<string>("Cat and dog are semantic neighbors. King and computer are not.");
-  const [selectedTokens, setSelectedTokens] = useState<string[]>(["cat", "dog"]);
-
-  // Simple token splitting (using standard boundaries)
-  const tokens = useMemo(() => {
-    // Split on words and punctuation
-    const words = inputText.split(/(\s+|,|\.|\?|!|;)/).filter(t => t.length > 0);
-    
-    let tokenId = 100;
-    return words.map(word => {
-      const isWhitespace = /^\s+$/.test(word);
-      const isPunctuation = /^[,.?!;]$/.test(word);
-      const cleanToken = word.trim().toLowerCase();
-      
-      const id = isWhitespace ? -1 : tokenId++;
-      
-      return {
-        id,
-        text: word,
-        cleanToken,
-        isWhitespace,
-        isPunctuation
-      };
-    });
-  }, [inputText]);
-
-  const similarityInfo = useMemo(() => {
-    if (selectedTokens.length < 2) return null;
-    const v1 = getMockEmbedding(selectedTokens[0]);
-    const v2 = getMockEmbedding(selectedTokens[1]);
-    const similarity = computeCosineSimilarity(v1, v2);
-
-    return {
-      v1,
-      v2,
-      similarity
-    };
-  }, [selectedTokens]);
-
-  const handleTokenClick = (cleanToken: string) => {
-    if (!cleanToken) return;
-    
-    // Toggle/select token
-    if (selectedTokens.includes(cleanToken)) {
-      setSelectedTokens(selectedTokens.filter(t => t !== cleanToken));
-    } else {
-      if (selectedTokens.length >= 2) {
-        // Replace second token
-        setSelectedTokens([selectedTokens[0], cleanToken]);
-      } else {
-        setSelectedTokens([...selectedTokens, cleanToken]);
+function tokenizeWord(word: string): Tok[] {
+  const lower = word.toLowerCase();
+  const out: Tok[] = [];
+  let i = 0;
+  let first = true;
+  while (i < lower.length) {
+    let matched = "";
+    for (let j = lower.length; j > i; j--) {
+      const slice = lower.slice(i, j);
+      if (VOCAB_SET.has(slice)) {
+        matched = slice;
+        break;
       }
     }
-  };
+    if (!matched) {
+      matched = lower.slice(i, i + 3); // fall back to a 3-char chunk
+    }
+    out.push({
+      text: word.slice(i, i + matched.length),
+      id: VOCAB_SET.get(matched) ?? 200 + (matched.charCodeAt(0) % 800),
+      cont: !first,
+      kind: first ? "word" : "sub",
+    });
+    i += matched.length;
+    first = false;
+  }
+  return out;
+}
 
-  return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2">
-        <div className="flex flex-col gap-4">
-          {/* User Input Text Box */}
-          <div className="rounded border border-outline bg-surface p-4">
-            <label className="block mb-2 font-mono text-xs uppercase font-bold text-on-surface-variant" htmlFor="et-text-input">
-              Type text here to tokenize live:
-            </label>
-            <input
-              id="et-text-input"
-              type="text"
-              value={inputText}
-              onChange={e => setInputText(e.target.value)}
-              className="w-full border border-outline bg-surface p-2.5 text-sm rounded font-sans text-on-surface"
-              placeholder="Type anything..."
-              aria-label="Text to tokenize live input box"
-            />
-          </div>
+function tokenize(text: string): Tok[] {
+  const chunks = text.match(/[A-Za-z0-9]+|[^\sA-Za-z0-9]/g) ?? [];
+  const out: Tok[] = [];
+  for (const ch of chunks) {
+    if (/[A-Za-z0-9]/.test(ch)) out.push(...tokenizeWord(ch));
+    else out.push({ text: ch, id: 30 + (ch.charCodeAt(0) % 60), cont: false, kind: "punct" });
+  }
+  return out;
+}
 
-          {/* Tokenization display */}
-          <div className="relative border border-outline bg-surface overflow-hidden rounded p-4 min-h-[120px]">
-            <div className="mb-2 font-mono text-[12px] font-bold uppercase tracking-wider text-primary">
-              Tokenized Output (Click words to compare embeddings)
-            </div>
-            
-            <div className="flex flex-wrap gap-2 items-center leading-relaxed">
-              {tokens.map((token, idx) => {
-                if (token.isWhitespace) {
-                  return <span key={`ws-${idx}`} className="w-1" />;
-                }
+const PRESETS = [
+  "I love machine learning models",
+  "Tokenization shatters into subwords",
+  "antidisestablishmentarianism",
+  "The cat sat on the mat!",
+];
 
-                const isSelected = selectedTokens.includes(token.cleanToken);
-                
-                return (
-                  <button
-                    key={`tok-${idx}`}
-                    onClick={() => handleTokenClick(token.cleanToken)}
-                    className={`inline-flex flex-col items-center border px-2.5 py-1 rounded text-xs transition-all cursor-pointer select-none ${
-                      isSelected
-                        ? "border-pink bg-pink/10 text-on-surface"
-                        : "border-outline bg-surface hover:bg-grid text-on-surface"
-                    }`}
-                    style={{ minWidth: "30px" }}
-                    aria-label={`Token ${token.text} with ID ${token.id}`}
-                  >
-                    <span className="font-bold font-sans">{token.text}</span>
-                    <span className="text-[12px] text-muted font-mono">ID: {token.id}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+export default function EmbeddingsTokenizationViz() {
+  const [text, setText] = useState(PRESETS[1]);
+  const [showIds, setShowIds] = useState(true);
 
-          {/* Embedding Cosine Similarity Visualizer */}
-          {similarityInfo && (
-            <div
-              className="relative border border-outline bg-surface overflow-hidden rounded p-4"
-              role="img"
-              aria-label="Tokenization and embedding comparison"
+  const tokens = tokenize(text);
+  const wordCount = (text.trim().match(/[A-Za-z0-9]+/g) ?? []).length;
+  const tokenCount = tokens.length;
+
+  // layout chips with wrapping
+  const charW = 8.4;
+  const padX = 12;
+  const chipH = 34;
+  const gap = 7;
+  const rowGap = 14;
+  const startX = 24;
+  const startY = 52;
+  const maxX = W - 24;
+  let x = startX;
+  let y = startY;
+  const placed = tokens.map((t) => {
+    const label = (t.cont ? "##" : "") + t.text;
+    const wpx = Math.max(26, label.length * charW + padX);
+    if (x + wpx > maxX && x > startX) {
+      x = startX;
+      y += chipH + rowGap;
+    }
+    const pos = { ...t, label, x, y, w: wpx };
+    x += wpx + gap + (t.cont ? 0 : 4);
+    return pos;
+  });
+  const usedRows = (y - startY) / (chipH + rowGap) + 1;
+
+  const caption = (() => {
+    const splitWords = tokens.filter((t) => t.cont).length;
+    if (splitWords === 0)
+      return `These ${wordCount} common words each map to a single token. When text is plain, token count ≈ word count.`;
+    return `${wordCount} word${wordCount > 1 ? "s" : ""} became ${tokenCount} tokens: rare or long words shatter into subword pieces (shown with ##), while common words stay whole. The model never sees the word — only these pieces and their IDs.`;
+  })();
+
+  const canvas = (
+    <svg className="block h-auto w-full" viewBox={`0 0 ${W} ${Math.max(H, startY + usedRows * (chipH + rowGap) + 80)}`} role="img" aria-label="Subword Tokenization">
+      <title>Subword Tokenization</title>
+      <SVGFilters />
+      <rect width={W} height={Math.max(H, startY + usedRows * (chipH + rowGap) + 80)} fill={COLORS.bg} />
+
+      <text x={startX} y={32} fill={COLORS.muted} fontSize={11} fontWeight={800} letterSpacing="0.06em">
+        THE TEXT, AS THE MODEL SEES IT
+      </text>
+
+      {placed.map((t, i) => {
+        const color = t.kind === "punct" ? COLORS.muted : t.cont ? COLORS.yellow : COLORS.cyan;
+        return (
+          <g key={i}>
+            <rect x={t.x} y={t.y} width={t.w} height={chipH} rx={4} fill={color} fillOpacity={0.14} stroke={color} strokeWidth={1.5} />
+            <text x={t.x + t.w / 2} y={t.y + (showIds ? 15 : 22)} textAnchor="middle" fill={t.cont ? COLORS.yellow : COLORS.muted} fontSize={13} fontWeight={700}>
+              {t.label}
+            </text>
+            {showIds && (
+              <text x={t.x + t.w / 2} y={t.y + 28} textAnchor="middle" fill={COLORS.muted} fontSize={9} fontWeight={700} fontFamily="monospace">
+                {t.id}
+              </text>
+            )}
+          </g>
+        );
+      })}
+
+      <text x={startX} y={startY + usedRows * (chipH + rowGap) + 28} fill={COLORS.muted} fontSize={13} fontWeight={700}>
+        <tspan fill={COLORS.cyan} fontWeight={900}>{wordCount}</tspan> words →{" "}
+        <tspan fill={COLORS.pink} fontWeight={900}>{tokenCount}</tspan> tokens
+      </text>
+    </svg>
+  );
+
+  const controls = (
+    <>
+      <div className="flex flex-1 flex-col justify-center gap-2 border border-outline bg-surface p-3">
+        <label htmlFor="tok-input" className="font-mono text-[11px] font-bold uppercase tracking-wide text-on-surface-variant">
+          Type text to tokenize
+        </label>
+        <input
+          id="tok-input"
+          aria-label="Text to tokenize"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          className="w-full border border-outline bg-surface p-2 font-sans text-[14px] text-on-surface"
+          placeholder="Type anything…"
+        />
+        <div className="flex flex-wrap gap-1.5">
+          {PRESETS.map((p) => (
+            <button
+              key={p}
+              aria-label={`Example: ${p}`}
+              onClick={() => setText(p)}
+              className="border border-outline bg-surface px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-wide text-on-surface-variant transition-colors hover:bg-surface-container hover:text-primary"
             >
-              <div className="mb-3 font-mono text-[12px] font-bold uppercase tracking-wider text-primary">
-                Semantic Embedding Space Comparison
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                {/* Vector 1 */}
-                <div className="border border-outline bg-surface-container p-3 font-mono text-xs">
-                  <div className="font-bold text-cyan mb-2">Token: &quot;{selectedTokens[0]}&quot;</div>
-                  <div className="space-y-1">
-                    {similarityInfo.v1.map((val, i) => (
-                      <div key={`v1-dim-${i}`} className="flex items-center gap-2">
-                        <span className="w-12">Dim {i+1}:</span>
-                        <div className="flex-1 bg-grid h-2.5 rounded-full overflow-hidden">
-                          <div
-                            className="bg-cyan h-full"
-                            style={{
-                              width: `${Math.max(0, (val + 1.0) / 2.0 * 100)}%`
-                            }}
-                          />
-                        </div>
-                        <span className="w-10 text-right">{val.toFixed(3)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Vector 2 */}
-                <div className="border border-outline bg-surface-container p-3 font-mono text-xs">
-                  <div className="font-bold text-pink mb-2">Token: &quot;{selectedTokens[1]}&quot;</div>
-                  <div className="space-y-1">
-                    {similarityInfo.v2.map((val, i) => (
-                      <div key={`v2-dim-${i}`} className="flex items-center gap-2">
-                        <span className="w-12">Dim {i+1}:</span>
-                        <div className="flex-1 bg-grid h-2.5 rounded-full overflow-hidden">
-                          <div
-                            className="bg-pink h-full"
-                            style={{
-                              width: `${Math.max(0, (val + 1.0) / 2.0 * 100)}%`
-                            }}
-                          />
-                        </div>
-                        <span className="w-10 text-right">{val.toFixed(3)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+              {p.length > 22 ? p.slice(0, 20) + "…" : p}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-col gap-3">
-        {/* Comparison Output */}
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Cosine Similarity</div>
-          
-          {selectedTokens.length < 2 ? (
-            <div className="text-muted italic text-xs">Select two tokens from the box to compute similarity.</div>
-          ) : (
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span>Selected:</span>
-                <span className="font-bold text-cyan">&quot;{selectedTokens[0]}&quot; vs &quot;{selectedTokens[1]}&quot;</span>
-              </div>
-              <div className="flex justify-between items-center border-t border-outline pt-2">
-                <span>Cosine Similarity:</span>
-                <span className="font-bold text-pink text-lg">
-                  {similarityInfo?.similarity.toFixed(4)}
-                </span>
-              </div>
-              
-              <div className="bg-grid p-2.5 rounded text-[12px] leading-snug font-sans text-on-surface-variant">
-                {similarityInfo && similarityInfo.similarity > 0.7 && (
-                  "High similarity: These tokens are semantically related (like 'cat' and 'dog'). Their vectors point in very similar directions."
-                )}
-                {similarityInfo && similarityInfo.similarity >= 0.2 && similarityInfo.similarity <= 0.7 && (
-                  "Moderate similarity: These tokens have some minor shared context or syntactic similarities."
-                )}
-                {similarityInfo && similarityInfo.similarity < 0.2 && (
-                  "Low similarity: These tokens represent completely different concepts, meaning their vectors are nearly orthogonal or opposite."
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Diagnostic presets */}
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Preset Pairs to Try</div>
-          <div className="flex flex-col gap-2">
-            <button aria-label="cat vs dog (Related)"
-              onClick={() => setSelectedTokens(["cat", "dog"])}
-              className="w-full text-left p-1.5 border border-outline bg-surface hover:bg-grid rounded text-xs cursor-pointer"
-            >
-              cat vs dog (Related)
-            </button>
-            <button aria-label="king vs queen (Related gender swap)"
-              onClick={() => setSelectedTokens(["king", "queen"])}
-              className="w-full text-left p-1.5 border border-outline bg-surface hover:bg-grid rounded text-xs cursor-pointer"
-            >
-              king vs queen (Related gender swap)
-            </button>
-            <button aria-label="king vs computer (Unrelated)"
-              onClick={() => setSelectedTokens(["king", "computer"])}
-              className="w-full text-left p-1.5 border border-outline bg-surface hover:bg-grid rounded text-xs cursor-pointer"
-            >
-              king vs computer (Unrelated)
-            </button>
-          </div>
-        </div>
+      <div className="flex min-w-[190px] flex-col justify-center gap-2 border border-outline bg-surface p-3 font-mono text-[12px]">
+        <div className="flex items-center justify-between"><span className="uppercase tracking-wide text-on-surface-variant">words</span><span data-testid="tok-words" className="text-base font-bold" style={{ color: COLORS.cyan }}>{wordCount}</span></div>
+        <div className="flex items-center justify-between"><span className="uppercase tracking-wide text-on-surface-variant">tokens</span><span data-testid="tok-count" className="text-base font-bold" style={{ color: COLORS.pink }}>{tokenCount}</span></div>
+        <button
+          aria-label="Toggle token IDs"
+          aria-pressed={showIds}
+          onClick={() => setShowIds((s) => !s)}
+          className={`mt-1 border px-2 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wide transition-colors ${showIds ? "border-primary bg-primary text-on-primary" : "border-outline bg-surface text-on-surface-variant hover:bg-surface-container"}`}
+        >
+          {showIds ? "Hide IDs" : "Show IDs"}
+        </button>
       </div>
+    </>
+  );
+
+  const mentalModel = (
+    <div className="flex flex-col gap-2">
+      <p>
+        A language model can&apos;t read characters or words directly — first a{" "}
+        <strong>tokenizer</strong> chops the text into a fixed vocabulary of{" "}
+        <strong>subword tokens</strong>, each mapped to an integer ID. Those IDs are the model&apos;s
+        actual input.
+      </p>
+      <p>
+        The vocabulary is learned (BPE/WordPiece) so that <em>common</em> words are a single token
+        while <em>rare or long</em> words break into reusable pieces (here marked{" "}
+        <strong>##</strong>). That is why &quot;tokenization&quot; is two tokens and an obscure long
+        word can be seven.
+      </p>
+      <p>
+        It matters in practice: API cost and the context window are measured in <strong>tokens, not
+        words</strong>; a token is also the unit an embedding lookup turns into a vector, and the
+        unit an LLM predicts one at a time.
+      </p>
     </div>
   );
+
+  return <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />;
 }

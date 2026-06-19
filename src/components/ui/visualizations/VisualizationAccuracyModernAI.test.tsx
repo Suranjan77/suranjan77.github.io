@@ -29,9 +29,13 @@ describe("Modern AI Track Visualization Accuracy", () => {
     expect(screen.getByTestId("seq-regime")).toHaveTextContent(/exploding/i);
   });
 
-  it("verifies Embeddings & Tokenization mapping dimensions", () => {
+  it("verifies subword tokenization splits a long word into more tokens than words", () => {
     render(<EmbeddingsTokenizationViz />);
-    expect(screen.getByText(/Tokenized Output/i)).toBeInTheDocument();
+    // Default text "Tokenization shatters into subwords" splits into subwords,
+    // so there are strictly more tokens than words.
+    const words = Number(screen.getByTestId("tok-words").textContent);
+    const toks = Number(screen.getByTestId("tok-count").textContent);
+    expect(toks).toBeGreaterThan(words);
   });
 
   it("verifies RAG context assembly similarity scores", () => {

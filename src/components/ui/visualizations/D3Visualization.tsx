@@ -140,9 +140,9 @@ const extendedVisualizations: Record<
   },
   "embeddings-tokenization": {
     component: EmbeddingsTokenizationViz,
-    title: "Embeddings and Tokenization",
-    subtitle: "Tokenize text and inspect how token identities map into a geometric representation.",
-    insight: "Tokenization defines model inputs; embeddings turn those discrete IDs into learnable vectors.",
+    title: "The Model Sees Tokens, Not Words",
+    subtitle: "Before anything else, a tokenizer chops text into subword pieces with integer IDs. Type a sentence and watch common words stay whole while rare or long ones shatter into pieces — and the token count climb.",
+    insight: "Models read a fixed vocabulary of subword tokens, not words, so 'tokenization' is two tokens and your API cost and context window are measured in tokens.",
   },
   rag: {
     component: RAGViz,
@@ -606,7 +606,7 @@ const accessibleLabels: Record<string, string> = {
   "generative-models": "Generative Models Latent Space Walk",
   backpropagation: "Backpropagation Credit Assignment",
   "sequence-models": "Sequence Models Gradient Flow Through Time",
-  "embeddings-tokenization": "Tokenization and embedding comparison",
+  "embeddings-tokenization": "Subword Tokenization",
   rag: "RAG Pipeline Flow Diagram",
   "fine-tuning": "LoRA vs Full Fine-Tuning Parameter Update Diagram",
   "llm-evaluation-safety": "LLM Model Scores Bar Chart",
