@@ -137,7 +137,8 @@ describe("Practitioner Track Visualization Accuracy", () => {
 
   it("verifies LLM temperature token distribution scores", () => {
     render(<LLMViz />);
-    expect(screen.getByText(/Temp=/i)).toBeInTheDocument();
+    expect(screen.getByText("T = 0.80")).toBeInTheDocument();
+    expect(screen.getByText(/Machine learning models generate/)).toBeInTheDocument();
   });
 
   it("verifies Reinforcement Learning action state policy", () => {

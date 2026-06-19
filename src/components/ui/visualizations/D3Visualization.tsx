@@ -471,13 +471,12 @@ const configs: Record<string, SceneConfig> = {
   },
   "llms": {
     kind: "llm",
-    title: "LLMs Sample the Next Token From a Distribution",
-    subtitle: "Temperature reshapes token probabilities before one continuation is selected.",
-    insight: "Generation is repeated probability sampling conditioned on the current context window.",
+    title: "Temperature: The Creativity Dial",
+    subtitle: "An LLM picks each word by sampling from a probability distribution over tokens. Drag temperature and watch one tall spike (predictable) melt into flat bars (anything goes) — then add words to build a sentence.",
+    insight: "Dividing every logit by the temperature before softmax is the single knob that trades predictable, repetitive output for diverse, creative, riskier output.",
     legend: [
-      { label: "Context", color: COLORS.cyan },
       { label: "Top token", color: COLORS.pink },
-      { label: "Alternatives", color: COLORS.yellow },
+      { label: "Alternatives", color: COLORS.cyan },
     ],
     control: {
       label: "Temperature",
@@ -602,7 +601,7 @@ const accessibleLabels: Record<string, string> = {
   nlp: "NLP Embeddings Analogy Grid",
   autoencoders: "Autoencoder Bottleneck Compression",
   transformers: "Transformer Self-Attention Layer",
-  llms: "LLM Temperature Logits Scaling",
+  llms: "LLM Temperature Sampling",
   "reinforcement-learning": "Q-Learning Reinforcement Learning Gridworld",
   "generative-models": "Generative Models Latent Space Walk",
   backpropagation: "Backpropagation Computational Graph Visualizer",

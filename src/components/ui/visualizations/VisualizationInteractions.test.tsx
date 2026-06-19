@@ -242,10 +242,12 @@ describe("algorithm visualization interaction contracts", () => {
     renderVisualization("llms");
 
     expect(screen.getByText(/Machine learning models generate/)).toBeInTheDocument();
-    fireEvent.change(screen.getByRole("slider"), { target: { value: "2.0" } });
+    fireEvent.change(screen.getByRole("slider", { name: /temperature/i }), {
+      target: { value: "2.0" },
+    });
     expect(screen.getByText("T = 2.00")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /random sample/i }));
+    fireEvent.click(screen.getByRole("button", { name: /sample next word/i }));
     fireEvent.click(screen.getByRole("button", { name: /reset sentence/i }));
     expect(screen.getByText(/Machine learning models generate/)).toBeInTheDocument();
   });
