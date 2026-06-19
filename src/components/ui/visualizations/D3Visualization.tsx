@@ -408,13 +408,13 @@ const configs: Record<string, SceneConfig> = {
   },
   "computer-vision": {
     kind: "vision",
-    title: "Computer Vision Builds Features From Pixels",
-    subtitle: "Raw pixels become filter responses, then thresholded evidence for a visible edge.",
-    insight: "Vision systems transform local pixel contrast into increasingly semantic feature responses.",
+    title: "A Filter Slides Over Pixels and Finds Edges",
+    subtitle: "An image is a grid of numbers. Paint a shape, then watch a 3×3 kernel convolve across it — lighting up exactly where brightness jumps. Edit the kernel weights and the feature it detects changes.",
+    insight: "Convolution slides a small weight kernel over the pixel grid; the right weights make it a feature detector (here, vertical edges), and a CNN simply learns those weights.",
     legend: [
       { label: "Pixels", color: COLORS.cyan },
-      { label: "Filter response", color: COLORS.pink },
-      { label: "Gradient", color: COLORS.yellow },
+      { label: "Edge response", color: COLORS.pink },
+      { label: "Kernel", color: COLORS.yellow },
     ],
     control: {
       label: "Edge Threshold",

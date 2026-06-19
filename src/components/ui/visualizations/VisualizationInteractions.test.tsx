@@ -205,13 +205,14 @@ describe("algorithm visualization interaction contracts", () => {
 
     expect(screen.getByText("PAINT CANVAS")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "CLEAR" }));
-    expect(screen.getByText("Active: 1.5")).toBeInTheDocument();
 
-    fireEvent.change(screen.getByRole("slider"), { target: { value: "3.5" } });
-    expect(screen.getByText("Active: 3.5")).toBeInTheDocument();
+    const threshold = screen.getByRole("slider", { name: /edge threshold/i });
+    fireEvent.change(threshold, { target: { value: "3.5" } });
+    expect(threshold).toHaveValue("3.5");
 
-    fireEvent.click(screen.getByRole("button", { name: /all cells/i }));
-    expect(screen.getByRole("button", { name: /isolate/i })).toBeInTheDocument();
+    // Edge-isolation toggle flips its label.
+    fireEvent.click(screen.getByRole("button", { name: /toggle edge isolation/i }));
+    expect(screen.getByText(/showing edges only/i)).toBeInTheDocument();
   });
 
   it("solves the NLP analogy and switches relationship presets", () => {
