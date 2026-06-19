@@ -57,9 +57,15 @@ describe("Modern AI Track Visualization Accuracy", () => {
     expect(pctAt64).toBeGreaterThan(pctAt8);
   });
 
-  it("verifies LLM Evaluation multi-objective radar parameters", () => {
+  it("verifies LLM evaluation winner flips with the priority preset", () => {
     render(<LLMEvalSafetyViz />);
     expect(screen.getByText(/Dimension Weights/i)).toBeInTheDocument();
+    // Healthcare prioritises safety/quality -> the frontier model wins.
+    fireEvent.click(screen.getByRole("button", { name: /priority preset healthcare/i }));
+    expect(screen.getByTestId("eval-winner")).toHaveTextContent(/frontier/i);
+    // High-volume chatbot prioritises cost/speed -> the small edge model wins.
+    fireEvent.click(screen.getByRole("button", { name: /priority preset high-volume/i }));
+    expect(screen.getByTestId("eval-winner")).toHaveTextContent(/small edge/i);
   });
 
   it("verifies AI Inference memory and hardware bandwidth bounds", () => {

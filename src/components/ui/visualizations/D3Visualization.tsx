@@ -158,9 +158,9 @@ const extendedVisualizations: Record<
   },
   "llm-evaluation-safety": {
     component: LLMEvalSafetyViz,
-    title: "LLM Evaluation and Safety",
-    subtitle: "Reweight quality, safety, cost, and latency to compare model choices.",
-    insight: "Evaluation is multi-objective; a useful model must meet capability and risk constraints.",
+    title: "No Single Best Model: Picking by Priorities",
+    subtitle: "Three models trade quality and safety against cost and speed. Reweight what matters — or pick a use-case preset — and watch the top model flip. There is no winner on every axis.",
+    insight: "Model selection is multi-objective: capability, safety, cost, and latency trade off, so the right choice depends on which axes your use case weights — and safety is a first-class axis.",
   },
   "ai-inference": {
     component: AIInferenceViz,
