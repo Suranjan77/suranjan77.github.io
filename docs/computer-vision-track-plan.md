@@ -167,9 +167,12 @@ Mirror a published exemplar such as `12_computer_vision.ts` or `3b_logistic_regr
 - [ ] Verify `/` (TrackCurriculumExplorer) shows the new track with the bundled modules
 - [ ] `npm run lint && npm run test && npm run build` green
 
-### Phase 2 — New module: Image Segmentation
-- [ ] Author `37_image_segmentation.ts` + register + (optional) `ImageSegmentationViz`
-- [ ] Meets §4 checklist; `status: 'published'`
+### Phase 2 — New module: Image Segmentation ✅
+- [x] Author `37_image_segmentation.ts` + register in `index.ts`
+- [x] Author `ImageSegmentationViz` (threshold → per-pixel mask, live Dice/IoU) + register in `D3Visualization.tsx`
+- [x] Meets §4 checklist; `status: 'published'`
+- [x] lint + test (7037 passing) + build green
+- [ ] Re-tag `tracks` to include `'computer-vision'` once Phase 1 lands (currently `['modern-ai']`)
 
 ### Phase 3 — New module: Vision Transformers
 - [ ] Author `38_vision_transformers.ts` + register + (optional) `VisionTransformersViz`

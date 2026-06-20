@@ -36,6 +36,7 @@ import RAGViz from "./RAGViz";
 import FineTuningViz from "./FineTuningViz";
 import LLMEvalSafetyViz from "./LLMEvalSafetyViz";
 import AIInferenceViz from "./AIInferenceViz";
+import ImageSegmentationViz from "./ImageSegmentationViz";
 
 interface VizMetadata {
   title: string;
@@ -106,6 +107,12 @@ const extendedVisualizations: Record<
     title: "The Memory Wall: Will This Model Even Run?",
     subtitle: "Weights plus a growing KV cache must fit in GPU VRAM. Push the model size, context, or batch and the bar overflows the GPU's limit into OUT OF MEMORY — then quantize and watch it fit again.",
     insight: "Inference is memory-bound: weights are fixed but the KV cache grows with context and batch, so quantization and hardware limits decide whether a model can serve at all.",
+  },
+  "image-segmentation": {
+    component: ImageSegmentationViz,
+    title: "Segmentation: A Class for Every Pixel, Scored by Overlap",
+    subtitle: "A model predicts a per-pixel probability that each cell belongs to the object. Drag the threshold to turn those probabilities into a hard mask and watch Dice and IoU rise and fall as misses and false alarms trade off.",
+    insight: "Segmentation is per-pixel classification graded by mask overlap (Dice / IoU), so the threshold trades recall against precision — there is a sweet spot that maximizes overlap.",
   },
 };
 
@@ -387,6 +394,7 @@ const visualizationComponents: Record<string, React.ComponentType> = {
   "fine-tuning": FineTuningViz,
   "llm-evaluation-safety": LLMEvalSafetyViz,
   "ai-inference": AIInferenceViz,
+  "image-segmentation": ImageSegmentationViz,
 };
 
 const accessibleLabels: Record<string, string> = {
@@ -418,6 +426,7 @@ const accessibleLabels: Record<string, string> = {
   "fine-tuning": "LoRA vs Full Fine-Tuning Parameter Update Diagram",
   "llm-evaluation-safety": "LLM Model Scores Bar Chart",
   "ai-inference": "AI inference memory and throughput calculator",
+  "image-segmentation": "Semantic Segmentation Mask and Dice Score",
 };
 
 const legacyConfigId: Record<string, string> = {

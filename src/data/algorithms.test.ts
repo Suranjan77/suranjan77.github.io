@@ -25,6 +25,7 @@ const requiredIds = [
   "backpropagation",
   "cnn",
   "computer-vision",
+  "image-segmentation",
   "embeddings-tokenization",
   "sequence-models",
   "nlp",
