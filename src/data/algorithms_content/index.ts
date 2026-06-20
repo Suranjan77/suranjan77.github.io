@@ -39,6 +39,7 @@ import { modelEvaluation } from "./40_model_evaluation";
 import { gradientBoosting } from "./41_gradient_boosting";
 import { optimizationOptimizers } from "./42_optimization_optimizers";
 import { objectDetection } from "./43_object_detection";
+import { cnnArchitectures } from "./44_cnn_architectures";
 
 export const algorithmsList: LearningModule[] = [
   appliedMlWorkflow,
@@ -61,6 +62,7 @@ export const algorithmsList: LearningModule[] = [
   backpropagation,
   optimizationOptimizers,
   cnn,
+  cnnArchitectures,
   computerVision,
   objectDetection,
   imageSegmentation,

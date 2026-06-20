@@ -27,6 +27,7 @@ const requiredIds = [
   "backpropagation",
   "optimization-optimizers",
   "cnn",
+  "cnn-architectures",
   "computer-vision",
   "object-detection",
   "image-segmentation",

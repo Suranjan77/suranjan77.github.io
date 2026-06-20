@@ -43,6 +43,7 @@ import ModelEvaluationViz from "./ModelEvaluationViz";
 import GradientBoostingViz from "./GradientBoostingViz";
 import OptimizationOptimizersViz from "./OptimizationOptimizersViz";
 import ObjectDetectionViz from "./ObjectDetectionViz";
+import CnnArchitecturesViz from "./CnnArchitecturesViz";
 
 interface VizMetadata {
   title: string;
@@ -155,6 +156,12 @@ const extendedVisualizations: Record<
     title: "From a Mess of Boxes to One Per Object",
     subtitle: "Every real object (dashed) is wrapped in a cluster of redundant predicted boxes. Raise the confidence threshold to drop weak and background boxes, then tune the NMS IoU to collapse each cluster — too high leaves duplicates, too low merges nearby objects.",
     insight: "Detection emits many redundant scored boxes per object; a confidence threshold drops weak ones and non-maximum suppression keeps the best box per cluster, so the post-processing thresholds materially change the final detections.",
+  },
+  "cnn-architectures": {
+    component: CnnArchitecturesViz,
+    title: "Why Residual Connections Unlocked Depth",
+    subtitle: "Backpropagate from output to input and watch the gradient bars. A plain deep stack multiplies sub-1 factors, so the signal vanishes before reaching the early layers; a residual network's identity skips keep it intact. Crank the depth and flip the architecture to feel the difference.",
+    insight: "In a plain deep network the gradient is a product of per-layer factors that vanishes with depth (the degradation problem), but a residual connection adds a +1 identity path that preserves the gradient, making hundreds of layers trainable.",
   },
 };
 
@@ -443,6 +450,7 @@ const visualizationComponents: Record<string, React.ComponentType> = {
   "gradient-boosting": GradientBoostingViz,
   "optimization-optimizers": OptimizationOptimizersViz,
   "object-detection": ObjectDetectionViz,
+  "cnn-architectures": CnnArchitecturesViz,
 };
 
 const accessibleLabels: Record<string, string> = {
@@ -481,6 +489,7 @@ const accessibleLabels: Record<string, string> = {
   "gradient-boosting": "Gradient Boosting Stage-wise Residual Fitting",
   "optimization-optimizers": "Optimizer Descent Trajectory on a Loss Surface",
   "object-detection": "Object Detection Anchor Boxes and Non-Maximum Suppression",
+  "cnn-architectures": "Gradient Flow Through Network Depth: Plain vs Residual",
 };
 
 const legacyConfigId: Record<string, string> = {
