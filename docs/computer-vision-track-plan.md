@@ -27,6 +27,13 @@ small number of **new modules** that close obvious gaps (image segmentation, vis
 transformers, diffusion-based image generation). The site stays a static GitHub Pages
 export — no backend, no runtime AI.
 
+**Secondary goal (same effort).** While authoring new modules, also add the
+previously-flagged unit-level gaps **where they fit existing tracks** — Gradient
+Boosting and Model Evaluation & Validation strengthen *ML Practitioner*; Optimization &
+Optimizers strengthens *Modern AI Systems*; Diffusion is already part of the CV track
+above and simply carries multi-track membership. These are independent of the CV track
+and can ship in any order — see §3c.
+
 ### Design principles
 - **Additive & backward compatible.** Adding a track is a new `TrackId` plus a
   `learningTracks` entry. Existing modules **join** the CV track by appending
@@ -99,9 +106,26 @@ Each is a full, rubric-compliant `LearningModule`. Folds in the earlier unit ide
 > `vision-transformers` also reasonably belongs to `modern-ai`; `diffusion-models` to
 > both `modern-ai` and `computer-vision`. Use multi-track membership.
 
+### 3c. Additional new modules for the existing tracks (the previously-flagged units)
+
+These close unit-level gaps surfaced earlier. They are **not** part of the CV track —
+each joins an existing track via its `tracks` field — but they reuse the identical
+authoring workflow (§4) and ship under the same effort. `diffusion-models` from §3b
+already covers the "Diffusion" unit and just adds `modern-ai` to its `tracks`.
+
+| New module | `id` | Track(s) | Prereqs | Viz? | Core content |
+|---|---|---|---|---|---|
+| **Gradient Boosting** | `gradient-boosting` | `practitioner` | `decision-trees`, `ensemble` | Yes — additive stage-wise residual fitting | Boosting vs bagging, gradient / functional-gradient view, shrinkage, regularization, XGBoost/LightGBM, early stopping |
+| **Model Evaluation & Validation** | `model-evaluation` | `practitioner` | `logistic-regression` | Yes — ROC/PR curve + threshold sweep | Train/val/test split, k-fold CV, precision/recall/F1, ROC-AUC, confusion matrix, bias–variance, data leakage |
+| **Optimization & Optimizers** | `optimization-optimizers` | `modern-ai` | `backpropagation`, `neural-networks` | Yes — loss-surface descent under SGD/Momentum/Adam | GD / SGD / mini-batch, learning rate, momentum, RMSProp, Adam, LR schedules, warmup |
+
+> Place `model-evaluation` early in the practitioner ordering (its only prereq is
+> `logistic-regression`) so learners meet evaluation methodology before deeper models —
+> the topological sort in `getTrackModules()` handles ordering once prereqs are set.
+
 ---
 
-## 4. Per-new-module authoring checklist (apply to each of the 3)
+## 4. Per-new-module authoring checklist (apply to each new module)
 
 Mirror a published exemplar such as `12_computer_vision.ts` or `3b_logistic_regression.ts`.
 
@@ -160,6 +184,13 @@ Mirror a published exemplar such as `12_computer_vision.ts` or `3b_logistic_regr
 - [ ] Cross-link `relatedModules` between new and existing vision modules
 - [ ] Decide whether CV should auto-expand in `TrackCurriculumExplorer`
 - [ ] Update this tracker + the `active-learning-upgrade.md` rollout notes if relevant
+
+### Phase 6 — Additional unit modules for existing tracks (§3c; independent of CV)
+- [ ] Author `gradient-boosting` (practitioner) + register + (optional) viz; `status: 'published'`
+- [ ] Author `model-evaluation` (practitioner) + register + (optional) viz; `status: 'published'`
+- [ ] Author `optimization-optimizers` (modern-ai) + register + (optional) viz; `status: 'published'`
+- [ ] Add `'modern-ai'` to `diffusion-models` `tracks` (covers the Diffusion unit)
+- [ ] Each meets the §4 checklist; `npm run lint && npm run test && npm run build` green
 
 ---
 
