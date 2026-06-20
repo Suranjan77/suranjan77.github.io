@@ -5,7 +5,7 @@ export const computerVision: LearningModule = {
   title: "Computer Vision Foundations",
   category: "Computer Vision",
   prerequisites: ["cnn"],
-  tracks: ["modern-ai", "computer-vision"],
+  tracks: ["computer-vision"],
   difficulty: 3,
   relatedModules: ["cnn", "neural-networks", "image-segmentation", "vision-transformers"],
   shortDescription: "The broad field of enabling computers to see, segment, track, and interpret visual data from the physical world.",

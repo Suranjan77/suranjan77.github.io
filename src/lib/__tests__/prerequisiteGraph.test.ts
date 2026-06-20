@@ -32,11 +32,11 @@ describe('Prerequisite Graph Utilities', () => {
   it('computer-vision track orders foundations before dependent vision modules', () => {
     const ids = getTrackModules('computer-vision').map(m => m.id);
 
-    const cnnIndex = ids.indexOf('cnn');
+    const cvFoundationIndex = ids.indexOf('computer-vision');
     const segmentationIndex = ids.indexOf('image-segmentation');
 
-    if (cnnIndex !== -1 && segmentationIndex !== -1) {
-      expect(cnnIndex).toBeLessThan(segmentationIndex);
+    if (cvFoundationIndex !== -1 && segmentationIndex !== -1) {
+      expect(cvFoundationIndex).toBeLessThan(segmentationIndex);
     }
   });
 

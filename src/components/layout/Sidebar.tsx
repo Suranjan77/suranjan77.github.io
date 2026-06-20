@@ -20,7 +20,7 @@ import { getTrackAnchor } from "@/lib/tracks";
 
 const trackLabels: Partial<Record<TrackId, string>> = {
   practitioner: "ML Practitioner",
-  "modern-ai": "Modern AI",
+  "modern-ai": "Deep Learning",
   "computer-vision": "Computer Vision",
 };
 

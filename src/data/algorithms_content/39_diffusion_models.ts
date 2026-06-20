@@ -5,7 +5,7 @@ export const diffusionModels: LearningModule = {
   title: "Diffusion Models",
   category: "Computer Vision",
   prerequisites: ["generative-models", "neural-networks"],
-  tracks: ["modern-ai", "computer-vision"],
+  tracks: ["computer-vision"],
   difficulty: 4,
   relatedModules: ["generative-models", "autoencoders", "vision-transformers", "cnn"],
   shortDescription:

@@ -1,13 +1,24 @@
 # Computer Vision Learning Track — Implementation Plan & Work Tracker
 
-> **Status:** In progress — Phases 1–4 shipped (track live + Image Segmentation + Vision Transformers + Diffusion Models) · **Branch:** `claude/compassionate-ptolemy-2ockq9`
+> **Status:** In progress — Phases 1–5 shipped + track re-partition/rebrand · **Branch:** `claude/compassionate-ptolemy-2ockq9`
 > **Owner:** Suranjan · **Last updated:** 2026-06-20
 >
 > **Start here next time:** read §8 (Implementation Playbook) — it is the verified,
-> end-to-end recipe for authoring a module. The `computer-vision` track is live
-> (route `/tracks/computer-vision`, 9 modules bundled) and all three new CV modules
-> ship. **Phase 5 (polish) and Phase 6 (the §3c practitioner/modern-ai unit modules:
-> gradient-boosting, model-evaluation, optimization-optimizers) remain.**
+> end-to-end recipe for authoring a module. **Phase 6 in progress:** `model-evaluation`
+> and `gradient-boosting` shipped; **`optimization-optimizers` is the last module.**
+>
+> **⚠️ Major design change (owner sign-off, 2026-06-20) — supersedes §3a and §7.**
+> The original additive plan put every vision module in *both* `modern-ai` and
+> `computer-vision`, so the CV track was a strict subset of modern-ai (heavy
+> duplication on the homepage). Per owner direction this is resolved:
+> 1. **`modern-ai` track is rebranded to "Deep Learning"** (display title +
+>    description only; the `TrackId` stays `'modern-ai'` to preserve routes/anchors).
+> 2. **Zero track overlap.** Shared foundations (`neural-networks`, `backpropagation`,
+>    `cnn`, `autoencoders`, `generative-models`) stay in **Deep Learning only** and are
+>    treated as *assumed-covered prerequisites* for CV. The **Computer Vision** track
+>    holds only the **vision-specific** modules: `computer-vision`, `image-segmentation`,
+>    `vision-transformers`, `diffusion-models` (each now `tracks: ['computer-vision']`).
+>    Verified: Deep Learning = 18 modules, Computer Vision = 4, overlap = none.
 >
 > Living source of truth for adding a third **learning track**, *Computer Vision*,
 > to ML Learn. Update the **Work Tracker** checkboxes as tasks land; keep the design
@@ -200,10 +211,10 @@ Mirror a published exemplar such as `12_computer_vision.ts` or `3b_logistic_regr
 - [x] Update this tracker
 
 ### Phase 6 — Additional unit modules for existing tracks (§3c; independent of CV)
-- [ ] Author `gradient-boosting` (practitioner) + register + (optional) viz; `status: 'published'`
-- [ ] Author `model-evaluation` (practitioner) + register + (optional) viz; `status: 'published'`
-- [ ] Author `optimization-optimizers` (modern-ai) + register + (optional) viz; `status: 'published'`
-- [ ] Add `'modern-ai'` to `diffusion-models` `tracks` (covers the Diffusion unit)
+- [x] Author `model-evaluation` (practitioner, #40) + ROC/threshold viz; `status: 'published'`
+- [x] Author `gradient-boosting` (practitioner, #41) + stage-wise residual viz; `status: 'published'`
+- [ ] Author `optimization-optimizers` (Deep Learning, #42) + register + viz; `status: 'published'`
+- [x] ~~Add `'modern-ai'` to `diffusion-models`~~ — **superseded** by the re-partition above: `diffusion-models` is now Computer-Vision-only (no longer multi-homed).
 - [ ] Each meets the §4 checklist; `npm run lint && npm run test && npm run build` green
 
 ---

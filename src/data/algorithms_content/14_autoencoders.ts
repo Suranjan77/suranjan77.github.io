@@ -5,7 +5,7 @@ export const autoencoders: LearningModule = {
   title: "Autoencoders",
   category: "Autoencoders",
   prerequisites: ["neural-networks", "dimensionality-reduction"],
-  tracks: ["modern-ai", "computer-vision"],
+  tracks: ["modern-ai"],
   difficulty: 3,
   relatedModules: ["neural-networks", "dimensionality-reduction", "generative-models", "diffusion-models"],
   shortDescription: "Neural networks that compress inputs into a tight bottleneck representation, then try to reconstruct the original input from it.",

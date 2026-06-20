@@ -5,7 +5,7 @@ export const cnn: LearningModule = {
   title: "Convolutional Neural Networks",
   category: "Convolutional Neural Networks",
   prerequisites: ["neural-networks"],
-  tracks: ["modern-ai", "computer-vision"],
+  tracks: ["modern-ai"],
   difficulty: 3,
   relatedModules: ["neural-networks", "computer-vision", "image-segmentation", "vision-transformers"],
   shortDescription: "Neural networks for grid-like data that reuse small filters across space to learn local, translation-aware features.",

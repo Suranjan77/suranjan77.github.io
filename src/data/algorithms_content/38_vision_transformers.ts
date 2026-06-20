@@ -5,7 +5,7 @@ export const visionTransformers: LearningModule = {
   title: "Vision Transformers (ViT)",
   category: "Computer Vision",
   prerequisites: ["transformers", "computer-vision"],
-  tracks: ["modern-ai", "computer-vision"],
+  tracks: ["computer-vision"],
   difficulty: 4,
   relatedModules: ["transformers", "cnn", "computer-vision", "image-segmentation"],
   shortDescription:
