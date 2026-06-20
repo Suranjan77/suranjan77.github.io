@@ -1,7 +1,12 @@
 # Computer Vision Learning Track — Implementation Plan & Work Tracker
 
-> **Status:** Proposed · **Branch:** `claude/compassionate-ptolemy-2ockq9`
+> **Status:** In progress — Phase 2 (Image Segmentation) shipped · **Branch:** `claude/compassionate-ptolemy-2ockq9`
 > **Owner:** Suranjan · **Last updated:** 2026-06-20
+>
+> **Start here next time:** read §8 (Implementation Playbook) — it is the verified,
+> end-to-end recipe for authoring a module. Phase 1 (stand up the track) and Phases 3–6
+> (Vision Transformers, Diffusion, plus the §3c practitioner/modern-ai unit modules)
+> remain.
 >
 > Living source of truth for adding a third **learning track**, *Computer Vision*,
 > to ML Learn. Update the **Work Tracker** checkboxes as tasks land; keep the design
@@ -68,8 +73,9 @@ the current tree.
 | 5 | `src/components/ui/TrackCurriculumExplorer.tsx` | No change required — it maps over `learningTracks`. Optionally revisit the hardcoded `"practitioner"` default-open (lines 20 & 98) if CV should auto-expand. |
 | 6 | Module data files (`src/data/algorithms_content/*.ts`) | Append `'computer-vision'` to the `tracks` array of each module that belongs to the path (see §3). |
 | 7 | `src/data/algorithms_content/index.ts` | Import + add each **new** module to `algorithmsList`. |
-| 8 | `src/components/ui/visualizations/D3Visualization.tsx` | For each new module **with** a viz: import the component, add a `configs` entry, a `visualizationComponents` entry, and an `accessibleLabels` entry. |
-| 9 | `src/lib/__tests__/prerequisiteGraph.test.ts` | Add a `getTrackModules('computer-vision')` test mirroring the existing practitioner test. |
+| 8 | `src/components/ui/visualizations/D3Visualization.tsx` | For each new module **with** a viz: (a) `import` the component, (b) add an `extendedVisualizations[id]` entry (`component`, `title`, `subtitle`, `insight`) **or** a `configs[id]` entry — the registry builder does `metadata = extendedVisualizations[id] ?? configs[id]` and **throws if neither exists**, (c) add a `visualizationComponents[id]` entry, (d) add an `accessibleLabels[id]` entry. |
+| 9 | `src/data/algorithms.test.ts` | **Easy to miss.** Add the new module `id` to the hardcoded `requiredIds` array **in the same position** as in `algorithmsList`. This test asserts the exact curriculum order and fails otherwise. |
+| 10 | `src/lib/__tests__/prerequisiteGraph.test.ts` | Add a `getTrackModules('computer-vision')` test mirroring the existing practitioner test. |
 
 **No route change needed.** `/tracks/[trackId]` uses `generateStaticParams()` over
 `learningTracks`, and `/algorithms/[slug]` uses `generateStaticParams()` over
@@ -228,3 +234,105 @@ Test surfaces that will exercise this work automatically:
 - **Visualization scope.** Three new D3 visualizations is the largest effort. If time-
   constrained, ship modules with `hasVisualization: false` first and add viz in a
   follow-up — the rubric does not require a visualization.
+
+---
+
+## 8. Implementation Playbook — verified from the Image Segmentation build (Phase 2)
+
+> This section is the **ground truth** for authoring a new module. It was confirmed end-
+> to-end while shipping `image-segmentation` (module #37, `4b184d4`): all gates green,
+> 7037 tests passing, 33 static module pages. Follow it and the next module is mechanical.
+
+### 8.1 Exact, ordered steps to add ONE new module
+1. **Create the data file** `src/data/algorithms_content/NN_name.ts` exporting a
+   `LearningModule` (see the content checklist in §4 and the field bar in §8.3).
+   Mirror an exemplar: `12_computer_vision.ts` or `3b_logistic_regression.ts`.
+2. **Register it** in `src/data/algorithms_content/index.ts`: add the `import` and insert
+   into the `algorithmsList` array at the desired curriculum position.
+3. **Update the order test**: add the same `id` to `requiredIds` in
+   `src/data/algorithms.test.ts` **at the identical position** (this is the single
+   easiest step to forget — see §2 row 9).
+4. **Visualization** (if `hasVisualization` is not `false`):
+   - Author `src/components/ui/visualizations/NameViz.tsx` (see §8.2).
+   - Register in `src/components/ui/visualizations/D3Visualization.tsx`: `import`,
+     `extendedVisualizations[id]`, `visualizationComponents[id]`, `accessibleLabels[id]`.
+   - If deferring, set `hasVisualization: false` on the module instead. That skips the
+     "mathematics/codeSnippet required" content tests AND excludes it from the viz audit.
+5. **Run the gates** (§8.4). Fix, repeat until green. Commit + push.
+
+The two routes (`/algorithms/[slug]`, `/tracks/[trackId]`) regenerate automatically via
+`generateStaticParams()` — no routing work.
+
+### 8.2 Visualization contract (the audit will fail builds if any is missed)
+The auto-iterating audit is `src/components/ui/visualizations/VisualizationAudit.test.tsx`
+(runs `getByRole("img", { name: accessibleLabel })`, scans controls, forbids NaN/Infinity).
+A compliant viz:
+- Is a `"use client"` component built on `VizShell` from `../visualizationPrimitives`
+  (slots: `canvas`, `controls`, `caption`, `mentalModel`). Use `COLORS` for palette
+  (keys: `bg, grid, border, pink, cyan(=green), yellow, green, muted`).
+- Renders a canvas element with `role="img"` and an `aria-label` **exactly equal** to the
+  string in `accessibleLabels[id]`.
+- Gives **every** `button`/`input`/`select`/`textarea` an accessible name (`aria-label`).
+- **Is deterministic** — no `Math.random()`, no `Date.now()`, no `window`-at-import — so it
+  renders identically every run. Precompute scenes from indices.
+- **Never emits the literal text `NaN` or `Infinity`** — guard every division
+  (`den === 0 ? 0 : num/den`) and format numbers with `.toFixed(...)`.
+- `legend` is optional; the registry only reads it from a `configs[id]` entry, so if you
+  use `extendedVisualizations` (the common case) just render your own inline legend in the
+  canvas (as `RAGViz` / `ImageSegmentationViz` do).
+- **You do NOT need to write a bespoke accuracy test.** The `VisualizationAccuracy*.test.tsx`
+  files import specific components by hand and do not auto-iterate, so they neither break
+  on a new viz nor require a new entry. The audit + schema + content tests are the coverage.
+
+Good template to copy: `RAGViz.tsx` (static-ish flow diagram) or `ImageSegmentationViz.tsx`
+(interactive grid + slider + live metrics).
+
+### 8.3 Test bars enforced on every module (so write to these the first time)
+- **`src/data/algorithms.test.ts`** (per-module, auto-iterated):
+  - `id` matches `^[a-z0-9]+(?:-[a-z0-9]+)*$`; present in `requiredIds` in order.
+  - "Substantial content": `title` ≥ 8 chars, `shortDescription/fullDescription/intuition/
+    mathematics` ≥ 40 chars, `codeSnippet` ≥ 0; none may contain `TODO|TBD|FIXME|undefined|null`.
+  - **Balanced math delimiters** across `{title, shortDescription, fullDescription,
+    intuition, mathematics, codeSnippet}`: an **even** count of `$$` and an **even** count
+    of lone `$`. (Only these 6 fields are checked — `additionalSections`, `tldr`, etc. are not.)
+  - `pros`/`cons`: ≥ 2 each, every item > 20 chars.
+  - Every sentence < 900 chars; searchable tokens normalized (handled automatically if you
+    avoid stray symbols).
+- **`schema.test.ts`**: unique slug; `prerequisites` & `relatedModules` must reference
+  existing module ids; no prerequisite cycles; each quiz q has ≥ 2 options, ≥ 1 `correct`,
+  an `explanation`; each comparison row `values.length === methods.length`; case studies
+  have title/scenario/approach/outcome.
+- **`contentValidation.test.ts`** (always): ≥ 3 `learningObjectives`; ≥ 2 `references`
+  (each with a `title`); ≥ 2 `misconceptions`; `estimatedMinutes` ∈ [10,120];
+  `difficulty` ∈ [1,4]; ≥ 1 `tracks`; non-empty `mathematics` & `codeSnippet` when
+  `hasVisualization !== false`; ≥ 1 `failureMode`.
+- **Published rubric** (`contentValidation.test.ts`, only when `review.status === 'published'`):
+  `quiz` length 3–5, each q ≥ 3 options + `explanation`; ≥ 1 `caseStudy`; `usageGuidance`
+  with ≥ 2 `useWhen` and ≥ 2 `avoidWhen`; ≥ 1 `additionalSections`; `tldr` length 3–6;
+  ≥ 1 `comparisons`. **Setting `status: 'published'` opts you into all of these** — use
+  `'reviewed'`/`'draft'` to defer if a module is intentionally incomplete.
+
+### 8.4 Commands & environment gotchas
+```bash
+CYPRESS_INSTALL_BINARY=0 npm ci      # network policy blocks the Cypress binary (403); this skips it
+npm run lint                          # ESLint — must be clean
+npm run test                          # vitest --run — the full suite (~7k tests, ~15s)
+CYPRESS_INSTALL_BINARY=0 npm run build  # next build, static export
+```
+- **JSX vs data files & apostrophes.** In `.tsx` viz/components, raw `'` and `"` in text
+  trigger `react/no-unescaped-entities` — use `&apos;` / `&quot;`. In `.ts` **data files**,
+  apostrophes inside string literals are fine (not JSX).
+- `tsc` errors about `cypress`/`describe`/`cy` are **pre-existing** (Cypress not installed,
+  excluded from the app build) — ignore them; the three commands above are the real gates.
+
+### 8.5 Decisions taken in Phase 2 (defaults to reuse)
+- **Reused the existing `"Computer Vision"` `AlgorithmCategory`** rather than adding a new
+  one — avoids touching `types.ts` and every category filter/label. Add a new category only
+  when a module genuinely needs its own bucket.
+- **Assigned the module to an existing track** (`['modern-ai']`) because the
+  `computer-vision` track (Phase 1) does not exist yet — keeps everything compiling. Re-tag
+  to `'computer-vision'` (additively) when Phase 1 lands.
+- **Used real, cited, quantified numbers** in the case study (U-Net ISBI IoU ~0.92/~0.78)
+  — the rubric expects a quantified outcome, and reviewers value verifiable figures.
+- Placed the module in `algorithmsList` adjacent to its topical neighbor (`computer-vision`),
+  and mirrored that exact position in `requiredIds`.
