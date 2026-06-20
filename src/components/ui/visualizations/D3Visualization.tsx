@@ -45,6 +45,7 @@ import OptimizationOptimizersViz from "./OptimizationOptimizersViz";
 import ObjectDetectionViz from "./ObjectDetectionViz";
 import CnnArchitecturesViz from "./CnnArchitecturesViz";
 import SelfSupervisedVisionViz from "./SelfSupervisedVisionViz";
+import VisionLanguageModelsViz from "./VisionLanguageModelsViz";
 
 interface VizMetadata {
   title: string;
@@ -169,6 +170,12 @@ const extendedVisualizations: Record<
     title: "Learn by Filling in the Blanks — No Labels Needed",
     subtitle: "Hide a fraction of the image patches and reconstruct them from what is left. A low mask ratio is trivially solved by copying neighbors; push it to MAE's ~75% and the only way to rebuild the gaps is to actually understand the object — and the encoder only processes the visible patches.",
     insight: "Self-supervised pretraining manufactures a training signal from unlabeled images: masked image modeling hides most patches and reconstructs them, forcing the encoder to learn transferable structure that a small labeled set later fine-tunes.",
+  },
+  "vision-language-models": {
+    component: VisionLanguageModelsViz,
+    title: "One Shared Space for Pictures and Words",
+    subtitle: "Each cell is the similarity between an image and a text prompt. Training only pushes the diagonal (true image–caption pairs) up. Pick a query image and the brightest cell in its row is the zero-shot prediction — classifying by words alone, with no labels.",
+    insight: "CLIP aligns images and text in one embedding space via contrastive training on web pairs, so classification becomes nearest-text-prompt matching — open-vocabulary and zero-shot, though confusable categories still trip it up.",
   },
 };
 
@@ -459,6 +466,7 @@ const visualizationComponents: Record<string, React.ComponentType> = {
   "object-detection": ObjectDetectionViz,
   "cnn-architectures": CnnArchitecturesViz,
   "self-supervised-vision": SelfSupervisedVisionViz,
+  "vision-language-models": VisionLanguageModelsViz,
 };
 
 const accessibleLabels: Record<string, string> = {
@@ -499,6 +507,7 @@ const accessibleLabels: Record<string, string> = {
   "object-detection": "Object Detection Anchor Boxes and Non-Maximum Suppression",
   "cnn-architectures": "Gradient Flow Through Network Depth: Plain vs Residual",
   "self-supervised-vision": "Masked Image Modeling Reconstruction",
+  "vision-language-models": "CLIP Image-Text Similarity Matrix and Zero-Shot Match",
 };
 
 const legacyConfigId: Record<string, string> = {

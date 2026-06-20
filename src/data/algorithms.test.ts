@@ -39,6 +39,7 @@ const requiredIds = [
   "transformers",
   "vision-transformers",
   "self-supervised-vision",
+  "vision-language-models",
   "llms",
   "dl-synthesis",
   "fine-tuning",

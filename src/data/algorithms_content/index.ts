@@ -41,6 +41,7 @@ import { optimizationOptimizers } from "./42_optimization_optimizers";
 import { objectDetection } from "./43_object_detection";
 import { cnnArchitectures } from "./44_cnn_architectures";
 import { selfSupervisedVision } from "./45_self_supervised_vision";
+import { visionLanguageModels } from "./46_vision_language_models";
 
 export const algorithmsList: LearningModule[] = [
   appliedMlWorkflow,
@@ -75,6 +76,7 @@ export const algorithmsList: LearningModule[] = [
   transformers,
   visionTransformers,
   selfSupervisedVision,
+  visionLanguageModels,
   llms,
   dlSynthesis,
   fineTuning,
