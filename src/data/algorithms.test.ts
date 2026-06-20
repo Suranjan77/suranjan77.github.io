@@ -25,6 +25,7 @@ const requiredIds = [
   "neural-networks",
   "classical-synthesis",
   "backpropagation",
+  "optimization-optimizers",
   "cnn",
   "computer-vision",
   "image-segmentation",

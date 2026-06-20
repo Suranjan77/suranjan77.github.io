@@ -1,11 +1,13 @@
 # Computer Vision Learning Track — Implementation Plan & Work Tracker
 
-> **Status:** In progress — Phases 1–5 shipped + track re-partition/rebrand · **Branch:** `claude/compassionate-ptolemy-2ockq9`
+> **Status:** ✅ **All phases (1–6) shipped** + track re-partition/rebrand · **Branch:** `claude/compassionate-ptolemy-2ockq9`
 > **Owner:** Suranjan · **Last updated:** 2026-06-20
 >
-> **Start here next time:** read §8 (Implementation Playbook) — it is the verified,
-> end-to-end recipe for authoring a module. **Phase 6 in progress:** `model-evaluation`
-> and `gradient-boosting` shipped; **`optimization-optimizers` is the last module.**
+> **Done:** the Computer Vision track is live as a focused 4-module vision path,
+> `modern-ai` is rebranded to "Deep Learning", three new CV modules and three new
+> unit modules (model-evaluation, gradient-boosting, optimization-optimizers) ship,
+> and every module has an interactive visualization. 8149 tests, 36 module pages.
+> Read §8 (Implementation Playbook) before authoring any future module.
 >
 > **⚠️ Major design change (owner sign-off, 2026-06-20) — supersedes §3a and §7.**
 > The original additive plan put every vision module in *both* `modern-ai` and
@@ -210,12 +212,12 @@ Mirror a published exemplar such as `12_computer_vision.ts` or `3b_logistic_regr
 - [x] Decide whether CV should auto-expand in `TrackCurriculumExplorer` — **No.** Keep `practitioner` default-open as the newcomer entry point; CV is the most advanced track. (Hash-link navigation already opens any track on demand.)
 - [x] Update this tracker
 
-### Phase 6 — Additional unit modules for existing tracks (§3c; independent of CV)
+### Phase 6 — Additional unit modules for existing tracks (§3c; independent of CV) ✅
 - [x] Author `model-evaluation` (practitioner, #40) + ROC/threshold viz; `status: 'published'`
 - [x] Author `gradient-boosting` (practitioner, #41) + stage-wise residual viz; `status: 'published'`
-- [ ] Author `optimization-optimizers` (Deep Learning, #42) + register + viz; `status: 'published'`
+- [x] Author `optimization-optimizers` (Deep Learning, #42) + loss-surface descent viz (SGD/Momentum/Adam); `status: 'published'`
 - [x] ~~Add `'modern-ai'` to `diffusion-models`~~ — **superseded** by the re-partition above: `diffusion-models` is now Computer-Vision-only (no longer multi-homed).
-- [ ] Each meets the §4 checklist; `npm run lint && npm run test && npm run build` green
+- [x] Each meets the §4 checklist; `npm run lint && npm run test && npm run build` green (8149 tests, 36 module pages)
 
 ---
 

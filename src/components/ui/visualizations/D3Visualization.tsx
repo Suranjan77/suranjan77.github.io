@@ -41,6 +41,7 @@ import VisionTransformersViz from "./VisionTransformersViz";
 import DiffusionViz from "./DiffusionViz";
 import ModelEvaluationViz from "./ModelEvaluationViz";
 import GradientBoostingViz from "./GradientBoostingViz";
+import OptimizationOptimizersViz from "./OptimizationOptimizersViz";
 
 interface VizMetadata {
   title: string;
@@ -141,6 +142,12 @@ const extendedVisualizations: Record<
     title: "Add Trees That Fix What's Left Over",
     subtitle: "Start from the mean and add shallow trees one at a time, each fit to the yellow residuals. Raise the tree count to watch the green ensemble curve bend toward the data, and change the learning rate to feel the shrinkage trade-off between smooth fitting and chasing noise.",
     insight: "Gradient boosting descends the loss one shallow tree at a time, each fit to the current residuals; a small learning rate with many trees regularizes by averaging out noise instead of letting any one tree overfit.",
+  },
+  "optimization-optimizers": {
+    component: OptimizationOptimizersViz,
+    title: "Same Gradient, Different Step: SGD vs Momentum vs Adam",
+    subtitle: "Drop an optimizer into a narrow loss valley that is steep across and flat along. Plain SGD crawls down the flat floor; momentum builds speed and cancels the side-to-side bounce; Adam rescales each direction. Switch optimizers and nudge the learning rate to see why the update rule matters as much as the gradient.",
+    insight: "Backprop gives the gradient, but the optimizer decides the step: momentum accelerates consistent directions while adaptive methods like Adam rescale each parameter, so they cut through ill-conditioned ravines that stall plain SGD.",
   },
 };
 
@@ -427,6 +434,7 @@ const visualizationComponents: Record<string, React.ComponentType> = {
   "diffusion-models": DiffusionViz,
   "model-evaluation": ModelEvaluationViz,
   "gradient-boosting": GradientBoostingViz,
+  "optimization-optimizers": OptimizationOptimizersViz,
 };
 
 const accessibleLabels: Record<string, string> = {
@@ -463,6 +471,7 @@ const accessibleLabels: Record<string, string> = {
   "diffusion-models": "Diffusion Forward Noising and Reverse Denoising",
   "model-evaluation": "ROC Curve and Confusion Matrix Threshold Sweep",
   "gradient-boosting": "Gradient Boosting Stage-wise Residual Fitting",
+  "optimization-optimizers": "Optimizer Descent Trajectory on a Loss Surface",
 };
 
 const legacyConfigId: Record<string, string> = {

@@ -37,6 +37,7 @@ import { visionTransformers } from "./38_vision_transformers";
 import { diffusionModels } from "./39_diffusion_models";
 import { modelEvaluation } from "./40_model_evaluation";
 import { gradientBoosting } from "./41_gradient_boosting";
+import { optimizationOptimizers } from "./42_optimization_optimizers";
 
 export const algorithmsList: LearningModule[] = [
   appliedMlWorkflow,
@@ -57,6 +58,7 @@ export const algorithmsList: LearningModule[] = [
   neuralNetworks,
   classicalSynthesis,
   backpropagation,
+  optimizationOptimizers,
   cnn,
   computerVision,
   imageSegmentation,
