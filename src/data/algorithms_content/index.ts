@@ -38,6 +38,7 @@ import { diffusionModels } from "./39_diffusion_models";
 import { modelEvaluation } from "./40_model_evaluation";
 import { gradientBoosting } from "./41_gradient_boosting";
 import { optimizationOptimizers } from "./42_optimization_optimizers";
+import { objectDetection } from "./43_object_detection";
 
 export const algorithmsList: LearningModule[] = [
   appliedMlWorkflow,
@@ -61,6 +62,7 @@ export const algorithmsList: LearningModule[] = [
   optimizationOptimizers,
   cnn,
   computerVision,
+  objectDetection,
   imageSegmentation,
   embeddingsTokenization,
   sequenceModels,

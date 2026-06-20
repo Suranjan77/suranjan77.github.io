@@ -42,6 +42,7 @@ import DiffusionViz from "./DiffusionViz";
 import ModelEvaluationViz from "./ModelEvaluationViz";
 import GradientBoostingViz from "./GradientBoostingViz";
 import OptimizationOptimizersViz from "./OptimizationOptimizersViz";
+import ObjectDetectionViz from "./ObjectDetectionViz";
 
 interface VizMetadata {
   title: string;
@@ -148,6 +149,12 @@ const extendedVisualizations: Record<
     title: "Same Gradient, Different Step: SGD vs Momentum vs Adam",
     subtitle: "Drop an optimizer into a narrow loss valley that is steep across and flat along. Plain SGD crawls down the flat floor; momentum builds speed and cancels the side-to-side bounce; Adam rescales each direction. Switch optimizers and nudge the learning rate to see why the update rule matters as much as the gradient.",
     insight: "Backprop gives the gradient, but the optimizer decides the step: momentum accelerates consistent directions while adaptive methods like Adam rescale each parameter, so they cut through ill-conditioned ravines that stall plain SGD.",
+  },
+  "object-detection": {
+    component: ObjectDetectionViz,
+    title: "From a Mess of Boxes to One Per Object",
+    subtitle: "Every real object (dashed) is wrapped in a cluster of redundant predicted boxes. Raise the confidence threshold to drop weak and background boxes, then tune the NMS IoU to collapse each cluster — too high leaves duplicates, too low merges nearby objects.",
+    insight: "Detection emits many redundant scored boxes per object; a confidence threshold drops weak ones and non-maximum suppression keeps the best box per cluster, so the post-processing thresholds materially change the final detections.",
   },
 };
 
@@ -435,6 +442,7 @@ const visualizationComponents: Record<string, React.ComponentType> = {
   "model-evaluation": ModelEvaluationViz,
   "gradient-boosting": GradientBoostingViz,
   "optimization-optimizers": OptimizationOptimizersViz,
+  "object-detection": ObjectDetectionViz,
 };
 
 const accessibleLabels: Record<string, string> = {
@@ -472,6 +480,7 @@ const accessibleLabels: Record<string, string> = {
   "model-evaluation": "ROC Curve and Confusion Matrix Threshold Sweep",
   "gradient-boosting": "Gradient Boosting Stage-wise Residual Fitting",
   "optimization-optimizers": "Optimizer Descent Trajectory on a Loss Surface",
+  "object-detection": "Object Detection Anchor Boxes and Non-Maximum Suppression",
 };
 
 const legacyConfigId: Record<string, string> = {

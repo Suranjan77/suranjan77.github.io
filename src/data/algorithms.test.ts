@@ -28,6 +28,7 @@ const requiredIds = [
   "optimization-optimizers",
   "cnn",
   "computer-vision",
+  "object-detection",
   "image-segmentation",
   "embeddings-tokenization",
   "sequence-models",
