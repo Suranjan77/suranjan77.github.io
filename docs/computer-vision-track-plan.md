@@ -1,12 +1,34 @@
 # Computer Vision Learning Track — Implementation Plan & Work Tracker
 
-> **Status:** In progress — Phase 2 (Image Segmentation) shipped · **Branch:** `claude/compassionate-ptolemy-2ockq9`
+> **Status:** ✅ **All phases (1–6) shipped** + track re-partition/rebrand · **Branch:** `claude/compassionate-ptolemy-2ockq9`
 > **Owner:** Suranjan · **Last updated:** 2026-06-20
 >
-> **Start here next time:** read §8 (Implementation Playbook) — it is the verified,
-> end-to-end recipe for authoring a module. Phase 1 (stand up the track) and Phases 3–6
-> (Vision Transformers, Diffusion, plus the §3c practitioner/modern-ai unit modules)
-> remain.
+> **Done:** the Computer Vision track is live and `modern-ai` is rebranded to
+> "Deep Learning". Three original CV modules + three unit modules (model-evaluation,
+> gradient-boosting, optimization-optimizers) shipped, then the **CV track was
+> expanded to 8 modules** (added object-detection, cnn-architectures,
+> self-supervised-vision, vision-language-models). Every module has an interactive
+> visualization. 9031 tests, 40 module pages. Read §8 (Implementation Playbook)
+> before authoring any future module.
+>
+> **CV track expansion (owner-requested, 2026-06-20).** Final ordered path (zero
+> overlap with Deep Learning): `cnn-architectures` → `computer-vision` →
+> `object-detection` → `image-segmentation` → `vision-transformers` →
+> `self-supervised-vision` → `vision-language-models` → `diffusion-models`. All
+> tagged `tracks: ['computer-vision']`; DL foundations remain assumed-covered prereqs.
+>
+> **⚠️ Major design change (owner sign-off, 2026-06-20) — supersedes §3a and §7.**
+> The original additive plan put every vision module in *both* `modern-ai` and
+> `computer-vision`, so the CV track was a strict subset of modern-ai (heavy
+> duplication on the homepage). Per owner direction this is resolved:
+> 1. **`modern-ai` track is rebranded to "Deep Learning"** (display title +
+>    description only; the `TrackId` stays `'modern-ai'` to preserve routes/anchors).
+> 2. **Zero track overlap.** Shared foundations (`neural-networks`, `backpropagation`,
+>    `cnn`, `autoencoders`, `generative-models`) stay in **Deep Learning only** and are
+>    treated as *assumed-covered prerequisites* for CV. The **Computer Vision** track
+>    holds only the **vision-specific** modules: `computer-vision`, `image-segmentation`,
+>    `vision-transformers`, `diffusion-models` (each now `tracks: ['computer-vision']`).
+>    Verified: Deep Learning = 19 modules, Computer Vision = 8, overlap = none.
 >
 > Living source of truth for adding a third **learning track**, *Computer Vision*,
 > to ML Learn. Update the **Work Tracker** checkboxes as tasks land; keep the design
@@ -164,42 +186,46 @@ Mirror a published exemplar such as `12_computer_vision.ts` or `3b_logistic_regr
 
 ## 5. Work Tracker
 
-### Phase 1 — Stand up the empty track (no new content yet)
-- [ ] Extend `TrackId` union (file #1)
-- [ ] Add `learningTracks` entry (file #2)
-- [ ] Add `trackLabels` + `formatTrackLabel` mappings (files #3, #4)
-- [ ] Append `'computer-vision'` to existing vision modules' `tracks` (§3a)
-- [ ] Add `getTrackModules('computer-vision')` test (file #9)
-- [ ] Verify `/` (TrackCurriculumExplorer) shows the new track with the bundled modules
-- [ ] `npm run lint && npm run test && npm run build` green
+### Phase 1 — Stand up the empty track (no new content yet) ✅
+- [x] Extend `TrackId` union (file #1)
+- [x] Add `learningTracks` entry (file #2)
+- [x] Add `trackLabels` + `formatTrackLabel` mappings (files #3, #4)
+- [x] Append `'computer-vision'` to existing vision modules' `tracks` (§3a) — neural-networks, backpropagation, cnn, computer-vision, autoencoders, generative-models
+- [x] Add `getTrackModules('computer-vision')` test (file #9) — added 2 tests (membership + ordering)
+- [x] Verify build emits `/tracks/computer-vision` as a static route
+- [x] `npm run lint && npm run test && npm run build` green (7039 tests)
 
 ### Phase 2 — New module: Image Segmentation ✅
 - [x] Author `37_image_segmentation.ts` + register in `index.ts`
 - [x] Author `ImageSegmentationViz` (threshold → per-pixel mask, live Dice/IoU) + register in `D3Visualization.tsx`
 - [x] Meets §4 checklist; `status: 'published'`
 - [x] lint + test (7037 passing) + build green
-- [ ] Re-tag `tracks` to include `'computer-vision'` once Phase 1 lands (currently `['modern-ai']`)
+- [x] Re-tag `tracks` to include `'computer-vision'` (now `['modern-ai', 'computer-vision']`) — done with Phase 1
 
-### Phase 3 — New module: Vision Transformers
-- [ ] Author `38_vision_transformers.ts` + register + (optional) `VisionTransformersViz`
-- [ ] Meets §4 checklist; `status: 'published'`
+### Phase 3 — New module: Vision Transformers ✅
+- [x] Author `38_vision_transformers.ts` + register in `index.ts` + `requiredIds`
+- [x] Author `VisionTransformersViz` (clickable query patch → attention map; ViT-global vs CNN-3×3 toggle, live receptive-field + object-attention metrics) + register in `D3Visualization.tsx`
+- [x] Meets §4 checklist; `status: 'published'` (prereqs `transformers`, `computer-vision`; tracks `['modern-ai','computer-vision']`)
+- [x] lint + test (7259 passing) + build green
 
-### Phase 4 — New module: Diffusion Models
-- [ ] Author `39_diffusion_models.ts` + register + (optional) `DiffusionViz`
-- [ ] Meets §4 checklist; `status: 'published'`
+### Phase 4 — New module: Diffusion Models ✅
+- [x] Author `39_diffusion_models.ts` + register in `index.ts` (end of list) + `requiredIds`
+- [x] Author `DiffusionViz` (timestep slider over the closed-form forward sample; noisy `x_t` vs model's `x̂₀` estimate, live √ᾱ / √(1−ᾱ) / ᾱ_t / SNR) + register in `D3Visualization.tsx`
+- [x] Meets §4 checklist; `status: 'published'` (prereqs `generative-models`, `neural-networks`; tracks `['modern-ai','computer-vision']` — also satisfies Phase 6's "add modern-ai to diffusion-models")
+- [x] lint + test (7482 passing) + build green (35 module pages)
 
-### Phase 5 — Polish
-- [ ] Confirm topological order of the CV path reads sensibly on the homepage
-- [ ] Cross-link `relatedModules` between new and existing vision modules
-- [ ] Decide whether CV should auto-expand in `TrackCurriculumExplorer`
-- [ ] Update this tracker + the `active-learning-upgrade.md` rollout notes if relevant
+### Phase 5 — Polish ✅
+- [x] Confirm topological order of the CV path reads sensibly: neural-networks → backpropagation → cnn → computer-vision → image-segmentation → autoencoders → generative-models → vision-transformers → diffusion-models (verified via `getTrackModules`)
+- [x] Cross-link `relatedModules` between new and existing vision modules — added forward back-links: cnn & computer-vision → {image-segmentation, vision-transformers}; transformers → vision-transformers; autoencoders & generative-models → diffusion-models
+- [x] Decide whether CV should auto-expand in `TrackCurriculumExplorer` — **No.** Keep `practitioner` default-open as the newcomer entry point; CV is the most advanced track. (Hash-link navigation already opens any track on demand.)
+- [x] Update this tracker
 
-### Phase 6 — Additional unit modules for existing tracks (§3c; independent of CV)
-- [ ] Author `gradient-boosting` (practitioner) + register + (optional) viz; `status: 'published'`
-- [ ] Author `model-evaluation` (practitioner) + register + (optional) viz; `status: 'published'`
-- [ ] Author `optimization-optimizers` (modern-ai) + register + (optional) viz; `status: 'published'`
-- [ ] Add `'modern-ai'` to `diffusion-models` `tracks` (covers the Diffusion unit)
-- [ ] Each meets the §4 checklist; `npm run lint && npm run test && npm run build` green
+### Phase 6 — Additional unit modules for existing tracks (§3c; independent of CV) ✅
+- [x] Author `model-evaluation` (practitioner, #40) + ROC/threshold viz; `status: 'published'`
+- [x] Author `gradient-boosting` (practitioner, #41) + stage-wise residual viz; `status: 'published'`
+- [x] Author `optimization-optimizers` (Deep Learning, #42) + loss-surface descent viz (SGD/Momentum/Adam); `status: 'published'`
+- [x] ~~Add `'modern-ai'` to `diffusion-models`~~ — **superseded** by the re-partition above: `diffusion-models` is now Computer-Vision-only (no longer multi-homed).
+- [x] Each meets the §4 checklist; `npm run lint && npm run test && npm run build` green (8149 tests, 36 module pages)
 
 ---
 

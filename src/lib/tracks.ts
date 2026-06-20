@@ -15,9 +15,15 @@ export const learningTracks: LearningTrack[] = [
   },
   {
     id: "modern-ai",
-    title: "Modern AI Systems",
+    title: "Deep Learning",
     description:
-      "Follow the path from neural networks and backpropagation to transformers, retrieval, fine-tuning, evaluation, and inference.",
+      "Build deep learning from the ground up: neural networks and backpropagation through CNNs, sequence models, transformers, and large language models — to retrieval, fine-tuning, evaluation, and inference.",
+  },
+  {
+    id: "computer-vision",
+    title: "Computer Vision",
+    description:
+      "Go from convolutions to detection, segmentation, vision transformers, and diffusion-based image generation — the modern visual-understanding stack.",
   },
 ];
 

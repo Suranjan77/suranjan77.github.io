@@ -7,7 +7,7 @@ export const transformers: LearningModule = {
   prerequisites: ["neural-networks", "nlp"],
   tracks: ["modern-ai"],
   difficulty: 4,
-  relatedModules: ["neural-networks", "nlp", "llms"],
+  relatedModules: ["neural-networks", "nlp", "llms", "vision-transformers"],
   shortDescription: "Sequence models built around attention, letting each token form a context-dependent weighted mixture of other token representations.",
   estimatedMinutes: 30,
   learningObjectives: [

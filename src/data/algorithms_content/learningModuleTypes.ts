@@ -81,7 +81,7 @@ export interface UsageGuidance {
   rulesOfThumb?: string[];        // optional quick heuristics
 }
 
-export type TrackId = 'practitioner' | 'modern-ai';
+export type TrackId = 'practitioner' | 'modern-ai' | 'computer-vision';
 export type Difficulty = 1 | 2 | 3 | 4;
 
 export interface LearningModule {

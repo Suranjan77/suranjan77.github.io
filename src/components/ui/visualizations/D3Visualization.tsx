@@ -37,6 +37,15 @@ import FineTuningViz from "./FineTuningViz";
 import LLMEvalSafetyViz from "./LLMEvalSafetyViz";
 import AIInferenceViz from "./AIInferenceViz";
 import ImageSegmentationViz from "./ImageSegmentationViz";
+import VisionTransformersViz from "./VisionTransformersViz";
+import DiffusionViz from "./DiffusionViz";
+import ModelEvaluationViz from "./ModelEvaluationViz";
+import GradientBoostingViz from "./GradientBoostingViz";
+import OptimizationOptimizersViz from "./OptimizationOptimizersViz";
+import ObjectDetectionViz from "./ObjectDetectionViz";
+import CnnArchitecturesViz from "./CnnArchitecturesViz";
+import SelfSupervisedVisionViz from "./SelfSupervisedVisionViz";
+import VisionLanguageModelsViz from "./VisionLanguageModelsViz";
 
 interface VizMetadata {
   title: string;
@@ -113,6 +122,60 @@ const extendedVisualizations: Record<
     title: "Segmentation: A Class for Every Pixel, Scored by Overlap",
     subtitle: "A model predicts a per-pixel probability that each cell belongs to the object. Drag the threshold to turn those probabilities into a hard mask and watch Dice and IoU rise and fall as misses and false alarms trade off.",
     insight: "Segmentation is per-pixel classification graded by mask overlap (Dice / IoU), so the threshold trades recall against precision — there is a sweet spot that maximizes overlap.",
+  },
+  "vision-transformers": {
+    component: VisionTransformersViz,
+    title: "Patches, Not Pixels: A Global Receptive Field in One Layer",
+    subtitle: "Pick any patch as the attention query and watch where it looks. In ViT mode it attends across the whole image to patches with similar content; switch to CNN mode and it is boxed into a 3×3 neighborhood — the locality bias a Vision Transformer trades away.",
+    insight: "A Vision Transformer turns an image into a sequence of patch tokens and lets every patch attend to every other one, so a single self-attention layer already has a global, content-based receptive field — flexibility that costs data but pays off at scale.",
+  },
+  "diffusion-models": {
+    component: DiffusionViz,
+    title: "Bury an Image in Noise, Then Learn to Dig It Out",
+    subtitle: "Slide the diffusion step right to watch the closed-form forward process mix shrinking signal with growing noise until the image is pure static; slide left to imagine the reverse process, and watch the model's single-step denoised estimate sharpen as the noise recedes.",
+    insight: "Diffusion defines a fixed forward process that turns any image into Gaussian noise, then trains a network to reverse it — so generation starts from pure noise and denoises step by step, and denoising is easy near the data but hard far from it.",
+  },
+  "model-evaluation": {
+    component: ModelEvaluationViz,
+    title: "One Model, Many Operating Points: The Threshold Sweep",
+    subtitle: "Drag the decision threshold and watch the confusion matrix, precision, recall, and F1 all move while the pink dot slides along a fixed ROC curve. The model never changes — only where you choose to operate it does.",
+    insight: "Classification quality is not one number: the threshold trades precision against recall, the confusion matrix counts both error types, and threshold-independent summaries like ROC-AUC describe the model while you still must choose an operating point.",
+  },
+  "gradient-boosting": {
+    component: GradientBoostingViz,
+    title: "Add Trees That Fix What's Left Over",
+    subtitle: "Start from the mean and add shallow trees one at a time, each fit to the yellow residuals. Raise the tree count to watch the green ensemble curve bend toward the data, and change the learning rate to feel the shrinkage trade-off between smooth fitting and chasing noise.",
+    insight: "Gradient boosting descends the loss one shallow tree at a time, each fit to the current residuals; a small learning rate with many trees regularizes by averaging out noise instead of letting any one tree overfit.",
+  },
+  "optimization-optimizers": {
+    component: OptimizationOptimizersViz,
+    title: "Same Gradient, Different Step: SGD vs Momentum vs Adam",
+    subtitle: "Drop an optimizer into a narrow loss valley that is steep across and flat along. Plain SGD crawls down the flat floor; momentum builds speed and cancels the side-to-side bounce; Adam rescales each direction. Switch optimizers and nudge the learning rate to see why the update rule matters as much as the gradient.",
+    insight: "Backprop gives the gradient, but the optimizer decides the step: momentum accelerates consistent directions while adaptive methods like Adam rescale each parameter, so they cut through ill-conditioned ravines that stall plain SGD.",
+  },
+  "object-detection": {
+    component: ObjectDetectionViz,
+    title: "From a Mess of Boxes to One Per Object",
+    subtitle: "Every real object (dashed) is wrapped in a cluster of redundant predicted boxes. Raise the confidence threshold to drop weak and background boxes, then tune the NMS IoU to collapse each cluster — too high leaves duplicates, too low merges nearby objects.",
+    insight: "Detection emits many redundant scored boxes per object; a confidence threshold drops weak ones and non-maximum suppression keeps the best box per cluster, so the post-processing thresholds materially change the final detections.",
+  },
+  "cnn-architectures": {
+    component: CnnArchitecturesViz,
+    title: "Why Residual Connections Unlocked Depth",
+    subtitle: "Backpropagate from output to input and watch the gradient bars. A plain deep stack multiplies sub-1 factors, so the signal vanishes before reaching the early layers; a residual network's identity skips keep it intact. Crank the depth and flip the architecture to feel the difference.",
+    insight: "In a plain deep network the gradient is a product of per-layer factors that vanishes with depth (the degradation problem), but a residual connection adds a +1 identity path that preserves the gradient, making hundreds of layers trainable.",
+  },
+  "self-supervised-vision": {
+    component: SelfSupervisedVisionViz,
+    title: "Learn by Filling in the Blanks — No Labels Needed",
+    subtitle: "Hide a fraction of the image patches and reconstruct them from what is left. A low mask ratio is trivially solved by copying neighbors; push it to MAE's ~75% and the only way to rebuild the gaps is to actually understand the object — and the encoder only processes the visible patches.",
+    insight: "Self-supervised pretraining manufactures a training signal from unlabeled images: masked image modeling hides most patches and reconstructs them, forcing the encoder to learn transferable structure that a small labeled set later fine-tunes.",
+  },
+  "vision-language-models": {
+    component: VisionLanguageModelsViz,
+    title: "One Shared Space for Pictures and Words",
+    subtitle: "Each cell is the similarity between an image and a text prompt. Training only pushes the diagonal (true image–caption pairs) up. Pick a query image and the brightest cell in its row is the zero-shot prediction — classifying by words alone, with no labels.",
+    insight: "CLIP aligns images and text in one embedding space via contrastive training on web pairs, so classification becomes nearest-text-prompt matching — open-vocabulary and zero-shot, though confusable categories still trip it up.",
   },
 };
 
@@ -395,6 +458,15 @@ const visualizationComponents: Record<string, React.ComponentType> = {
   "llm-evaluation-safety": LLMEvalSafetyViz,
   "ai-inference": AIInferenceViz,
   "image-segmentation": ImageSegmentationViz,
+  "vision-transformers": VisionTransformersViz,
+  "diffusion-models": DiffusionViz,
+  "model-evaluation": ModelEvaluationViz,
+  "gradient-boosting": GradientBoostingViz,
+  "optimization-optimizers": OptimizationOptimizersViz,
+  "object-detection": ObjectDetectionViz,
+  "cnn-architectures": CnnArchitecturesViz,
+  "self-supervised-vision": SelfSupervisedVisionViz,
+  "vision-language-models": VisionLanguageModelsViz,
 };
 
 const accessibleLabels: Record<string, string> = {
@@ -427,6 +499,15 @@ const accessibleLabels: Record<string, string> = {
   "llm-evaluation-safety": "LLM Model Scores Bar Chart",
   "ai-inference": "AI inference memory and throughput calculator",
   "image-segmentation": "Semantic Segmentation Mask and Dice Score",
+  "vision-transformers": "Vision Transformer Patch Attention Map",
+  "diffusion-models": "Diffusion Forward Noising and Reverse Denoising",
+  "model-evaluation": "ROC Curve and Confusion Matrix Threshold Sweep",
+  "gradient-boosting": "Gradient Boosting Stage-wise Residual Fitting",
+  "optimization-optimizers": "Optimizer Descent Trajectory on a Loss Surface",
+  "object-detection": "Object Detection Anchor Boxes and Non-Maximum Suppression",
+  "cnn-architectures": "Gradient Flow Through Network Depth: Plain vs Residual",
+  "self-supervised-vision": "Masked Image Modeling Reconstruction",
+  "vision-language-models": "CLIP Image-Text Similarity Matrix and Zero-Shot Match",
 };
 
 const legacyConfigId: Record<string, string> = {

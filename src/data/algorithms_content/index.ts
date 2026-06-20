@@ -33,17 +33,28 @@ import { aiInference } from "./35_ai_inference";
 import { appliedMlWorkflow } from "./36_applied_ml_workflow";
 import { llmSynthesis } from "./36b_synthesis_llms";
 import { imageSegmentation } from "./37_image_segmentation";
+import { visionTransformers } from "./38_vision_transformers";
+import { diffusionModels } from "./39_diffusion_models";
+import { modelEvaluation } from "./40_model_evaluation";
+import { gradientBoosting } from "./41_gradient_boosting";
+import { optimizationOptimizers } from "./42_optimization_optimizers";
+import { objectDetection } from "./43_object_detection";
+import { cnnArchitectures } from "./44_cnn_architectures";
+import { selfSupervisedVision } from "./45_self_supervised_vision";
+import { visionLanguageModels } from "./46_vision_language_models";
 
 export const algorithmsList: LearningModule[] = [
   appliedMlWorkflow,
   linearRegression,
   logisticRegression,
   regularization,
+  modelEvaluation,
   knn,
   naiveBayes,
   svm,
   decisionTrees,
   ensembleLearning,
+  gradientBoosting,
   clustering,
   gmmEm,
   dimensionalityReduction,
@@ -51,8 +62,11 @@ export const algorithmsList: LearningModule[] = [
   neuralNetworks,
   classicalSynthesis,
   backpropagation,
+  optimizationOptimizers,
   cnn,
+  cnnArchitectures,
   computerVision,
+  objectDetection,
   imageSegmentation,
   embeddingsTokenization,
   sequenceModels,
@@ -60,6 +74,9 @@ export const algorithmsList: LearningModule[] = [
   autoencoders,
   generativeModels,
   transformers,
+  visionTransformers,
+  selfSupervisedVision,
+  visionLanguageModels,
   llms,
   dlSynthesis,
   fineTuning,
@@ -68,4 +85,5 @@ export const algorithmsList: LearningModule[] = [
   aiInference,
   reinforcementLearning,
   llmSynthesis,
+  diffusionModels,
 ];
