@@ -7,7 +7,7 @@ export const generativeModels: LearningModule = {
   prerequisites: ["neural-networks"],
   tracks: ["modern-ai", "computer-vision"],
   difficulty: 4,
-  relatedModules: ["neural-networks", "autoencoders"],
+  relatedModules: ["neural-networks", "autoencoders", "diffusion-models"],
   shortDescription: "Training a generator and a discriminator in a minimax game to generate highly realistic, synthetic data.",
   estimatedMinutes: 25,
   learningObjectives: [

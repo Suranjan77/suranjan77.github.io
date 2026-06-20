@@ -193,11 +193,11 @@ Mirror a published exemplar such as `12_computer_vision.ts` or `3b_logistic_regr
 - [x] Meets §4 checklist; `status: 'published'` (prereqs `generative-models`, `neural-networks`; tracks `['modern-ai','computer-vision']` — also satisfies Phase 6's "add modern-ai to diffusion-models")
 - [x] lint + test (7482 passing) + build green (35 module pages)
 
-### Phase 5 — Polish
-- [ ] Confirm topological order of the CV path reads sensibly on the homepage
-- [ ] Cross-link `relatedModules` between new and existing vision modules
-- [ ] Decide whether CV should auto-expand in `TrackCurriculumExplorer`
-- [ ] Update this tracker + the `active-learning-upgrade.md` rollout notes if relevant
+### Phase 5 — Polish ✅
+- [x] Confirm topological order of the CV path reads sensibly: neural-networks → backpropagation → cnn → computer-vision → image-segmentation → autoencoders → generative-models → vision-transformers → diffusion-models (verified via `getTrackModules`)
+- [x] Cross-link `relatedModules` between new and existing vision modules — added forward back-links: cnn & computer-vision → {image-segmentation, vision-transformers}; transformers → vision-transformers; autoencoders & generative-models → diffusion-models
+- [x] Decide whether CV should auto-expand in `TrackCurriculumExplorer` — **No.** Keep `practitioner` default-open as the newcomer entry point; CV is the most advanced track. (Hash-link navigation already opens any track on demand.)
+- [x] Update this tracker
 
 ### Phase 6 — Additional unit modules for existing tracks (§3c; independent of CV)
 - [ ] Author `gradient-boosting` (practitioner) + register + (optional) viz; `status: 'published'`

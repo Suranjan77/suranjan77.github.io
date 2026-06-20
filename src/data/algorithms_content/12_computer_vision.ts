@@ -7,7 +7,7 @@ export const computerVision: LearningModule = {
   prerequisites: ["cnn"],
   tracks: ["modern-ai", "computer-vision"],
   difficulty: 3,
-  relatedModules: ["cnn", "neural-networks"],
+  relatedModules: ["cnn", "neural-networks", "image-segmentation", "vision-transformers"],
   shortDescription: "The broad field of enabling computers to see, segment, track, and interpret visual data from the physical world.",
   estimatedMinutes: 25,
   learningObjectives: [
