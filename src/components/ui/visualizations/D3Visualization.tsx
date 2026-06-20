@@ -44,6 +44,7 @@ import GradientBoostingViz from "./GradientBoostingViz";
 import OptimizationOptimizersViz from "./OptimizationOptimizersViz";
 import ObjectDetectionViz from "./ObjectDetectionViz";
 import CnnArchitecturesViz from "./CnnArchitecturesViz";
+import SelfSupervisedVisionViz from "./SelfSupervisedVisionViz";
 
 interface VizMetadata {
   title: string;
@@ -162,6 +163,12 @@ const extendedVisualizations: Record<
     title: "Why Residual Connections Unlocked Depth",
     subtitle: "Backpropagate from output to input and watch the gradient bars. A plain deep stack multiplies sub-1 factors, so the signal vanishes before reaching the early layers; a residual network's identity skips keep it intact. Crank the depth and flip the architecture to feel the difference.",
     insight: "In a plain deep network the gradient is a product of per-layer factors that vanishes with depth (the degradation problem), but a residual connection adds a +1 identity path that preserves the gradient, making hundreds of layers trainable.",
+  },
+  "self-supervised-vision": {
+    component: SelfSupervisedVisionViz,
+    title: "Learn by Filling in the Blanks — No Labels Needed",
+    subtitle: "Hide a fraction of the image patches and reconstruct them from what is left. A low mask ratio is trivially solved by copying neighbors; push it to MAE's ~75% and the only way to rebuild the gaps is to actually understand the object — and the encoder only processes the visible patches.",
+    insight: "Self-supervised pretraining manufactures a training signal from unlabeled images: masked image modeling hides most patches and reconstructs them, forcing the encoder to learn transferable structure that a small labeled set later fine-tunes.",
   },
 };
 
@@ -451,6 +458,7 @@ const visualizationComponents: Record<string, React.ComponentType> = {
   "optimization-optimizers": OptimizationOptimizersViz,
   "object-detection": ObjectDetectionViz,
   "cnn-architectures": CnnArchitecturesViz,
+  "self-supervised-vision": SelfSupervisedVisionViz,
 };
 
 const accessibleLabels: Record<string, string> = {
@@ -490,6 +498,7 @@ const accessibleLabels: Record<string, string> = {
   "optimization-optimizers": "Optimizer Descent Trajectory on a Loss Surface",
   "object-detection": "Object Detection Anchor Boxes and Non-Maximum Suppression",
   "cnn-architectures": "Gradient Flow Through Network Depth: Plain vs Residual",
+  "self-supervised-vision": "Masked Image Modeling Reconstruction",
 };
 
 const legacyConfigId: Record<string, string> = {

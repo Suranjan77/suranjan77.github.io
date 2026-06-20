@@ -40,6 +40,7 @@ import { gradientBoosting } from "./41_gradient_boosting";
 import { optimizationOptimizers } from "./42_optimization_optimizers";
 import { objectDetection } from "./43_object_detection";
 import { cnnArchitectures } from "./44_cnn_architectures";
+import { selfSupervisedVision } from "./45_self_supervised_vision";
 
 export const algorithmsList: LearningModule[] = [
   appliedMlWorkflow,
@@ -73,6 +74,7 @@ export const algorithmsList: LearningModule[] = [
   generativeModels,
   transformers,
   visionTransformers,
+  selfSupervisedVision,
   llms,
   dlSynthesis,
   fineTuning,
