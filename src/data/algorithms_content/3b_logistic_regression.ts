@@ -20,13 +20,6 @@ export const logisticRegression: LearningModule = {
     { term: 'Odds Ratio', definition: 'The ratio of the probability of an event occurring to the probability of it not occurring.' },
     { term: 'Binary Cross-Entropy', definition: 'A loss function measuring the performance of a classification model whose output is a probability value between 0 and 1.' },
   ],
-  workedExamples: [
-    {
-      title: 'Sigmoid Probability Calculation',
-      problem: 'Given linear score $z = w^T x + b = 2.0$, calculate the predicted probability $p$.',
-      solution: '$p = \\sigma(2.0) = \\frac{1}{1 + e^{-2}} \\approx \\frac{1}{1 + 0.135} \\approx 0.88$.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'Logistic regression is a regression algorithm that predicts continuous numbers.',
@@ -182,32 +175,6 @@ This is structurally identical to the linear-regression gradient: weight updates
       `,
     },
   ],
-  practiceExercises: [
-    {
-      prompt: 'A logistic model produces a linear score $z = w^T x + b = -1.0$ for an example. Compute the predicted probability $\\hat{p} = \\sigma(z)$ and, using a $0.5$ threshold, give the predicted class.',
-      difficulty: 'warm-up',
-      hint: 'Use $\\sigma(z) = \\frac{1}{1 + e^{-z}}$, and recall $e^{1} \\approx 2.718$.',
-      solution: '$\\hat{p} = \\sigma(-1.0) = \\frac{1}{1 + e^{1}} = \\frac{1}{1 + 2.718} = \\frac{1}{3.718} \\approx 0.269$. Since $0.269 < 0.5$, the predicted class is $0$ (the negative class).',
-    },
-    {
-      prompt: 'The true label of an example is $y = 1$ and the model predicts $\\hat{p} = 0.8$. Compute the binary cross-entropy (log-loss) contribution of this single example. Then repeat for a confidently wrong prediction $\\hat{p} = 0.1$.',
-      difficulty: 'core',
-      hint: 'For $y = 1$, the per-example log-loss is simply $-\\log(\\hat{p})$ (use natural log).',
-      solution: 'For $y = 1$, loss $= -[\\,1 \\cdot \\log \\hat{p} + 0 \\cdot \\log(1 - \\hat{p})\\,] = -\\log(\\hat{p})$. With $\\hat{p} = 0.8$: $-\\log(0.8) \\approx -(-0.223) = 0.223$. With $\\hat{p} = 0.1$: $-\\log(0.1) \\approx 2.303$. The confidently wrong prediction incurs roughly $10\\times$ the loss, illustrating how log-loss heavily penalizes confident mistakes.',
-    },
-    {
-      prompt: 'A fitted logistic model for loan default has coefficient $w_j = 0.7$ for the standardized feature "debt-to-income ratio". Interpret this coefficient in terms of odds. By what factor do the odds of default change for a one-unit increase in this feature?',
-      difficulty: 'core',
-      hint: 'The odds multiply by $e^{w_j}$ for each one-unit increase in $x_j$.',
-      solution: 'In logistic regression $\\log\\frac{p}{1-p} = w^T x + b$, so each coefficient is a change in log-odds. A one-unit increase in debt-to-income raises the log-odds of default by $0.7$, which multiplies the **odds** by $e^{0.7} \\approx 2.01$. In other words, the odds of default roughly **double** for each one-unit (one standard-deviation, since the feature is standardized) increase in debt-to-income, holding other features fixed.',
-    },
-    {
-      prompt: 'A medical screening model outputs $\\hat{p} = 0.30$ (probability of disease). At the default threshold $0.5$ the patient is classified "no disease". Explain why a hospital might lower the threshold to $0.2$, and state what the new prediction would be.',
-      difficulty: 'challenge',
-      hint: 'Think about the asymmetric cost of a false negative versus a false positive in screening.',
-      solution: 'At threshold $0.5$, $0.30 < 0.5$ predicts "no disease". At threshold $0.2$, $0.30 \\geq 0.2$ now predicts "disease" (positive). In screening, a **false negative** (missing a real disease) is far more costly than a **false positive** (an unnecessary follow-up test). Lowering the threshold makes the model more sensitive — it catches more true positives at the cost of more false positives — which is the right trade-off when misses are dangerous. The threshold is a deployment decision separate from training and does not change the fitted weights.',
-    },
-  ],
   comparisons: [
     {
       title: 'Logistic Regression vs Linear Regression vs SVM (classification)',
@@ -281,16 +248,6 @@ This is structurally identical to the linear-regression gradient: weight updates
       explanation: 'The sigmoid squashes the linear score $z = w^T x + b$ into the open interval $(0, 1)$, which we interpret as $P(y = 1 \\mid x)$. A hard label only appears after you compare this probability to a threshold; the raw sigmoid output is itself a probability, not a class.',
     },
     {
-      question: 'Why is binary cross-entropy preferred over mean squared error for training logistic regression?',
-      options: [
-        { text: 'Cross-entropy is convex in the parameters, whereas MSE composed with the sigmoid is non-convex and can stall on vanishing gradients.', correct: true },
-        { text: 'MSE cannot be computed when the labels are 0 and 1.', correct: false },
-        { text: 'Cross-entropy always trains faster on every dataset regardless of optimizer.', correct: false },
-        { text: 'MSE requires a closed-form solution that logistic regression lacks.', correct: false },
-      ],
-      explanation: 'Composing squared error with the non-linear sigmoid yields a non-convex objective with possible local minima, and its gradient carries an extra $\\hat{p}(1 - \\hat{p})$ factor that vanishes when the model is confidently wrong. Cross-entropy is the negative Bernoulli log-likelihood, is convex in $(w, b)$, and has the clean gradient $\\frac{1}{n}X^T(\\hat{p} - y)$.',
-    },
-    {
       question: 'A logistic regression coefficient for a feature is $w_j = 1.1$. What is the correct interpretation?',
       options: [
         { text: 'A one-unit increase in the feature multiplies the odds of the positive class by $e^{1.1} \\approx 3.0$, holding other features fixed.', correct: true },
@@ -310,6 +267,12 @@ This is structurally identical to the linear-regression gradient: weight updates
       ],
       explanation: 'The default threshold is $0.5$, so $0.42 < 0.5$ predicts class 0. The threshold is a post-hoc decision separate from the fitted weights: lowering it below $0.42$ (e.g. to $0.4$) would classify this same example as positive. Tuning the threshold is how you trade off precision and recall for asymmetric costs.',
     },
+  ],
+  shortAnswerQuestions: [
+    {
+      question: 'Explain why binary cross-entropy is preferred over mean squared error (MSE) for training a logistic regression model. Mention the mathematical properties of both loss functions.',
+      expectedAnswerRubric: 'The answer should note that MSE combined with the sigmoid activation function results in a non-convex objective function that may have local minima. It should state that binary cross-entropy is convex, meaning gradient descent will converge to a global minimum. Furthermore, it should mention the gradient for cross-entropy simplifies cleanly without vanishing gradients for confident errors.'
+    }
   ],
   review: {
     lastReviewed: '2026-06-15',

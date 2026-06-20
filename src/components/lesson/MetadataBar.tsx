@@ -44,8 +44,6 @@ export default function MetadataBar({ difficulty, estimatedMinutes, tracks }: Me
 
   const formatTrackLabel = (track: TrackId) => {
     switch (track) {
-      case 'foundations':
-        return 'Foundations';
       case 'practitioner':
         return 'Practitioner';
       case 'modern-ai':

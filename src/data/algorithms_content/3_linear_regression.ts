@@ -4,9 +4,10 @@ export const linearRegression: LearningModule = {
   id: "linear-regression",
   title: "Linear Regression",
   category: "Linear Regression",
-  prerequisites: ["linear-algebra", "calculus"],
+  prerequisites: [],
   tracks: ["practitioner"],
   difficulty: 2,
+  relatedModules: ["logistic-regression", "regularization"],
   shortDescription: "A baseline model that predicts a continuous numeric value by fitting a straight line through the data.",
   estimatedMinutes: 25,
   learningObjectives: [
@@ -19,13 +20,6 @@ export const linearRegression: LearningModule = {
     { term: 'Residual', definition: 'The difference between the observed value and the predicted value.' },
     { term: 'Ordinary Least Squares (OLS)', definition: 'A method for estimating the parameters of a linear regression model by minimizing the sum of squared residuals.' },
     { term: 'Multicollinearity', definition: 'A state where two or more predictor variables in a multiple regression model are highly correlated.' },
-  ],
-  workedExamples: [
-    {
-      title: 'Ordinary Least Squares Parameters',
-      problem: 'Given data points $(1, 2)$, $(2, 3)$, $(3, 5)$, compute the slope $w$ and intercept $b$ for the line $y = wx + b$.',
-      solution: 'Means are $\\bar{x} = 2$, $\\bar{y} = 10/3$. $w = \\frac{\\sum (x_i-\\bar{x})(y_i-\\bar{y})}{\\sum (x_i-\\bar{x})^2} = \\frac{(1-2)(2-10/3) + (2-2)(3-10/3) + (3-2)(5-10/3)}{(1-2)^2 + (2-2)^2 + (3-2)^2} = \\frac{4/3 + 0 + 5/3}{2} = 1.5$. Intercept $b = \\bar{y} - w\\bar{x} = 10/3 - 1.5 \\times 2 = 1/3$.',
-    },
   ],
   misconceptions: [
     {
@@ -158,30 +152,6 @@ So the slope is just the covariance of $x$ and $y$ divided by the variance of $x
       `,
     },
   ],
-  practiceExercises: [
-    {
-      prompt: 'A fitted model is $\\hat{y} = 1.5x + 0.5$. Compute the predictions and residuals for the observed points $(2, 4)$ and $(4, 6)$.',
-      difficulty: 'warm-up',
-      solution: 'At $x=2$: $\\hat{y} = 1.5(2) + 0.5 = 3.5$, residual $r = 4 - 3.5 = 0.5$. At $x=4$: $\\hat{y} = 1.5(4) + 0.5 = 6.5$, residual $r = 6 - 6.5 = -0.5$. The residuals have opposite signs, so the line passes between the two points.',
-    },
-    {
-      prompt: 'Fit an OLS line $y = wx + b$ to the three points $(0, 1)$, $(1, 1)$, $(2, 3)$. Report the slope and intercept.',
-      difficulty: 'core',
-      hint: 'Use $w = \\frac{\\sum (x_i - \\bar{x})(y_i - \\bar{y})}{\\sum (x_i - \\bar{x})^2}$ and $b = \\bar{y} - w\\bar{x}$.',
-      solution: 'Means: $\\bar{x} = 1$, $\\bar{y} = 5/3$. Numerator $\\sum (x_i-\\bar{x})(y_i-\\bar{y}) = (-1)(1-5/3) + (0)(1-5/3) + (1)(3-5/3) = (-1)(-2/3) + 0 + (1)(4/3) = 2/3 + 4/3 = 2$. Denominator $\\sum (x_i-\\bar{x})^2 = 1 + 0 + 1 = 2$. So $w = 2/2 = 1$ and $b = 5/3 - 1 \\cdot 1 = 2/3$. The line is $\\hat{y} = x + 2/3$.',
-    },
-    {
-      prompt: 'Suppose you add a constant $c$ to **every** target value $y_i$, leaving the features unchanged, and refit OLS. How do the slope $w$ and intercept $b$ change?',
-      difficulty: 'core',
-      solution: 'The slope is unchanged. From $w = \\operatorname{Cov}(x, y)/\\operatorname{Var}(x)$, shifting every $y_i$ by $c$ shifts $\\bar{y}$ by $c$ but leaves $(y_i - \\bar{y})$ — and hence the covariance — unchanged. The intercept increases by exactly $c$: $b_{new} = (\\bar{y}+c) - w\\bar{x} = b_{old} + c$. Geometrically the whole line is translated up by $c$.',
-    },
-    {
-      prompt: 'Prove that when an intercept term is included, the OLS residuals always sum to zero: $\\sum_i r_i = 0$.',
-      difficulty: 'challenge',
-      hint: 'Look at the normal equation that corresponds to the intercept column (the column of ones in $X$).',
-      solution: 'The normal equations state $X^T(y - X\\hat{\\beta}) = X^T r = 0$, one equation per column of $X$. The intercept corresponds to a column of all ones, $\\mathbf{1}$. Its equation is $\\mathbf{1}^T r = \\sum_i r_i = 0$. Hence the residuals are mean-zero by construction whenever an intercept is fit. (Without an intercept this guarantee disappears.)',
-    },
-  ],
   comparisons: [
     {
       title: 'OLS vs Ridge vs Lasso',
@@ -274,16 +244,12 @@ So the slope is just the covariance of $x$ and $y$ divided by the variance of $x
       ],
       explanation: '$R^2$ is the fraction of variance explained on the data it is computed on. A high *training* $R^2$ can simply reflect overfitting and tells you nothing directly about test performance. It is also not an accuracy percentage.',
     },
+  ],
+  shortAnswerQuestions: [
     {
-      question: 'You replace a feature $x$ with the pair $[x, x^2]$ and fit linear regression, producing a curved fit. The model is:',
-      options: [
-        { text: 'Still linear regression — it is linear in the parameters even though it bends in $x$.', correct: true },
-        { text: 'No longer linear regression because the fit is curved.', correct: false },
-        { text: 'Unsolvable with the normal equation.', correct: false },
-        { text: 'Guaranteed to overfit.', correct: false },
-      ],
-      explanation: '"Linear" in linear regression refers to linearity in the **parameters**, not the features. Polynomial (or other) feature transforms keep the entire closed-form machinery intact while letting the model fit curves. Overfitting is a risk with high-degree features but is not guaranteed.',
-    },
+      question: "Suppose you replace a feature $x$ with the pair $[x, x^2]$ and fit a linear regression model, producing a curved fit. Explain whether this is still considered linear regression, and discuss the implications for the model's parameters and the risk of overfitting.",
+      expectedAnswerRubric: "The answer should state that it is still linear regression because the model is linear in the parameters, even though it is non-linear in the features. It should mention that polynomial feature transforms keep the closed-form machinery intact. Finally, it should acknowledge that adding higher-degree features increases the risk of overfitting."
+    }
   ],
   review: {
     lastReviewed: '2026-06-15',

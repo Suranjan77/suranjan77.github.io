@@ -1,177 +1,146 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { COLORS } from "../visualizationPrimitives";
+import React, { useState } from "react";
+import { COLORS, SVGFilters, VizShell } from "../visualizationPrimitives";
 
-type GradientMode = "vanishing" | "stable" | "exploding";
+const W = 720;
+const H = 400;
+const plot = { left: 64, right: 680, top: 40, bottom: 320 };
+const yTop = 2.6; // display cap for the magnitude axis
 
 export default function SequenceModelsViz() {
-  const [mode, setMode] = useState<GradientMode>("vanishing");
-  const [sequenceLength] = useState<number>(4);
+  const [w, setW] = useState(0.7);
+  const [length, setLength] = useState(16);
 
-  // Simple unrolled simulation parameters based on the mode
-  const simulationData = useMemo(() => {
-    // Mode parameters
-    // weight parameter determines the rate of gradient decay/growth: grad_t = weight * grad_{t+1}
-    let weight = 0.3;
-    if (mode === "stable") weight = 1.0;
-    if (mode === "exploding") weight = 2.2;
+  const sx = (t: number) => plot.left + ((t - 1) / (length - 1)) * (plot.right - plot.left);
+  const sy = (m: number) => plot.bottom - (Math.min(m, yTop) / yTop) * (plot.bottom - plot.top);
 
-    const data = [];
-    const baseGradient = 1.0; // gradient at the final step
+  // influence of the first step's signal after t-1 recurrent multiplications
+  const influence = (t: number) => Math.pow(w, t - 1);
+  const pts = Array.from({ length }, (_, i) => i + 1).map((t) => ({ t, m: influence(t) }));
+  const final = influence(length);
 
-    // Calculate forward values (hidden state h_t) and backward values (gradient g_t)
-    // For simplicity, let inputs x_t = [0.5, 0.8, -0.4, 0.6]
-    const inputs = [0.5, 0.8, -0.4, 0.6];
-    let currentH = 0.0;
+  const regime = w < 0.95 ? "vanishing" : w <= 1.05 ? "stable" : "exploding";
+  const regimeColor = regime === "stable" ? COLORS.green : regime === "vanishing" ? COLORS.pink : COLORS.yellow;
 
-    for (let t = 0; t < sequenceLength; t++) {
-      const x = inputs[t];
-      // h_t = tanh(weight * h_{t-1} + x)
-      currentH = Math.tanh(weight * currentH + x);
-      data.push({
-        timestep: t + 1,
-        x,
-        h: currentH,
-        // gradient at timestep t propagates backwards from the end step
-        // grad_t = baseGradient * (weight ^ (T - 1 - t))
-        grad: baseGradient * Math.pow(weight, sequenceLength - 1 - t)
-      });
-    }
+  const curve =
+    "M " +
+    pts
+      .map((p) => `${sx(p.t).toFixed(1)} ${sy(p.m).toFixed(1)}`)
+      .join(" L ");
 
-    return data;
-  }, [mode, sequenceLength]);
+  const explodedStep = pts.find((p) => p.m > yTop);
 
-  return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2">
-        <div className="relative border border-outline bg-surface overflow-hidden rounded">
-          <svg
-            viewBox="0 0 640 420"
-            className="w-full h-auto select-none"
-            role="img"
-            aria-label="Sequence Models RNN Unrolled Graph Visualizer"
-          >
-            <title>RNN Unrolled Through Time</title>
-            <defs>
-              <pattern id="seq-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke={COLORS.grid} strokeWidth="0.5" />
-              </pattern>
-            </defs>
-            <rect width="640" height="420" fill="url(#seq-grid)" />
+  const caption =
+    regime === "vanishing"
+      ? `With a recurrent factor of ${w.toFixed(2)}, the first step's signal is multiplied by ${w.toFixed(2)} again and again. By step ${length} only ${(final * 100).toFixed(final < 0.01 ? 2 : 0)}% survives — the network has effectively forgotten how the sequence began. That is the vanishing-gradient problem.`
+      : regime === "stable"
+        ? `At a factor near 1 (${w.toFixed(2)}) the signal neither fades nor blows up: step 1 still has ${(final * 100).toFixed(0)}% influence at step ${length}. This is what LSTMs and residual paths engineer on purpose so the model can remember across long sequences.`
+        : `With a factor of ${w.toFixed(2)} above 1, each step amplifies the signal. It blows past the top of the chart by step ${explodedStep?.t ?? length} and races toward infinity — exploding gradients that make training diverge.`;
 
-            {/* Connecting temporal edges (h_{t-1} -> h_t) */}
-            <path d="M 170 210 L 230 210" stroke={COLORS.muted} strokeWidth={2.5} markerEnd="url(#arrow)" />
-            <path d="M 310 210 L 370 210" stroke={COLORS.muted} strokeWidth={2.5} />
-            <path d="M 450 210 L 510 210" stroke={COLORS.muted} strokeWidth={2.5} />
+  const canvas = (
+    <svg className="block h-auto w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Sequence Models Gradient Flow Through Time">
+      <title>Sequence Models Gradient Flow Through Time</title>
+      <SVGFilters />
+      <rect width={W} height={H} fill={COLORS.bg} />
 
-            {/* Arrow marker for backward gradients */}
-            <defs>
-              <marker id="arrow-back" viewBox="0 0 10 10" refX="0" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                <path d="M 10 0 L 0 5 L 10 10 z" fill={COLORS.pink} />
-              </marker>
-            </defs>
-            
-            {/* Backward gradient arrows */}
-            <path d="M 210 240 L 190 240" stroke={COLORS.pink} strokeWidth={2.5} markerEnd="url(#arrow-back)" strokeDasharray="3 3" />
-            <path d="M 350 240 L 330 240" stroke={COLORS.pink} strokeWidth={2.5} markerEnd="url(#arrow-back)" strokeDasharray="3 3" />
-            <path d="M 490 240 L 470 240" stroke={COLORS.pink} strokeWidth={2.5} markerEnd="url(#arrow-back)" strokeDasharray="3 3" />
+      {/* y gridlines */}
+      {[0, 0.5, 1, 1.5, 2, 2.5].map((m) => (
+        <g key={m}>
+          <line x1={plot.left} x2={plot.right} y1={sy(m)} y2={sy(m)} stroke={COLORS.grid} strokeWidth={1} />
+          <text x={plot.left - 8} y={sy(m) + 4} textAnchor="end" fill={COLORS.muted} fontSize={10} fontWeight={700}>
+            {m.toFixed(1)}×
+          </text>
+        </g>
+      ))}
 
-            {/* Render Timestep Blocks */}
-            {simulationData.map((step, idx) => {
-              // X positions for unrolled timesteps: step 1=130, 2=270, 3=410, 4=550
-              const cx = 130 + idx * 140;
-              const cy = 210;
+      {/* perfect-memory reference at 1.0 */}
+      <line x1={plot.left} x2={plot.right} y1={sy(1)} y2={sy(1)} stroke={COLORS.green} strokeWidth={1.5} strokeDasharray="5 4" />
+      <text x={plot.right} y={sy(1) - 6} textAnchor="end" fill={COLORS.green} fontSize={10} fontWeight={800}>perfect memory (×1)</text>
 
-              // Size representing gradient magnitude (capped for visualization safety)
-              const gradRadius = Math.min(45, Math.max(5, Math.sqrt(step.grad) * 20));
+      {/* axes */}
+      <line x1={plot.left} x2={plot.left} y1={plot.top} y2={plot.bottom} stroke={COLORS.border} strokeWidth={2} />
+      <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={COLORS.border} strokeWidth={2} />
+      <text x={plot.left - 8} y={plot.top - 14} textAnchor="end" fill={COLORS.muted} fontSize={11} fontWeight={700}>influence of step 1</text>
+      <text x={plot.right} y={plot.bottom + 24} textAnchor="end" fill={COLORS.muted} fontSize={11} fontWeight={700}>time step →</text>
 
-              return (
-                <g key={`step-${step.timestep}`}>
-                  {/* Vertical line from input x_t to hidden h_t */}
-                  <line x1={cx} y1={90} x2={cx} y2={cy - 40} stroke={COLORS.muted} strokeWidth={2} />
-                  
-                  {/* Input circle */}
-                  <circle cx={cx} cy={80} r={20} fill={COLORS.bg} stroke={COLORS.border} strokeWidth={2} />
-                  <text x={cx} y={75} textAnchor="middle" fontSize={9} fontWeight={700} fill={COLORS.muted}>x{step.timestep}</text>
-                  <text x={cx} y={87} textAnchor="middle" fontSize={9} fontWeight={800} fill={COLORS.cyan}>{step.x.toFixed(1)}</text>
+      {/* the decay/growth curve */}
+      <path d={curve} fill="none" stroke={regimeColor} strokeWidth={3} />
 
-                  {/* Gradient representation (dashed outer circle) */}
-                  <circle
-                    cx={cx}
-                    cy={cy}
-                    r={gradRadius}
-                    fill="none"
-                    stroke={COLORS.pink}
-                    strokeWidth={2}
-                    strokeDasharray="4 4"
-                    opacity={0.8}
-                  />
+      {/* step markers */}
+      {pts.map((p) => (
+        <circle key={p.t} cx={sx(p.t)} cy={sy(p.m)} r={3} fill={p.m > yTop ? COLORS.yellow : regimeColor} />
+      ))}
 
-                  {/* Hidden state node */}
-                  <circle cx={cx} cy={cy} r={35} fill={COLORS.bg} stroke={COLORS.border} strokeWidth={2} />
-                  <text x={cx} y={cy - 5} textAnchor="middle" fontSize={11} fontWeight={800} fill={COLORS.muted}>h{step.timestep}</text>
-                  <text x={cx} y={cy + 12} textAnchor="middle" fontSize={11} fontWeight={700} fill={COLORS.cyan}>{step.h.toFixed(3)}</text>
+      {/* explosion marker */}
+      {explodedStep && (
+        <text x={sx(explodedStep.t)} y={plot.top + 4} textAnchor="middle" fill={COLORS.yellow} fontSize={11} fontWeight={900}>↑ off the chart</text>
+      )}
 
-                  {/* Gradient magnitude label */}
-                  <text x={cx} y={cy + 55} textAnchor="middle" fontSize={10} fontWeight={800} fill={COLORS.pink}>
-                    g: {step.grad.toFixed(3)}
-                  </text>
-                </g>
-              );
-            })}
+      {/* final influence callout */}
+      <g>
+        <circle cx={sx(length)} cy={sy(final)} r={6} fill={regimeColor} stroke={COLORS.bg} strokeWidth={2} />
+        <text x={sx(length) - 6} y={sy(Math.min(final, yTop)) - 12} textAnchor="end" fill={regimeColor} fontSize={12} fontWeight={900} stroke={COLORS.bg} strokeWidth={3} paintOrder="stroke">
+          {final > yTop ? "≫1" : `${(final * 100).toFixed(final < 0.01 ? 2 : 0)}%`}
+        </text>
+      </g>
+    </svg>
+  );
 
-            {/* Labels */}
-            <text x={320} y={30} fill={COLORS.muted} fontSize={12} fontWeight={700} textAnchor="middle">
-              RECURRENT NETWORK UNROLLED OVER 4 TIME STEPS
-            </text>
-            <text x={320} y={385} fill={COLORS.muted} fontSize={9} fontWeight={600} textAnchor="middle">
-              Gradients flow in reverse (right to left). Note how the gradient values (g) shrink or grow across steps.
-            </text>
-          </svg>
+  const controls = (
+    <>
+      <div className="flex flex-1 flex-col justify-center gap-2 border border-outline bg-surface p-3">
+        <label htmlFor="seq-w" className="flex items-center justify-between font-mono text-[12px] font-bold uppercase tracking-wide text-primary">
+          <span>Recurrent factor per step</span>
+          <span className="text-on-surface">{w.toFixed(2)}×</span>
+        </label>
+        <input id="seq-w" aria-label="Recurrent factor" type="range" min={0.5} max={1.5} step={0.05} value={w} onChange={(e) => setW(Number(e.target.value))} className="w-full cursor-pointer accent-primary" />
+        <div className="flex justify-between font-mono text-[10px] uppercase tracking-wide text-on-surface-variant">
+          <span>0.5 · forgets</span>
+          <span>1.0 · remembers</span>
+          <span>1.5 · explodes</span>
         </div>
+        <label htmlFor="seq-len" className="mt-1 flex items-center justify-between font-mono text-[12px] font-bold uppercase tracking-wide text-primary">
+          <span>Sequence length</span>
+          <span className="text-on-surface">{length} steps</span>
+        </label>
+        <input id="seq-len" aria-label="Sequence length" type="range" min={4} max={24} step={1} value={length} onChange={(e) => setLength(Number(e.target.value))} className="w-full cursor-pointer accent-primary" />
       </div>
 
-      <div className="flex min-w-0 flex-col gap-3">
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between font-bold uppercase tracking-wide">
-            <span>Gradient Modes</span>
-          </div>
-
-          <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="seq-mode-select">
-              Select RNN Scenario
-            </label>
-            <select
-              id="seq-mode-select"
-              value={mode}
-              onChange={e => setMode(e.target.value as GradientMode)}
-              className="w-full border border-outline bg-surface p-2 text-xs sm:text-sm rounded"
-              aria-label="Select gradient flow scenario"
-            >
-              <option value="vanishing">Vanishing Gradient (Small Weight)</option>
-              <option value="stable">Stable Gradient (LSTM / Identity Update)</option>
-              <option value="exploding">Exploding Gradient (Large Weight)</option>
-            </select>
-          </div>
+      <div className="flex min-w-[210px] flex-col justify-center gap-1 border border-outline bg-surface p-3 font-mono text-[12px]">
+        <span className="font-bold uppercase tracking-wide text-on-surface-variant">Gradient Modes</span>
+        <span data-testid="seq-regime" className="text-lg font-bold uppercase" style={{ color: regimeColor }}>{regime}</span>
+        <div className="mt-1 flex items-center justify-between border-t border-outline pt-2">
+          <span className="text-on-surface-variant">step-1 memory at step {length}</span>
         </div>
-
-        {/* Diagnostics */}
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Analysis</div>
-          <p className="text-xs leading-relaxed text-on-surface-variant">
-            {mode === "vanishing" && (
-              "Under Vanishing gradients, weights are small. As the error signal flows backward through timesteps, it gets multiplied by the weight repeatedly and decays to near zero at timestep 1. The model cannot learn long-term relationships."
-            )}
-            {mode === "stable" && (
-              "Under Stable gradients, the weights allow gradients to flow backwards with minimal loss in magnitude. This is how LSTMs maintain historical information using additive constant error carousels."
-            )}
-            {mode === "exploding" && (
-              "Under Exploding gradients, the weights are large. The feedback loop multiplies gradients repeatedly, causing the signal at timestep 1 to blow up to very large values, leading to unstable training."
-            )}
-          </p>
-        </div>
+        <span className="text-base font-bold" style={{ color: regimeColor }}>
+          {final > yTop ? "≫ 100% (diverging)" : final < 0.01 ? "≈ 0% (forgotten)" : `${(final * 100).toFixed(0)}%`}
+        </span>
       </div>
+    </>
+  );
+
+  const mentalModel = (
+    <div className="flex flex-col gap-2">
+      <p>
+        A recurrent network reads a sequence one step at a time, carrying a hidden &quot;memory&quot;
+        forward. To learn long-range patterns, the influence of an early input must survive all the
+        way to the end — and during training, the gradient must survive all the way back.
+      </p>
+      <p>
+        But each step multiplies that signal by roughly the same factor. Repeated multiplication is
+        exponential: a factor below 1 decays to <strong>nothing</strong> (the model forgets the start
+        — <em>vanishing gradients</em>), a factor above 1 blows up to <strong>infinity</strong>{" "}
+        (<em>exploding gradients</em>), and only a factor pinned near 1 preserves memory.
+      </p>
+      <p>
+        That knife-edge is exactly why plain RNNs struggle past a few dozen steps, and why{" "}
+        <strong>LSTMs</strong> (a protected memory cell), gradient clipping, and ultimately{" "}
+        <strong>attention</strong> (which connects distant steps directly, skipping the chain) were
+        invented.
+      </p>
     </div>
   );
+
+  return <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />;
 }

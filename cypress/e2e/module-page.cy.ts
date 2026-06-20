@@ -1,7 +1,7 @@
 describe('Module Page E2E Tests', () => {
   beforeEach(() => {
-    // Visit a representative math/algorithm module page
-    cy.visit('/algorithms/calculus');
+    // Visit a representative algorithm module page
+    cy.visit('/algorithms/linear-regression');
   });
 
   it('renders all core lesson layout sections', () => {

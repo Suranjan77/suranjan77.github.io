@@ -1,227 +1,162 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { COLORS } from "../visualizationPrimitives";
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { COLORS, SVGFilters, VizShell } from "../visualizationPrimitives";
 
-interface ModelMetrics {
-  name: string;
-  quality: number; // 0-10 scale
-  safety: number;  // 0-10 scale
-  cost: number;    // 0-10 scale (where 10 is cheapest/best)
-  latency: number; // 0-10 scale (where 10 is fastest/best)
-  description: string;
-}
+const W = 720;
+const H = 300;
+
+type Axis = "quality" | "safety" | "cost" | "latency";
+const AXES: { key: Axis; label: string }[] = [
+  { key: "quality", label: "Quality" },
+  { key: "safety", label: "Safety" },
+  { key: "cost", label: "Cheapness" },
+  { key: "latency", label: "Speed" },
+];
+
+const MODELS = [
+  { name: "Frontier (proprietary)", quality: 9.5, safety: 9.0, cost: 2.0, latency: 4.0 },
+  { name: "Open-weights 70B", quality: 8.5, safety: 7.5, cost: 6.0, latency: 7.0 },
+  { name: "Small edge 8B", quality: 6.5, safety: 6.0, cost: 9.5, latency: 9.5 },
+];
+
+const PRESETS: { name: string; w: Record<Axis, number> }[] = [
+  { name: "Healthcare", w: { quality: 8, safety: 10, cost: 1, latency: 1 } },
+  { name: "High-volume chatbot", w: { quality: 3, safety: 2, cost: 10, latency: 10 } },
+  { name: "Research / quality", w: { quality: 10, safety: 5, cost: 2, latency: 2 } },
+];
 
 export default function LLMEvalSafetyViz() {
-  const [qualityWeight, setQualityWeight] = useState<number>(8);
-  const [safetyWeight, setSafetyWeight] = useState<number>(9);
-  const [costWeight, setCostWeight] = useState<number>(4);
-  const [latencyWeight, setLatencyWeight] = useState<number>(5);
+  const [w, setW] = useState<Record<Axis, number>>({ quality: 8, safety: 9, cost: 4, latency: 5 });
 
-  const models: ModelMetrics[] = useMemo(() => [
-    {
-      name: "Frontier Model (Proprietary)",
-      quality: 9.5,
-      safety: 9.0,
-      cost: 2.0, // expensive
-      latency: 4.0, // slow
-      description: "State-of-the-art capability, heavy safety filters, high API costs and latency."
-    },
-    {
-      name: "Open Weights (Llama-3-70B)",
-      quality: 8.5,
-      safety: 7.5,
-      cost: 6.0, // medium host cost
-      latency: 7.0, // medium speed
-      description: "Strong generalist, customizable safety alignment, moderate self-hosting costs."
-    },
-    {
-      name: "Small Edge Model (Llama-3-8B)",
-      quality: 6.5,
-      safety: 6.0,
-      cost: 9.5, // extremely cheap
-      latency: 9.5, // ultra-fast
-      description: "Lower complexity, limited safety guardrails, fits on small consumer hardware."
-    }
-  ], []);
+  const total = w.quality + w.safety + w.cost + w.latency || 1;
+  const scored = MODELS.map((m) => ({
+    ...m,
+    score: (m.quality * w.quality + m.safety * w.safety + m.cost * w.cost + m.latency * w.latency) / total,
+  })).sort((a, b) => b.score - a.score);
+  const winner = scored[0];
 
-  // Compute final scores based on weights
-  const scoredModels = useMemo(() => {
-    const totalWeight = qualityWeight + safetyWeight + costWeight + latencyWeight || 1.0;
-    
-    return models.map(m => {
-      const score = (
-        (m.quality * qualityWeight) +
-        (m.safety * safetyWeight) +
-        (m.cost * costWeight) +
-        (m.latency * latencyWeight)
-      ) / totalWeight;
+  const rowH = 78;
+  const barX = 250;
+  const barMax = W - barX - 70;
 
-      return {
-        ...m,
-        score
-      };
-    }).sort((a, b) => b.score - a.score);
-  }, [models, qualityWeight, safetyWeight, costWeight, latencyWeight]);
+  const caption = `No model wins on every axis — the frontier model is best on quality and safety, the small one on cost and speed. Your priorities pick the winner: right now the weighting favours "${winner.name}". Try a preset and watch the ranking flip.`;
 
-  return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2">
-        <div className="relative border border-outline bg-surface overflow-hidden rounded p-4">
-          <div className="mb-4 font-mono text-[12px] font-bold uppercase tracking-wider text-primary">
-            Weighted Score Comparison
-          </div>
+  const canvas = (
+    <svg className="block h-auto w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="LLM Model Scores Bar Chart">
+      <title>LLM Model Scores Bar Chart</title>
+      <SVGFilters />
+      <rect width={W} height={H} fill={COLORS.bg} />
 
-          <svg
-            viewBox="0 0 600 240"
-            className="w-full h-auto select-none mb-4"
-            role="img"
-            aria-label="LLM Model Scores Bar Chart"
-          >
-            <title>Model Comparison Matrix</title>
-            
-            {scoredModels.map((m, idx) => {
-              const y = 30 + idx * 70;
-              const barWidth = m.score * 35; // scale score (max 10) to pixels (max 350)
-              const isWinner = idx === 0;
+      {scored.map((m, idx) => {
+        const y = 24 + idx * rowH;
+        const isWin = idx === 0;
+        return (
+          <g key={m.name}>
+            <text x={20} y={y + 16} fill={isWin ? COLORS.cyan : COLORS.muted} fontSize={13} fontWeight={isWin ? 900 : 700}>
+              {m.name}
+            </text>
+            {isWin && <text x={20} y={y + 32} fill={COLORS.cyan} fontSize={10} fontWeight={800}>★ BEST FIT</text>}
 
+            {/* per-axis mini bars */}
+            {AXES.map((a, ai) => {
+              const v = (m as unknown as Record<Axis, number>)[a.key];
               return (
-                <g key={`model-bar-${m.name}`}>
-                  {/* Model Name Label */}
-                  <text x={10} y={y + 15} fontSize={11} fontWeight={800} fill={COLORS.muted}>
-                    {m.name}
-                  </text>
-                  
-                  {/* Score Bar background */}
-                  <rect x={180} y={y} width={350} height={20} fill={COLORS.grid} rx={3} />
-                  
-                  {/* Score Bar value */}
-                  <rect
-                    x={180}
-                    y={y}
-                    width={barWidth}
-                    height={20}
-                    fill={isWinner ? COLORS.cyan : COLORS.pink}
-                    rx={3}
-                  />
-                  
-                  {/* Score Number */}
-                  <text x={180 + barWidth + 10} y={y + 15} fontSize={11} fontWeight={800} fill={COLORS.muted}>
-                    {m.score.toFixed(2)} / 10
-                  </text>
+                <g key={a.key} transform={`translate(${20 + ai * 54}, ${y + 40})`}>
+                  <rect x={0} y={0} width={46} height={6} fill={COLORS.grid} />
+                  <rect x={0} y={0} width={(v / 10) * 46} height={6} fill={COLORS.muted} fillOpacity={0.7} />
+                  <text x={0} y={20} fill={COLORS.muted} fontSize={8} fontWeight={700}>{a.label}</text>
                 </g>
               );
             })}
-          </svg>
 
-          {/* Model breakdown table */}
-          <div className="border-t border-outline pt-4 font-mono text-xs">
-            <div className="font-bold text-muted mb-2 uppercase text-[12px]">Model Capability Matrix</div>
-            <div className="grid grid-cols-5 gap-2 border-b border-outline pb-2 font-bold text-primary">
-              <div>Model</div>
-              <div className="text-center">Quality</div>
-              <div className="text-center">Safety</div>
-              <div className="text-center">Cost</div>
-              <div className="text-center">Latency</div>
-            </div>
-            {models.map(m => (
-              <div key={`table-row-${m.name}`} className="grid grid-cols-5 gap-2 py-2 border-b border-outline last:border-0 items-center">
-                <div className="font-sans font-medium text-on-surface text-[12px] leading-tight">{m.name}</div>
-                <div className="text-center text-cyan font-bold">{m.quality.toFixed(1)}</div>
-                <div className="text-center text-cyan font-bold">{m.safety.toFixed(1)}</div>
-                <div className="text-center text-pink font-bold">{m.cost.toFixed(1)}</div>
-                <div className="text-center text-pink font-bold">{m.latency.toFixed(1)}</div>
-              </div>
-            ))}
-          </div>
+            {/* weighted score bar */}
+            <rect x={barX} y={y} width={barMax} height={26} fill={COLORS.grid} />
+            <motion.rect
+              x={barX}
+              y={y}
+              height={26}
+              fill={isWin ? COLORS.cyan : COLORS.pink}
+              fillOpacity={isWin ? 0.85 : 0.5}
+              initial={false}
+              animate={{ width: (m.score / 10) * barMax }}
+              transition={{ type: "spring", stiffness: 140, damping: 20 }}
+            />
+            <text x={barX + barMax + 8} y={y + 18} fill={COLORS.muted} fontSize={13} fontWeight={800}>
+              {m.score.toFixed(2)}
+            </text>
+          </g>
+        );
+      })}
+      <text x={barX} y={H - 8} fill={COLORS.muted} fontSize={10} fontWeight={700}>weighted score (out of 10)</text>
+    </svg>
+  );
+
+  const controls = (
+    <>
+      <div className="flex flex-col justify-center gap-2 border border-outline bg-surface p-3">
+        <span className="font-mono text-[11px] font-bold uppercase tracking-wide text-on-surface-variant">Priority preset</span>
+        <div className="flex flex-wrap gap-1.5">
+          {PRESETS.map((p) => (
+            <button
+              key={p.name}
+              aria-label={`Priority preset ${p.name}`}
+              onClick={() => setW(p.w)}
+              className="border border-outline bg-surface px-2 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wide text-on-surface-variant transition-colors hover:bg-surface-container hover:text-primary"
+            >
+              {p.name}
+            </button>
+          ))}
+        </div>
+        <div className="border-t border-outline pt-2 font-mono text-[12px]">
+          <span className="uppercase tracking-wide text-on-surface-variant">Winner: </span>
+          <span data-testid="eval-winner" className="font-bold" style={{ color: COLORS.cyan }}>{winner.name}</span>
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-col gap-3">
-        {/* Weight controls */}
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between font-bold uppercase tracking-wide">
-            <span>Dimension Weights</span>
-          </div>
-
-          <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="quality-weight-slider">
-              Quality Importance ({qualityWeight})
-            </label>
+      <div className="flex flex-1 flex-col justify-center gap-1.5 border border-outline bg-surface p-3">
+        <span className="font-mono text-[11px] font-bold uppercase tracking-wide text-on-surface-variant">Dimension Weights</span>
+        {AXES.map((a) => (
+          <div key={a.key} className="flex items-center gap-2">
+            <label htmlFor={`evw-${a.key}`} className="w-20 font-mono text-[11px] font-bold uppercase text-primary">{a.label}</label>
             <input
-              id="quality-weight-slider"
+              id={`evw-${a.key}`}
+              aria-label={`${a.label} weight`}
               type="range"
               min={0}
               max={10}
               step={1}
-              value={qualityWeight}
-              onChange={e => setQualityWeight(Number(e.target.value))}
-              className="w-full h-1.5 bg-grid rounded-lg appearance-none cursor-pointer accent-cyan"
-              aria-label="Quality importance weight range slider"
+              value={w[a.key]}
+              onChange={(e) => setW((prev) => ({ ...prev, [a.key]: Number(e.target.value) }))}
+              className="flex-1 cursor-pointer accent-primary"
             />
+            <span className="w-5 text-right font-mono text-[11px] font-bold text-on-surface">{w[a.key]}</span>
           </div>
-
-          <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="safety-weight-slider">
-              Safety Importance ({safetyWeight})
-            </label>
-            <input
-              id="safety-weight-slider"
-              type="range"
-              min={0}
-              max={10}
-              step={1}
-              value={safetyWeight}
-              onChange={e => setSafetyWeight(Number(e.target.value))}
-              className="w-full h-1.5 bg-grid rounded-lg appearance-none cursor-pointer accent-cyan"
-              aria-label="Safety importance weight range slider"
-            />
-          </div>
-
-          <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="cost-weight-slider">
-              Low Cost Importance ({costWeight})
-            </label>
-            <input
-              id="cost-weight-slider"
-              type="range"
-              min={0}
-              max={10}
-              step={1}
-              value={costWeight}
-              onChange={e => setCostWeight(Number(e.target.value))}
-              className="w-full h-1.5 bg-grid rounded-lg appearance-none cursor-pointer accent-cyan"
-              aria-label="Low cost importance weight range slider"
-            />
-          </div>
-
-          <div className="mb-3">
-            <label className="block mb-1 text-on-surface-variant uppercase font-bold text-[12px]" htmlFor="latency-weight-slider">
-              Low Latency Importance ({latencyWeight})
-            </label>
-            <input
-              id="latency-weight-slider"
-              type="range"
-              min={0}
-              max={10}
-              step={1}
-              value={latencyWeight}
-              onChange={e => setLatencyWeight(Number(e.target.value))}
-              className="w-full h-1.5 bg-grid rounded-lg appearance-none cursor-pointer accent-cyan"
-              aria-label="Low latency importance weight range slider"
-            />
-          </div>
-        </div>
-
-        {/* Selected Best Fit */}
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="font-bold text-primary mb-2 uppercase text-[12px]">Recommended Fit</div>
-          <div className="font-bold text-cyan text-sm mb-1">{scoredModels[0].name}</div>
-          <p className="text-[12px] font-sans text-on-surface-variant leading-relaxed">
-            {scoredModels[0].description}
-          </p>
-        </div>
+        ))}
       </div>
+    </>
+  );
+
+  const mentalModel = (
+    <div className="flex flex-col gap-2">
+      <p>
+        Picking a model is never a single leaderboard number. A useful evaluation scores several
+        axes at once — <strong>capability</strong>, <strong>safety</strong>, <strong>cost</strong>,
+        and <strong>latency</strong> — and they trade off against each other.
+      </p>
+      <p>
+        The biggest model is best on quality and safety but slow and expensive; the small one is the
+        reverse. There is <strong>no single winner</strong>: the right choice depends on how much
+        each axis matters for <em>your</em> use case. A medical assistant weights safety above all; a
+        high-volume chatbot weights cost and speed.
+      </p>
+      <p>
+        That is why model selection is a <strong>multi-objective, constraint-driven</strong>{" "}
+        decision, and why safety is a first-class axis, not an afterthought.
+      </p>
     </div>
   );
+
+  return <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />;
 }

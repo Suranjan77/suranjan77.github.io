@@ -14,42 +14,20 @@ function renderVisualization(algorithmId: string) {
 }
 
 describe("algorithm visualization interaction contracts", () => {
-  it("collects A/B evidence and leaves the no-data state", () => {
-    renderVisualization("bayesian-inference");
-
-    // No data yet: beliefs are flat and the decision is undecided.
-    expect(screen.getByText(/no data yet/i)).toBeInTheDocument();
-    expect(screen.getByText(/keep testing — too close/i)).toBeInTheDocument();
-    expect(screen.getAllByText("Variant A").length).toBeGreaterThan(0);
-
-    fireEvent.click(screen.getByRole("button", { name: /collect 200 visitors/i }));
-    expect(screen.queryByText(/no data yet/i)).not.toBeInTheDocument();
-  });
-
-  it("resets the A/B experiment and exposes the true-gap slider", () => {
-    renderVisualization("bayesian-inference");
-
-    fireEvent.click(screen.getByRole("button", { name: /collect 50 visitors/i }));
-    fireEvent.click(screen.getByRole("button", { name: /reset the experiment/i }));
-    expect(screen.getByText(/no data yet/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole("slider", { name: /variant b true rate/i }),
-    ).toBeInTheDocument();
-  });
-
-  it("keeps neural network stepper, target toggle, and feature controls coherent", () => {
+  it("bends the neural-network boundary as hidden neurons are added", () => {
     renderVisualization("neural-networks");
 
-    expect(screen.getByText("STEP 1 / 4")).toBeInTheDocument();
-    fireEvent.click(controlRegion(/x1 value:/).getByRole("button", { name: "+" }));
-    expect(screen.getByText("1.0")).toBeInTheDocument();
+    // Step 1: a single line cannot separate XOR — accuracy is stuck at 50%.
+    expect(screen.getByText("STEP 1 / 3")).toBeInTheDocument();
+    expect(screen.getByTestId("nn-accuracy")).toHaveTextContent("50%");
 
-    fireEvent.click(screen.getByRole("button", { name: /class \+1.0/i }));
-    expect(screen.getByRole("button", { name: /class -1.0/i })).toBeInTheDocument();
-
+    // Adding two hidden neurons (two folds) wraps every cluster -> 100%.
     fireEvent.click(screen.getByTitle("Step Forward"));
-    expect(screen.getByText("STEP 2 / 4")).toBeInTheDocument();
-    expect(screen.getByText(/Forward pass computes hidden node activations/i)).toBeInTheDocument();
+    expect(screen.getByText("STEP 2 / 3")).toBeInTheDocument();
+    fireEvent.click(screen.getByTitle("Step Forward"));
+    expect(screen.getByText("STEP 3 / 3")).toBeInTheDocument();
+    expect(screen.getByTestId("nn-accuracy")).toHaveTextContent("100%");
+    expect(screen.getByTitle("Step Forward")).toBeDisabled();
   });
 
   it("keeps CNN kernel selection and scan controls synchronized", () => {
@@ -179,33 +157,24 @@ describe("algorithm visualization interaction contracts", () => {
     ).toBeGreaterThan(0);
   });
 
-  it("stages MCMC proposals, resolves them, and resets collected samples", () => {
-    vi.useFakeTimers();
+  it("advances MCMC narrative steps through rules and run", () => {
     renderVisualization("mcmc");
 
-    fireEvent.click(screen.getByRole("button", { name: /mcmc step/i }));
-    expect(screen.getByRole("button", { name: /mcmc step/i })).toBeDisabled();
-    expect(screen.getByText("Acceptance Ratio (α):")).toBeInTheDocument();
+    expect(screen.getByText("Start")).toBeInTheDocument();
 
-    act(() => {
-      vi.advanceTimersByTime(950);
-    });
+    const forwardBtn = screen.getByRole("button", { name: /step forward/i });
+    
+    fireEvent.click(forwardBtn);
+    expect(screen.getByText("Greedy Trap")).toBeInTheDocument();
 
-    expect(screen.getByRole("button", { name: /reset sampler/i })).not.toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: /reset sampler/i }));
-    expect(screen.getByRole("button", { name: /reset sampler/i })).toBeDisabled();
-    vi.useRealTimers();
-  });
+    fireEvent.click(forwardBtn);
+    expect(screen.getByText("Downhill Rule")).toBeInTheDocument();
 
-  it("toggles MCMC trace and speed controls", () => {
-    renderVisualization("mcmc");
+    fireEvent.click(forwardBtn);
+    expect(screen.getByText("Cross Valley")).toBeInTheDocument();
 
-    expect(screen.getByRole("button", { name: "ON" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "ON" }));
-    expect(screen.getByRole("button", { name: "OFF" })).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: /fast/i }));
-    expect(screen.getByRole("button", { name: /fast/i })).toBeInTheDocument();
+    fireEvent.click(forwardBtn);
+    expect(screen.getByText("Long Run")).toBeInTheDocument();
   });
 
   it("updates computer vision presets, threshold, and isolation mode", () => {
@@ -213,60 +182,75 @@ describe("algorithm visualization interaction contracts", () => {
 
     expect(screen.getByText("PAINT CANVAS")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "CLEAR" }));
-    expect(screen.getByText("Active: 1.5")).toBeInTheDocument();
 
-    fireEvent.change(screen.getByRole("slider"), { target: { value: "3.5" } });
-    expect(screen.getByText("Active: 3.5")).toBeInTheDocument();
+    const threshold = screen.getByRole("slider", { name: /edge threshold/i });
+    fireEvent.change(threshold, { target: { value: "3.5" } });
+    expect(threshold).toHaveValue("3.5");
 
-    fireEvent.click(screen.getByRole("button", { name: /all cells/i }));
-    expect(screen.getByRole("button", { name: /isolate/i })).toBeInTheDocument();
+    // Edge-isolation toggle flips its label.
+    fireEvent.click(screen.getByRole("button", { name: /toggle edge isolation/i }));
+    expect(screen.getByText(/showing edges only/i)).toBeInTheDocument();
   });
 
-  it("walks NLP analogy state through king - man + woman", () => {
+  it("solves the NLP analogy and switches relationship presets", () => {
     renderVisualization("nlp");
 
-    fireEvent.click(screen.getByRole("button", { name: /run analogy step/i }));
-    expect(screen.getByText("Vector(king)")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /subtract man/i }));
-    expect(screen.getByText("Vector(king) - Vector(man)")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /add woman/i }));
-    expect(screen.getByText("Vector(king) - Vector(man) + Vector(woman)")).toBeInTheDocument();
-    expect(screen.getByText(/NEAREST WORD:/)).toBeInTheDocument();
+    // king - man + woman lands on queen.
+    fireEvent.click(screen.getByRole("button", { name: /solve the analogy/i }));
+    expect(screen.getByTestId("nlp-result")).toHaveTextContent("queen");
 
+    // Clearing disables the clear button again.
     fireEvent.click(screen.getByRole("button", { name: /clear arrows/i }));
     expect(screen.getByRole("button", { name: /clear arrows/i })).toBeDisabled();
+
+    // The capitals preset generalises: Paris - France + Italy = Rome.
+    fireEvent.click(screen.getByRole("button", { name: /analogy preset capitals/i }));
+    fireEvent.click(screen.getByRole("button", { name: /solve the analogy/i }));
+    expect(screen.getByTestId("nlp-result")).toHaveTextContent("Rome");
   });
 
-  it("toggles transformer single-head and multi-head attention modes", () => {
+  it("resolves the pronoun referent and flips it with the sentence ending", () => {
     renderVisualization("transformers");
 
-    expect(screen.getByRole("button", { name: /single-head attention/i })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /single-head attention/i }));
-    expect(screen.getByRole("button", { name: /multi-head attention/i })).toBeInTheDocument();
-    expect(screen.getByText("ATTENTION HEATMAP")).toBeInTheDocument();
+    // Default query is "it"; with "...too tired" it binds to the animal.
+    expect(screen.getByTestId("transformer-referent")).toHaveTextContent("animal");
+
+    // Flip the ending to "wide" and the referent flips to the road.
+    fireEvent.click(screen.getByRole("button", { name: /ending too wide/i }));
+    expect(screen.getByTestId("transformer-referent")).toHaveTextContent("road");
   });
 
   it("updates LLM temperature and sampling mode UI without corrupting context", () => {
     renderVisualization("llms");
 
     expect(screen.getByText(/Machine learning models generate/)).toBeInTheDocument();
-    fireEvent.change(screen.getByRole("slider"), { target: { value: "2.0" } });
+    fireEvent.change(screen.getByRole("slider", { name: /temperature/i }), {
+      target: { value: "2.0" },
+    });
     expect(screen.getByText("T = 2.00")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /random sample/i }));
+    fireEvent.click(screen.getByRole("button", { name: /sample next word/i }));
     fireEvent.click(screen.getByRole("button", { name: /reset sentence/i }));
     expect(screen.getByText(/Machine learning models generate/)).toBeInTheDocument();
   });
 
-  it("toggles autoencoder bottleneck width readouts via pointer drag", () => {
+  it("denoises through the autoencoder bottleneck and over-squeezes when too tight", () => {
     renderVisualization("autoencoders");
     const image = screen.getByRole("img", { name: /autoencoder bottleneck/i });
 
-    expect(screen.getByText("COMPRESSION RATIO")).toBeInTheDocument();
+    // Pointer drag is wired (CTM is null in jsdom, so it must not throw).
     fireEvent.pointerDown(image, { pointerId: 1, clientX: 320, clientY: 220 });
     fireEvent.pointerMove(image, { pointerId: 1, clientX: 410, clientY: 220 });
     fireEvent.pointerUp(image, { pointerId: 1 });
-    expect(screen.getByText("RECONSTRUCTION ERROR")).toBeInTheDocument();
+
+    // A roomy bottleneck (6) passes the noise straight through.
+    const slider = screen.getByRole("slider", { name: /bottleneck size/i });
+    fireEvent.change(slider, { target: { value: "6" } });
+    expect(screen.getByText(/no cleaner than the input/i)).toBeInTheDocument();
+
+    // A mid bottleneck (3) denoises: reconstruction is cleaner than the input.
+    fireEvent.change(slider, { target: { value: "3" } });
+    expect(screen.getByText(/the bottleneck denoised it/i)).toBeInTheDocument();
   });
 
   it("toggles regularization geometry and narrates L1 sparsity vs L2 shrinkage", () => {
@@ -283,24 +267,20 @@ describe("algorithm visualization interaction contracts", () => {
     expect(screen.queryByText(/0 — dropped/i)).not.toBeInTheDocument();
   });
 
-  it("updates evaluation threshold metrics from the slider", () => {
-    renderVisualization("evaluation-metrics");
 
-    expect(screen.getByText(/CONFUSION MATRIX/)).toBeInTheDocument();
-    expect(screen.getAllByText(/Precision/i).length).toBeGreaterThan(0);
-    fireEvent.change(screen.getByRole("slider"), { target: { value: "7" } });
-    expect(screen.getByText("T = 7.0")).toBeInTheDocument();
-  });
 
-  it("moves reinforcement-learning policy controls and resets Q-table", () => {
+  it("runs reinforcement-learning exploration and resets the Q-table", () => {
     renderVisualization("reinforcement-learning");
 
-    expect(screen.getByText("SIMULATION STATUS")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "RIGHT" }));
-    expect(screen.getByText("ACCUMULATED REWARD:")).toBeInTheDocument();
+    expect(screen.getByTestId("rl-status")).toBeInTheDocument();
 
+    // A manual step backs up value; the policy starts forming.
+    fireEvent.click(screen.getByRole("button", { name: /take one step/i }));
+
+    // Auto-explore toggles to a pause control, and reset returns to it.
     fireEvent.click(screen.getByRole("button", { name: /auto explore/i }));
     expect(screen.getByRole("button", { name: /pause auto run/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /pause auto run/i }));
     fireEvent.click(screen.getByRole("button", { name: /reset q-table/i }));
     expect(screen.getByRole("button", { name: /auto explore/i })).toBeInTheDocument();
   });
@@ -320,13 +300,4 @@ describe("algorithm visualization interaction contracts", () => {
     expect(screen.getByRole("button", { name: /run interpolation walker/i })).toBeInTheDocument();
   });
 
-  it("keeps bias-variance complexity slider tied to underfit/overfit labels", () => {
-    renderVisualization("bias-variance");
-
-    expect(screen.getByText(/OPTIMAL BALANCE/i)).toBeInTheDocument();
-    fireEvent.change(screen.getByRole("slider"), { target: { value: "1" } });
-    expect(screen.getByText(/UNDERFITTING/i)).toBeInTheDocument();
-    fireEvent.change(screen.getByRole("slider"), { target: { value: "7" } });
-    expect(screen.getByText(/OVERFITTING/i)).toBeInTheDocument();
-  });
 });

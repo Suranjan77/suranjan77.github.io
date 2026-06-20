@@ -18,8 +18,7 @@ import {
 import { getPrerequisiteModules, getTrackModules } from "@/lib/prerequisiteGraph";
 import { getTrackAnchor } from "@/lib/tracks";
 
-const trackLabels: Record<TrackId, string> = {
-  foundations: "Mathematical Foundations",
+const trackLabels: Partial<Record<TrackId, string>> = {
   practitioner: "ML Practitioner",
   "modern-ai": "Modern AI",
 };
@@ -110,7 +109,7 @@ export default function Sidebar() {
                   href={`/#${getTrackAnchor(primaryTrack)}`}
                   className="mt-1 block text-sm font-medium text-on-surface transition-colors hover:text-primary"
                 >
-                  {trackLabels[primaryTrack]}
+                  {trackLabels[primaryTrack] ?? primaryTrack}
                 </Link>
               </div>
               <span className="font-mono text-[12px] text-on-surface-variant">

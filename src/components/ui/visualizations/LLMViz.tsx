@@ -1,333 +1,222 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import MarkdownRenderer from "../MarkdownRenderer";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  COLORS,
-  SVGFilters,
-  Vector,
-  MiniStat,
-} from "../visualizationPrimitives";
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { COLORS, SVGFilters, VizShell } from "../visualizationPrimitives";
 
-const W = 640;
-const H = 420;
+const W = 720;
+const H = 400;
+const plot = { left: 150, right: 600, top: 96, rowH: 46 };
 
 const initialTokens = ["Machine", "learning", "models", "generate"];
 
+// Raw model confidences (logits) for the next token after "...generate".
 const candidates = [
   { word: "text", logit: 4.0 },
   { word: "code", logit: 2.8 },
   { word: "data", logit: 2.2 },
-  { word: "insights", logit: 1.5 },
-  { word: "bugs", logit: 0.8 },
+  { word: "music", logit: 1.5 },
+  { word: "chaos", logit: 0.6 },
 ];
+const sliceColor = [COLORS.cyan, COLORS.pink, COLORS.yellow, COLORS.green, COLORS.muted];
 
 export default function LLMViz() {
   const [context, setContext] = useState<string[]>(initialTokens);
-  const [temperature, setTemperature] = useState(0.8); // ranges from 0.2 to 2.2
-  const [samplingMode, setSamplingMode] = useState<"greedy" | "sample">("sample");
-  const [isSpinning, setIsSpinning] = useState(false);
-  const [selectedWord, setSelectedWord] = useState<string | null>(null);
-  const [wheelRotation, setWheelRotation] = useState(0);
+  const [temperature, setTemperature] = useState(0.8);
+  const [greedy, setGreedy] = useState(false);
+  const [selected, setSelected] = useState<string | null>(null);
 
-  // Math calculations
-  const scaledLogits = candidates.map((c) => c.logit / temperature);
-  const expLogits = scaledLogits.map((l) => Math.exp(l));
-  const sumExp = expLogits.reduce((a, b) => a + b, 0);
-  const probs = expLogits.map((e) => e / sumExp);
+  // softmax(logits / T)
+  const scaled = candidates.map((c) => c.logit / temperature);
+  const mx = Math.max(...scaled);
+  const exp = scaled.map((l) => Math.exp(l - mx));
+  const sum = exp.reduce((a, b) => a + b, 0);
+  const probs = exp.map((e) => e / sum);
+  const topProb = Math.max(...probs);
+  const topWord = candidates[probs.indexOf(topProb)].word;
 
-  // Generate cumulative probabilities for the spinner wheel segments
-  let cumProbs = 0;
-  const wheelSlices = candidates.map((c, i) => {
-    const start = cumProbs;
-    cumProbs += probs[i];
-    return {
-      word: c.word,
-      prob: probs[i],
-      startAngle: start * 360,
-      endAngle: cumProbs * 360,
-    };
-  });
+  // Shannon entropy as a "how spread out" readout (bits, max log2(5)=2.32)
+  const entropy = -probs.reduce((a, p) => a + (p > 0 ? p * Math.log2(p) : 0), 0);
+  const shape = topProb > 0.7 ? "peaked" : topProb > 0.45 ? "leaning" : "flat";
 
-  const handleSample = () => {
-    if (isSpinning) return;
-    setIsSpinning(true);
-    setSelectedWord(null);
-
-    // Determine target index
-    let chosenIdx = 0;
-    if (samplingMode === "greedy") {
-      // Find index of max probability
-      let maxP = -1;
-      probs.forEach((p, idx) => {
-        if (p > maxP) {
-          maxP = p;
-          chosenIdx = idx;
-        }
-      });
+  const sampleNext = () => {
+    let idx = 0;
+    if (greedy) {
+      idx = probs.indexOf(topProb);
     } else {
-      // Weighted random sampling
-      const rand = Math.random();
+      const r = Math.random();
       let acc = 0;
       for (let i = 0; i < probs.length; i++) {
         acc += probs[i];
-        if (rand <= acc) {
-          chosenIdx = i;
+        if (r <= acc) {
+          idx = i;
           break;
         }
       }
     }
-
-    const chosenSlice = wheelSlices[chosenIdx];
-    // Find a random target angle within the chosen slice range
-    const targetMidAngle = (chosenSlice.startAngle + chosenSlice.endAngle) / 2;
-    // We spin at least 3 full rotations (1080 deg) + land exactly on target (relative to pointer at 0 deg top)
-    // Pointer is at 0 degrees (top). To align the slice with pointer, we rotate the wheel by: 360 - targetMidAngle
-    const spinTo = 1080 + (360 - targetMidAngle);
-
-    setWheelRotation(spinTo);
-
-    setTimeout(() => {
-      setIsSpinning(false);
-      setSelectedWord(chosenSlice.word);
-      setContext((prev) => {
-        // limit size of context list to fit on SVG
-        const next = [...prev, chosenSlice.word];
-        if (next.length > 7) {
-          return next.slice(next.length - 7);
-        }
-        return next;
-      });
-      // reset rotation after landing
-      setWheelRotation((360 - targetMidAngle));
-    }, 1800);
+    const word = candidates[idx].word;
+    setSelected(word);
+    setContext((prev) => {
+      const next = [...prev, word];
+      return next.length > 9 ? next.slice(next.length - 9) : next;
+    });
   };
 
-  const handleReset = () => {
+  const reset = () => {
     setContext(initialTokens);
-    setSelectedWord(null);
-    setWheelRotation(0);
-    setIsSpinning(false);
+    setSelected(null);
   };
 
-  // Helper to construct SVG pie path
-  const describeArc = (x: number, y: number, radius: number, startAngle: number, endAngle: number) => {
-    const polarToCartesian = (centerX: number, centerY: number, rad: number, angleInDegrees: number) => {
-      const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
-      return {
-        x: centerX + rad * Math.cos(angleInRadians),
-        y: centerY + rad * Math.sin(angleInRadians),
-      };
-    };
+  const caption =
+    temperature <= 0.4
+      ? `At low temperature (T = ${temperature.toFixed(2)}) the distribution is razor-sharp: "${topWord}" takes ${(topProb * 100).toFixed(0)}% and almost always wins. The model is predictable and repetitive — great for facts, dull for ideas.`
+      : temperature >= 1.6
+        ? `At high temperature (T = ${temperature.toFixed(2)}) the bars flatten out — even "${candidates[4].word}" gets a real chance. Sampling here is creative and surprising, but risks going off the rails.`
+        : `Temperature T = ${temperature.toFixed(2)} gives a ${shape} distribution. Dividing every logit by T before softmax is the one knob that trades predictability for creativity.`;
 
-    const start = polarToCartesian(x, y, radius, endAngle);
-    const end = polarToCartesian(x, y, radius, startAngle);
-    const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+  const canvas = (
+    <svg className="block h-auto w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="LLM Temperature Sampling">
+      <title>LLM Temperature Sampling</title>
+      <SVGFilters />
+      <rect width={W} height={H} fill={COLORS.bg} />
 
-    return [
-      "M", start.x, start.y,
-      "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y,
-      "L", x, y,
-      "Z"
-    ].join(" ");
-  };
-
-  const wheelCenter = { x: 490, y: 220 };
-  const wheelRadius = 80;
-
-  return (
-    <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(340px,1fr)]">
-      <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="LLM Temperature Logits Scaling">
-            <title>L L M Diagram</title>
-            <SVGFilters />
-            <rect width={W} height={H} fill={COLORS.bg} />
-
-            {/* Context Window (Upper half) */}
-            <g transform="translate(46, 50)">
-              <rect width={548} height={46} fill="rgba(85,107,74,0.06)" stroke={COLORS.border} rx={2} />
-              <text x={12} y={16} fill={COLORS.muted} fontSize={8} fontWeight={800}>CONTEXT WINDOW</text>
-              <text x={12} y={34} fill={COLORS.cyan} fontSize={14} fontWeight={900}>
-                {context.join(" ")}
-                {isSpinning && <span className="animate-pulse"> ...</span>}
-              </text>
-            </g>
-
-            {/* Candidates Probability Bar Chart */}
-            <g transform="translate(46, 126)">
-              <text x={0} y={-10} fill={COLORS.muted} fontSize={12} fontWeight={800} letterSpacing="0.05em">RAW LOGITS</text>
-              <text x={140} y={-10} fill={COLORS.muted} fontSize={10} fontWeight={800} letterSpacing="0.05em">SOFTMAX PROBABILITIES (Temp={temperature.toFixed(1)})</text>
-
-              {candidates.map((cand, idx) => {
-                const prob = probs[idx];
-                const isSelected = selectedWord === cand.word;
-                const barWidth = prob * 180;
-                
-                return (
-                  <g key={cand.word} transform={`translate(0, ${idx * 40})`}>
-                    {/* Word Label */}
-                    <text x={0} y={20} fill={isSelected ? COLORS.pink : COLORS.muted} fontSize={12} fontWeight={800} stroke={COLORS.bg} strokeWidth={2} paintOrder="stroke">
-                      {cand.word}
-                    </text>
-                    {/* Logit value */}
-                    <text x={92} y={20} fill={COLORS.cyan} fontSize={11} fontWeight={700}>
-                      {cand.logit.toFixed(1)}
-                    </text>
-
-                    {/* Arrow Vector */}
-                    <Vector x1={112} y1={16} x2={142} y2={16} color={COLORS.yellow} />
-                    
-                    {/* Probability Bar */}
-                    <rect
-                      x={150}
-                      y={4}
-                      width={Math.max(1, barWidth)}
-                      height={20}
-                      fill={isSelected ? COLORS.pink : COLORS.cyan}
-                      fillOpacity={isSelected ? 0.8 : 0.45}
-                      stroke={isSelected ? COLORS.pink : COLORS.border}
-                      strokeWidth={isSelected ? 1.5 : 0.5}
-                    />
-                    <text x={150 + barWidth + 8} y={18} fill={COLORS.muted} fontSize={11} fontWeight={700}>
-                      {(prob * 100).toFixed(1)}%
-                    </text>
-                  </g>
-                );
-              })}
-            </g>
-
-            {/* Probability Wheel Spinner (Right bottom) */}
-            <g>
-              {/* Spinner Wheel outer border */}
-              <circle cx={wheelCenter.x} cy={wheelCenter.y} r={wheelRadius + 4} fill="none" stroke={COLORS.border} strokeWidth={1} />
-              
-              {/* Wheel Slices */}
-              <g>
-                <motion.g
-                  initial={{ x: wheelCenter.x, y: wheelCenter.y }}
-                  animate={{ x: wheelCenter.x, y: wheelCenter.y, rotate: wheelRotation }}
-                  transition={isSpinning ? { duration: 1.8, ease: "easeOut" } : { duration: 0 }}
-                >
-                  {wheelSlices.map((slice, idx) => {
-                    const sliceColor = [COLORS.cyan, COLORS.pink, COLORS.yellow, COLORS.green, COLORS.muted][idx % 5];
-                    // Compute text position inside slice relative to center 0,0
-                    const textAngle = ((slice.startAngle + slice.endAngle) / 2 - 90) * (Math.PI / 180);
-                    const tx = (wheelRadius * 0.6) * Math.cos(textAngle);
-                    const ty = (wheelRadius * 0.6) * Math.sin(textAngle);
-
-                    return (
-                      <g key={slice.word}>
-                        <path
-                          d={describeArc(0, 0, wheelRadius, slice.startAngle, slice.endAngle)}
-                          fill={sliceColor}
-                          fillOpacity={0.3}
-                          stroke={COLORS.bg}
-                          strokeWidth={1.5}
-                        />
-                        {slice.prob > 0.05 && (
-                          <text
-                            x={tx}
-                            y={ty + 3}
-                            textAnchor="middle"
-                            fill={COLORS.muted}
-                            fontSize={8}
-                            fontWeight={800}
-                          >
-                            {slice.word}
-                          </text>
-                        )}
-                      </g>
-                    );
-                  })}
-                </motion.g>
-              </g>
-
-              {/* Spinner Needle (top center pointing down) */}
-              <polygon
-                points={`${wheelCenter.x - 8},${wheelCenter.y - wheelRadius - 10} ${wheelCenter.x + 8},${wheelCenter.y - wheelRadius - 10} ${wheelCenter.x},${wheelCenter.y - wheelRadius + 2}`}
-                fill={COLORS.pink}
-              />
-              <circle cx={wheelCenter.x} cy={wheelCenter.y - wheelRadius - 10} r={3} fill={COLORS.pink} />
-              <text x={wheelCenter.x} y={wheelCenter.y + wheelRadius + 16} textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={800}>PROBABILITY WHEEL</text>
-            </g>
-          </svg>
+      {/* growing sentence (context window) */}
+      <text x={30} y={36} fill={COLORS.muted} fontSize={11} fontWeight={800} letterSpacing="0.08em">
+        THE MODEL&apos;S SENTENCE SO FAR
+      </text>
+      <foreignObject x={30} y={44} width={W - 60} height={36}>
+        <div className="font-sans text-[16px] font-semibold leading-tight text-on-surface">
+          {context.join(" ")} <span style={{ color: COLORS.muted }}>▍</span>
         </div>
-      </div>
+      </foreignObject>
 
-      <div className="flex min-w-0 flex-col gap-3">
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between gap-4 font-bold uppercase tracking-wide">
-            <span>LLM Controls</span>
-          </div>
+      <text x={30} y={H - 14} fill={COLORS.muted} fontSize={11} fontWeight={700}>
+        next-token probability after dividing each logit by T = {temperature.toFixed(2)}
+      </text>
 
-          <div className="mb-4">
-            <span className="block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
-              TEMPERATURE (SCALING):
-            </span>
-            <input aria-label="LLM input"
-              type="range"
-              min="0.2"
-              max="2.2"
-              step="0.15"
-              value={temperature}
-              onChange={(e) => setTemperature(parseFloat(e.target.value))}
-              className="w-full accent-primary"
+      {/* candidate distribution bars */}
+      {candidates.map((c, i) => {
+        const y = plot.top + i * plot.rowH;
+        const w = probs[i] * (plot.right - plot.left);
+        const isSel = selected === c.word;
+        return (
+          <g key={c.word}>
+            <text x={plot.left - 14} y={y + 17} textAnchor="end" fill={isSel ? COLORS.pink : COLORS.muted} fontSize={14} fontWeight={800} stroke={COLORS.bg} strokeWidth={3} paintOrder="stroke">
+              {c.word}
+            </text>
+            <text x={plot.left - 14} y={y + 32} textAnchor="end" fill={COLORS.muted} fontSize={9} fontWeight={600}>
+              logit {c.logit.toFixed(1)}
+            </text>
+            {/* track */}
+            <rect x={plot.left} y={y} width={plot.right - plot.left} height={26} fill={COLORS.grid} fillOpacity={0.4} />
+            <motion.rect
+              x={plot.left}
+              y={y}
+              height={26}
+              fill={sliceColor[i]}
+              fillOpacity={isSel ? 0.95 : 0.6}
+              stroke={isSel ? COLORS.pink : "none"}
+              strokeWidth={isSel ? 2 : 0}
+              initial={false}
+              animate={{ width: Math.max(1, w) }}
+              transition={{ type: "spring", stiffness: 140, damping: 20 }}
             />
-            <div className="flex justify-between text-[12px] text-on-surface-variant font-bold mt-1">
-              <span>0.2 (greedy/sharp)</span>
-              <span className="text-primary">T = {temperature.toFixed(2)}</span>
-              <span>2.2 (creative/flat)</span>
-            </div>
-          </div>
+            <text x={plot.left + Math.max(1, w) + 8} y={y + 18} fill={COLORS.muted} fontSize={12} fontWeight={700}>
+              {(probs[i] * 100).toFixed(1)}%
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
 
-          <div className="mb-4">
-            <span className="block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
-              SAMPLING PARADIGM:
-            </span>
-            <div className="grid grid-cols-2 gap-1 border border-outline p-1 bg-surface-container-low">
-              {(["greedy", "sample"] as const).map((mode) => (
-                <button
-                  aria-label={mode === "greedy" ? "Greedy (Max)" : "Random Sample"}
-                  key={mode}
-                  onClick={() => setSamplingMode(mode)}
-                  className={`py-1 text-[12px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
-                    samplingMode === mode
-                      ? "bg-primary text-on-primary"
-                      : "hover:bg-outline-variant text-on-surface-variant"
-                  }`}
-                >
-                  {mode === "greedy" ? "Greedy (Max)" : "Random Sample"}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <button aria-label="SAMPLE NEXT WORD"
-              onClick={handleSample}
-              disabled={isSpinning}
-              className="flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold cursor-pointer disabled:opacity-50 text-center text-[12px]"
-            >
-              SAMPLE NEXT WORD
-            </button>
-            <button aria-label="RESET SENTENCE"
-              onClick={handleReset}
-              className="flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container active:scale-[0.98] transition-all font-bold cursor-pointer text-center text-[12px]"
-            >
-              RESET SENTENCE
-            </button>
-          </div>
+  const controls = (
+    <>
+      <div className="flex flex-1 flex-col justify-center gap-1.5 border border-outline bg-surface p-3">
+        <label htmlFor="llm-temp" className="flex items-center justify-between font-mono text-[12px] font-bold uppercase tracking-wide text-primary">
+          <span>Temperature</span>
+          <span className="text-on-surface">T = {temperature.toFixed(2)}</span>
+        </label>
+        <input
+          id="llm-temp"
+          aria-label="Temperature"
+          type="range"
+          min={0.2}
+          max={2.2}
+          step={0.05}
+          value={temperature}
+          onChange={(e) => setTemperature(parseFloat(e.target.value))}
+          className="w-full cursor-pointer accent-primary"
+        />
+        <div className="flex justify-between font-mono text-[10px] uppercase tracking-wide text-on-surface-variant">
+          <span>0.2 · sharp / predictable</span>
+          <span>2.2 · flat / creative</span>
         </div>
-
-        <div className="rounded border border-outline bg-surface p-4 text-sm leading-6 text-on-surface-variant">
-          <span className="font-mono text-xs sm:text-sm font-bold uppercase tracking-wide text-primary">Mental model</span>
-          <div className="mt-3 text-sm sm:text-[15px] leading-relaxed text-on-surface-variant">
-            <MarkdownRenderer content={`LLMs output logits representing raw confidence for each token. Dividing logits by **Temperature** ($T$) and applying Softmax morphs the probability distribution. High $T$ creates flat probabilities (creative/diverse), while low $T$ sharpens peaks (predictable/greedy).`} />
-          </div>
+        <div className="mt-1 flex items-center justify-between border-t border-outline pt-2 font-mono text-[11px] text-on-surface-variant">
+          <span>shape <span className="font-bold text-on-surface">{shape}</span></span>
+          <span>spread <span className="font-bold text-on-surface">{entropy.toFixed(2)} bits</span></span>
         </div>
       </div>
+
+      <div className="flex flex-col justify-center gap-2 border border-outline bg-surface p-3">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-[11px] font-bold uppercase tracking-wide text-on-surface-variant">Pick by</span>
+          <div className="flex gap-1 border border-outline bg-surface-container-low p-1">
+            <button
+              aria-label="Random sample"
+              aria-pressed={!greedy}
+              onClick={() => setGreedy(false)}
+              className={`px-2.5 py-1 font-mono text-[11px] font-bold uppercase tracking-wide transition-colors ${!greedy ? "bg-primary text-on-primary" : "text-on-surface-variant hover:bg-outline-variant"}`}
+            >
+              Sample
+            </button>
+            <button
+              aria-label="Greedy argmax"
+              aria-pressed={greedy}
+              onClick={() => setGreedy(true)}
+              className={`px-2.5 py-1 font-mono text-[11px] font-bold uppercase tracking-wide transition-colors ${greedy ? "bg-primary text-on-primary" : "text-on-surface-variant hover:bg-outline-variant"}`}
+            >
+              Greedy
+            </button>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            aria-label="Sample next word"
+            onClick={sampleNext}
+            className="flex h-9 items-center justify-center border border-outline bg-surface px-3 font-mono text-[12px] font-bold uppercase tracking-wide text-on-surface transition-colors hover:bg-surface-container hover:text-primary"
+          >
+            Add next word
+          </button>
+          <button
+            aria-label="Reset sentence"
+            onClick={reset}
+            className="flex h-9 items-center justify-center border border-outline bg-surface px-3 font-mono text-[12px] font-bold uppercase tracking-wide text-on-surface-variant transition-colors hover:bg-surface-container"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+    </>
+  );
+
+  const mentalModel = (
+    <div className="flex flex-col gap-2">
+      <p>
+        A language model does not output words — it outputs a <strong>logit</strong> (raw
+        confidence) for every token in its vocabulary. <strong>Softmax</strong> turns those into a
+        probability distribution, and the next word is drawn from it.
+      </p>
+      <p>
+        <strong>Temperature</strong> divides every logit before the softmax. Low T exaggerates the
+        gaps so the top token dominates — deterministic, repetitive, good for facts. High T shrinks
+        the gaps so the distribution flattens — diverse, surprising, good for brainstorming and
+        prone to nonsense. <strong>Greedy</strong> ignores the dice entirely and always takes the
+        peak.
+      </p>
+      <p>It is the single most important knob you turn when calling an LLM API.</p>
     </div>
   );
+
+  return <VizShell canvas={canvas} controls={controls} caption={caption} mentalModel={mentalModel} />;
 }

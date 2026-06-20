@@ -1,8 +1,8 @@
 # ML Learn
 
-ML Learn is an interactive machine learning curriculum that connects
-mathematical foundations, visual intuition, and implementation-oriented
-explanations. It currently includes 40 modules across three guided tracks.
+ML Learn is an interactive machine learning curriculum that connects visual
+intuition, model behavior, and implementation-oriented explanations. It
+currently includes 29 modules across two guided tracks.
 
 ## Run Locally
 

@@ -1,22 +1,25 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import {
   COLORS,
-  SVGFilters,
-  AnimatedPointMark,
-  PulseRing,
+  VizShell,
   NarrativeControls,
+  StepIndicator,
 } from "../visualizationPrimitives";
-import { useSimulation } from "./useAnimationEngine";
+import { useNarrativeStepper } from "./useAnimationEngine";
+import { createSeededRNG } from "@/lib/prng";
 
-const W = 640;
-const H = 420;
-const plot = { left: 64, top: 34, right: 406, bottom: 234, width: 342, height: 200 };
-
+const W = 800;
+const H = 400;
+const plot = { left: 40, top: 40, right: 760, bottom: 220, width: 720, height: 160 };
 const scaleX = (val: number) => plot.left + (val / 10) * plot.width;
-const scaleY = (val: number) => plot.bottom - val * 240;
+// Target density max is around 0.5. We map 0 -> plot.bottom, 0.6 -> plot.top
+const scaleY = (val: number) => plot.bottom - (val / 0.6) * plot.height;
+
+const histBottom = 380;
+const histHeight = 100;
 
 // Bimodal target density distribution
 const targetDensity = (xVal: number) => {
@@ -25,394 +28,234 @@ const targetDensity = (xVal: number) => {
   return term1 + term2;
 };
 
-// Generate density curve path
 const densityPoints: string[] = [];
-for (let i = 0.2; i <= 9.85; i += 0.1) {
+for (let i = 0; i <= 10; i += 0.05) {
   densityPoints.push(`${scaleX(i)} ${scaleY(targetDensity(i))}`);
 }
 const densityCurvePath = "M " + densityPoints.join(" L ");
 
+const stepsData = [
+  {
+    title: "The Unknown Mountain",
+    caption: "We want to map this two-peaked probability mountain. We can't compute its full shape at once, so we drop a random walker on it to explore.",
+    mode: "start",
+  },
+  {
+    title: "The Greedy Trap",
+    caption: "If the walker greedily accepts ONLY uphill steps, it climbs the nearest peak and gets permanently trapped. It never discovers the larger peak.",
+    mode: "greedy_trap",
+  },
+  {
+    title: "The Downhill Rule",
+    caption: "To escape the trap, MCMC allows the walker to occasionally accept DOWNHILL steps. If a step is lower, it accepts it with a probability based on the height drop.",
+    mode: "propose_downhill",
+  },
+  {
+    title: "Crossing the Valley",
+    caption: "By occasionally accepting downhill steps, the walker successfully descends into the valley and climbs the other side to discover the global maximum.",
+    mode: "cross_valley",
+  },
+  {
+    title: "The Long Run",
+    caption: "Turn the walker loose. Because it favors uphill but tolerates downhill, it freely explores everywhere. Over time, its visits perfectly sketch both peaks.",
+    mode: "auto_run",
+  }
+] as const;
+
 export default function MCMCViz() {
-  const [currentX, setCurrentX] = useState(1.5);
-  const [proposalX, setProposalX] = useState<number | null>(null);
-  const [proposalStatus, setProposalStatus] = useState<"pending" | "accepted" | "rejected" | null>(null);
-  const [alpha, setAlpha] = useState<number | null>(null);
+  const stepper = useNarrativeStepper(stepsData.length);
+  const activeStep = stepsData[stepper.currentStep];
 
-  // Samples collected for histogram
-  const [samples, setSamples] = useState<number[]>([]);
-  const [showTrace, setShowTrace] = useState(true);
-  const [stepSpeed, setStepSpeed] = useState<"slow" | "fast">("slow");
-  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+  const [autoRunState, setAutoRunState] = useState({ x: 2.5, samples: [] as number[] });
 
-  const autoStepTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const visualTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const latestStepRef = useRef<((instant?: boolean) => void) | null>(null);
+  useEffect(() => {
+    if (activeStep.mode !== "auto_run") {
+      setAutoRunState({ x: 2.5, samples: [] });
+      return;
+    }
 
-  // Box-Muller transform for normal distribution proposal noise
-  const randomNormal = (mean = 0, std = 1.1) => {
-    const u1 = Math.random();
-    const u2 = Math.random();
-    const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
-    return mean + z * std;
-  };
+    const rng = createSeededRNG(12345);
+    let x = 6.8; // Start at the global peak where cross_valley left off
+    const samples: number[] = [];
 
-  // Perform one MCMC Step (Metropolis-Hastings)
-  const executeMcmcStep = (instant = false) => {
-    // 1. Propose candidate
-    const noise = randomNormal(0, 1.25);
-    const rawProp = currentX + noise;
-    const prop = Math.max(0.5, Math.min(9.5, rawProp));
-
-    // 2. Compute acceptance ratio
-    const pCurrent = targetDensity(currentX);
-    const pProposal = targetDensity(prop);
-    const ratio = Math.min(1.0, pProposal / pCurrent);
-
-    if (instant) {
-      // Fast mode: immediately decide and accumulate
-      const accept = Math.random() < ratio;
-      const nextX = accept ? prop : currentX;
-      setCurrentX(nextX);
-      setSamples((prev) => [...prev, nextX]);
-      setProposalX(null);
-      setProposalStatus(null);
-      setAlpha(null);
-    } else {
-      // Visual mode: stage proposal
-      setProposalX(prop);
-      setProposalStatus("pending");
-      setAlpha(ratio);
-
-      if (visualTimerRef.current) clearTimeout(visualTimerRef.current);
-      // Resolve step after short delay
-      const resolveTimer = setTimeout(() => {
-        const accept = Math.random() < ratio;
-        if (accept) {
-          setProposalStatus("accepted");
-          setCurrentX(prop);
-          setSamples((prev) => [...prev, prop]);
-        } else {
-          setProposalStatus("rejected");
-          setSamples((prev) => [...prev, currentX]);
+    const interval = setInterval(() => {
+      // Multiple steps per tick to build the histogram quickly
+      for (let i = 0; i < 20; i++) {
+        const noise = rng.nextGaussian() * 1.5;
+        const rawProp = x + noise;
+        const prop = Math.max(0.5, Math.min(9.5, rawProp));
+        const ratio = targetDensity(prop) / targetDensity(x);
+        if (rng.next() < ratio) {
+          x = prop;
         }
+        samples.push(x);
+      }
+      setAutoRunState({ x, samples: [...samples] });
+    }, 40);
 
-        // Reset visual state after resolution display
-        const clearTimer = setTimeout(() => {
-          setProposalX(null);
-          setProposalStatus(null);
-          setAlpha(null);
-        }, 350);
-        visualTimerRef.current = clearTimer;
-      }, 550);
-      visualTimerRef.current = resolveTimer;
-    }
-  };
+    return () => clearInterval(interval);
+  }, [activeStep.mode]);
 
-  useEffect(() => {
-    latestStepRef.current = executeMcmcStep;
-  });
+  // Derived state for rendering
+  let renderX = 1.5;
+  let renderPropX: number | null = null;
+  let renderPropStatus = null as "pending" | "accepted" | "rejected" | null;
+  let renderSamples: number[] = [];
 
-  // Auto-play timer effect
-  useEffect(() => {
-    if (autoStepTimerRef.current) clearTimeout(autoStepTimerRef.current);
+  if (activeStep.mode === "start") {
+    renderX = 1.5;
+  } else if (activeStep.mode === "greedy_trap") {
+    renderX = 3.2; // Top of the first peak
+    renderSamples = Array(100).fill(3.2); // A massive spike to show it's stuck
+  } else if (activeStep.mode === "propose_downhill") {
+    renderX = 3.2;
+    renderPropX = 4.0; // Proposal in the valley
+    renderPropStatus = "accepted"; // Visually accept the downhill
+    renderSamples = [3.2, 4.0];
+  } else if (activeStep.mode === "cross_valley") {
+    renderX = 6.8; // Top of the second peak
+    renderSamples = [3.2, 4.0, 4.8, 5.5, 6.2, 6.8]; // Trail showing the crossing
+  } else if (activeStep.mode === "auto_run") {
+    renderX = autoRunState.x;
+    renderSamples = autoRunState.samples;
+  }
 
-    if (isAutoPlaying) {
-      const interval = stepSpeed === "slow" ? 1100 : 40;
-      const loop = () => {
-        if (latestStepRef.current) latestStepRef.current(stepSpeed === "fast");
-        autoStepTimerRef.current = setTimeout(loop, interval);
-      };
-      autoStepTimerRef.current = setTimeout(loop, interval);
-    }
+  const walkerY = scaleY(targetDensity(renderX));
 
-    return () => {
-      if (autoStepTimerRef.current) clearTimeout(autoStepTimerRef.current);
-    };
-  }, [isAutoPlaying, stepSpeed]);
-
-  const handleReset = () => {
-    setIsAutoPlaying(false);
-    if (autoStepTimerRef.current) clearTimeout(autoStepTimerRef.current);
-    if (visualTimerRef.current) clearTimeout(visualTimerRef.current);
-    setCurrentX(1.5);
-    setProposalX(null);
-    setProposalStatus(null);
-    setAlpha(null);
-    setSamples([]);
-  };
-
-  // Compile empirical histogram bins (25 bins from 0 to 10)
-  const binCount = 25;
+  // Histogram calculation
+  const binCount = 40;
   const bins = Array(binCount).fill(0);
-  samples.forEach((s) => {
+  renderSamples.forEach((s) => {
     const binIdx = Math.max(0, Math.min(binCount - 1, Math.floor(s * (binCount / 10))));
     bins[binIdx]++;
   });
-
   const maxBinCount = Math.max(1, ...bins);
-  const totalSamples = samples.length;
 
-  // History path coordinates (trace overlay)
-  // Show last 30 samples to prevent SVG clogging
-  const traceHistory = samples.slice(-30);
-  const tracePath =
-    traceHistory.length > 1
-      ? "M " + traceHistory.map((s, idx) => `${scaleX(s)} ${scaleY(0.04 + idx * 0.008)}`).join(" L ")
-      : "";
+  const canvas = (
+    <svg viewBox={`0 0 ${W} ${H}`} className="block w-full h-auto select-none" role="img" aria-label="MCMC Metropolis-Hastings Walker">
+      <defs>
+        <pattern id="mcmc-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke={COLORS.grid} strokeWidth="1" />
+        </pattern>
+      </defs>
+      <rect width={W} height={H} fill="url(#mcmc-grid)" />
 
-  const ticks = [0, 2.5, 5, 7.5, 10];
+      {/* Mountain Curve */}
+      <path 
+        d={`${densityCurvePath} L ${scaleX(10)} ${plot.bottom} L ${scaleX(0)} ${plot.bottom} Z`} 
+        fill={COLORS.pink} fillOpacity={0.15} 
+        stroke={COLORS.pink} strokeWidth={3} 
+      />
+      
+      {/* Mountain Base Line */}
+      <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={COLORS.border} strokeWidth={2} />
+      <text x={plot.left} y={plot.bottom + 16} fill={COLORS.muted} fontSize={12} fontWeight={600}>Probability Density (The Mountain)</text>
+
+      {/* Histogram */}
+      <g>
+        <line x1={plot.left} x2={plot.right} y1={histBottom} y2={histBottom} stroke={COLORS.border} strokeWidth={2} />
+        <text x={plot.left} y={histBottom - histHeight - 10} fill={COLORS.muted} fontSize={12} fontWeight={600}>Empirical Samples (The Histogram)</text>
+        {bins.map((count, idx) => {
+          if (count === 0) return null;
+          const binW = plot.width / binCount;
+          const bx = plot.left + idx * binW;
+          const bh = (count / maxBinCount) * histHeight;
+          return (
+            <rect
+              key={idx}
+              x={bx + 1}
+              y={histBottom - bh}
+              width={binW - 2}
+              height={bh}
+              fill={COLORS.cyan}
+            />
+          );
+        })}
+      </g>
+
+      {/* Proposal Graphics */}
+      {renderPropX !== null && (
+        <g>
+          {/* Dashed line from walker to proposal */}
+          <line 
+            x1={scaleX(renderX)} y1={walkerY}
+            x2={scaleX(renderPropX)} y2={scaleY(targetDensity(renderPropX))}
+            stroke={COLORS.yellow} strokeWidth={2} strokeDasharray="4 4"
+          />
+          {/* Proposal Dot */}
+          <circle 
+            cx={scaleX(renderPropX)} cy={scaleY(targetDensity(renderPropX))}
+            r={8}
+            fill={renderPropStatus === "accepted" ? COLORS.cyan : renderPropStatus === "rejected" ? COLORS.pink : COLORS.bg}
+            stroke={renderPropStatus === "pending" ? COLORS.muted : COLORS.bg} 
+            strokeWidth={2}
+          />
+          {/* Proposal Text */}
+          <text 
+            x={scaleX(renderPropX)} y={scaleY(targetDensity(renderPropX)) - 15}
+            textAnchor="middle" fill={COLORS.muted} fontSize={14} fontWeight={600}
+          >
+            {renderPropStatus === "accepted" ? "ACCEPT" : renderPropStatus === "rejected" ? "REJECT" : "PROPOSAL"}
+          </text>
+        </g>
+      )}
+
+      {/* Walker Dot */}
+      <motion.circle 
+        cx={scaleX(renderX)} cy={walkerY} r={10}
+        fill={COLORS.yellow} stroke={COLORS.bg} strokeWidth={2}
+        animate={{ cx: scaleX(renderX), cy: scaleY(targetDensity(renderX)) }}
+        transition={{ type: "spring", stiffness: 60, damping: 15 }}
+      />
+      <motion.text
+        x={scaleX(renderX)} y={walkerY + 22}
+        textAnchor="middle" fill={COLORS.muted} fontSize={12} fontWeight={700}
+        animate={{ x: scaleX(renderX), y: scaleY(targetDensity(renderX)) + 22 }}
+        transition={{ type: "spring", stiffness: 60, damping: 15 }}
+      >
+        WALKER
+      </motion.text>
+    </svg>
+  );
+
+  const controls = (
+    <div className="flex w-full flex-col gap-3">
+      <NarrativeControls
+        isPlaying={stepper.isPlaying}
+        onPlayToggle={stepper.isPlaying ? stepper.pause : stepper.play}
+        onStepForward={stepper.stepForward}
+        onStepBackward={stepper.stepBackward}
+        onReset={stepper.reset}
+        currentStep={stepper.currentStep}
+        totalSteps={stepsData.length}
+      />
+      <StepIndicator 
+        steps={["Start", "Greedy Trap", "Downhill Rule", "Cross Valley", "Long Run"]} 
+        currentStep={stepper.currentStep} 
+      />
+    </div>
+  );
+
+  const mentalModel = (
+    <div className="space-y-4">
+      <p>
+        <strong>The Greedy Trap:</strong> A naive sampling approach (like gradient ascent) only moves to more probable states. While this climbs the nearest peak quickly, it gets permanently trapped there. It completely misses other important regions of the distribution.
+      </p>
+      <p>
+        <strong>MCMC Explores by Walking:</strong> MCMC avoids this using a random walker. Crucially, the <strong>Metropolis-Hastings Rule</strong> allows the walker to occasionally accept <em>downhill</em> (less probable) steps, with a probability equal to the height drop. 
+      </p>
+      <p>
+        <strong>Global Discovery:</strong> This occasional downhill movement allows the walker to cross probability valleys and discover other peaks. Over a long run, the time spent in any region becomes perfectly proportional to its true probability, accurately mapping the entire complex mountain.
+      </p>
+    </div>
+  );
 
   return (
-    <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(340px,1fr)]">
-      <div className="relative flex min-h-[450px] w-full items-center justify-center overflow-hidden border border-outline bg-surface sm:min-h-[550px]">
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <svg className="h-full w-full" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="MCMC Metropolis-Hastings Walker">
-            <title>M C M C Diagram</title>
-            <SVGFilters />
-            <rect width={W} height={H} fill={COLORS.bg} />
-
-            {/* Grid Axes */}
-            <g>
-              {ticks.map((tick) => (
-                <g key={tick}>
-                  <line x1={scaleX(tick)} x2={scaleX(tick)} y1={plot.top} y2={plot.bottom} stroke={COLORS.grid} strokeWidth={1} />
-                </g>
-              ))}
-              <line x1={plot.left} x2={plot.left} y1={plot.top} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
-              <line x1={plot.left} x2={plot.right} y1={plot.bottom} y2={plot.bottom} stroke={COLORS.border} strokeWidth={1.5} />
-              <text x={plot.right + 12} y={plot.bottom + 4} fill={COLORS.muted} fontSize={12} fontWeight={700}>x</text>
-            </g>
-
-            {/* Target Density Mountain (shaded area) */}
-            <path d={`${densityCurvePath} L ${scaleX(9.85)} ${plot.bottom} L ${scaleX(0.2)} ${plot.bottom} Z`} fill={COLORS.pink} fillOpacity={0.12} stroke={COLORS.pink} strokeWidth={2} />
-
-            {/* Empirical Histogram Bins at the bottom of the plot */}
-            {totalSamples > 0 && (
-              <g>
-                {bins.map((count, idx) => {
-                  if (count === 0) return null;
-                  const binW = plot.width / binCount;
-                  const bx = plot.left + idx * binW;
-                  const ratio = count / maxBinCount;
-                  // Max height of histogram is 60px
-                  const bh = ratio * 60;
-
-                  return (
-                    <motion.rect
-                      key={`bin-${idx}-${totalSamples}`}
-                      x={bx + 1}
-                      y={plot.bottom - bh}
-                      width={binW - 2}
-                      height={bh}
-                      fill={COLORS.cyan}
-                      fillOpacity={0.65}
-                      stroke={COLORS.cyan}
-                      strokeWidth={0.5}
-                      initial={{ scaleY: 0 }}
-                      animate={{ scaleY: 1 }}
-                      style={{ transformOrigin: "bottom" }}
-                    />
-                  );
-                })}
-              </g>
-            )}
-
-            {/* Random Walk Trace Overlay */}
-            {showTrace && tracePath && (
-              <path
-                d={tracePath}
-                fill="none"
-                stroke={COLORS.yellow}
-                strokeWidth={2}
-                strokeDasharray="4 3"
-                opacity={0.8}
-              />
-            )}
-
-            {/* Visual Proposal state */}
-            {proposalX !== null && (
-              <g>
-                {/* Dashed proposal scope circle */}
-                <circle
-                  cx={scaleX(currentX)}
-                  cy={scaleY(0.08)}
-                  r={1.25 * (plot.width / 10)}
-                  fill="none"
-                  stroke={COLORS.muted}
-                  strokeWidth={1}
-                  strokeDasharray="2 3"
-                  opacity={0.4}
-                />
-                
-                {/* Connecting arrow line from walker to proposal */}
-                <line
-                  x1={scaleX(currentX)}
-                  y1={scaleY(0.08)}
-                  x2={scaleX(proposalX)}
-                  y2={scaleY(0.08)}
-                  stroke={COLORS.yellow}
-                  strokeWidth={2}
-                  strokeDasharray="2 2"
-                />
-
-                {/* Proposal Dot */}
-                <circle
-                  cx={scaleX(proposalX)}
-                  cy={scaleY(0.08)}
-                  r={7}
-                  fill={
-                    proposalStatus === "accepted"
-                      ? COLORS.cyan
-                      : proposalStatus === "rejected"
-                      ? COLORS.pink
-                      : COLORS.yellow
-                  }
-                  stroke={COLORS.bg}
-                  strokeWidth={1.5}
-                />
-                <text
-                  x={scaleX(proposalX)}
-                  y={scaleY(0.08) - 12}
-                  textAnchor="middle"
-                  fill={COLORS.muted}
-                  fontSize={8}
-                  fontWeight={800}
-                >
-                  {proposalStatus === "accepted" ? "ACCEPT" : proposalStatus === "rejected" ? "REJECT" : "PROPOSAL"}
-                </text>
-              </g>
-            )}
-
-            {/* Pulse rings around walker */}
-            {proposalStatus === "accepted" && (
-              <PulseRing px={scaleX(currentX)} py={scaleY(0.08)} color={COLORS.cyan} maxRadius={35} />
-            )}
-
-            {/* Walker Dot (yellow) */}
-            <circle
-              cx={scaleX(currentX)}
-              cy={scaleY(0.08)}
-              r={9.5}
-              fill={COLORS.yellow}
-              stroke={COLORS.bg}
-              strokeWidth={2}
-            />
-            <text x={scaleX(currentX) + 12} y={scaleY(0.08) + 3} fill={COLORS.muted} fontSize={9} fontWeight={800}>
-              Walker
-            </text>
-          </svg>
-        </div>
-      </div>
-
-      <div className="flex min-w-0 flex-col gap-3">
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-3 flex items-center justify-between gap-4 font-bold uppercase tracking-wide">
-            <span>Interactions</span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            <button aria-label="MCMC STEP"
-              onClick={() => {
-                setIsAutoPlaying(false);
-                executeMcmcStep(false);
-              }}
-              disabled={proposalX !== null}
-              className="flex h-9 items-center justify-center border border-outline bg-surface hover:bg-surface-container hover:text-primary active:scale-[0.98] transition-all font-bold cursor-pointer disabled:opacity-50 text-center"
-            >
-              MCMC STEP
-            </button>
-            <button aria-label="PAUSE SAMPLER AUTO RUN"
-              onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-              className={`flex h-9 items-center justify-center border border-outline font-bold cursor-pointer active:scale-[0.98] transition-all text-center ${
-                isAutoPlaying
-                  ? "bg-warning/20 border-warning text-warning"
-                  : "bg-surface hover:bg-surface-container hover:text-primary"
-              }`}
-            >
-              {isAutoPlaying ? "PAUSE SAMPLER" : "AUTO RUN"}
-            </button>
-          </div>
-
-          <div className="mb-3">
-            <label className="block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant mb-1">
-              SAMPLING SPEED:
-            </label>
-            <div className="grid grid-cols-2 gap-1 border border-outline p-1 bg-surface-container-low">
-              {(["slow", "fast"] as const).map((spd) => (
-                <button
-                  aria-label={spd === "slow" ? "Slow (Visual)" : "Fast (Math)"}
-                  key={spd}
-                  onClick={() => setStepSpeed(spd)}
-                  className={`py-1 text-[12px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
-                    stepSpeed === spd
-                      ? "bg-primary text-on-primary"
-                      : "hover:bg-outline-variant text-on-surface-variant"
-                  }`}
-                >
-                  {spd === "slow" ? "Slow (Visual)" : "Fast (Math)"}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="mb-3 flex items-center justify-between">
-            <span className="text-[12px] font-bold uppercase tracking-wide text-on-surface-variant">
-              Show Trace Overlay:
-            </span>
-            <button
-              aria-label={showTrace ? "ON" : "OFF"}
-              onClick={() => setShowTrace(!showTrace)}
-              className={`px-3 py-1 border text-[12px] font-bold uppercase tracking-wider cursor-pointer transition-colors ${
-                showTrace ? "bg-cyan/20 border-cyan text-cyan" : "bg-surface"
-              }`}
-            >
-              {showTrace ? "ON" : "OFF"}
-            </button>
-          </div>
-
-          <button aria-label="RESET SAMPLER & SAMPLES"
-            onClick={handleReset}
-            disabled={totalSamples === 0}
-            className="w-full flex h-8 items-center justify-center border border-outline bg-surface hover:bg-surface-container text-on-surface-variant text-[12px] active:scale-[0.98] transition-all tracking-wider cursor-pointer disabled:opacity-50"
-          >
-            RESET SAMPLER & SAMPLES
-          </button>
-        </div>
-
-        <div className="rounded border border-outline bg-surface p-4 font-mono text-xs sm:text-sm text-on-surface">
-          <div className="mb-2 block text-[12px] font-bold uppercase tracking-wide text-on-surface-variant">
-            MCMC RUN STATUS
-          </div>
-          <div className="bg-surface-container p-3 border border-outline space-y-1 text-xs">
-            <div className="flex justify-between">
-              <span>Total Samples Collected:</span>
-              <span className="font-bold text-primary">{totalSamples}</span>
-            </div>
-            {alpha !== null && (
-              <div className="flex justify-between">
-                <span>Acceptance Ratio (α):</span>
-                <span className="font-bold text-yellow-600">{alpha.toFixed(3)}</span>
-              </div>
-            )}
-            {proposalStatus && (
-              <div className="flex justify-between">
-                <span>Last Proposal Decision:</span>
-                <span
-                  className={
-                    proposalStatus === "accepted"
-                      ? "text-cyan font-bold"
-                      : proposalStatus === "rejected"
-                      ? "text-pink font-bold"
-                      : "text-muted"
-                  }
-                >
-                  {proposalStatus.toUpperCase()}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+    <VizShell
+      canvas={canvas}
+      controls={controls}
+      caption={activeStep.caption}
+      mentalModel={mentalModel}
+    />
   );
 }

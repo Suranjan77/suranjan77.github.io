@@ -1,6 +1,6 @@
 import type { Algorithm, AlgorithmCategory } from "@/data/algorithms";
 
-export type CurriculumFilter = "all" | "foundations" | "classical" | "deep-learning";
+export type CurriculumFilter = "all" | "classical" | "deep-learning";
 
 export interface CurriculumTrack {
   name: string;
@@ -9,55 +9,50 @@ export interface CurriculumTrack {
 
 export const curriculumTabs: Array<{ id: CurriculumFilter; label: string }> = [
   { id: "all", label: "All Topics" },
-  { id: "foundations", label: "Foundations" },
   { id: "classical", label: "Classical ML" },
   { id: "deep-learning", label: "Deep Learning & AI" },
 ];
 
 export const curriculumTracks: CurriculumTrack[] = [
   {
-    name: "Foundations",
-    ids: ["calculus", "linear-algebra", "probability-theory"],
-  },
-  {
     name: "Classical ML",
     ids: [
-      "maximum-likelihood",
-      "bayesian-inference",
+      "applied-ml-workflow",
       "linear-regression",
       "logistic-regression",
+      "regularization",
       "knn",
-      "decision-trees",
-      "clustering",
+      "naive-bayes",
       "support-vector-machines",
+      "decision-trees",
       "ensemble-learning",
+      "clustering",
+      "gmm-em",
       "dimensionality-reduction",
       "mcmc",
-      "bias-variance",
-      "regularization",
-      "evaluation-metrics",
     ],
   },
   {
     name: "Deep Learning & AI",
     ids: [
       "neural-networks",
+      "backpropagation",
       "cnn",
       "computer-vision",
+      "embeddings-tokenization",
+      "sequence-models",
       "nlp",
       "autoencoders",
+      "generative-models",
       "transformers",
       "llms",
+      "fine-tuning",
+      "rag",
+      "llm-evaluation-safety",
+      "ai-inference",
       "reinforcement-learning",
-      "generative-models",
     ],
   },
-];
-
-const foundationCategories: AlgorithmCategory[] = [
-  "Calculus",
-  "Linear Algebra",
-  "Probability Theory",
 ];
 
 const deepLearningCategories: AlgorithmCategory[] = [
@@ -81,17 +76,12 @@ export function filterAlgorithms(
   }
 
   return algorithms.filter((algorithm) => {
-    const isFoundation = foundationCategories.includes(algorithm.category);
     const isDeepLearning = deepLearningCategories.includes(algorithm.category);
-
-    if (selectedFilter === "foundations") {
-      return isFoundation;
-    }
 
     if (selectedFilter === "deep-learning") {
       return isDeepLearning;
     }
 
-    return !isFoundation && !isDeepLearning;
+    return !isDeepLearning;
   });
 }

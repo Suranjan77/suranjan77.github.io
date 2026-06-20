@@ -27,13 +27,13 @@ describe("CurriculumExplorer", () => {
     setColumns(3);
     render(<CurriculumExplorer algorithms={algorithms.slice(0, 6)} />);
 
-    expect(screen.getByRole("button", { name: /Calculus/i })).toHaveAttribute(
+    expect(screen.getByRole("button", { name: /Applied ML Workflow/i })).toHaveAttribute(
       "aria-expanded",
       "true",
     );
     expect(screen.getByRole("link", { name: /open full study/i })).toHaveAttribute(
       "href",
-      "/algorithms/calculus",
+      "/algorithms/applied-ml-workflow",
     );
     expect(screen.getByText("Key Equation")).toBeInTheDocument();
   });
@@ -43,11 +43,11 @@ describe("CurriculumExplorer", () => {
     setColumns(2);
     render(<CurriculumExplorer algorithms={algorithms.slice(0, 6)} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Calculus/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Applied ML Workflow/i }));
     expect(screen.queryByRole("link", { name: /open full study/i })).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /Probability & Statistics/i }));
-    expect(screen.getByRole("button", { name: /Probability & Statistics/i })).toHaveAttribute(
+    fireEvent.click(screen.getByRole("button", { name: /K-Nearest Neighbors/i }));
+    expect(screen.getByRole("button", { name: /K-Nearest Neighbors/i })).toHaveAttribute(
       "aria-expanded",
       "true",
     );
@@ -61,14 +61,14 @@ describe("CurriculumExplorer", () => {
     setColumns(1);
     render(<CurriculumExplorer algorithms={algorithms.slice(0, 3)} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Linear Algebra/i }));
-    expect(screen.getByRole("button", { name: /Linear Algebra/i })).toHaveAttribute(
+    fireEvent.click(screen.getByRole("button", { name: /Logistic Regression/i }));
+    expect(screen.getByRole("button", { name: /Logistic Regression/i })).toHaveAttribute(
       "aria-expanded",
       "true",
     );
     expect(screen.getByRole("link", { name: /open full study/i })).toHaveAttribute(
       "href",
-      "/algorithms/linear-algebra",
+      "/algorithms/logistic-regression",
     );
   });
 });

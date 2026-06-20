@@ -17,7 +17,7 @@ describe('Mobile Viewport', () => {
   });
 
   it('renders a lesson without horizontal overflow', () => {
-    cy.visit('/algorithms/calculus');
+    cy.visit('/algorithms/linear-regression');
     cy.get('h1').should('exist');
     cy.get('[aria-label="Lesson navigation"]').scrollIntoView().should('be.visible');
     cy.get('a[href="#visualization"]').should('contain', 'Diagram');
@@ -33,7 +33,7 @@ describe('Mobile Viewport', () => {
   });
 
   it('keeps visualization SVGs within the viewport', () => {
-    cy.visit('/algorithms/calculus');
+    cy.visit('/algorithms/linear-regression');
     cy.get('svg').each(($svg) => {
       expect($svg[0].getBoundingClientRect().width).to.be.lte(360);
     });

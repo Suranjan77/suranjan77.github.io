@@ -3,9 +3,9 @@ import { getModuleById, getPrerequisiteModules, getNextModules, getTrackModules 
 
 describe('Prerequisite Graph Utilities', () => {
   it('getModuleById returns the correct module for a known ID', () => {
-    const mod = getModuleById('calculus');
+    const mod = getModuleById('linear-regression');
     expect(mod).toBeDefined();
-    expect(mod?.id).toBe('calculus');
+    expect(mod?.id).toBe('linear-regression');
   });
 
   it('getModuleById returns undefined for an unknown ID', () => {
@@ -13,25 +13,18 @@ describe('Prerequisite Graph Utilities', () => {
     expect(mod).toBeUndefined();
   });
 
-  it('getTrackModules("foundations") returns only foundation modules', () => {
-    const mods = getTrackModules('foundations');
+  it('getTrackModules("practitioner") returns only practitioner modules', () => {
+    const mods = getTrackModules('practitioner');
     expect(mods.length).toBeGreaterThan(0);
     for (const m of mods) {
-      expect(m.tracks).toContain('foundations');
+      expect(m.tracks).toContain('practitioner');
     }
   });
 
-  it('foundation modules appear before modules that depend on them in sorted result', () => {
-    const mods = getTrackModules('foundations');
-    // For example, if linear-algebra is in foundations and is a prerequisite for probability-theory or maximum-likelihood (if we had it), it should be sorted.
-    // Let's verify standard track sort for practitioner: linear-regression depends on linear-algebra & calculus, so linear-algebra & calculus (which are foundations) should be before linear-regression.
-    // Let's test standard dependencies. If module B depends on A, and both are in the track, A must appear before B.
+  it('track modules appear before modules that depend on them in sorted result', () => {
     const allTrackMods = getTrackModules('practitioner');
     const ids = allTrackMods.map(m => m.id);
 
-    // Let's check a few known pairs in practitioner:
-    // decision-trees depends on probability-theory (not in practitioner).
-    // ensemble-learning depends on decision-trees. Both are in practitioner!
     const decisionTreesIndex = ids.indexOf('decision-trees');
     const ensembleIndex = ids.indexOf('ensemble-learning');
 

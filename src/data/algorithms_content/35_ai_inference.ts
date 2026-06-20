@@ -34,13 +34,6 @@ export const aiInference: LearningModule = {
       definition: "An acceleration technique where a small, fast draft model generates candidate tokens, which are verified in parallel in a single forward pass by the large target model."
     }
   ],
-  workedExamples: [
-    {
-      title: "Model and KV Cache Memory Estimation",
-      problem: "Estimate the memory (in gigabytes) required to serve an 8-billion parameter language model in 16-bit precision (FP16), with a context window length of 4096 tokens and a batch size of 16. The model has 32 layers, a hidden dimension of 4096, and 32 attention heads.",
-      solution: "Let's compute the memory requirements step-by-step:\n\n1. **Model Parameter Memory**:\n   - Parameters ($P$) = 8 billion = $8 \\times 10^9$\n   - FP16 precision uses 2 bytes per parameter.\n   $$M_{\\text{weights}} = P \\times 2\\text{ bytes} = 16 \\times 10^9\\text{ bytes} = 16.0\\text{ GB}$$\n\n2. **Key-Value (KV) Cache Memory**:\n   - For each token, each layer stores key and value vectors. The shape is: $2 \\times L \\times H \\times D_{\\text{head}}$ where $2$ represents the key and value matrices, $L$ is layers, $H$ is attention heads, and $D_{\\text{head}}$ is the head dimension.\n   - Note that $H \\times D_{\\text{head}} = d_{\\text{hidden}} = 4096$.\n   - KV cache memory per token (in bytes):\n     $$\\text{PerTokenBytes} = 2 \\times 32\\text{ layers} \\times 4096\\text{ dimension} \\times 2\\text{ bytes} = 524,288\\text{ bytes} = 0.524\\text{ MB}$$\n   - For batch size $B = 16$ and context length $C = 4096$:\n     $$M_{\\text{KV}} = B \\times C \\times \\text{PerTokenBytes} = 16 \\times 4096 \\dots = 65,536\\text{ tokens} \\times 524,288\\text{ bytes}$$\n     $$M_{\\text{KV}} = 34,359,738,368\\text{ bytes} = 32.0\\text{ GB}$$\n\n3. **Total Memory**:\n   $$M_{\\text{total}} = M_{\\text{weights}} + M_{\\text{KV}} = 16.0\\text{ GB} + 32.0\\text{ GB} = 48.0\\text{ GB}$$\n\nServing this model with the specified batch size and context length requires at least $48.0$ GB of GPU memory, where the KV cache makes up $66.7\\%$ of the total usage."
-    }
-  ],
   misconceptions: [
     {
       claim: "Quantizing a model from FP16 to INT8 halves the GPU compute latency for all workloads.",
@@ -203,35 +196,6 @@ So increasing batch size amortizes the expensive weight load across many tokens,
       `,
     },
   ],
-  practiceExercises: [
-    {
-      prompt: 'A model has $L = 40$ layers and hidden dimension $d = 5120$ ($H \\times D_{\\text{head}} = 5120$). Using FP16 (2 bytes), compute the KV cache size for a **single** sequence of length $N_{\\text{seq}} = 2048$ tokens.',
-      difficulty: 'warm-up',
-      hint: 'Bytes per token $= 2 \\times L \\times d \\times B_{\\text{precision}}$ (the leading $2$ is for storing both keys and values). Then multiply by the sequence length.',
-      solution: 'Bytes per token $= 2 \\times 40 \\times 5120 \\times 2 = 819{,}200$ bytes $\\approx 0.78$ MB. For $N_{\\text{seq}} = 2048$ tokens: $819{,}200 \\times 2048 = 1{,}677{,}721{,}600$ bytes $\\approx 1.56$ GB. So a single 2048-token sequence already needs about **1.56 GB** of KV cache — multiply by batch size to see why long-context serving is memory-hungry.',
-      tags: ['core-formula', 'memory'],
-    },
-    {
-      prompt: 'A model has $7$ billion parameters. Compute its weight memory in (a) FP16, (b) INT8, and (c) INT4, and state the savings of INT4 relative to FP16.',
-      difficulty: 'warm-up',
-      solution: 'Memory $=$ parameters $\\times$ bytes-per-parameter. (a) FP16 $= 7 \\times 10^9 \\times 2 = 14 \\times 10^9$ bytes $\\approx 14$ GB. (b) INT8 $= 7 \\times 10^9 \\times 1 = 7$ GB. (c) INT4 $= 7 \\times 10^9 \\times 0.5 = 3.5$ GB. INT4 uses $3.5 / 14 = 1/4$ of the FP16 footprint — a **75% reduction**, which is what lets a 7B model fit comfortably on a consumer GPU.',
-      tags: ['quantization', 'memory'],
-    },
-    {
-      prompt: 'A serving system generates at a steady rate where each token takes $20$ ms (time-per-output-token). (a) What is the single-stream throughput in tokens/sec? (b) If continuous batching lets the GPU serve $B = 16$ concurrent requests at the same $20$ ms per-token step, what is the aggregate throughput, and what happens to each user’s perceived latency?',
-      difficulty: 'core',
-      hint: 'Tokens/sec for one stream $= 1000 / \\text{ms-per-token}$. With batching, each step still emits one token *per request*.',
-      solution: '(a) Single stream: $1000 \\text{ ms} / 20 \\text{ ms} = 50$ tokens/sec. (b) With $B = 16$ requests advancing together, each 20 ms step emits 16 tokens (one per request), so aggregate throughput $= 16 \\times 50 = 800$ tokens/sec. Per-user latency is essentially unchanged at $\\approx 50$ tokens/sec *if* the batched step still takes 20 ms — but in practice the larger matmul is somewhat slower per step, so individual latency degrades slightly while total throughput rises roughly $16\\times$. This is the throughput-vs-latency trade-off of batching.',
-      tags: ['throughput', 'batching'],
-    },
-    {
-      prompt: 'Explain quantitatively why raising the batch size from $1$ to $64$ increases throughput but can also increase the latency of an individual request. Tie your answer to arithmetic intensity.',
-      difficulty: 'challenge',
-      hint: 'Think about (1) how weight bytes are amortized across the batch, and (2) what a request must wait for before its tokens are produced.',
-      solution: 'At batch size $1$, a decode step reads the full weight matrix ($\\approx 2 d^2$ bytes) to do only $\\approx 2 d^2$ FLOPs, giving arithmetic intensity $\\approx 1$ FLOP/byte — deeply memory-bound, so the GPU is mostly idle while streaming weights. Raising the batch to $64$ reuses each loaded weight across $64$ tokens, lifting intensity to $\\approx 64$ FLOP/byte and pushing utilization toward (or past) the hardware ridge point, so total tokens/sec climbs nearly linearly until compute-bound. **Latency cost:** (i) a request may have to wait to be grouped into the batch (queuing delay), and (ii) the per-step matmul on a $d \\times 64$ activation is larger than on $d \\times 1$, so each step takes somewhat longer in wall-clock time, slowing the token cadence felt by any single user. Thus throughput (system-level) and latency (user-level) trade off against each other, which is the core scheduling tension continuous batching tries to balance.',
-      tags: ['batching', 'roofline', 'conceptual'],
-    },
-  ],
   comparisons: [
     {
       title: 'Weight Precision: FP16/BF16 vs INT8 vs INT4',
@@ -296,6 +260,12 @@ So increasing batch size amortizes the expensive weight load across many tokens,
       },
     },
   ],
+  shortAnswerQuestions: [
+    {
+      question: "Explain the relationship between serving batch size, arithmetic intensity, and total system throughput versus individual request latency in autoregressive decoding.",
+      expectedAnswerRubric: "A strong answer should note that increasing batch size reuses loaded weights across multiple tokens, thereby increasing arithmetic intensity and raising total throughput towards the hardware compute ridge point. It must also correctly identify that this optimization comes at the cost of higher individual request latency due to queuing delays and larger per-step matrix multiplications, alongside increased KV cache memory requirements."
+    }
+  ],
   quiz: [
     {
       question: 'During single-stream autoregressive decoding of a large transformer, the GPU is typically:',
@@ -326,16 +296,6 @@ So increasing batch size amortizes the expensive weight load across many tokens,
         { text: '90%.', correct: false },
       ],
       explanation: 'FP16 uses 2 bytes per parameter and INT4 uses 0.5 bytes, a 4:1 ratio. So INT4 occupies $1/4$ of the FP16 footprint, a 75% reduction. INT8 (1 byte) would be the 50% / factor-of-2 case.',
-    },
-    {
-      question: 'Increasing the serving batch size from 1 to 32 generally:',
-      options: [
-        { text: 'Raises arithmetic intensity and total throughput, but can increase individual request latency.', correct: true },
-        { text: 'Decreases total throughput because each step does more work.', correct: false },
-        { text: 'Has no effect on GPU utilization for memory-bound decoding.', correct: false },
-        { text: 'Reduces the KV cache memory required.', correct: false },
-      ],
-      explanation: 'Batching reuses each loaded weight across all requests in the batch, so FLOPs scale with batch size while weight bytes read stay fixed — arithmetic intensity and throughput rise toward the hardware ridge point. The costs are higher per-request latency (queuing to form the batch plus larger per-step matmuls) and a KV cache that grows linearly with batch size.',
     },
   ],
   review: {

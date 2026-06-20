@@ -9,7 +9,7 @@ describe('All Modules Walkthrough', () => {
       const slug = id?.replace(/^card-/, '');
       if (slug) urls.push(`/algorithms/${slug}`);
     }).then(() => {
-      expect(urls).to.have.length(40);
+      expect(urls).to.have.length(29);
       cy.log(`Crawling ${urls.length} modules...`);
       
       // Visit each URL and perform lightweight sanity checks

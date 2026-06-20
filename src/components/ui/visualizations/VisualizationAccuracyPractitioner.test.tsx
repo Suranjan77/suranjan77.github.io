@@ -1,6 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import DataPreparationViz from "./DataPreparationViz";
 import KNNViz from "./KNNViz";
 import DecisionTreeViz from "./DecisionTreeViz";
 import SVMViz from "./SVMViz";
@@ -9,9 +8,6 @@ import EnsembleViz from "./EnsembleViz";
 import KMeansViz from "./KMeansViz";
 import GMMEMViz from "./GMMEMViz";
 import MCMCViz from "./MCMCViz";
-import AnomalyDetectionViz from "./AnomalyDetectionViz";
-import ModelSelectionViz from "./ModelSelectionViz";
-import BiasVarianceViz from "./BiasVarianceViz";
 import RegularizationViz from "./RegularizationViz";
 import NeuralNetworkViz from "./NeuralNetworkViz";
 import NLPEmbeddingsViz from "./NLPEmbeddingsViz";
@@ -22,10 +18,6 @@ import RLViz from "./RLViz";
 import GenerativeViz from "./GenerativeViz";
 
 describe("Practitioner Track Visualization Accuracy", () => {
-  it("verifies Data Preparation scaling calculations", () => {
-    render(<DataPreparationViz />);
-    expect(screen.getByText(/Feature Scaling/i)).toBeInTheDocument();
-  });
 
   it("tags a new track by neighbour vote and flips the tag when k shrinks", () => {
     render(<KNNViz />);
@@ -101,64 +93,61 @@ describe("Practitioner Track Visualization Accuracy", () => {
     expect(screen.getByTestId("kmeans-status")).toHaveTextContent("3 segments");
   });
 
-  it("verifies GMM Expectation Maximization state", () => {
+  it("shows K-Means limit and GMM stretching via narrative stepper", () => {
     render(<GMMEMViz />);
-    expect(screen.getByText(/RUN NEXT/i)).toBeInTheDocument();
+    expect(screen.getByText("STEP 1 / 4")).toBeInTheDocument();
+    
+    // Step forward shows Expectation
+    fireEvent.click(screen.getByTitle("Step Forward"));
+    expect(screen.getByText("STEP 2 / 4")).toBeInTheDocument();
   });
 
-  it("verifies MCMC simulation trace metrics", () => {
+  it("shows the MCMC probability mountain and walker", () => {
     render(<MCMCViz />);
-    expect(screen.getByText(/MCMC step/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/The Mountain/i).length).toBeGreaterThan(0);
+    expect(screen.getByText("WALKER")).toBeInTheDocument();
   });
 
-  it("verifies Anomaly Detection score contours", () => {
-    render(<AnomalyDetectionViz />);
-    expect(screen.getByText(/Contamination/i)).toBeInTheDocument();
-  });
-
-  it("verifies Model Selection CV scores and folds", () => {
-    render(<ModelSelectionViz />);
-    expect(screen.getByText(/DATA SPLITS ACROSS FOLDS/i)).toBeInTheDocument();
-  });
-
-  it("verifies Bias Variance complexity balance", () => {
-    render(<BiasVarianceViz />);
-    expect(screen.getByText(/Optimal Balance/i)).toBeInTheDocument();
-  });
 
   it("verifies Regularization weight shrinkage coefficients", () => {
     render(<RegularizationViz />);
     expect(screen.getByText(/L1 Lasso/i)).toBeInTheDocument();
   });
 
-  it("verifies Neural Network layer nodes and activations", () => {
+  it("starts the neural network on the failing linear boundary", () => {
     render(<NeuralNetworkViz />);
-    expect(screen.getByText("STEP 1 / 4")).toBeInTheDocument();
+    expect(screen.getByText("STEP 1 / 3")).toBeInTheDocument();
+    expect(screen.getByTestId("nn-accuracy")).toHaveTextContent("50%");
   });
 
-  it("verifies NLP cosine similarity calculations", () => {
+  it("verifies NLP analogy resolves king - man + woman to queen", () => {
     render(<NLPEmbeddingsViz />);
     expect(screen.getByText(/Semantic Analogies/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /solve the analogy/i }));
+    expect(screen.getByTestId("nlp-result")).toHaveTextContent("queen");
   });
 
-  it("verifies Autoencoder bottleneck dimensionality", () => {
+  it("verifies Autoencoder denoises at its default bottleneck", () => {
     render(<AutoencoderViz />);
-    expect(screen.getAllByText(/COMPRESSION RATIO/i).length).toBeGreaterThan(0);
+    // Default bottleneck (3) denoises, so reconstruction error <= input error.
+    expect(screen.getByText(/the bottleneck denoised it/i)).toBeInTheDocument();
+    expect(screen.getByTestId("ae-recon-error")).toBeInTheDocument();
   });
 
-  it("verifies Transformer attention weight mappings", () => {
+  it("verifies Transformer attention resolves the pronoun by context", () => {
     render(<TransformerViz />);
-    expect(screen.getByText(/ATTENTION HEATMAP/i)).toBeInTheDocument();
+    expect(screen.getByTestId("transformer-referent")).toHaveTextContent("animal");
   });
 
   it("verifies LLM temperature token distribution scores", () => {
     render(<LLMViz />);
-    expect(screen.getByText(/Temp=/i)).toBeInTheDocument();
+    expect(screen.getByText("T = 0.80")).toBeInTheDocument();
+    expect(screen.getByText(/Machine learning models generate/)).toBeInTheDocument();
   });
 
-  it("verifies Reinforcement Learning action state policy", () => {
+  it("verifies Reinforcement Learning starts before any value has spread", () => {
     render(<RLViz />);
-    expect(screen.getByText("SIMULATION STATUS")).toBeInTheDocument();
+    expect(screen.getByTestId("rl-status")).toHaveTextContent(/exploring blindly/i);
   });
 
   it("verifies Generative latent space walk coords", () => {

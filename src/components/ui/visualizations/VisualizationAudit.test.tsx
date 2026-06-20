@@ -19,7 +19,7 @@ function hasAccessibleName(element: HTMLElement) {
 }
 
 describe("visualization audit contract", () => {
-  it.each(algorithmsList)(
+  it.each(algorithmsList.filter((m) => m.hasVisualization !== false))(
     "$id has a named visual, finite output, and named controls",
     (module) => {
       const entry = visualizationRegistry[module.id];

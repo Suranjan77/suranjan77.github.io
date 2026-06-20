@@ -34,13 +34,6 @@ export const rag: LearningModule = {
       definition: "A model that evaluates a retrieved list of documents against a query to order them more accurately by relevance, typically using a cross-encoder network."
     }
   ],
-  workedExamples: [
-    {
-      title: "End-to-End RAG Ingestion and Querying Workflow",
-      problem: "We have a document: 'RAG reduces hallucinations. Fine-tuning teaches style.' A user asks: 'How do we fix hallucinations?'. Outline the steps of chunking, embedding, vector database querying, prompt construction, and generation.",
-      solution: "Here is the step-by-step workflow:\n\n1. **Chunking**: Split the document on punctuation to yield two chunks:\n   - Chunk A: 'RAG reduces hallucinations.'\n   - Chunk B: 'Fine-tuning teaches style.'\n\n2. **Embedding**: Pass these chunks through an embedding model to get vectors $\\mathbf{e}_A$ and $\\mathbf{e}_B$.\n\n3. **Query Embedding**: Embed the query 'How do we fix hallucinations?' to get query vector $\\mathbf{e}_Q$.\n\n4. **Retrieval**: Compute cosine similarities:\n   - Similarity($\\mathbf{e}_Q, \\mathbf{e}_A$) = 0.85\n   - Similarity($\\mathbf{e}_Q, \\mathbf{e}_B$) = 0.22\n   - Select Chunk A since it exceeds the similarity threshold.\n\n5. **Prompt Construction**: Place the retrieved snippet into a template:\n   ```text\n   Context: RAG reduces hallucinations.\n   Question: How do we fix hallucinations?\n   Answer using only the context above.\n   ```\n\n6. **Generation**: Feed this prompt to the LLM. The model reads the context and generates the correct answer: 'You can use RAG to reduce hallucinations.'"
-    }
-  ],
   misconceptions: [
     {
       claim: "Retrieval-Augmented Generation is a type of fine-tuning that updates the LLM parameters.",
@@ -208,35 +201,6 @@ Precision@k asks "of what I returned, how much was useful?"; recall@k asks "of e
       `,
     },
   ],
-  practiceExercises: [
-    {
-      prompt: 'A query embedding is $\\mathbf{q} = [1, 2, 0]$. Three chunk embeddings are $\\mathbf{d}_1 = [2, 1, 0]$, $\\mathbf{d}_2 = [0, 1, 3]$, $\\mathbf{d}_3 = [1, 2, 1]$. Using the **dot product** as the score, which two chunks are returned by top-2 retrieval?',
-      difficulty: 'warm-up',
-      hint: 'Compute $\\mathbf{q} \\cdot \\mathbf{d}_i$ for each chunk, then take the two largest.',
-      solution: 'Dot products: $\\mathbf{q} \\cdot \\mathbf{d}_1 = (1)(2)+(2)(1)+(0)(0) = 4$; $\\mathbf{q} \\cdot \\mathbf{d}_2 = (1)(0)+(2)(1)+(0)(3) = 2$; $\\mathbf{q} \\cdot \\mathbf{d}_3 = (1)(1)+(2)(2)+(0)(1) = 5$. Ranking by score: $\\mathbf{d}_3 (5) > \\mathbf{d}_1 (4) > \\mathbf{d}_2 (2)$. Top-2 retrieval returns $\\{\\mathbf{d}_3, \\mathbf{d}_1\\}$.',
-      tags: ['retrieval', 'computation'],
-    },
-    {
-      prompt: 'For a given query there are $R = 4$ relevant chunks in the corpus. Your retriever returns $k = 5$ chunks, of which 3 are actually relevant. Compute precision@5 and recall@5, and state which one a RAG engineer should usually optimize first and why.',
-      difficulty: 'core',
-      hint: 'precision@$k = \\text{rel}_k / k$ and recall@$k = \\text{rel}_k / R$.',
-      solution: 'precision@5 $= 3/5 = 0.6$ and recall@5 $= 3/4 = 0.75$. A RAG engineer should usually prioritize **recall** first: if the chunk containing the answer is never retrieved, the generator has no way to produce a correct, grounded answer — a missing fact cannot be recovered downstream. Low precision (some irrelevant chunks in context) is more tolerable and can be cleaned up with a reranker, whereas low recall is a hard ceiling on answer quality.',
-      tags: ['evaluation', 'metrics'],
-    },
-    {
-      prompt: 'A RAG system over a medical FAQ keeps returning answers about the *wrong* drug. Retrieval logs show the correct document is in the index but is never in the top-$k$. You are currently embedding each *entire FAQ article* (about 2,000 tokens) as one chunk. Diagnose the likely cause and propose a fix.',
-      difficulty: 'core',
-      solution: 'The likely cause is **over-large chunks diluting the embedding**. When a whole 2,000-token article is compressed into a single vector, the embedding averages many drugs and topics, so its direction no longer aligns tightly with a query about one specific drug — the relevant article scores lower than shorter, more focused chunks about other drugs and falls out of the top-$k$. Fix: chunk each article into smaller, topically coherent segments (e.g. one drug or one Q/A pair per chunk, a few hundred tokens with slight overlap) so each embedding represents a single concept. Optionally add hybrid keyword search (BM25) so an exact drug-name match boosts recall, and a reranker to reorder candidates.',
-      tags: ['diagnosis', 'chunking'],
-    },
-    {
-      prompt: 'You evaluate two retrievers on the same 100 queries. Retriever A has recall@3 $= 0.70$; Retriever B has recall@10 $= 0.92$ but your model context window only comfortably fits **3** chunks. Which retriever is more useful in practice, and what technique lets you benefit from B without exceeding the window?',
-      difficulty: 'challenge',
-      hint: 'Think about what fraction of the answer-bearing chunks each setup can actually place *in front of the model*, given the window cap.',
-      solution: 'Recall@10 = 0.92 only helps if you can actually feed all 10 chunks to the model, but the window fits 3, so naively B does not beat A at the budget that matters. The standard fix is **two-stage retrieval with a reranker**: use Retriever B to fetch a large candidate set (its high recall@10 means the answer chunk is present 92% of the time), then apply a cross-encoder reranker to reorder those 10 candidates and keep only the top 3. If the reranker is accurate, you preserve most of B’s 0.92 recall while sending just 3 chunks — beating A’s 0.70 within the same context budget. The key insight: recall@k and the feasible context window must be reconciled, and reranking is the bridge.',
-      tags: ['evaluation', 'system-design', 'reranking'],
-    },
-  ],
   comparisons: [
     {
       title: 'RAG vs Fine-tuning vs Long-context Prompting',
@@ -305,6 +269,12 @@ Precision@k asks "of what I returned, how much was useful?"; recall@k asks "of e
       },
     },
   ],
+  shortAnswerQuestions: [
+    {
+      question: "Discuss the precision-recall tradeoffs of choosing a very large chunk size (e.g., an entire 2,000-token article) versus a very small chunk size (e.g., a single sentence) in a RAG system. How does chunk size affect the embedding representation?",
+      expectedAnswerRubric: "The answer should explain that a very large chunk size dilutes the embedding, as it averages many topics together; this causes the vector to lose alignment with specific queries, lowering retrieval precision/recall. Conversely, a very small chunk creates a highly specific embedding that matches queries well, but lacks the surrounding context needed by the LLM to actually formulate a comprehensive answer."
+    }
+  ],
   quiz: [
     {
       question: 'In a RAG pipeline using cosine similarity, why does normalizing the embeddings to unit length make the dot product and cosine similarity produce the same ranking?',
@@ -335,17 +305,7 @@ Precision@k asks "of what I returned, how much was useful?"; recall@k asks "of e
         { text: 'Because higher recall always lowers inference latency.', correct: false },
       ],
       explanation: 'Recall measures whether the relevant chunk made it into the retrieved set at all. A missing fact is unrecoverable downstream — no prompt or reranker can use context that was never fetched. Some irrelevant chunks (lower precision) are more tolerable and can be filtered by a reranker.',
-    },
-    {
-      question: 'You increase the chunk size from ~200 tokens to an entire 2,000-token article. What is the most likely effect on retrieval?',
-      options: [
-        { text: 'The relevant signal in each embedding gets diluted by unrelated content, lowering similarity scores for specific queries.', correct: true },
-        { text: 'Recall@k always improves because each chunk now contains more information.', correct: false },
-        { text: 'Cosine similarity becomes undefined for long text.', correct: false },
-        { text: 'The model’s context window automatically expands to fit the larger chunks.', correct: false },
-      ],
-      explanation: 'A single embedding summarizes the whole chunk. Packing many topics into one large chunk averages them together, so the vector no longer aligns tightly with a query about one specific topic. This dilution lowers similarity and can push the truly relevant chunk out of the top-k.',
-    },
+    }
   ],
   review: {
     lastReviewed: '2026-06-15',

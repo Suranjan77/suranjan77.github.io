@@ -337,7 +337,7 @@ new ML-purpose scenario and its one insight beat.
 - **regularization** → weight budget: L1 diamond corner zeros a weight, L2 circle
   shrinks them.
 
-### Practitioner track — 7 of 14 DONE
+### Practitioner track — 9 of 14 DONE
 
 - **linear-regression** → multivariable house-price predictor: predicted-vs-actual
   scatter + per-feature weight bars; training slider drives SSE→0, R²→1.
@@ -357,18 +357,61 @@ new ML-purpose scenario and its one insight beat.
 - **ensemble-learning** → committee of 5 weak threshold rules on diagonal fraud data;
   each rule alone is 56–75%, the majority vote climbs 75→81→94→100%. Stump sequence
   verified offline by greedy search.
+- **gmm-em** → fitting stretched vs circular clusters: K-Means cuts off the tail
+  of stretched data with a rigid line; GMM stretches its ellipses to fit and softly
+  assigns border points.
+- **mcmc** → random walker on a probability mountain: proposes steps, always
+  accepts uphill (more probable), occasionally accepts downhill to avoid getting
+  stuck. Long run empirically maps the mountain shape.
+- **applied-ml-workflow** → consolidated module replacing the legacy topics:
+  anomaly-detection, model-selection, bias-variance, evaluation-metrics,
+  and data-preparation. No visualization needed.
 
-Remaining Practitioner: gmm-em, mcmc, anomaly-detection, model-selection,
-bias-variance, evaluation-metrics, data-preparation.
-
-### Modern AI track
+### Modern AI track — DONE
 
 - **computer-vision** / **cnn** → Sobel convolution scan (CNN migrated as the
-  Phase 1 Keep exemplar; computer-vision retains exact convolution stats).
+  Phase 1 Keep exemplar; computer-vision migrated to VizShell and reframed as
+  "a filter slides over pixels and finds edges", keeping its exact convolution stats).
 - **generative-models** → walk a latent line and watch one face morph into another.
-- Remaining: neural-networks, nlp, autoencoders, transformers, llms,
-  reinforcement-learning, backpropagation, sequence-models, embeddings-tokenization,
-  rag, fine-tuning, llm-evaluation-safety, ai-inference.
+- **neural-networks** → XOR checkerboard a line can't split; each hidden ReLU neuron
+  adds a fold to the decision boundary (live region map), 50%→75%→100%. "What depth buys."
+- **llms** → temperature as the creativity dial: drag T and one tall next-token spike
+  melts into flat bars; sample/greedy build the sentence. (Dropped the spinner wheel.)
+- **transformers** → attention resolves the pronoun "it"; flip "…too tired"/"…too wide"
+  and the referent flips animal↔road. Any word selectable.
+- **autoencoders** → denoising: a noisy smiley reconstructs clean because the bottleneck
+  can't store noise; over-squeeze and lose detail (U-shaped error). Distinct from PCA.
+- **reinforcement-learning** → value floods back from the goal as a heatmap; policy arrows
+  form a route around the trap (real Q-learning). Replaces per-cell Q-quadrants.
+- **backpropagation** → assigning blame: error flows back, splits into a gradient per weight
+  (∝ its input), and a "gradient step" button drops the loss → connects backprop to training.
+- **sequence-models** → why RNNs forget: influence-of-step-1 curve vanishes (<1), holds (≈1),
+  or explodes (>1) across the sequence. Motivates LSTM/attention.
+- **embeddings-tokenization** → subword tokenization: common words stay whole, rare/long ones
+  shatter into ## pieces with IDs; token count ≠ word count. (Dropped the similarity panel.)
+- **nlp** → meaning is arithmetic on directions: the man→woman arrow equals king→queen, so
+  king−man+woman = queen; capitals preset generalizes.
+- **rag** → grounding: retrieval OFF hallucinates a private fact, ON pulls the matching doc
+  by similarity and answers correctly + cited.
+- **fine-tuning** → LoRA trains two thin low-rank slivers (<1% of params) beside a frozen
+  matrix; rank slider keeps the trainable fraction tiny.
+- **llm-evaluation-safety** → no single best model: priority presets/weights re-rank quality
+  vs safety vs cost vs latency and the winner flips.
+- **ai-inference** → the memory wall: weights + a growing KV cache overflow the GPU's VRAM
+  into OUT OF MEMORY; quantize to INT4 and it fits.
+
+### Review fixes (2026-06-19)
+
+- **Broken build / Applied ML Workflow content.** The overhaul branch had loosened four
+  required LearningModule/Algorithm fields (intuition, mathematics, pros, cons) to optional
+  to accommodate the incomplete `applied-ml-workflow` module, breaking consumers under strict
+  TS so `npm run build` failed. Fixed at the root: authored the missing content (bias-variance
+  decomposition, precision/recall/F1, ROC-AUC, leak-free sklearn Pipeline), fixed a latent
+  `usageGuidance` array→object type bug, and restored the fields as required.
+- **probability** → reframed from an abstract Law-of-Large-Numbers over bins x0..x5 (flagged
+  "missing distributions") into a **distribution explorer**: pick a real data column (heights,
+  conversions, arrivals, wait times), watch its Normal/Binomial/Poisson/Exponential reshape
+  live with its parameters, and draw samples that converge onto the curve.
 
 ### Other fixes
 
@@ -386,13 +429,17 @@ bias-variance, evaluation-metrics, data-preparation.
 - [x] Phase 3a — Foundations track fully reframed (calculus, maximum-likelihood,
   dimensionality-reduction, linear-algebra, probability-theory, bayesian-inference,
   statistics-estimation, gradient-descent, regularization)
-- [~] Phase 3b — Practitioner track (7/14: linear-regression, logistic-regression,
-  knn, decision-trees, naive-bayes, clustering, ensemble-learning) — remaining:
-  gmm-em, mcmc, anomaly-detection, model-selection, bias-variance,
-  evaluation-metrics, data-preparation
-- [~] Phase 3c — Modern AI track (generative-models, cnn/computer-vision done) —
-  remaining: neural-networks, nlp, autoencoders, transformers, llms,
-  reinforcement-learning, backpropagation, sequence-models, embeddings-tokenization,
-  rag, fine-tuning, llm-evaluation-safety, ai-inference
-- [~] Phase 4/5 (superseded by full-reframe scope) — retire old two-column grid,
-  remove dead d3 `SceneConfig` path + `d3`/`@types/d3` deps, reconcile tests
+- [x] Phase 3b — Practitioner track (10/10: linear-regression, logistic-regression,
+  knn, decision-trees, naive-bayes, clustering, ensemble-learning, gmm-em, mcmc,
+  applied-ml-workflow).
+- [x] Phase 3c — Modern AI track fully reframed (neural-networks, llms, transformers,
+  autoencoders, reinforcement-learning, backpropagation, sequence-models,
+  embeddings-tokenization, nlp, rag, fine-tuning, llm-evaluation-safety, ai-inference;
+  generative-models + cnn/computer-vision already done). All ~40 visuals now use VizShell.
+- [x] Review pass (2026-06-19) — fixed the broken build at its root, completed the flagged
+  "Machine Learning Concepts" (applied-ml-workflow) content, and reframed probability into a
+  distribution explorer ("missing distributions" feedback).
+- [x] Phase 4/5 (superseded by full-reframe scope) — old two-column grid retired from all
+  Viz components; the dead d3 `SceneConfig` scene-renderer was removed from
+  `D3Visualization.tsx` (its title/subtitle/insight/legend metadata now lives in a plain
+  `VizMetadata` map) and the `d3` / `@types/d3` dependencies were uninstalled.

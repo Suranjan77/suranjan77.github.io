@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import BackpropagationViz from "./BackpropagationViz";
 import SequenceModelsViz from "./SequenceModelsViz";
@@ -9,38 +9,75 @@ import LLMEvalSafetyViz from "./LLMEvalSafetyViz";
 import AIInferenceViz from "./AIInferenceViz";
 
 describe("Modern AI Track Visualization Accuracy", () => {
-  it("verifies Backpropagation computation graph derivatives", () => {
+  it("verifies Backpropagation lowers the loss after a gradient step", () => {
     render(<BackpropagationViz />);
     expect(screen.getByText(/Calculated Gradients/i)).toBeInTheDocument();
+    const lossBefore = Number(screen.getByTestId("bp-loss").textContent);
+    fireEvent.click(screen.getByRole("button", { name: /take a gradient step/i }));
+    const lossAfter = Number(screen.getByTestId("bp-loss").textContent);
+    expect(lossAfter).toBeLessThan(lossBefore);
   });
 
-  it("verifies Sequence Models gradient magnitude flow", () => {
+  it("verifies Sequence Models gradient regimes shift with the recurrent factor", () => {
     render(<SequenceModelsViz />);
     expect(screen.getByText(/Gradient Modes/i)).toBeInTheDocument();
+    // Default factor 0.7 vanishes; pushing it above 1 makes it explode.
+    expect(screen.getByTestId("seq-regime")).toHaveTextContent(/vanishing/i);
+    fireEvent.change(screen.getByRole("slider", { name: /recurrent factor/i }), {
+      target: { value: "1.4" },
+    });
+    expect(screen.getByTestId("seq-regime")).toHaveTextContent(/exploding/i);
   });
 
-  it("verifies Embeddings & Tokenization mapping dimensions", () => {
+  it("verifies subword tokenization splits a long word into more tokens than words", () => {
     render(<EmbeddingsTokenizationViz />);
-    expect(screen.getByText(/Tokenized Output/i)).toBeInTheDocument();
+    // Default text "Tokenization shatters into subwords" splits into subwords,
+    // so there are strictly more tokens than words.
+    const words = Number(screen.getByTestId("tok-words").textContent);
+    const toks = Number(screen.getByTestId("tok-count").textContent);
+    expect(toks).toBeGreaterThan(words);
   });
 
-  it("verifies RAG context assembly similarity scores", () => {
+  it("verifies RAG grounds the answer only when retrieval is on", () => {
     render(<RAGViz />);
-    expect(screen.getByText(/Retrieval-Augmented/i)).toBeInTheDocument();
+    // Retrieval starts off: the model hallucinates the wrong number.
+    expect(screen.getByTestId("rag-answer")).toHaveTextContent(/30-day/i);
+    fireEvent.click(screen.getByRole("button", { name: /toggle retrieval/i }));
+    // Retrieval on: grounded, correct answer with a citation.
+    expect(screen.getByTestId("rag-answer")).toHaveTextContent(/45-day/i);
   });
 
-  it("verifies Fine Tuning parameter weight adapter sizes", () => {
+  it("verifies LoRA trains a tiny fraction of parameters and grows with rank", () => {
     render(<FineTuningViz />);
     expect(screen.getByText(/Low-Rank Adaptation/i)).toBeInTheDocument();
+    const pctAt8 = parseFloat(screen.getByTestId("ft-percent").textContent ?? "0");
+    expect(pctAt8).toBeLessThan(1); // under 1% of the layer
+    fireEvent.change(screen.getByRole("slider", { name: /lora rank/i }), { target: { value: "64" } });
+    const pctAt64 = parseFloat(screen.getByTestId("ft-percent").textContent ?? "0");
+    expect(pctAt64).toBeGreaterThan(pctAt8);
   });
 
-  it("verifies LLM Evaluation multi-objective radar parameters", () => {
+  it("verifies LLM evaluation winner flips with the priority preset", () => {
     render(<LLMEvalSafetyViz />);
     expect(screen.getByText(/Dimension Weights/i)).toBeInTheDocument();
+    // Healthcare prioritises safety/quality -> the frontier model wins.
+    fireEvent.click(screen.getByRole("button", { name: /priority preset healthcare/i }));
+    expect(screen.getByTestId("eval-winner")).toHaveTextContent(/frontier/i);
+    // High-volume chatbot prioritises cost/speed -> the small edge model wins.
+    fireEvent.click(screen.getByRole("button", { name: /priority preset high-volume/i }));
+    expect(screen.getByTestId("eval-winner")).toHaveTextContent(/small edge/i);
   });
 
-  it("verifies AI Inference memory and hardware bandwidth bounds", () => {
+  it("verifies AI Inference hits the memory wall and quantization relieves it", () => {
     render(<AIInferenceViz />);
     expect(screen.getByText(/Serving Throughput/i)).toBeInTheDocument();
+    // A 70B model in FP16 needs ~140GB of weights alone -> OOM on the A100.
+    fireEvent.change(screen.getByRole("slider", { name: /model parameters in billions/i }), {
+      target: { value: "70" },
+    });
+    expect(screen.getByTestId("inf-status")).toHaveTextContent(/out of memory/i);
+    // INT4 quarters the weights -> it fits.
+    fireEvent.click(screen.getByRole("button", { name: /precision int4/i }));
+    expect(screen.getByTestId("inf-status")).toHaveTextContent(/fits/i);
   });
 });

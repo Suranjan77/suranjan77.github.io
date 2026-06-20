@@ -31,7 +31,7 @@ describe('Algorithm schema validation', () => {
     for (const mod of algorithmsList) {
       if (mod.prerequisites) {
         for (const prereqId of mod.prerequisites) {
-          expect(allIds.has(prereqId)).toBe(true);
+          expect(allIds.has(prereqId), `Module ${mod.id} has missing prerequisite: ${prereqId}`).toBe(true);
         }
       }
     }
@@ -42,7 +42,7 @@ describe('Algorithm schema validation', () => {
     for (const mod of algorithmsList) {
       if (mod.relatedModules) {
         for (const relId of mod.relatedModules) {
-          expect(allIds.has(relId)).toBe(true);
+          expect(allIds.has(relId), `Module ${mod.id} has missing relatedModule: ${relId}`).toBe(true);
         }
       }
     }
@@ -75,18 +75,6 @@ describe('Algorithm schema validation', () => {
 });
 
 describe('Active-learning content structural integrity', () => {
-  const VALID_DIFFICULTIES = ['warm-up', 'core', 'challenge'];
-
-  it('every practice exercise has a valid difficulty and a solution', () => {
-    for (const mod of algorithmsList) {
-      for (const ex of mod.practiceExercises ?? []) {
-        expect(VALID_DIFFICULTIES).toContain(ex.difficulty);
-        expect(ex.prompt).toBeTruthy();
-        expect(ex.solution).toBeTruthy();
-      }
-    }
-  });
-
   it('every quiz question has 2+ options, exactly-or-more than one correct, and an explanation', () => {
     for (const mod of algorithmsList) {
       for (const q of mod.quiz ?? []) {

@@ -21,13 +21,6 @@ export const ensembleLearning: LearningModule = {
     { term: 'Boosting', definition: 'An ensemble method where base learners are trained sequentially, each trying to correct the errors of the prior models.' },
     { term: 'Out-Of-Bag (OOB) Error', definition: 'A method of measuring the prediction error of boostrapped ensembles by testing samples on trees that did not include them.' },
   ],
-  workedExamples: [
-    {
-      title: 'Random Forest Variance Reduction',
-      problem: 'Given single tree variance $\\sigma^2 = 1.0$, tree correlation $\\rho = 0.2$, calculate the ensemble variance for $B = 1$ tree vs $B = 100$ trees.',
-      solution: 'For $B=1$: $\\text{Var} = 0.2 \\times 1.0 + \\frac{1-0.2}{1} \\times 1.0 = 1.0$. For $B=100$: $\\text{Var} = 0.2 \\times 1.0 + \\frac{0.8}{100} \\times 1.0 = 0.2 + 0.008 = 0.208$. The variance is reduced by nearly 80%.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'Random Forests and Gradient Boosting always give identical predictions.',
@@ -168,30 +161,6 @@ For squared-error loss $L = \\frac{1}{2}(y_i - f(x_i))^2$, this gradient is simp
       `,
     },
   ],
-  practiceExercises: [
-    {
-      prompt: 'Five trees in a forest classify a sample as classes $[1, 0, 1, 1, 0]$. What is the majority-vote prediction, and what would the averaged (soft) probability of class $1$ be if the trees output probabilities $[0.9, 0.4, 0.7, 0.6, 0.3]$?',
-      difficulty: 'warm-up',
-      solution: 'Hard vote: three trees say class $1$ and two say class $0$, so the majority vote is **class $1$**. Soft vote: average the probabilities, $(0.9 + 0.4 + 0.7 + 0.6 + 0.3)/5 = 2.9/5 = 0.58$. Since $0.58 > 0.5$, soft voting also predicts class $1$.',
-    },
-    {
-      prompt: 'A single tree has variance $\\sigma^2 = 4$. Using the bagging variance formula, compute the ensemble variance for $M = 25$ trees when (a) the trees are independent ($\\rho = 0$) and (b) they are correlated with $\\rho = 0.3$.',
-      difficulty: 'core',
-      hint: 'Use $\\operatorname{Var} = \\rho\\sigma^2 + \\frac{1-\\rho}{M}\\sigma^2$.',
-      solution: '(a) With $\\rho = 0$: $\\operatorname{Var} = 0 + \\frac{1}{25}\\times 4 = 0.16$ — a $25\\times$ reduction. (b) With $\\rho = 0.3$: $\\operatorname{Var} = 0.3 \\times 4 + \\frac{0.7}{25}\\times 4 = 1.2 + 0.112 = 1.312$. The correlation term $\\rho\\sigma^2 = 1.2$ dominates and sets a floor: even with infinitely many trees the variance cannot drop below $1.2$.',
-    },
-    {
-      prompt: 'You are modeling a complex, highly non-linear tabular dataset where a single decision tree already trains with **low variance but high bias** (it underfits badly). Would bagging or boosting be the more appropriate first choice, and why?',
-      difficulty: 'core',
-      solution: 'Boosting. Bagging primarily reduces **variance**; averaging many already-low-variance learners barely helps if the dominant error is **bias** (underfitting). Boosting fits learners sequentially to the residuals/gradients of the current model, directly attacking bias and letting the ensemble represent the complex non-linear structure. Bagging would mostly reproduce the same underfit prediction many times.',
-    },
-    {
-      prompt: 'For a Random Forest, derive the limiting ensemble variance as the number of trees $M \\to \\infty$, and explain why feature subsampling (limiting splits to a random subset of features) improves it.',
-      difficulty: 'challenge',
-      hint: 'Take the limit of $\\rho\\sigma^2 + \\frac{1-\\rho}{M}\\sigma^2$ and ask which term survives.',
-      solution: 'As $M \\to \\infty$ the term $\\frac{1-\\rho}{M}\\sigma^2 \\to 0$, leaving $\\lim_{M\\to\\infty}\\operatorname{Var} = \\rho\\sigma^2$. So the *irreducible* part of the bagged variance is governed entirely by the pairwise correlation $\\rho$ between trees, not by how many trees you grow. Feature subsampling forces individual trees to split on different variables, decorrelating them and lowering $\\rho$. A lower $\\rho$ lowers the floor $\\rho\\sigma^2$, which is exactly why Random Forests beat plain bagged trees even though both average over many trees.',
-    },
-  ],
   comparisons: [
     {
       title: 'Bagging vs Boosting vs Stacking',
@@ -260,6 +229,12 @@ For squared-error loss $L = \\frac{1}{2}(y_i - f(x_i))^2$, this gradient is simp
       },
     },
   ],
+  shortAnswerQuestions: [
+    {
+      question: 'Using the bagged-variance formula $\\rho\\sigma^2 + \\frac{1-\\rho}{M}\\sigma^2$, explain why generating diverse (decorrelated) base learners is critical for Random Forests. What sets the theoretical floor on the error?',
+      expectedAnswerRubric: 'The answer should note that as the number of trees $M \\to \\infty$, the second term $\\frac{1-\\rho}{M}\\sigma^2$ goes to zero, leaving only $\\rho\\sigma^2$. This means the pairwise correlation $\\rho$ sets an irreducible variance floor. Therefore, decorrelating the base learners (e.g., through feature subsampling) is necessary to reduce $\\rho$ and lower the theoretical floor of the ensemble variance.'
+    }
+  ],
   quiz: [
     {
       question: 'What is the primary error component that bagging (e.g. a Random Forest) reduces?',
@@ -280,16 +255,6 @@ For squared-error loss $L = \\frac{1}{2}(y_i - f(x_i))^2$, this gradient is simp
         { text: 'Removing outliers before training each tree.', correct: false },
       ],
       explanation: 'Boosting is **sequential**: each weak learner is trained on what the current ensemble still gets wrong (the pseudo-residuals / negative gradient), so the systematic error (bias) drops round by round. Parallel averaging and per-split feature sampling describe bagging / Random Forests, not boosting.',
-    },
-    {
-      question: 'In the bagged-variance formula $\\rho\\sigma^2 + \\frac{1-\\rho}{M}\\sigma^2$, why do diverse (decorrelated) base learners matter so much?',
-      options: [
-        { text: 'As $M \\to \\infty$ the variance approaches $\\rho\\sigma^2$, so lowering $\\rho$ lowers the floor that adding trees cannot beat.', correct: true },
-        { text: 'Lower $\\rho$ increases the bias term, balancing the model.', correct: false },
-        { text: 'Correlation has no effect once you use enough trees.', correct: false },
-        { text: 'Diversity mainly speeds up training rather than improving accuracy.', correct: false },
-      ],
-      explanation: 'Sending $M \\to \\infty$ kills the $\\frac{1-\\rho}{M}\\sigma^2$ term but leaves $\\rho\\sigma^2$. That residual floor is set entirely by the pairwise correlation, so decorrelating the learners (e.g. via feature subsampling) is what actually lowers the achievable variance — more trees alone cannot get past it.',
     },
     {
       question: 'Which statement about overfitting in boosting is correct?',

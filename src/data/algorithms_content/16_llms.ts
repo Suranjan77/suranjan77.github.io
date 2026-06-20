@@ -21,13 +21,6 @@ export const llms: LearningModule = {
     { term: 'Temperature', definition: 'A hyperparameter that controls the randomness of next-token predictions by scaling logit values before softmax.' },
     { term: 'Instruction Tuning', definition: 'Fine-tuning a pretrained model on a dataset of prompt-response pairs to teach it to follow instructions.' },
   ],
-  workedExamples: [
-    {
-      title: 'Autoregressive Decoding Probability',
-      problem: 'For vocabulary [cat, dog, fish], model output logits are [2.0, 1.0, 0.0] at temperature $T = 1.0$. Calculate the next-token probability of "cat".',
-      solution: 'Scale logits by temperature: $L = \\frac{\\text{logits}}{T} = [2.0, 1.0, 0.0]$. Next-token probabilities are $\\text{Softmax}([2.0, 1.0, 0.0]) = [\\frac{e^2}{e^2 + e^1 + e^0}, \\frac{e^1}{e^2 + e^1 + e^0}, \\frac{e^0}{e^2 + e^1 + e^0}] \\approx [\\frac{7.389}{7.389+2.718+1}, \\frac{2.718}{11.107}, \\frac{1}{11.107}] \\approx [0.665, 0.245, 0.090]$. The probability of "cat" is $66.5\\%$.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'LLMs search a database of facts to answer questions.',
@@ -189,35 +182,6 @@ So halving the loss by adding parameters alone demands on the order of **10,000x
       `,
     },
   ],
-  practiceExercises: [
-    {
-      prompt: 'A language model assigns the following probabilities to the true next token at each of 3 positions: $0.5, 0.25, 0.5$. Compute the perplexity of the model on this sequence.',
-      difficulty: 'warm-up',
-      hint: 'Perplexity is $\\exp$ of the average negative log-probability: $\\text{PPL} = \\exp\\!\\left(-\\frac{1}{N}\\sum_t \\log p_t\\right)$.',
-      solution: 'Average negative log-likelihood $= -\\frac{1}{3}(\\ln 0.5 + \\ln 0.25 + \\ln 0.5) = -\\frac{1}{3}(-0.693 - 1.386 - 0.693) = -\\frac{1}{3}(-2.772) = 0.924$. Then $\\text{PPL} = e^{0.924} \\approx 2.52$. Equivalently, using base-2 the per-token cross-entropy is $\\frac{1}{3}(1 + 2 + 1) = 1.33$ bits, so $\\text{PPL} = 2^{1.33} \\approx 2.52$ — the model is on average about as uncertain as choosing among 2.5 equally likely tokens.',
-      tags: ['core-metric', 'computation'],
-    },
-    {
-      prompt: 'At one position a model outputs logits $[2.0, 1.0, 0.0]$ over a 3-token vocabulary, and the **true** next token is the second one. Compute the next-token cross-entropy loss at this position (temperature $1.0$, natural log).',
-      difficulty: 'core',
-      hint: 'Cross-entropy at this step is $-\\log p(\\text{true token})$ where $p$ comes from the softmax of the logits.',
-      solution: 'Softmax denominator: $e^{2} + e^{1} + e^{0} = 7.389 + 2.718 + 1.000 = 11.107$. Probability of the true (second) token: $p = e^{1}/11.107 = 2.718/11.107 \\approx 0.245$. Cross-entropy loss $= -\\ln(0.245) \\approx 1.407$ nats. (Had the true token been the first, the loss would have been $-\\ln(0.665) \\approx 0.408$ — lower, because the model already favored it.)',
-      tags: ['loss', 'softmax'],
-    },
-    {
-      prompt: 'A Transformer’s self-attention cost scales quadratically with sequence length. If processing a 2,000-token context costs $X$ FLOPs in the attention layers, roughly how much do the attention layers cost for an 8,000-token context, and why does this matter for long-context use?',
-      difficulty: 'core',
-      solution: 'Attention compute scales as $O(n^2)$ in sequence length $n$. Going from $n = 2{,}000$ to $n = 8{,}000$ is a $4\\times$ increase in length, so attention cost grows by $4^2 = 16\\times$, to roughly $16X$. (Memory for the attention matrix also grows $\\sim 16\\times$.) This quadratic blow-up is why naively quadrupling the context window is far more than 4x as expensive, and motivates techniques like FlashAttention, sparse/sliding-window attention, and KV-cache management for long-context serving.',
-      tags: ['context-window', 'compute', 'conceptual'],
-    },
-    {
-      prompt: 'You can either (a) train a model with 10x more parameters or (b) train your current model on 10x more data. Loss scales as $L \\propto N^{-0.076}$ in parameters and $L \\propto D^{-0.095}$ in data. Which single intervention reduces loss more, and what does this suggest about compute-optimal training?',
-      difficulty: 'challenge',
-      hint: 'Compare the loss multipliers $10^{-0.076}$ and $10^{-0.095}$; smaller means a bigger loss reduction.',
-      solution: 'Parameters: $10^{-0.076} \\approx 0.839$, i.e. a $\\sim 16\\%$ loss reduction. Data: $10^{-0.095} \\approx 0.804$, i.e. a $\\sim 20\\%$ loss reduction. With these exponents the 10x data intervention reduces loss slightly more than 10x parameters. More importantly, neither should be scaled alone: the Chinchilla result shows that under a fixed compute budget the optimal strategy grows $N$ and $D$ together in roughly equal proportion — a model that is too large for its token budget (over-parameterized and under-trained) wastes compute. The takeaway is to balance model size against data, not to maximize parameters in isolation.',
-      tags: ['scaling-laws', 'reasoning', 'compute-optimal'],
-    },
-  ],
   comparisons: [
     {
       title: 'Three stages of building an aligned LLM',
@@ -325,16 +289,12 @@ So halving the loss by adding parameters alone demands on the order of **10,000x
       ],
       explanation: 'A small exponent means diminishing returns: to halve the loss you need a multiplier $k = 2^{1/\\alpha}$, which for $\\alpha \\approx 0.08$ is on the order of thousands. Scale reliably helps, but at steep, predictable cost — and the loss approaches an irreducible floor rather than zero.',
     },
+  ],
+  shortAnswerQuestions: [
     {
-      question: 'In the standard pretraining + fine-tuning recipe, what is the primary role of RLHF (relative to pretraining)?',
-      options: [
-        { text: 'To shift the model’s output distribution toward human-preferred responses, after broad capability is already learned.', correct: true },
-        { text: 'To teach the model basic grammar and world knowledge from scratch.', correct: false },
-        { text: 'To compress the model so it runs faster at inference.', correct: false },
-        { text: 'To replace the next-token objective with a retrieval database.', correct: false },
-      ],
-      explanation: 'Pretraining (self-supervised next-token prediction on massive text) builds broad capability and knowledge. RLHF comes later and aligns the model’s behavior with human preferences (helpfulness, honesty, harmlessness) by optimizing a learned reward with a KL penalty. It is an alignment step, not a knowledge-acquisition or compression step.',
-    },
+      question: 'Design a pipeline that takes a raw pretrained language model and aligns it to be a helpful and harmless assistant. Describe the role of RLHF in this pipeline relative to pretraining, and explain why RLHF cannot replace the pretraining phase.',
+      expectedAnswerRubric: 'A strong answer should outline the stages: (1) Pretraining for broad capability, (2) Supervised Fine-Tuning (SFT) for instruction format, and (3) RLHF/DPO for preference alignment. It should emphasize that pretraining builds world knowledge and grammar, while RLHF only shifts the output distribution toward human preferences (helpfulness, honesty, harmlessness). RLHF requires a capable base model and cannot build world knowledge from scratch.'
+    }
   ],
   review: {
     lastReviewed: '2026-06-15',

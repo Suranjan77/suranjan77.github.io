@@ -2,7 +2,7 @@ import { algorithms, type Algorithm, type AlgorithmCategory } from "@/data/algor
 
 export type AccentColor = "primary" | "secondary" | "tertiary";
 
-const categoryConfig: Record<
+const categoryConfig: Partial<Record<
   AlgorithmCategory,
   {
     color: AccentColor;
@@ -10,37 +10,7 @@ const categoryConfig: Record<
     label: string;
     description: string;
   }
-> = {
-  "Calculus": {
-    color: "primary",
-    route: "/algorithms/calculus",
-    label: "Calculus",
-    description: "The mathematical study of continuous change, providing the foundation for optimization algorithms.",
-  },
-  "Linear Algebra": {
-    color: "secondary",
-    route: "/algorithms/linear-algebra",
-    label: "Linear Algebra",
-    description: "The mathematics of vectors and matrices, essential for managing multi-dimensional data.",
-  },
-  "Probability Theory": {
-    color: "tertiary",
-    route: "/algorithms/probability-theory",
-    label: "Probability Theory",
-    description: "The framework for modeling uncertainty, noise, and likelihood in data.",
-  },
-  "Maximum Likelihood": {
-    color: "primary",
-    route: "/algorithms/maximum-likelihood",
-    label: "Maximum Likelihood",
-    description: "Estimate model parameters by choosing the values that make the observed data most likely.",
-  },
-  "Bayesian Inference": {
-    color: "secondary",
-    route: "/algorithms/bayesian-inference",
-    label: "Bayesian Inference",
-    description: "Formally update probabilistic beliefs continuously as empirical new evidence logically becomes statistically available.",
-  },
+>> = {
   "Linear Regression": {
     color: "tertiary",
     route: "/algorithms/linear-regression",
@@ -143,11 +113,11 @@ const categoryConfig: Record<
     label: "Reinforcement Learning",
     description: "Train autonomous agents to make sequences of decisions to maximize cumulative rewards in dynamic environments.",
   },
-  "Model Complexity & Bias-Variance": {
+  "Machine Learning Concepts": {
     color: "tertiary",
-    route: "/algorithms/bias-variance",
-    label: "Bias-Variance Tradeoff",
-    description: "Balance underfitting and overfitting by choosing the right level of model capacity.",
+    route: "/algorithms/applied-ml-workflow",
+    label: "ML Concepts & Workflow",
+    description: "End-to-end data preparation, model selection, evaluation, and handling anomalies.",
   },
   "Generative Models": {
     color: "primary",
@@ -161,54 +131,20 @@ const categoryConfig: Record<
     label: "L1 & L2 Regularization",
     description: "Enforce geometric constraints on parameter space to prevent overfitting and encourage sparse features.",
   },
-  "Evaluation Metrics": {
-    color: "tertiary",
-    route: "/algorithms/evaluation-metrics",
-    label: "Evaluation Metrics",
-    description: "Use classification diagnostics like confusion matrices, precision-recall, and ROC/AUC curves to assess predictive performance.",
-  },
-  "Statistics and Estimation": {
-    color: "primary",
-    route: "/algorithms/statistics-estimation",
-    label: "Statistics and Estimation",
-    description: "Calculate uncertainty and draw robust estimates from data samples using statistical techniques like bootstrapping.",
-  },
-  "Gradient Descent and Optimization": {
-    color: "secondary",
-    route: "/algorithms/gradient-descent",
-    label: "Gradient Descent and Optimization",
-    description: "Train models by wiggling weights in the direction of steepest loss descent using gradient updates.",
-  },
-  "Data Preparation and Feature Engineering": {
-    color: "tertiary",
-    route: "/algorithms/data-preparation",
-    label: "Data Prep & Feature Engineering",
-    description: "Clean raw data, perform feature scaling, and encode categorical features to build robust input pipelines.",
-  },
   "Naive Bayes": {
     color: "primary",
     route: "/algorithms/naive-bayes",
     label: "Naive Bayes",
     description: "Probabilistic classification model based on Bayes' Theorem with a naive independence assumption.",
   },
-  "Model Selection and Cross-Validation": {
-    color: "secondary",
-    route: "/algorithms/model-selection",
-    label: "Model Selection & CV",
-    description: "Evaluate generalization performance and tune hyperparameters using cross-validation techniques.",
-  },
+
   "Gaussian Mixtures and EM": {
     color: "tertiary",
     route: "/algorithms/gmm-em",
     label: "GMM & EM",
     description: "Soft probabilistic clustering using mixture models fit with the Expectation-Maximization algorithm.",
   },
-  "Anomaly Detection": {
-    color: "primary",
-    route: "/algorithms/anomaly-detection",
-    label: "Anomaly Detection",
-    description: "Identify rare, unusual points in datasets using tree-based and distance-based scoring.",
-  },
+
   "Backpropagation": {
     color: "secondary",
     route: "/algorithms/backpropagation",
@@ -254,11 +190,6 @@ const categoryConfig: Record<
 };
 
 const algorithmIcons: Record<string, string> = {
-  "calculus": "show_chart",
-  "linear-algebra": "grid_on",
-  "probability-theory": "casino",
-  "maximum-likelihood": "functions",
-  "bayesian-inference": "schema",
   "linear-regression": "show_chart",
   "instance-based-trees": "account_tree",
   "clustering": "bubble_chart",
@@ -274,17 +205,11 @@ const algorithmIcons: Record<string, string> = {
   "transformers": "psychology",
   "llms": "forum",
   "reinforcement-learning": "smart_toy",
-  "bias-variance": "query_stats",
+  "applied-ml-workflow": "query_stats",
   "generative-models": "auto_awesome",
   "regularization": "align_horizontal_center",
-  "evaluation-metrics": "fact_check",
-  "statistics-estimation": "analytics",
-  "gradient-descent": "trending_down",
-  "data-preparation": "build",
   "naive-bayes": "calculate",
-  "model-selection": "published_with_changes",
   "gmm-em": "lens",
-  "anomaly-detection": "report_problem",
   "backpropagation": "alt_route",
   "sequence-models": "repeat",
   "embeddings-tokenization": "pattern",
@@ -299,19 +224,19 @@ export function getAlgorithmBySlug(slug: string): Algorithm | undefined {
 }
 
 export function getCategoryColor(category: AlgorithmCategory): AccentColor {
-  return categoryConfig[category].color;
+  return categoryConfig[category]?.color ?? "primary";
 }
 
 export function getCategoryRoute(category: AlgorithmCategory): string {
-  return categoryConfig[category].route;
+  return categoryConfig[category]?.route ?? "/#curriculum";
 }
 
 export function getCategoryLabel(category: AlgorithmCategory): string {
-  return categoryConfig[category].label;
+  return categoryConfig[category]?.label ?? category;
 }
 
 export function getCategoryDescription(category: AlgorithmCategory): string {
-  return categoryConfig[category].description;
+  return categoryConfig[category]?.description ?? "";
 }
 
 export function getAlgorithmIcon(id: string): string {
