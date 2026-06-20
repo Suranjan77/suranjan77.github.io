@@ -21,13 +21,6 @@ export const svm: LearningModule = {
     { term: 'Margin', definition: 'The distance between the decision boundary and the closest training data points.' },
     { term: 'Kernel Trick', definition: 'A method that projects data into a higher-dimensional space to make it linearly separable, without explicitly calculating the new coordinates.' },
   ],
-  workedExamples: [
-    {
-      title: 'RBF Kernel Similarity',
-      problem: 'Calculate the RBF kernel value $K(x_1, x_2)$ for $x_1 = (1, 2)$, $x_2 = (2, 2)$ with $\\gamma = 0.5$.',
-      solution: 'Squared Euclidean distance is $\\|x_1 - x_2\\|^2 = (1-2)^2 + (2-2)^2 = 1 + 0 = 1$. RBF kernel value $K(x_1, x_2) = \\exp(-\\gamma \\|x_1 - x_2\\|^2) = \\exp(-0.5 \\times 1) = e^{-0.5} \\approx 0.607$.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'SVMs only work for binary classification.',
@@ -150,31 +143,6 @@ $$ f(x) = \\operatorname{sign}\\!\\left( \\sum_{i} \\alpha_i y_i K(x_i, x) + b \
 
 Only support vectors have nonzero $\\alpha_i$, so the sum runs over them alone. The popular RBF kernel $K(x_i, x_j) = \\exp(-\\gamma \\lVert x_i - x_j \\rVert^2)$ corresponds to an infinite-dimensional feature space, yet costs only a single distance evaluation per pair.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'A linear SVM has weight vector $w = (3, 4)$. What is the geometric width of the margin $\\frac{2}{\\lVert w \\rVert}$?',
-      difficulty: 'warm-up',
-      hints: ['Compute $\\lVert w \\rVert = \\sqrt{w_1^2 + w_2^2}$ first.'],
-      solution: 'The norm is $\\lVert w \\rVert = \\sqrt{3^2 + 4^2} = \\sqrt{9 + 16} = \\sqrt{25} = 5$. The margin width is $\\frac{2}{\\lVert w \\rVert} = \\frac{2}{5} = 0.4$.',
-    },
-    {
-      prompt: 'A trained linear SVM has $w = (1, -1)$ and $b = -1$. Classify the point $x = (4, 1)$ using $f(x) = \\operatorname{sign}(w^T x + b)$, and state whether it lies inside the margin.',
-      difficulty: 'core',
-      hints: ['Compute $w^T x + b$.', 'The margin edges are at $\\pm 1$.'],
-      solution: 'Score $w^T x + b = (1)(4) + (-1)(1) + (-1) = 4 - 1 - 1 = 2$. Since $2 > 0$, the predicted label is $+1$. Because $|2| \\ge 1$, the point is outside the margin (on the positive side, beyond the margin edge), so it is not a support vector for this fit.',
-    },
-    {
-      prompt: 'Given support vectors at $x_+ = (3, 3)$ with label $+1$ and $x_- = (1, 1)$ with label $-1$, and weight vector $w = (1, 1)$, find the bias $b$ such that both points sit exactly on their margin edges.',
-      difficulty: 'core',
-      hints: ['On the margin edges, $w^T x_+ + b = +1$ and $w^T x_- + b = -1$.'],
-      solution: 'From the positive support vector: $w^T x_+ + b = (1)(3) + (1)(3) + b = 6 + b = 1 \\Rightarrow b = -5$. Check the negative one: $w^T x_- + b = (1)(1) + (1)(1) + b = 2 + b = 2 - 5 = -3$. That gives $-3 \\ne -1$, so $w = (1,1)$ does not place both points on their edges; the consistent boundary requires rescaling $w$. With $w = (\\tfrac{1}{2}, \\tfrac{1}{2})$: positive gives $3 + b = 1 \\Rightarrow b = -2$, negative gives $1 + b = 1 - 2 = -1$, which matches. So $w = (\\tfrac{1}{2}, \\tfrac{1}{2}), b = -2$.',
-    },
-    {
-      prompt: 'You train an RBF-kernel SVM and find it nearly memorizes the training set but generalizes poorly. How should you adjust your hyperparameters to fix this issue, and what is the geometric effect of these adjustments?',
-      difficulty: 'challenge',
-      solution: 'Memorizing the training set with poor generalization is classic overfitting. Both $C$ and $\\gamma$ are too large. Decrease $C$ so the soft-margin penalty tolerates more slack, widening and smoothing the margin instead of bending it to fit every point. Decrease $\\gamma$ so the RBF kernel $\\exp(-\\gamma \\lVert x_i - x_j \\rVert^2)$ has a larger effective radius — large $\\gamma$ makes each support vector influence only its immediate neighborhood, turning the boundary into isolated bumps around training points. Tune both together with cross-validated grid search.',
     },
   ],
   comparisons: [

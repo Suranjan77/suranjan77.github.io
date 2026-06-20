@@ -9,13 +9,6 @@ describe("Content validation checks", () => {
     }
   });
 
-  it("every module has at least 1 worked example", () => {
-    for (const mod of algorithmsList) {
-      expect(mod.workedExamples).toBeDefined();
-      expect(mod.workedExamples!.length).toBeGreaterThanOrEqual(1);
-    }
-  });
-
   it("every module has at least 2 references", () => {
     for (const mod of algorithmsList) {
       expect(mod.references).toBeDefined();
@@ -99,19 +92,6 @@ describe("Published-module active-learning rubric", () => {
     // Not a hard requirement; this simply documents rollout progress.
     expect(publishedModules.length).toBeGreaterThanOrEqual(0);
   });
-
-  it.each(publishedModules.map((m) => [m.id, m] as const))(
-    "%s: has >= 3 practice exercises spanning >= 2 difficulty tiers (each with a solution)",
-    (_id, mod) => {
-      expect(mod.practiceExercises).toBeDefined();
-      expect(mod.practiceExercises!.length).toBeGreaterThanOrEqual(3);
-      const tiers = new Set(mod.practiceExercises!.map((e) => e.difficulty));
-      expect(tiers.size).toBeGreaterThanOrEqual(2);
-      for (const ex of mod.practiceExercises!) {
-        expect(ex.solution).toBeTruthy();
-      }
-    },
-  );
 
   it.each(publishedModules.map((m) => [m.id, m] as const))(
     "%s: has 3-5 self-check quiz questions, each with an explanation",

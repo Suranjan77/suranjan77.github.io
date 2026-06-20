@@ -21,13 +21,6 @@ export const nlp: LearningModule = {
     { term: 'TF-IDF', definition: 'A numerical statistic intended to reflect how important a word is to a document in a collection or corpus.' },
     { term: 'Word Embedding', definition: 'A dense vector representation of a word that captures its semantic meaning and relationships with other words.' },
   ],
-  workedExamples: [
-    {
-      title: 'TF-IDF Calculation',
-      problem: 'A word appears 3 times in a document of 100 words. The total corpus has 10,000 documents, and 100 of them contain the word. Compute the TF-IDF weight using $\\text{IDF} = \\log_{10}(\\frac{N}{DF})$.',
-      solution: 'Term Frequency $\\text{TF} = \\frac{3}{100} = 0.03$. Inverse Document Frequency $\\text{IDF} = \\log_{10}(\\frac{10000}{100}) = \\log_{10}(100) = 2$. Weight $\\text{TF-IDF} = 0.03 \\times 2 = 0.06$.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'TF-IDF is a deep learning technique.',
@@ -199,38 +192,6 @@ $$ P_{\\text{Laplace}}(w_i \\mid w_{i-1}) = \\frac{\\text{count}(w_{i-1}, w_i) +
 
 If the vocabulary has $V = 500$ distinct words and $\\text{count}(\\text{nlp}) = 25$ with $\\text{count}(\\text{nlp}, \\text{rocks}) = 0$, smoothing gives $P_{\\text{Laplace}}(\\text{rocks} \\mid \\text{nlp}) = \\frac{0 + 1}{25 + 500} = \\frac{1}{525} \\approx 0.0019$ — small, but no longer zero, so previously unseen combinations no longer collapse the whole sequence probability to nothing.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'A document contains 50 words in total. The term "model" appears 4 times in it. Compute the term frequency $tf(\\text{model}, d)$.',
-      difficulty: 'warm-up',
-      solution: 'Term frequency is the count of the term divided by the total number of terms in the document: $tf(\\text{model}, d) = \\frac{4}{50} = 0.08$.',
-      tags: ['tf-idf', 'computation'],
-    },
-    {
-      prompt: 'A corpus has $N = 200$ documents. The word "kernel" appears in $df(\\text{kernel}) = 8$ of them. Compute the inverse document frequency $\\log\\frac{N}{df(t)}$ (natural log), and explain in one sentence why this value is large for rare words.',
-      difficulty: 'core',
-      hints: ['Plug $N$ and $df(t)$ directly into $\\log\\frac{N}{df(t)}$; recall $\\ln(25) \\approx 3.22$.'],
-      solution: '$\\log\\frac{N}{df(t)} = \\log\\frac{200}{8} = \\log(25) \\approx 3.22$. This value is large for rare words because as $df(t)$ shrinks relative to $N$, the ratio $N/df(t)$ grows, and the logarithm of a large ratio is large — so words that show up in only a handful of documents out of many get a strong inverse-document-frequency boost, marking them as more discriminative than common words.',
-      tags: ['tf-idf', 'computation'],
-    },
-    {
-      prompt: 'From a training corpus you observe $\\text{count}(\\text{"machine"}) = 60$ and $\\text{count}(\\text{"machine learning"}) = 18$. Estimate the bigram probability $P(\\text{learning} \\mid \\text{machine})$ using maximum likelihood.',
-      difficulty: 'core',
-      hints: ['Use $P(w_i \\mid w_{i-1}) = \\frac{\\text{count}(w_{i-1}, w_i)}{\\text{count}(w_{i-1})}$.'],
-      solution: '$P(\\text{learning} \\mid \\text{machine}) = \\frac{\\text{count}(\\text{machine}, \\text{learning})}{\\text{count}(\\text{machine})} = \\frac{18}{60} = 0.30$.',
-      tags: ['n-gram', 'computation'],
-    },
-    {
-      prompt: 'Evaluate the impact of unseen n-grams in a language model. Given $\\text{count}(\\text{"deep"}) = 120$, $\\text{count}(\\text{"deep fakes"}) = 0$, and a vocabulary $V = 1000$, derive the smoothed probability $P_{\\text{Laplace}}(\\text{fakes} \\mid \\text{deep})$ and analyze the consequences of using unsmoothed maximum-likelihood estimation for sentence probability.',
-      difficulty: 'challenge',
-      hints: [
-        'Recall the formula for Laplace smoothing: add 1 to the numerator and $V$ to the denominator.',
-        'Think about how a single zero-probability bigram affects the product of probabilities for an entire sentence.'
-      ],
-      solution: '$P_{\\text{Laplace}}(\\text{fakes} \\mid \\text{deep}) = \\frac{0 + 1}{120 + 1000} = \\frac{1}{1120} \\approx 0.00089$. The unsmoothed maximum-likelihood estimate would give $P(\\text{fakes} \\mid \\text{deep}) = 0/120 = 0$, and because sentence probability is a **product** of bigram probabilities, a single zero-probability bigram would force the probability of any sentence containing "deep fakes" to exactly zero — even if every other word in the sentence is perfectly ordinary. Smoothing reserves a small amount of probability mass for unseen combinations so the model degrades gracefully instead of catastrophically.',
-      tags: ['n-gram', 'smoothing', 'conceptual'],
     },
   ],
   comparisons: [

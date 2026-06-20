@@ -20,13 +20,6 @@ export const knn: LearningModule = {
     { term: 'Euclidean Distance', definition: 'The straight-line distance between two points in a Euclidean space.' },
     { term: 'Curse of Dimensionality', definition: 'The phenomenon where distance metrics become less informative as the number of feature dimensions increases.' },
   ],
-  workedExamples: [
-    {
-      title: 'KNN Classification',
-      problem: 'Query point $q = (2, 3)$. Neighbors: $A(1, 2)$ class 0, $B(3, 4)$ class 1, $C(2, 5)$ class 1. Classify $q$ using $K=3$.',
-      solution: 'Distances: $d(q, A) = \\sqrt{1+1} = \\sqrt{2} \\approx 1.41$, $d(q, B) = \\sqrt{1+1} = \\sqrt{2} \\approx 1.41$, $d(q, C) = \\sqrt{0+4} = 2$. All three are the nearest neighbors. Their classes are 0, 1, 1. By majority vote, the predicted class for $q$ is 1.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'KNN actually trains a model during the `.fit()` step.',
@@ -150,31 +143,6 @@ $$ z_i = \\frac{x_i - \\mu_i}{\\sigma_i} $$
 
 Suppose age has $\\sigma_{\\text{age}} = 1$ and income has $\\sigma_{\\text{income}} = 500$. After scaling, $A$ differs from $q$ by $1$ standard deviation in age, and $B$ differs by $1$ standard deviation in income — now the two are **equidistant** ($d = 1$ for both), which matches the intuition that "one year" and "one standard deviation of income" are comparable amounts of difference. Always fit the scaler on the training data only and reuse it on the test data to avoid leakage.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'Compute the Euclidean and Manhattan distances between the points $p = (1, 2)$ and $q = (4, 6)$.',
-      difficulty: 'warm-up',
-      solution: 'Euclidean: $d = \\sqrt{(4-1)^2 + (6-2)^2} = \\sqrt{9 + 16} = \\sqrt{25} = 5$. Manhattan: $d_1 = |4-1| + |6-2| = 3 + 4 = 7$. The Manhattan distance is larger here because it sums the axis-aligned legs rather than taking the diagonal shortcut.',
-    },
-    {
-      prompt: 'A query point $q = (0, 0)$ has these labeled neighbors: $A(1, 0)$ class 1, $B(0, 2)$ class 0, $C(2, 2)$ class 0, $D(-1, -1)$ class 1. Classify $q$ using $k = 3$ with Euclidean distance.',
-      difficulty: 'core',
-      hints: ['Compute all four distances, sort them, keep the three smallest, then take the majority vote.'],
-      solution: 'Distances from $q=(0,0)$: $d(q,A) = \\sqrt{1^2+0^2} = 1$; $d(q,B) = \\sqrt{0^2+2^2} = 2$; $d(q,C) = \\sqrt{2^2+2^2} = \\sqrt{8} \\approx 2.83$; $d(q,D) = \\sqrt{(-1)^2+(-1)^2} = \\sqrt{2} \\approx 1.41$. Sorted: $A (1) < D (1.41) < B (2) < C (2.83)$. The three nearest are $A$ (class 1), $D$ (class 1), $B$ (class 0). Majority vote $= 2$ votes for class 1 vs $1$ for class 0, so $q$ is predicted **class 1**.',
-    },
-    {
-      prompt: 'Using the same four neighbors as the previous exercise, re-classify $q = (0, 0)$ with $k = 1$ and then with $k = 4$. Does the prediction change as $k$ grows?',
-      difficulty: 'core',
-      hints: ['With $k=1$ only the single closest point votes; with $k=4$ all points vote, so break a tie by a documented rule.'],
-      solution: 'With $k = 1$: the closest point is $A$ at distance $1$, which is class 1, so the prediction is **class 1**. With $k = 4$: all neighbors vote — classes are $\\{1, 1, 0, 0\\}$, a $2$-$2$ **tie**. Ties must be broken by a rule; a standard choice is to favor the class of the nearest tied neighbor, which is $A$ (class 1), giving **class 1**, though some implementations break ties by lowest class label (which would give class 0). The lesson: as $k$ grows the vote becomes less decisive, and even values of $k$ in binary problems can produce ties — which is why an odd $k$ is usually preferred for two-class problems.',
-    },
-    {
-      prompt: 'A query $q = (\\text{height}=1.7\\,\\text{m}, \\text{weight}=80\\,\\text{kg})$ has neighbors $A = (1.8, 80)$ class 1 and $B = (1.7, 70)$ class 0. Evaluate the nearest neighbor for $q$ under $k=1$ first using raw features, and then using standardized features ($\\sigma_{\\text{height}} = 0.1, \\sigma_{\\text{weight}} = 10$). Discuss why the predictions differ and the implications for feature preparation.',
-      difficulty: 'challenge',
-      hints: ['Evaluate the raw feature distance first.', 'Standardize the features by dividing differences by their standard deviations before recomputing.'],
-      solution: '(a) Raw distances: $d(q, A) = \\sqrt{(1.7-1.8)^2 + (80-80)^2} = \\sqrt{0.01} = 0.1$; $d(q, B) = \\sqrt{(1.7-1.7)^2 + (80-70)^2} = \\sqrt{100} = 10$. So $A$ is far nearer and $q$ is predicted **class 1** — but only because weight (range in kg) dwarfs height (range in m). (b) Standardized differences: for $A$, height differs by $0.1/0.1 = 1$ SD and weight by $0$, giving $d = 1$. For $B$, height differs by $0$ and weight by $10/10 = 1$ SD, giving $d = 1$. After scaling the two neighbors are **equidistant** ($d = 1$ each), so the earlier "obvious" answer was an artifact of unscaled units, not real similarity. This is exactly why scaling is mandatory for KNN.',
     },
   ],
   comparisons: [

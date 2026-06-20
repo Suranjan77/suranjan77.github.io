@@ -195,40 +195,6 @@ Unlike standard classification, anomaly detection datasets are wildly imbalanced
 * **One-Class SVM**: Learns a tight boundary encompassing the "normal" data. Anything falling outside this boundary is flagged as an anomaly.`
     }
   ],
-  workedExamples: [
-    {
-      title: "Choosing between Precision and Recall",
-      problem: "You are building a fraud detection model for a credit card company. A False Positive means declining a legitimate transaction (annoying the customer). A False Negative means letting a fraudulent transaction through (costing the bank money). How do you balance metrics?",
-      solution: "In fraud detection, a False Negative (missed fraud) usually costs significantly more money than a False Positive (declined transaction). Therefore, you should optimize the model for **higher Recall** to catch as much fraud as possible. However, if Recall gets too high at the severe expense of Precision, customer churn will increase due to declined cards. Teams usually set a minimum acceptable Precision floor, and then maximize Recall."
-    },
-    {
-      title: "Diagnosing Bias vs Variance",
-      problem: "You train a Random Forest on a housing dataset. Your Training Mean Absolute Error (MAE) is $5,000, but your Validation MAE is $45,000. Is your model suffering from high bias or high variance, and what should you do?",
-      solution: "The model is suffering from **High Variance (Overfitting)**. It has essentially memorized the training data (very low error) but fails to generalize to unseen data (very high validation error). To fix this, you should reduce the complexity of the Random Forest: limit the `max_depth` of the trees, increase `min_samples_split`, or gather more training data."
-    },
-    {
-      title: "Data Leakage in Scaling",
-      problem: "A junior data scientist runs `StandardScaler().fit_transform(X)` on the entire dataset `X`, and then splits the data using `train_test_split`. Why is this a problem?",
-      solution: "This is **Data Leakage**. By fitting the scaler on the entire dataset, the scaler calculates the mean and standard deviation using the test data. The training data is then transformed using information from the test data. The test data is no longer truly unseen. The correct approach is to split the data first, call `fit()` only on the training data, and then `transform()` both sets."
-    }
-  ],
-  practiceExercises: [
-    {
-      difficulty: "warm-up",
-      prompt: "A spam filter classifies 100 emails. It predicts 20 are spam. Out of those 20, 15 are actually spam (True Positives), and 5 are legitimate (False Positives). It misses 10 actual spam emails (False Negatives). Calculate the Precision.",
-      solution: "Precision = TP / (TP + FP)\nPrecision = 15 / (15 + 5) = 15 / 20 = 0.75 or 75%."
-    },
-    {
-      difficulty: "core",
-      prompt: "Explain why K-Fold Cross-Validation is preferred over a single Train-Test split, especially for small datasets.",
-      solution: "With small datasets, a single train-test split is highly susceptible to random variance—the test set might accidentally contain only 'easy' or 'hard' examples. K-Fold CV ensures that every single data point is used in the validation set exactly once, providing a much more reliable and stable estimate of the model's true performance."
-    },
-    {
-      difficulty: "challenge",
-      prompt: "You achieve 99.9% accuracy on a jet engine mechanical failure prediction model. Diagnose the potential flaw in this evaluation and propose an alternative evaluation framework.",
-      solution: "Because engine failure is extremely rare (perhaps 1 in 10,000 flights), a naive model that always predicts 'No Failure' will achieve 99.99% accuracy. Accuracy hides the fact that the model fails to detect the minority class. You should use **Recall** (to ensure you aren't missing catastrophic failures) and look at the **Precision-Recall Curve (PR-AUC)** rather than just accuracy or ROC-AUC, since PR-AUC is more informative for highly imbalanced datasets."
-    }
-  ],
   shortAnswerQuestions: [
     {
       question: "Explain the geometric and algorithmic intuition behind how the Isolation Forest algorithm identifies anomalies in a dataset.",

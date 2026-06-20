@@ -21,13 +21,6 @@ export const neuralNetworks: LearningModule = {
     { term: 'Backpropagation', definition: 'An algorithm that calculates gradients of the loss function with respect to weights using the chain rule.' },
     { term: 'Perceptron', definition: 'A single-layer neural network unit that computes a weighted sum of inputs and applies an activation function.' },
   ],
-  workedExamples: [
-    {
-      title: 'Perceptron Output Calculation',
-      problem: 'Calculate output of a perceptron with inputs $x = [0.5, -1.0]$, weights $w = [2.0, 1.0]$, bias $b = 0.5$, and a ReLU activation.',
-      solution: 'Linear score $z = w^T x + b = (0.5 \\times 2.0) + (-1.0 \\times 1.0) + 0.5 = 1.0 - 1.0 + 0.5 = 0.5$. Applying ReLU: $f(z) = \\max(0, z) = \\max(0, 0.5) = 0.5$.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'More layers always lead to better performance without any downside.',
@@ -205,36 +198,6 @@ Each layer here only needs to represent a *simple, local* function of its inputs
 ### 3. Why this matters for real networks
 This is a simplified, discrete analogue of a more general principle that shows up across deep learning: stacking layers lets the network build a hierarchy of reusable, increasingly abstract intermediate features (edges to textures to parts to objects, in vision; characters to morphemes to phrases, in language). Each new layer multiplies the *expressive combinations* available from the previous layer's vocabulary, rather than starting over — which is why modestly deep networks often match or beat extremely wide shallow ones while using far fewer total parameters.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'A tiny network has one hidden layer. Input $x = [1, 2]$, hidden weights $W^{(1)} = \\begin{bmatrix} 1 & -1 \\\\ 0 & 1 \\end{bmatrix}$, hidden bias $b^{(1)} = [0, -1]$, ReLU activation, output weights $W^{(2)} = [2, 1]$, output bias $b^{(2)} = 0$ (no output activation). Compute the forward pass.',
-      difficulty: 'warm-up',
-      hints: ['First compute $z^{(1)} = W^{(1)}x + b^{(1)}$ and apply ReLU.', 'Then compute the scalar output $\\hat{y} = W^{(2)} a^{(1)} + b^{(2)}$.'],
-      solution: 'Pre-activations: $z^{(1)}_1 = 1(1) + (-1)(2) + 0 = -1$, $z^{(1)}_2 = 0(1) + 1(2) + (-1) = 1$. So $z^{(1)} = [-1, 1]$. After ReLU: $a^{(1)} = [\\max(0,-1), \\max(0,1)] = [0, 1]$. Output: $\\hat{y} = 2(0) + 1(1) + 0 = 1$.',
-      tags: ['forward-pass', 'computation'],
-    },
-    {
-      prompt: 'A network has an input layer of size 8, one hidden layer of size 16 with ReLU, and an output layer of size 3 (no activation listed). Both layers use a bias term per unit. Count the total number of trainable parameters.',
-      difficulty: 'core',
-      hints: ['A dense layer with input size IN and output size OUT has IN * OUT weights.', 'Remember to add the biases for each output unit.'],
-      solution: 'Layer 1 (input to hidden): weights $8 \\times 16 = 128$, biases $16$, subtotal $144$. Layer 2 (hidden to output): weights $16 \\times 3 = 48$, biases $3$, subtotal $51$. Total parameters $= 144 + 51 = 195$.',
-      tags: ['architecture', 'parameter-counting'],
-    },
-    {
-      prompt: 'Explain why a single-layer perceptron (no hidden layer) cannot represent the XOR function, where the four labeled points are $(0,0)\\to 0$, $(0,1)\\to 1$, $(1,0)\\to 1$, $(1,1)\\to 0$.',
-      difficulty: 'core',
-      hints: ['Plot the four XOR points on a 2D plane.', 'Think about what a single linear decision boundary can separate.'],
-      solution: 'A single-layer perceptron with no hidden layer computes a single linear decision boundary (a line in 2D): it predicts class 1 on one side of the line and class 0 on the other. Plotting the XOR points shows the two "1" points $(0,1)$ and $(1,0)$ lie on opposite corners from the two "0" points $(0,0)$ and $(1,1)$ — the classes are arranged diagonally, so **no single straight line** can separate the 1s from the 0s. XOR is the textbook example of a function that is **not linearly separable** (the historical Minsky-Papert critique of perceptrons). Adding a hidden layer lets the network first transform the input into a space (e.g. via two hidden units acting like AND/OR-style gates) where the classes become linearly separable, after which the output layer can draw a line in that new space.',
-      tags: ['conceptual', 'XOR', 'linear-separability'],
-    },
-    {
-      prompt: 'Construct a neural network with a single hidden layer of ReLU units that exactly reproduces the piecewise-linear target $g(x) = 0$ for $x \\le 1$, $g(x) = x - 1$ for $1 < x \\le 3$, and $g(x) = 2$ for $x > 3$. Provide the weights and biases for your construction.',
-      difficulty: 'challenge',
-      hints: ['You need one ReLU to start the ramp at $x=1$.', 'Use a second, oppositely-signed ReLU to cancel the slope and flatten the function at $x=3$.'],
-      solution: 'Use $g(x) = \\text{ReLU}(x - 1) - \\text{ReLU}(x - 3)$. For $x \\le 1$: both terms are $0$, so $g(x) = 0$. For $1 < x \\le 3$: only the first ReLU is active, $g(x) = (x-1) - 0 = x - 1$, which rises from $0$ at $x=1$ to $2$ at $x=3$ — matching the ramp. For $x > 3$: $g(x) = (x-1) - (x-3) = 2$, a constant — matching the flat segment. So just **two** ReLU hidden units (with weight $1$ on the output for the first, $-1$ for the second) exactly reproduce this three-piece function, illustrating how a small number of ReLUs stitch together arbitrary piecewise-linear shapes.',
-      tags: ['derivation', 'ReLU', 'universal-approximation'],
     },
   ],
   comparisons: [

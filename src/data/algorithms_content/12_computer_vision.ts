@@ -21,13 +21,6 @@ export const computerVision: LearningModule = {
     { term: 'Anchor Box', definition: 'Pre-defined bounding boxes of specific sizes and aspect ratios used as reference shapes for object detection.' },
     { term: 'Semantic Segmentation', definition: 'The process of classifying each pixel in an image into a semantic class category.' },
   ],
-  workedExamples: [
-    {
-      title: 'Intersection over Union (IoU) Calculation',
-      problem: 'A ground truth bounding box has area 100. A predicted bounding box has area 120. The area of their intersection is 60. Calculate IoU.',
-      solution: 'Area of Union = Area(Ground Truth) + Area(Prediction) - Area(Intersection) = 100 + 120 - 60 = 160. IoU = $\\frac{\\text{Intersection Area}}{\\text{Union Area}} = \\frac{60}{160} = 0.375$ (or $37.5\\%$).',
-    },
-  ],
   misconceptions: [
     {
       claim: 'Semantic segmentation distinguishes between individual instances of the same class.',
@@ -195,38 +188,6 @@ $$ \\text{smooth}_{L1}(x) = \\begin{cases} 0.5x^2 & \\text{if } |x| < 1 \\\\ |x|
 
 Smooth-L1 behaves like squared error near zero (stable gradients for small, easy-to-fix offsets) but like absolute error for large residuals (less sensitive to occasional badly-matched anchors than a pure squared loss would be). The hyperparameter $\\lambda$ balances how strongly localization accuracy is weighted against classification accuracy, and dividing by $N_{cls}$ / $N_{reg}$ (the number of anchors contributing to each term) keeps the loss scale roughly independent of how many anchors happen to be positive in a given image.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'A ground-truth box is $(0, 0, 10, 10)$ and a predicted box is $(5, 5, 15, 15)$ (corners given as $(x_1, y_1, x_2, y_2)$). Compute the IoU.',
-      difficulty: 'warm-up',
-      hints: [
-        'First find the intersection rectangle’s corners using max for the top-left and min for the bottom-right.',
-        'Then apply Union = Area1 + Area2 − Intersection.'
-      ],
-      solution: 'Both boxes have area $10 \\times 10 = 100$. Intersection corners: $x_1^{\\cap} = \\max(0,5) = 5$, $y_1^{\\cap} = \\max(0,5) = 5$, $x_2^{\\cap} = \\min(10,15) = 10$, $y_2^{\\cap} = \\min(10,15) = 10$. So the intersection is a $5 \\times 5$ square, area $25$. Union $= 100 + 100 - 25 = 175$. $IoU = 25/175 \\approx 0.143$.',
-      tags: ['computation', 'iou'],
-    },
-    {
-      prompt: 'Using the boxes from the previous exercise (IoU $\\approx 0.143$), would this detection count as a true positive under the standard PASCAL VOC threshold of $IoU \\ge 0.5$? What about under the looser COCO threshold of $IoU \\ge 0.5$ vs the stricter $IoU \\ge 0.75$ used in COCO’s strict metric?',
-      difficulty: 'warm-up',
-      solution: 'No. $0.143$ is below both $0.5$ and $0.75$, so the prediction would be counted as a **false positive** (and the ground-truth box would also count as a **false negative**, since no sufficiently-overlapping prediction was found for it) under either threshold.',
-      tags: ['conceptual', 'evaluation'],
-    },
-    {
-      prompt: 'A detector outputs 10 boxes at a given confidence threshold. After matching against ground truth using $IoU \\ge 0.5$: 6 are true positives, 4 are false positives, and 2 ground-truth objects were missed entirely (false negatives). Compute precision and recall at this threshold.',
-      difficulty: 'core',
-      hints: ['Precision $= TP / (TP + FP)$. Recall $= TP / (TP + FN)$.'],
-      solution: 'Precision $= \\frac{TP}{TP+FP} = \\frac{6}{6+4} = \\frac{6}{10} = 0.6$. Recall $= \\frac{TP}{TP+FN} = \\frac{6}{6+2} = \\frac{6}{8} = 0.75$. So at this confidence threshold the detector finds 75% of the true objects, but 40% of its reported detections are spurious. Sweeping the confidence threshold and recomputing (precision, recall) at each point traces the precision–recall curve whose area gives Average Precision for this class.',
-      tags: ['computation', 'metrics'],
-    },
-    {
-      prompt: 'Design a loss function setup for a semantic segmentation model. Explain why a standard image-level classification loss is fundamentally insufficient for this task.',
-      difficulty: 'challenge',
-      hints: ['Think about what information a single image-level label can and cannot express about *where* something is.'],
-      solution: 'A per-image label only answers "what classes are present?" — it cannot specify *which* pixels belong to which class, so it carries no spatial/boundary information at all. Segmentation’s actual target is a dense label map $\\hat{Y} \\in \\{1,\\dots,K\\}^{H \\times W}$, one class per pixel; the natural way to supervise this is to apply cross-entropy independently at every spatial location and sum (or average) over all $H \\times W$ pixels: $\\mathcal{L} = -\\frac{1}{HW}\\sum_{h,w} \\log p_{h,w}(y_{h,w})$. This per-pixel loss directly penalizes incorrect boundaries — e.g. a model that gets every pixel right except a thin strip along an object’s edge is penalized only for that strip, with gradient signal local to exactly where the model is wrong. A single global per-image loss could be zero (all classes correctly "detected" as present) even if every individual pixel’s assignment is scrambled, since it has no mechanism to check spatial correctness at all. (In practice, per-pixel cross-entropy is often combined with region-overlap losses like Dice loss to also directly reward overall mask overlap and counter class imbalance from large background regions.)',
-      tags: ['conceptual', 'loss-functions'],
     },
   ],
   comparisons: [

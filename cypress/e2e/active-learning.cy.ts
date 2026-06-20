@@ -4,31 +4,9 @@ describe('Active Learning Features', () => {
     cy.visit('/algorithms/linear-regression');
   });
 
-  it('renders Practice Exercises, Case Studies, and Self-Check Quiz sections', () => {
-    cy.contains('h3', 'Practice Exercises').should('exist');
+  it('renders Case Studies and Self-Check Quiz sections', () => {
     cy.contains('h3', 'Real-World Case Studies').should('exist');
-    cy.contains('h3', 'Check Your Understanding').should('exist');
-  });
-
-  it('allows revealing solutions in Practice Exercises', () => {
-    // Wait for Next.js hydration
-    cy.wait(2000);
-
-    // Find the first exercise
-    cy.contains('h4', 'Exercise 1').parents('.rounded-lg').as('exercise');
-    
-    // Initially solution block should not be visible
-    cy.get('@exercise').contains('.tracking-wider', 'Solution').should('not.exist');
-    
-    // Click reveal
-    cy.get('@exercise').contains('button', 'Reveal Solution').click();
-    
-    // Solution should now be visible
-    cy.get('@exercise').contains('.tracking-wider', 'Solution').should('exist');
-    
-    // Click hide
-    cy.get('@exercise').contains('button', 'Hide Solution').click();
-    cy.get('@exercise').contains('.tracking-wider', 'Solution').should('not.exist');
+    cy.contains('h2', 'Self-Check Quiz').should('exist');
   });
 
   it('handles quiz selection and reveals explanation', () => {

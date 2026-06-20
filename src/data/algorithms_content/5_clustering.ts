@@ -19,13 +19,6 @@ export const clustering: LearningModule = {
     { term: 'Expectation-Maximization (EM)', definition: 'An iterative optimization method used to find maximum likelihood estimates of parameters in probabilistic models with latent variables.' },
     { term: 'Inertia', definition: 'The sum of squared distances of samples to their closest cluster center.' },
   ],
-  workedExamples: [
-    {
-      title: 'K-Means Centroid Update Step',
-      problem: 'Given a 2D cluster containing three points: $A(1, 2)$, $B(3, 4)$, and $C(5, 6)$, compute the new centroid coordinate.',
-      solution: 'The new centroid is the mean of the coordinates: $\\mu_x = \\frac{1+3+5}{3} = 3$, $\\mu_y = \\frac{2+4+6}{3} = 4$. So the new centroid is $(3, 4)$.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'K-Means will automatically choose the best number of clusters $K$.',
@@ -169,31 +162,6 @@ Each step can only **decrease or hold** the objective $J$:
 
 Because $J$ is monotonically non-increasing and bounded below by $0$, and there are only finitely many possible assignments (at most $K^n$), the algorithm must **converge in finitely many iterations**. However, each step only performs a *local* (coordinate-wise) minimization, so the fixed point reached is a **local** optimum of the non-convex objective, not necessarily the global one. Different initializations can converge to different local optima with different inertia — the motivation for k-means++ seeding and multiple restarts.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'A cluster contains the points $(2, 1)$, $(4, 3)$, and $(6, 2)$. Compute the centroid and the cluster inertia (sum of squared distances to that centroid).',
-      difficulty: 'warm-up',
-      hints: ['The centroid is the coordinate-wise mean; inertia sums $\\lVert x_i - \\mu \\rVert^2$ over the three points.'],
-      solution: 'Centroid: $\\mu_x = (2+4+6)/3 = 4$, $\\mu_y = (1+3+2)/3 = 2$, so $\\mu = (4, 2)$. Squared distances: $(2,1)$: $(2-4)^2 + (1-2)^2 = 4 + 1 = 5$; $(4,3)$: $0 + 1 = 1$; $(6,2)$: $4 + 0 = 4$. Inertia $= 5 + 1 + 4 = 10$.',
-    },
-    {
-      prompt: 'On the 1D points $\\{1, 2, 6, 7\\}$ with initial centroids $\\mu_1 = 1$ and $\\mu_2 = 8$, run **one full iteration** of K-Means (assign, then update). Give the new centroids.',
-      difficulty: 'core',
-      hints: ['Assign each point to the nearer centroid, then set each new centroid to the mean of its members.'],
-      solution: 'Assign: $1$ (|1-1|=0 vs |1-8|=7) and $2$ (|2-1|=1 vs |2-8|=6) go to $\\mu_1$; $6$ (|6-1|=5 vs |6-8|=2) and $7$ (|7-1|=6 vs |7-8|=1) go to $\\mu_2$. Update: $\\mu_1 = (1+2)/2 = 1.5$, $\\mu_2 = (6+7)/2 = 6.5$. The new centroids are $1.5$ and $6.5$ (and a second iteration would leave them unchanged — convergence).',
-    },
-    {
-      prompt: 'Using the elbow method, inertia for $K = 1, 2, 3, 4, 5$ is measured as $[200, 90, 35, 28, 24]$. Which $K$ does the elbow suggest, and why?',
-      difficulty: 'core',
-      solution: 'Look at the marginal drop in inertia as $K$ increases: $200\\to90$ (drop 110), $90\\to35$ (drop 55), $35\\to28$ (drop 7), $28\\to24$ (drop 4). The drops are large up to $K=3$ and then flatten sharply. The "elbow" — where adding another cluster stops buying much reduction in inertia — is at $K = 3$. Beyond it the curve is nearly flat, indicating diminishing returns.',
-    },
-    {
-      prompt: 'Given the 1D points $\\{0, 2, 10, 12\\}$ and $K = 2$, run K-Means to convergence for two different initializations: (a) centroids $\\{0, 2\\}$ and (b) centroids $\\{1, 11\\}$. Contrast the final clustering and inertia for both cases, and explain what this demonstrates about the algorithm.',
-      difficulty: 'challenge',
-      hints: ['First, carry out assign/update until assignments stabilize for each seeding.', 'Second, compute and compare the inertia of the final clusterings to demonstrate sensitivity to initialization.'],
-      solution: 'Init (b) $\\{1, 11\\}$: assign $0,2\\to1$ and $10,12\\to11$; update to $\\mu=\\{1, 11\\}$ (means of $\\{0,2\\}$ and $\\{10,12\\}$), already stable. Inertia $= (0-1)^2+(2-1)^2+(10-11)^2+(12-11)^2 = 1+1+1+1 = 4$ — the good solution. Init (a) $\\{0, 2\\}$: assign $0\\to0$; $2\\to2$; $10,12$ (closer to 2) $\\to2$; update $\\mu_1=0$, $\\mu_2=(2+10+12)/3=8$. Re-assign with $\\{0,8\\}$: $0,2\\to0$ (|2-0|=2<|2-8|=6), $10,12\\to8$; update $\\mu_1=(0+2)/2=1$, $\\mu_2=(10+12)/2=11$ — now identical to (b), inertia $4$. So here both eventually reach inertia $4$, but (a) needed extra iterations and a poor early split ($\\mu_2=8$, inertia $1+1+4+16=22$ at that step) — illustrating how a bad seed wastes iterations and, with less symmetric data, can trap K-Means in a worse local optimum.',
     },
   ],
   comparisons: [

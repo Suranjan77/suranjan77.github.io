@@ -21,13 +21,6 @@ export const transformers: LearningModule = {
     { term: 'Scaled Dot-Product Attention', definition: 'Attention mechanism scaled by the square root of the head dimension to avoid extremely small gradients.' },
     { term: 'Positional Encoding', definition: 'A representation injected into input embeddings to provide information about the relative or absolute position of tokens.' },
   ],
-  workedExamples: [
-    {
-      title: 'Attention Weight Calculation',
-      problem: 'Given Query $Q = [1.0, 0.0]$, Key matrix $K = \\begin{bmatrix} 1.0 & 0.0 \\\\ 0.0 & 1.0 \\end{bmatrix}$, and head dimension $d_k = 4$, compute the attention weights.',
-      solution: 'Scaled dot-products: $S = \\frac{Q K^T}{\\sqrt{d_k}} = \\frac{[1.0, 0.0] \\begin{bmatrix} 1.0 & 0.0 \\\\ 0.0 & 1.0 \\end{bmatrix}}{2} = \\frac{[1.0, 0.0]}{2} = [0.5, 0.0]$. Applying Softmax: $\\text{Softmax}([0.5, 0.0]) = [\\frac{e^{0.5}}{e^{0.5} + e^0}, \\frac{e^0}{e^{0.5} + e^0}] \\approx [\\frac{1.6487}{2.6487}, \\frac{1.0}{2.6487}] \\approx [0.62, 0.38]$.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'Transformers process tokens sequentially like LSTMs.',
@@ -175,33 +168,6 @@ $$ o = \\sum_{j=1}^{N} a_j v_j = aV $$
 
 Because the weights are non-negative and sum to one, $o$ is a **convex combination** of the value vectors $v_j$ — it always lies inside their convex hull. The conceptual payoff: a single attention layer can only **mix** representations that already exist in the sequence; it cannot extrapolate beyond them. Richer, non-convex transformations come from stacking attention with the feed-forward layers and residual connections that surround it.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'Given the already-scaled attention scores $s = [2, 0, 0]$ for one query over three keys, compute the softmax attention weights.',
-      difficulty: 'warm-up',
-      solution: 'Exponentiate: $e^2 \\approx 7.389$, $e^0 = 1$, $e^0 = 1$, summing to $\\approx 9.389$. Dividing gives weights $\\approx [0.787, 0.107, 0.107]$. The first key dominates but the others retain small, non-zero weight.',
-    },
-    {
-      prompt: 'A model uses head dimension $d_k = 64$. What number do you divide the raw $QK^T$ scores by, and what is the purpose?',
-      difficulty: 'core',
-      solution: 'Divide by $\\sqrt{d_k} = \\sqrt{64} = 8$. This rescales the dot-product scores (whose variance grows with $d_k$) back toward unit variance, preventing the softmax from saturating and keeping gradients usable.',
-    },
-    {
-      prompt: 'With $Q = [1, 1]$, key rows $k_1 = [1, 0]$ and $k_2 = [0, 1]$, value rows $v_1 = [2, 0]$ and $v_2 = [0, 2]$, and $d_k = 2$, compute the attention output for the query.',
-      difficulty: 'core',
-      hints: ['Compute $QK^T$, divide by $\\sqrt{d_k}$, softmax, then take the weighted sum of value rows.'],
-      solution: 'Raw scores $QK^T = [\\,1, 1\\,]$. Scaled: $[1, 1]/\\sqrt{2} \\approx [0.707, 0.707]$. Softmax of equal scores gives $[0.5, 0.5]$. Output $= 0.5\\,v_1 + 0.5\\,v_2 = 0.5[2,0] + 0.5[0,2] = [1, 1]$.',
-    },
-    {
-      prompt: 'Critically analyze the computational bottlenecks of the self-attention mechanism. For a sequence of length $N$ and model dimension $d$, derive both the time and memory complexity of a single self-attention layer.',
-      difficulty: 'challenge',
-      hints: [
-        'First, determine the dimensions of the intermediate $QK^T$ score matrix.',
-        'Then, calculate the time and memory required to compute and store this matrix.'
-      ],
-      solution: 'The product $QK^T$ multiplies an $N\\times d$ matrix by a $d\\times N$ matrix, producing an $N\\times N$ score matrix at a cost of $O(N^2 d)$ time and $O(N^2)$ memory to store. The subsequent multiply by $V$ is also $O(N^2 d)$. So self-attention is **quadratic** in sequence length $N$ — the $N\\times N$ attention matrix is the bottleneck that efficient-attention methods (sparse, linear, flash) attack.',
     },
   ],
   comparisons: [

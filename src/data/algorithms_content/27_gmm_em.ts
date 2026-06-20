@@ -34,13 +34,6 @@ export const gmmEm: LearningModule = {
       definition: "A matrix detailing the joint variability of coordinates, defining the shape, orientation, and spread of each Gaussian component."
     }
   ],
-  workedExamples: [
-    {
-      title: "One-Dimensional GMM E-Step Calculation",
-      problem: "Consider a 1D Gaussian Mixture Model with two components ($K=2$). Component 1 has weight $\\pi_1 = 0.4$, mean $\\mu_1 = 0$, and variance $\\sigma_1^2 = 1$. Component 2 has weight $\\pi_2 = 0.6$, mean $\\mu_2 = 4$, and variance $\\sigma_2^2 = 4$. Given a single observed data point $x = 2$, compute the responsibility $\\gamma_1(x)$ (the probability that $x$ belongs to Component 1).",
-      solution: "First, compute the PDF values (densities) for each component at $x=2$:\n$$f_1(x) = \\frac{1}{\\sqrt{2\\pi \\sigma_1^2}} \\exp\\left(-\\frac{(x - \\mu_1)^2}{2\\sigma_1^2}\\right) = \\frac{1}{\\sqrt{2\\pi}} \\exp\\left(-\\frac{2^2}{2}\\right) \\approx 0.3989 \\times 0.1353 \\approx 0.0540$$\n\n$$f_2(x) = \\frac{1}{\\sqrt{2\\pi \\sigma_2^2}} \\exp\\left(-\\frac{(x - \\mu_2)^2}{2\\sigma_2^2}\\right) = \\frac{1}{\\sqrt{2\\pi \\times 4}} \\exp\\left(-\\frac{(2 - 4)^2}{2 \\times 4}\\right) = \\frac{1}{2\\sqrt{2\\pi}} \\exp\\left(-\\frac{4}{8}\\right) \\approx 0.1995 \\times 0.6065 \\approx 0.1210$$\n\nNow, apply Bayes' rule to find the responsibility $\\gamma_1(x)$:\n$$\\gamma_1(x) = \\frac{\\pi_1 f_1(x)}{\\pi_1 f_1(x) + \\pi_2 f_2(x)}$$\n$$\\gamma_1(x) = \\frac{0.4 \\times 0.0540}{(0.4 \\times 0.0540) + (0.6 \\times 0.1210)} = \\frac{0.0216}{0.0216 + 0.0726} = \\frac{0.0216}{0.0942} \\approx 0.229$$\n\nThus, the responsibility of Component 1 for generating $x=2$ is approximately $22.9\\%$."
-    }
-  ],
   misconceptions: [
     {
       claim: "Like K-Means, the EM algorithm for GMM is guaranteed to find the global maximum of the likelihood function.",
@@ -263,36 +256,6 @@ $$ \\pi_k^{\\text{new}} = \\frac{N_k}{N} $$
 
 So each updated weight is simply the fraction of total "soft membership" claimed by component $k$ — an intuitive, closed-form result that mirrors the M-step's general pattern: every update is a responsibility-weighted average of the corresponding sufficient statistic.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'A 2-component 1D GMM has $\\pi_1 = 0.5$, $\\pi_2 = 0.5$, and at some point $x_i$ the (unnormalized) weighted densities are $\\pi_1 \\mathcal{N}(x_i \\mid \\mu_1, \\sigma_1^2) = 0.08$ and $\\pi_2 \\mathcal{N}(x_i \\mid \\mu_2, \\sigma_2^2) = 0.02$. Compute the responsibilities $\\gamma_{i1}$ and $\\gamma_{i2}$.',
-      difficulty: 'warm-up',
-      hints: ['Normalize the two weighted densities so they sum to 1.', 'Use the formula $\\gamma_{ik} = \\frac{\\pi_k \\mathcal{N}_k}{\\sum_j \\pi_j \\mathcal{N}_j}$.'],
-      solution: 'The denominator is $0.08 + 0.02 = 0.10$. So $\\gamma_{i1} = 0.08 / 0.10 = 0.8$ and $\\gamma_{i2} = 0.02 / 0.10 = 0.2$. As required, $\\gamma_{i1} + \\gamma_{i2} = 1$: the point is mostly (80%) explained by component 1, but component 2 still gets partial (soft) credit.',
-      tags: ['e-step', 'conceptual'],
-    },
-    {
-      prompt: 'You have three 1D data points $x_1 = 1$, $x_2 = 2$, $x_3 = 9$ with responsibilities for component $k$ given by $\\gamma_{1k} = 0.9$, $\\gamma_{2k} = 0.8$, $\\gamma_{3k} = 0.1$. Compute the updated mean $\\mu_k^{\\text{new}}$ for this component.',
-      difficulty: 'core',
-      hints: ['Remember that this is a weighted average, not a plain average.', 'Use $\\mu_k^{\\text{new}} = \\frac{\\sum_i \\gamma_{ik} x_i}{\\sum_i \\gamma_{ik}}$.'],
-      solution: 'Effective count $N_k = 0.9 + 0.8 + 0.1 = 1.8$. Weighted sum $\\sum_i \\gamma_{ik} x_i = 0.9(1) + 0.8(2) + 0.1(9) = 0.9 + 1.6 + 0.9 = 3.4$. So $\\mu_k^{\\text{new}} = 3.4 / 1.8 \\approx 1.89$. Notice the far-away outlier $x_3=9$ barely moves the mean because its responsibility (0.1) is small — this is exactly the soft, weighted averaging that distinguishes the M-step from a plain hard-assignment mean.',
-      tags: ['m-step', 'computation'],
-    },
-    {
-      prompt: 'During EM training, one Gaussian component’s covariance collapses toward a single data point, so $|\\mathbf{\\Sigma}_k| \\to 0$. Explain what happens to the log-likelihood and why this is considered a degenerate (pathological) solution rather than a "good fit".',
-      difficulty: 'core',
-      hints: ['Look closely at the Gaussian density formula.', 'What happens to $\\mathcal{N}(\\mathbf{x} \\mid \\mathbf{\\mu}_k, \\mathbf{\\Sigma}_k)$ as $\\Sigma_k \\to 0$ evaluated exactly at $\\mathbf{x} = \\mathbf{\\mu}_k$?'],
-      solution: 'The Gaussian density has a $1/|\\mathbf{\\Sigma}_k|^{1/2}$ normalizing factor in front. As the covariance shrinks toward a single point, $|\\mathbf{\\Sigma}_k| \\to 0$, so the density evaluated at that exact point blows up toward $+\\infty$. Since the log-likelihood includes $\\log \\mathcal{N}(\\mathbf{x}_i \\mid \\dots)$ terms, the overall log-likelihood is **unbounded above** — EM can always increase it arbitrarily by collapsing a component onto a single training point, even though this generalizes terribly (zero density anywhere else). This is a known pathology of unconstrained Gaussian MLE, not a meaningful "perfect fit"; in practice it is prevented by regularizing the covariance (e.g. adding $\\epsilon I$) or imposing a minimum variance floor.',
-      tags: ['failure-mode', 'conceptual'],
-    },
-    {
-      prompt: 'Show informally that K-Means is a special case of GMM/EM. What constraints must be placed on the GMM to recover the exact K-Means algorithm?',
-      difficulty: 'challenge',
-      hints: ['Consider forcing every covariance to be the same isotropic matrix $\\sigma^2 I$.', 'What happens to the softmax-like responsibility formula as $\\sigma^2 \\to 0$?'],
-      solution: 'Restrict every component to share the same isotropic covariance $\\mathbf{\\Sigma}_k = \\sigma^2 I$ and equal weights $\\pi_k = 1/K$. Then the responsibility formula reduces to a softmax over **negative squared distances**: $\\gamma_{ik} \\propto \\exp(-\\lVert \\mathbf{x}_i - \\mathbf{\\mu}_k \\rVert^2 / 2\\sigma^2)$. As $\\sigma^2 \\to 0^+$, this softmax becomes infinitely peaked: the responsibility for the **nearest** centroid (smallest distance) approaches 1, and all others approach 0 — exactly the hard assignment rule used in K-Means. In this limit, the weighted mean update $\\mu_k^{\\text{new}} = \\sum_i \\gamma_{ik}\\mathbf{x}_i / N_k$ becomes a plain average over the points hard-assigned to cluster $k$, which is precisely the K-Means centroid update. So K-Means is GMM/EM with shared spherical, vanishing-variance components and a hard-max E-step instead of a soft posterior.',
-      tags: ['comparison', 'derivation'],
     },
   ],
   comparisons: [

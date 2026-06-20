@@ -21,13 +21,6 @@ export const autoencoders: LearningModule = {
     { term: 'Reconstruction Loss', definition: 'A loss metric measuring the difference between the original input and the decoded reconstruction.' },
     { term: 'Variational Autoencoder (VAE)', definition: 'A probabilistic version of an autoencoder that maps inputs to probability distributions in latent space, enabling generation.' },
   ],
-  workedExamples: [
-    {
-      title: 'Reconstruction Loss',
-      problem: 'Calculate Mean Squared Error reconstruction loss for input vector $x = [1.0, 0.5]$ and reconstructed vector $\\hat{x} = [0.9, 0.7]$.',
-      solution: 'Squared errors: $(1.0-0.9)^2 = 0.01$; $(0.5-0.7)^2 = 0.04$. Mean Squared Error $\\text{MSE} = \\frac{0.01 + 0.04}{2} = 0.025$.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'Autoencoders are supervised learning models because they require labels.',
@@ -215,39 +208,6 @@ The gap between the true log-likelihood and the ELBO is exactly $D_{KL}(q_\\phi(
 
 Balancing the two (sometimes with an explicit weight $\\beta$ on the KL term, as in $\\beta$-VAE) is what produces a latent space that is both **informative** (good reconstructions) and **continuous/sample-able** (good generation) — the central design tension that distinguishes VAEs from vanilla autoencoders.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'Given input $x = [2.0, 4.0, 6.0]$ and reconstruction $\\hat{x} = [2.5, 3.5, 6.5]$, compute the Mean Squared Error reconstruction loss.',
-      difficulty: 'warm-up',
-      hints: ['MSE is the average of the squared per-component differences.'],
-      solution: 'Squared errors: $(2.0-2.5)^2 = 0.25$, $(4.0-3.5)^2 = 0.25$, $(6.0-6.5)^2 = 0.25$. $\\text{MSE} = \\frac{0.25+0.25+0.25}{3} = 0.25$.',
-      tags: ['computation'],
-    },
-    {
-      prompt: 'An autoencoder has an encoder that is a single fully-connected layer mapping $\\mathbb{R}^{100}$ to $\\mathbb{R}^{10}$ (with bias), and a decoder that mirrors it, mapping $\\mathbb{R}^{10}$ back to $\\mathbb{R}^{100}$ (with bias). How many trainable parameters does the whole autoencoder have?',
-      difficulty: 'core',
-      hints: ['A fully-connected layer from size $a$ to size $b$ has $a \\times b$ weights plus $b$ biases.'],
-      solution: 'Encoder: weights $100 \\times 10 = 1000$, biases $10$, total $1010$. Decoder: weights $10 \\times 100 = 1000$, biases $100$, total $1100$. Grand total: $1010 + 1100 = 2110$ trainable parameters.',
-      tags: ['architecture', 'computation'],
-    },
-    {
-      prompt: 'Why does setting the bottleneck dimension exactly equal to the input dimension (e.g. encoding $\\mathbb{R}^{784}$ down to $\\mathbb{R}^{784}$) make the autoencoder trivial and useless for representation learning, even though it can achieve zero reconstruction loss?',
-      difficulty: 'core',
-      hints: ['Think about whether the encoder is forced to discard any information at all.'],
-      solution: 'When the latent dimension equals the input dimension, the encoder is no longer a genuine bottleneck — it has enough capacity to learn an invertible (or even literally identity) mapping, e.g. $z = x$ and $\\hat{x} = z$. The network can drive reconstruction loss to exactly zero without learning anything about the structure, correlations, or redundancy in the data, because it never had to throw any information away. Useful representation learning specifically requires an **undercomplete** bottleneck ($k < d$) — or some other constraint like sparsity or added noise — that forces the network to discover and keep only the most informative, compressed structure rather than just copying.',
-      tags: ['conceptual', 'failure-mode'],
-    },
-    {
-      prompt: 'Analyze the objective function of a Variational Autoencoder (VAE). If the KL divergence term was removed from the ELBO, leaving only the reconstruction term, how would the latent space and the model\'s generative capabilities be affected during training?',
-      difficulty: 'challenge',
-      hints: [
-        'Consider what stops the encoder from making each $q_\\phi(z|x)$ an arbitrarily narrow spike at an unconstrained location.',
-        'Relate the structure of this unregularized latent space to the model\'s ability to generate valid new samples.'
-      ],
-      solution: 'Without the KL penalty, nothing constrains $q_\\phi(z|x)$ to resemble the prior $p(z) = \\mathcal{N}(0,I)$. The optimizer would be free to shrink each $\\sigma(x)$ toward zero (making the encoder near-deterministic, like a plain autoencoder) and scatter the means $\\mu(x)$ wherever is most convenient for reconstruction, with no requirement that nearby latent points decode to similar outputs or that the latent space be densely packed around the origin. The model would essentially degrade into a vanilla autoencoder: it could still achieve excellent reconstruction, but the latent space would likely have large empty/unstructured regions. Sampling a random $z \\sim \\mathcal{N}(0,I)$ and decoding it would then often land in one of those gaps and produce garbage — destroying the modelʼs ability to generate new, realistic samples, which is the entire point of the KL regularization term.',
-      tags: ['conceptual', 'derivation'],
     },
   ],
   comparisons: [

@@ -9,13 +9,6 @@ export const classicalSynthesis: LearningModule = {
     'Select appropriate algorithms based on data constraints (size, dimensionality, noise).',
     'Analyze trade-offs between model interpretability, inference speed, and predictive power.'
   ],
-  workedExamples: [
-    {
-      title: 'Real-time Credit Card Fraud Detection',
-      problem: 'You have a dataset of 100 million transactions. The system must score transactions in < 10ms with high interpretability for regulatory compliance.',
-      solution: 'A Logistic Regression model (with L1/L2 regularization) or a shallow Decision Tree is preferred. Gradient Boosting might offer better accuracy but could fail the strict latency and interpretability constraints without significant engineering.'
-    }
-  ],
   misconceptions: [
     {
       claim: 'Gradient Boosting is always better than Linear Regression.',
@@ -88,17 +81,6 @@ When designing a system, you must balance **Bias vs Variance**, **Training Time 
     }
   ],
 
-  practiceExercises: [
-    {
-      prompt: "You have a dataset of 10 million rows and 50 dense features. You need to train a classifier to run overnight. Explain why an RBF Kernel SVM is physically impossible to use here, and mathematically prove the scaling bottleneck.",
-      difficulty: "challenge",
-      hints: [
-        "Recall the time complexity of solving the dual problem for kernel SVMs.",
-        "The Gram matrix $K$ must compute the pairwise similarity between all training points. What is the size of this matrix for $N=10,000,000$?"
-      ],
-      solution: "An RBF Kernel SVM requires computing the Gram matrix $K$ of size $N \\times N$. For 10 million rows, this matrix contains $10^{14}$ elements. Even at 4 bytes per float, storing this matrix requires 400 Terabytes of RAM, and inverting it takes $O(N^3)$ time, making it computationally impossible. A Linear SVM or a Gradient Boosting Machine with subsampling should be used instead."
-    }
-  ],
 
   shortAnswerQuestions: [
     {

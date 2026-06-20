@@ -91,7 +91,7 @@ function ShortAnswerCard({
       </div>
       <div className="p-5">
         <p className="mb-4 text-sm text-on-surface-variant">
-          Take a moment to formulate your answer. When you're ready, reveal the rubric to self-grade.
+          Take a moment to formulate your answer. When you&apos;re ready, reveal the rubric to self-grade.
         </p>
         <button
           onClick={() => setShowRubric(!showRubric)}

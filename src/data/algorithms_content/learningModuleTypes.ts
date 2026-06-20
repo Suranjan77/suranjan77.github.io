@@ -5,12 +5,6 @@ export interface GlossaryTerm {
   definition: string;
 }
 
-export interface WorkedExample {
-  title: string;
-  problem: string;       // markdown string with KaTeX math
-  solution: string;      // markdown string with KaTeX math
-}
-
 export interface Reference {
   title: string;
   authors?: string;
@@ -43,17 +37,6 @@ export interface ReviewMetadata {
 }
 
 // --- Active-learning content types (all optional on LearningModule) ---
-
-export type ExerciseDifficulty = 'warm-up' | 'core' | 'challenge';
-
-export interface PracticeExercise {
-  prompt: string;                 // markdown + KaTeX
-  difficulty: ExerciseDifficulty;
-  hint?: string;                  // optional progressive scaffold (markdown + KaTeX)
-  hints?: string[];               // multiple sequential hints for tiered hinting
-  solution: string;               // collapsible (markdown + KaTeX)
-  tags?: string[];                // e.g. ['derivation', 'coding', 'conceptual']
-}
 
 export interface QuizOption {
   text: string;                   // inline markdown
@@ -124,7 +107,6 @@ export interface LearningModule {
   learningObjectives?: string[];
   keyTerms?: GlossaryTerm[];
   notationTable?: string;           // markdown table of symbols
-  workedExamples?: WorkedExample[];
   additionalSections?: ContentSection[];
   failureModes?: FailureMode[];
   misconceptions?: Misconception[];
@@ -132,7 +114,6 @@ export interface LearningModule {
   review?: ReviewMetadata;
 
   // --- Active-learning additions (all optional, backward compatible) ---
-  practiceExercises?: PracticeExercise[];
   quiz?: QuizQuestion[];
   shortAnswerQuestions?: ShortAnswerQuestion[];
   caseStudies?: CaseStudy[];

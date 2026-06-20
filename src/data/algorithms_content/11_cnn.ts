@@ -21,13 +21,6 @@ export const cnn: LearningModule = {
     { term: 'Stride', definition: 'The step size with which the filter moves across the input grid.' },
     { term: 'Pooling', definition: 'A downsampling operation that reduces the spatial dimensions of activation maps, introducing translation invariance.' },
   ],
-  workedExamples: [
-    {
-      title: 'Convolution Output Dimension',
-      problem: 'Given input size $W = 32$, filter size $K = 5$, padding $P = 2$, and stride $S = 1$, calculate the output spatial size.',
-      solution: 'Formula: $W_{out} = \\frac{W - K + 2P}{S} + 1$. Substitute values: $W_{out} = \\frac{32 - 5 + 4}{1} + 1 = 31 + 1 = 32$. The output size is $32 \\times 32$.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'CNNs are only useful for 2D images.',
@@ -203,37 +196,6 @@ $$ \\text{Conv}(\\text{Shift}_{\\Delta i, \\Delta j}(X))_{i,j} = \\text{Conv}(X)
 
 This property — **translation equivariance** — is exactly what parameter sharing buys you: a learned “vertical edge” detector fires on vertical edges wherever they occur in the image, instead of having to be independently re-learned at every pixel location the way a dense layer would require. It is also the structural assumption that fails when spatial position is itself meaningful (e.g. a fixed-format form where “name” always appears in the top-left) — in that setting, the bias that helps CNNs generalize on natural images can actually hurt.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'A convolutional layer takes a $28 \\times 28$ input, uses a $3 \\times 3$ kernel, no padding ($P=0$), and stride $S=1$. What is the output spatial size?',
-      difficulty: 'warm-up',
-      hints: ['Use $O = \\lfloor (W - K + 2P)/S \\rfloor + 1$.'],
-      solution: '$O = \\lfloor (28 - 3 + 0)/1 \\rfloor + 1 = \\lfloor 25 \\rfloor + 1 = 26$. The output is $26 \\times 26$ — without padding, the spatial size shrinks by $K-1 = 2$ pixels.',
-    },
-    {
-      prompt: 'A convolutional layer has input channels $C_{in} = 16$, kernel size $3 \\times 3$, and $C_{out} = 32$ output channels (with bias). How many learnable parameters does this layer have?',
-      difficulty: 'warm-up',
-      hints: ['Each output channel has its own $3\\times3\\times C_{in}$ kernel plus one bias term.'],
-      solution: 'Each of the $32$ output kernels has $3 \\cdot 3 \\cdot 16 = 144$ weights, plus $1$ bias: $145$ parameters per output channel. Total: $32 \\cdot 145 = 4{,}640$ parameters.',
-    },
-    {
-      prompt: 'Manually convolve (cross-correlate, no flipping, as CNN libraries do) the $3\\times3$ input $\\begin{pmatrix}1 & 2 & 0\\\\ 0 & 1 & 2\\\\ 2 & 0 & 1\\end{pmatrix}$ with the $2\\times2$ kernel $\\begin{pmatrix}1 & 0\\\\ 0 & 1\\end{pmatrix}$, stride $1$, no padding. Report the resulting $2\\times2$ output.',
-      difficulty: 'core',
-      hints: ['Slide the kernel over the four valid $2\\times2$ windows and take the element-wise product sum at each position.'],
-      solution: 'Top-left window $\\begin{pmatrix}1&2\\\\0&1\\end{pmatrix}$: $1\\cdot1 + 2\\cdot0 + 0\\cdot0 + 1\\cdot1 = 2$. Top-right window $\\begin{pmatrix}2&0\\\\1&2\\end{pmatrix}$: $2\\cdot1 + 0\\cdot0 + 1\\cdot0 + 2\\cdot1 = 4$. Bottom-left window $\\begin{pmatrix}0&1\\\\2&0\\end{pmatrix}$: $0\\cdot1 + 1\\cdot0 + 2\\cdot0 + 0\\cdot1 = 0$. Bottom-right window $\\begin{pmatrix}1&2\\\\0&1\\end{pmatrix}$: $1\\cdot1 + 2\\cdot0 + 0\\cdot0 + 1\\cdot1 = 2$. Output: $\\begin{pmatrix}2 & 4\\\\ 0 & 2\\end{pmatrix}$.',
-      tags: ['derivation', 'conceptual'],
-    },
-    {
-      prompt: 'Analyze the growth of the receptive field in a deep CNN. Compare the receptive field of a unit after four $3\\times3$ convolutional layers (stride 1) versus an architecture that alternates the same convolutional layers with stride-2 pooling.',
-      difficulty: 'challenge',
-      hints: [
-        'First, determine how much a single $3\\times3$, stride-1 layer increases the receptive field relative to the previous layer.',
-        'Then, consider how a stride-2 pooling layer multiplies the effective receptive field of all subsequent layers.'
-      ],
-      solution: 'A single $3\\times3$ layer has a receptive field of $3$. Each subsequent $3\\times3$, stride-1 layer adds $K-1=2$ to the receptive field (one pixel of context on each side), so after $n$ layers the receptive field is $1 + n(K-1) = 1 + 4(2) = 9$ pixels (i.e. $9\\times9$) — receptive field grows **linearly** with depth when stride is $1$. If a stride-$2$ pooling (or strided convolution) layer follows each conv layer, every subsequent layer’s receptive field gets multiplied by the accumulated downsampling factor, so growth becomes **exponential** in depth rather than linear — this is exactly why deep CNNs use occasional downsampling to cover large input regions without needing an impractically large number of layers.',
-      tags: ['conceptual', 'derivation'],
     },
   ],
   comparisons: [

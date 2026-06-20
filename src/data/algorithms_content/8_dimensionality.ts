@@ -21,13 +21,6 @@ export const dimensionalityReduction: LearningModule = {
     { term: 'Principal Component', definition: 'A linear combination of the original variables that captures the maximum variance in the dataset.' },
     { term: 'Explained Variance Ratio', definition: 'The fraction of the total variance in the dataset that is captured by each principal component.' },
   ],
-  workedExamples: [
-    {
-      title: 'Explained Variance calculation',
-      problem: 'PCA returns three eigenvalues: $\\lambda_1 = 6.0$, $\\lambda_2 = 3.0$, $\\lambda_3 = 1.0$. Calculate the explained variance ratio of the first component.',
-      solution: 'Total variance is the sum of eigenvalues: $\\sum \\lambda_i = 6.0 + 3.0 + 1.0 = 10.0$. Explained variance ratio for component 1 is $\\frac{\\lambda_1}{\\text{Total}} = \\frac{6.0}{10.0} = 0.6$ (or 60%).',
-    },
-  ],
   misconceptions: [
     {
       claim: 'PCA is a feature selection technique.',
@@ -164,31 +157,6 @@ $$ \\frac{\\sum_{i=1}^{k} \\lambda_i}{\\sum_{j=1}^{d} \\lambda_j} \\;\\ge\\; \\t
 
 Plotting the cumulative ratio against $k$ (the "scree" / cumulative-variance curve) makes the trade-off between compression and information retention visible at a glance.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'PCA on a 4-feature dataset returns eigenvalues $\\lambda = [8, 4, 2, 1]$. What is the explained variance ratio of the **first** component, and what is the cumulative ratio of the first **two**?',
-      difficulty: 'warm-up',
-      solution: 'Total variance $= 8 + 4 + 2 + 1 = 15$. First component EVR $= 8/15 \\approx 0.533$ (53.3%). First two cumulative $= (8 + 4)/15 = 12/15 = 0.80$ (80%).',
-    },
-    {
-      prompt: 'Using the same eigenvalues $\\lambda = [8, 4, 2, 1]$, how many components must you keep to retain at least **95%** of the variance?',
-      difficulty: 'core',
-      hints: ['Accumulate the sorted eigenvalues.', 'Find the smallest $k$ whose cumulative ratio reaches 0.95.'],
-      solution: 'Total $= 15$. Cumulative ratios: $k=1: 8/15 = 0.533$; $k=2: 12/15 = 0.800$; $k=3: 14/15 \\approx 0.933$; $k=4: 15/15 = 1.000$. Three components ($0.933$) still fall short of $0.95$, so you must keep all **4** components to reach the 95% threshold. (This dataset has no near-zero eigenvalue, so it does not compress well at 95%.)',
-    },
-    {
-      prompt: 'Two features measure the same physical quantity but in different units: feature A is a length in **millimetres** (values in the thousands) and feature B is the same length in **metres** (values near 1). You run PCA **without** standardizing. What happens, and how do you fix it?',
-      difficulty: 'core',
-      hints: ['Variance scales with the square of the units.', 'Compare the variance of A versus B.'],
-      solution: 'Variance scales with the square of the measurement scale, so feature A (millimetres) has roughly $1000^2 = 10^6$ times the variance of feature B (metres) even though they carry identical information. PCA maximizes variance, so the first component will align almost entirely with A and essentially ignore B and every other modestly-scaled feature. The fix is to **standardize** each feature to zero mean and unit variance (z-score) before PCA, i.e. run PCA on the correlation matrix rather than the raw covariance matrix, so each feature contributes on equal footing.',
-    },
-    {
-      prompt: 'Prove that the projected data produced by PCA has mutually uncorrelated features.',
-      difficulty: 'challenge',
-      hints: ['Stack the top eigenvectors as columns of $W$.', 'Compute the covariance of $XW$ using $\\mathbf{\\Sigma} = W \\Lambda W^T$.'],
-      solution: 'Let $W = [\\mathbf{w}_1, \\dots, \\mathbf{w}_k]$ hold orthonormal eigenvectors of $\\mathbf{\\Sigma}$, so $W^T W = I$ and $\\mathbf{\\Sigma} W = W \\Lambda$ with $\\Lambda = \\operatorname{diag}(\\lambda_1, \\dots, \\lambda_k)$. The projected data is $Z = X W$. Its covariance is $\\operatorname{Cov}(Z) = W^T \\mathbf{\\Sigma} W = W^T (W \\Lambda) = (W^T W)\\Lambda = \\Lambda$, which is **diagonal**. Off-diagonal entries are zero, so distinct principal components are uncorrelated, and the variance of component $i$ is exactly $\\lambda_i$.',
     },
   ],
   comparisons: [

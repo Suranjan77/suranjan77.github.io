@@ -39,12 +39,6 @@ export default function LessonNavigator({
     currentIndex >= 0 ? Math.round(((currentIndex + 1) / modules.length) * 100) : 0;
   const sections = [
     ...coreSections.slice(0, 3),
-    ...(currentModule.workedExamples?.length
-      ? [{ id: "examples", label: "Examples" } as const]
-      : []),
-    ...(currentModule.practiceExercises?.length
-      ? [{ id: "practice", label: "Practice" } as const]
-      : []),
     ...coreSections.slice(3),
     ...(currentModule.caseStudies?.length
       ? [{ id: "case-studies", label: "Case Studies" } as const]

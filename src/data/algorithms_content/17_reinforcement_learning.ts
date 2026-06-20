@@ -21,13 +21,6 @@ export const reinforcementLearning: LearningModule = {
     { term: 'Q-Value (State-Action Value)', definition: 'The expected cumulative reward of taking an action in a state and following a policy thereafter.' },
     { term: 'Markov Decision Process (MDP)', definition: 'A mathematical framework for modeling decision-making where outcomes are partly random and partly under control of a decision maker.' },
   ],
-  workedExamples: [
-    {
-      title: 'Temporal Difference (TD) Target',
-      problem: 'Given state $s$, action $a$, reward $r = 10$, next state $s\'$, discount factor $\\gamma = 0.9$, and estimated $Q(s\', a\') = 5.0$, compute the TD target.',
-      solution: 'TD Target = $r + \\gamma \\max_{a\'} Q(s\', a\') = 10 + 0.9 \\times 5.0 = 10 + 4.5 = 14.5$.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'Reinforcement learning is just supervised learning with scalar labels.',
@@ -190,45 +183,6 @@ The bracketed term is the **TD error**: the gap between the sampled target and t
 
 **Why it is off-policy.** The target uses $\\max_{a^{\\prime}} Q(s^{\\prime}, a^{\\prime})$ — the value of the **greedy** action in the next state — regardless of which action the agent actually took there. The agent can collect experience using any **behavior policy** (for example $\\epsilon$-greedy, which explores), yet still learn about the **target policy** that acts greedily. Because the policy being learned differs from the policy generating the data, Q-learning is **off-policy**. (Contrast SARSA, whose target uses $Q(s^{\\prime}, a^{\\prime})$ for the action $a^{\\prime}$ actually taken next, making it **on-policy**.)
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'An agent collects the reward sequence $r_1 = 2$, $r_2 = 0$, $r_3 = 8$ over three steps and then the episode ends. With discount factor $\\gamma = 0.5$, compute the discounted return $G_0$ from the start.',
-      difficulty: 'warm-up',
-      hints: [
-        'Use $G_0 = r_1 + \\gamma r_2 + \\gamma^2 r_3$, weighting each reward by $\\gamma^k$.'
-      ],
-      solution: '$G_0 = 2 + (0.5)(0) + (0.5)^2(8) = 2 + 0 + 0.25 \\times 8 = 2 + 0 + 2 = 4$. The reward of $8$ arrives two steps later, so it is discounted by $\\gamma^2 = 0.25$ down to an effective contribution of $2$.',
-      tags: ['conceptual', 'computation'],
-    },
-    {
-      prompt: 'A Q-table currently holds $Q(s,a) = 3.0$. The agent takes action $a$, receives reward $r = 1$, and lands in state $s^{\\prime}$ where the action-values are $Q(s^{\\prime}, a_1) = 5$ and $Q(s^{\\prime}, a_2) = 2$. With learning rate $\\alpha = 0.1$ and discount $\\gamma = 0.9$, perform one Q-learning update and report the new $Q(s,a)$.',
-      difficulty: 'core',
-      hints: [
-        'First form the TD target $r + \\gamma \\max_{a^{\\prime}} Q(s^{\\prime}, a^{\\prime})$, then the TD error, then apply $Q \\leftarrow Q + \\alpha \\times \\text{error}$.'
-      ],
-      solution: 'The greedy next-state value is $\\max_{a^{\\prime}} Q(s^{\\prime}, a^{\\prime}) = \\max(5, 2) = 5$. TD target $= r + \\gamma \\max_{a^{\\prime}} Q(s^{\\prime},a^{\\prime}) = 1 + 0.9 \\times 5 = 5.5$. TD error $= 5.5 - 3.0 = 2.5$. Update: $Q(s,a) \\leftarrow 3.0 + 0.1 \\times 2.5 = 3.0 + 0.25 = 3.25$. The estimate moves a small step (10%) toward the target rather than jumping all the way.',
-      tags: ['computation', 'q-learning'],
-    },
-    {
-      prompt: 'An agent uses an $\\epsilon$-greedy policy with $\\epsilon = 0.1$ over $4$ available actions, exactly one of which is the current greedy (best-estimate) action. What is the probability it selects the greedy action on a given step, and what is the probability it picks each specific non-greedy action?',
-      difficulty: 'core',
-      hints: [
-        'With probability $1 - \\epsilon$ it exploits; with probability $\\epsilon$ it explores uniformly over **all** actions (including, in the standard formulation, the greedy one).'
-      ],
-      solution: 'In the standard $\\epsilon$-greedy rule, with probability $\\epsilon$ the agent picks uniformly among all $4$ actions, and with probability $1-\\epsilon$ it picks the greedy one. So the greedy action is chosen with probability $(1-\\epsilon) + \\epsilon/4 = 0.9 + 0.1/4 = 0.9 + 0.025 = 0.925$. Each of the $3$ non-greedy actions is chosen with probability $\\epsilon/4 = 0.025$. Check: $0.925 + 3 \\times 0.025 = 0.925 + 0.075 = 1.0$.',
-      tags: ['conceptual', 'exploration'],
-    },
-    {
-      prompt: 'Consider an MDP where from state $s$ a fixed policy transitions to state $A$ (reward 4) or state $B$ (reward 0) with equal probability. Given $V^\\pi(A) = 10$ and $V^\\pi(B) = 6$, and $\\gamma = 0.9$, evaluate the new state-value $V^\\pi(s)$ by explicitly breaking down the expectation over the branches.',
-      difficulty: 'challenge',
-      hints: [
-        'How does the Bellman expectation equation combine the immediate reward with the discounted future value for each possible branch?',
-        'Calculate the expected return for branch A and branch B separately, then combine them using their transition probabilities.'
-      ],
-      solution: 'Backup over both branches: $V^\\pi(s) = 0.5\\,[\\,4 + 0.9 \\times 10\\,] + 0.5\\,[\\,0 + 0.9 \\times 6\\,]$. The first branch contributes $0.5 \\times (4 + 9) = 0.5 \\times 13 = 6.5$; the second contributes $0.5 \\times (0 + 5.4) = 0.5 \\times 5.4 = 2.7$. Therefore $V^\\pi(s) = 6.5 + 2.7 = 9.2$.',
-      tags: ['derivation', 'bellman'],
     },
   ],
   comparisons: [

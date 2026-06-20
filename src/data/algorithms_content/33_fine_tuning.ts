@@ -34,13 +34,6 @@ export const fineTuning: LearningModule = {
       definition: "A training algorithm that optimizes a language model directly on preference data (preferred vs rejected completions) using a closed-form loss function, eliminating the need for reinforcement learning."
     }
   ],
-  workedExamples: [
-    {
-      title: "LoRA Parameter Reduction Calculation",
-      problem: "A weight matrix in an attention layer has dimension $d_1 = 4096$ and $d_2 = 4096$. If we apply Low-Rank Adaptation (LoRA) with rank $r = 8$, compute the original parameter count, the new LoRA parameter count, and the percentage reduction in trainable parameters.",
-      solution: "Let's perform the calculations:\n\n1. **Original Parameters**:\n   $$N_{\\text{orig}} = d_1 \\times d_2 = 4096 \\times 4096 = 16,777,216$$\n\n2. **LoRA Parameters**:\n   LoRA updates the weight matrix $\\mathbf{W}$ using two low-rank matrices $\\mathbf{A} \\in \\mathbb{R}^{d_1 \\times r}$ and $\\mathbf{B} \\in \\mathbb{R}^{r \\times d_2}$.\n   $$N_{\\text{LoRA}} = (d_1 \\times r) + (r \\times d_2) = (4096 \\times 8) + (8 \\times 4096) = 32,768 + 32,768 = 65,536$$\n\n3. **Percentage Reduction**:\n   $$\\text{Ratio} = \\frac{N_{\\text{LoRA}}}{N_{\\text{orig}}} = \\frac{65,536}{16,777,216} \\approx 0.003906$$\n   $$\\text{Percentage} = 100 - (0.003906 \\times 100) \\approx 99.61\\%$$\n\nThus, LoRA reduces the number of trainable parameters in this layer by $99.61\\%$, leaving only $65,536$ parameters to optimize instead of $16.78$ million."
-    }
-  ],
   misconceptions: [
     {
       claim: "Fine-tuning is the best way to load new factual knowledge base databases into a language model.",
@@ -199,44 +192,6 @@ Several techniques mitigate it:
 - **LoRA’s implicit regularization.** Because the base weights $W$ are **frozen** and only the small low-rank $BA$ is learned, the original knowledge encoded in $W$ literally cannot be overwritten. The adaptation is confined to a tiny additive correction, which acts as a strong structural regularizer against forgetting. Keeping the LoRA rank $r$ small further limits how far the model can move.
 - **Replaying general data.** Mixing some general-purpose examples back into the fine-tuning set reminds the model of its original distribution and counteracts forgetting directly.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'A transformer layer has a weight matrix of size $d = k = 2048$. Using LoRA with rank $r = 16$, how many trainable parameters does the adapter add, and how does that compare to full fine-tuning of that matrix?',
-      difficulty: 'warm-up',
-      hints: [
-        'LoRA adds $r(d + k)$ parameters.',
-        'Full fine-tuning trains $d \\times k$.'
-      ],
-      solution: 'LoRA: $r(d + k) = 16 \\times (2048 + 2048) = 16 \\times 4096 = 65{,}536$ parameters. Full fine-tuning: $d \\times k = 2048 \\times 2048 = 4{,}194{,}304$ parameters. The ratio is $4{,}194{,}304 / 65{,}536 = 64\\times$ fewer trainable parameters with LoRA.',
-      tags: ['computation', 'lora'],
-    },
-    {
-      prompt: 'You apply LoRA with rank $r = 8$ to the query and value projections of every transformer block. The model has 32 blocks, and each projection is a $4096 \\times 4096$ matrix. What is the total number of trainable LoRA parameters?',
-      difficulty: 'core',
-      hints: [
-        'Count adapters: 2 projections per block, 32 blocks.',
-        'Each adapter has $r(d + k)$ params.'
-      ],
-      solution: 'Per adapter: $r(d + k) = 8 \\times (4096 + 4096) = 65{,}536$ params. Number of adapters: $2 \\text{ projections} \\times 32 \\text{ blocks} = 64$. Total: $64 \\times 65{,}536 = 4{,}194{,}304 \\approx 4.19$M trainable parameters. For a model with billions of parameters, this is well under $0.1\\%$ of the total — which is exactly why LoRA fits on a single consumer GPU.',
-      tags: ['computation', 'lora'],
-    },
-    {
-      prompt: 'During fine-tuning a colleague sets the learning rate very high to "make training faster." After a few hundred steps the model produces fluent answers on the fine-tuning task but has become incoherent on everything else. Explain what happened in terms of catastrophic forgetting.',
-      difficulty: 'core',
-      solution: 'A high learning rate produces large gradient steps that move the weights far from the pretrained solution. Because the fine-tuning data covers only a narrow distribution, those large updates optimize for that slice while carrying no signal to preserve unrelated capabilities. The weights that encoded general knowledge get overwritten — catastrophic forgetting. The fix is a much smaller learning rate (keeping weights near the pretrained neighborhood), fewer epochs, and/or LoRA so the base weights stay frozen and cannot be clobbered.',
-      tags: ['conceptual', 'forgetting'],
-    },
-    {
-      prompt: 'You must ship 50 customer-specific variants of a 7B-parameter model under a strict latency and storage budget. Propose an adaptation strategy and justify it quantitatively.',
-      difficulty: 'challenge',
-      hints: [
-        'Think about how much disk each variant needs.',
-        'Consider whether the adapter can be merged at inference.'
-      ],
-      solution: 'Choose LoRA. **Storage:** full fine-tuning means 50 complete copies of a 7B model (tens of gigabytes each — well over a terabyte total), whereas 50 LoRA adapters are only a few megabytes each, so they share one frozen base model and add negligible storage. **Latency:** a LoRA adapter $BA$ can be merged back into the base weights ($W \\leftarrow W + \\tfrac{\\alpha}{r}BA$) at deploy time, so the served model has the exact same shape and runs with zero added latency versus the base. You also get reduced catastrophic forgetting for free since the base weights are frozen. Full fine-tuning would only be justified if a customer needed a sweeping behavior change that a low-rank update genuinely cannot express.',
-      tags: ['conceptual', 'deployment', 'lora'],
     },
   ],
   comparisons: [

@@ -21,13 +21,6 @@ export const llms: LearningModule = {
     { term: 'Temperature', definition: 'A hyperparameter that controls the randomness of next-token predictions by scaling logit values before softmax.' },
     { term: 'Instruction Tuning', definition: 'Fine-tuning a pretrained model on a dataset of prompt-response pairs to teach it to follow instructions.' },
   ],
-  workedExamples: [
-    {
-      title: 'Autoregressive Decoding Probability',
-      problem: 'For vocabulary [cat, dog, fish], model output logits are [2.0, 1.0, 0.0] at temperature $T = 1.0$. Calculate the next-token probability of "cat".',
-      solution: 'Scale logits by temperature: $L = \\frac{\\text{logits}}{T} = [2.0, 1.0, 0.0]$. Next-token probabilities are $\\text{Softmax}([2.0, 1.0, 0.0]) = [\\frac{e^2}{e^2 + e^1 + e^0}, \\frac{e^1}{e^2 + e^1 + e^0}, \\frac{e^0}{e^2 + e^1 + e^0}] \\approx [\\frac{7.389}{7.389+2.718+1}, \\frac{2.718}{11.107}, \\frac{1}{11.107}] \\approx [0.665, 0.245, 0.090]$. The probability of "cat" is $66.5\\%$.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'LLMs search a database of facts to answer questions.',
@@ -187,42 +180,6 @@ $$ \\frac{L(kN)}{L(N)} = k^{-\\alpha} = \\frac{1}{2} \\;\\Longrightarrow\\; k = 
 
 So halving the loss by adding parameters alone demands on the order of **10,000x more parameters** — a brutal return curve. With the data exponent $\\alpha_D \\approx 0.095$, halving the loss via data alone needs $k = 2^{1/0.095} \\approx 2^{10.5} \\approx 1{,}500$x more tokens. The practical lesson, formalized by the **Chinchilla** compute-optimal analysis, is that for a fixed compute budget you should grow parameters and training tokens *together* (roughly in equal proportion) rather than pouring all compute into a giant model trained on too little data.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'A language model assigns the following probabilities to the true next token at each of 3 positions: $0.5, 0.25, 0.5$. Compute the perplexity of the model on this sequence.',
-      difficulty: 'warm-up',
-      hints: [
-        'Perplexity is $\\exp$ of the average negative log-probability: $\\text{PPL} = \\exp\\!\\left(-\\frac{1}{N}\\sum_t \\log p_t\\right)$.'
-      ],
-      solution: 'Average negative log-likelihood $= -\\frac{1}{3}(\\ln 0.5 + \\ln 0.25 + \\ln 0.5) = -\\frac{1}{3}(-0.693 - 1.386 - 0.693) = -\\frac{1}{3}(-2.772) = 0.924$. Then $\\text{PPL} = e^{0.924} \\approx 2.52$. Equivalently, using base-2 the per-token cross-entropy is $\\frac{1}{3}(1 + 2 + 1) = 1.33$ bits, so $\\text{PPL} = 2^{1.33} \\approx 2.52$ — the model is on average about as uncertain as choosing among 2.5 equally likely tokens.',
-      tags: ['core-metric', 'computation'],
-    },
-    {
-      prompt: 'At one position a model outputs logits $[2.0, 1.0, 0.0]$ over a 3-token vocabulary, and the **true** next token is the second one. Compute the next-token cross-entropy loss at this position (temperature $1.0$, natural log).',
-      difficulty: 'core',
-      hints: [
-        'Cross-entropy at this step is $-\\log p(\\text{true token})$ where $p$ comes from the softmax of the logits.'
-      ],
-      solution: 'Softmax denominator: $e^{2} + e^{1} + e^{0} = 7.389 + 2.718 + 1.000 = 11.107$. Probability of the true (second) token: $p = e^{1}/11.107 = 2.718/11.107 \\approx 0.245$. Cross-entropy loss $= -\\ln(0.245) \\approx 1.407$ nats. (Had the true token been the first, the loss would have been $-\\ln(0.665) \\approx 0.408$ — lower, because the model already favored it.)',
-      tags: ['loss', 'softmax'],
-    },
-    {
-      prompt: 'A Transformer’s self-attention cost scales quadratically with sequence length. If processing a 2,000-token context costs $X$ FLOPs in the attention layers, roughly how much do the attention layers cost for an 8,000-token context, and why does this matter for long-context use?',
-      difficulty: 'core',
-      solution: 'Attention compute scales as $O(n^2)$ in sequence length $n$. Going from $n = 2{,}000$ to $n = 8{,}000$ is a $4\\times$ increase in length, so attention cost grows by $4^2 = 16\\times$, to roughly $16X$. (Memory for the attention matrix also grows $\\sim 16\\times$.) This quadratic blow-up is why naively quadrupling the context window is far more than 4x as expensive, and motivates techniques like FlashAttention, sparse/sliding-window attention, and KV-cache management for long-context serving.',
-      tags: ['context-window', 'compute', 'conceptual'],
-    },
-    {
-      prompt: 'You can scale up your model size by 10x or your dataset size by 10x. Given empirical scaling laws $L \\propto N^{-0.076}$ and $L \\propto D^{-0.095}$, evaluate which intervention is more effective and synthesize what this implies for compute-optimal training under a fixed budget.',
-      difficulty: 'challenge',
-      hints: [
-        'Calculate the exact loss reduction multipliers for both a 10x increase in $N$ and a 10x increase in $D$.',
-        'How does Chinchilla relate these separate scaling laws into a single budget recommendation?'
-      ],
-      solution: 'Parameters: $10^{-0.076} \\approx 0.839$, i.e. a $\\sim 16\\%$ loss reduction. Data: $10^{-0.095} \\approx 0.804$, i.e. a $\\sim 20\\%$ loss reduction. With these exponents the 10x data intervention reduces loss slightly more than 10x parameters. More importantly, neither should be scaled alone: the Chinchilla result shows that under a fixed compute budget the optimal strategy grows $N$ and $D$ together in roughly equal proportion — a model that is too large for its token budget (over-parameterized and under-trained) wastes compute. The takeaway is to balance model size against data, not to maximize parameters in isolation.',
-      tags: ['scaling-laws', 'reasoning', 'compute-optimal'],
     },
   ],
   comparisons: [

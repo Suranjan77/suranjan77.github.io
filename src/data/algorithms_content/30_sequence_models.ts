@@ -34,13 +34,6 @@ export const sequenceModels: LearningModule = {
       definition: "A training strategy for sequence-to-sequence models where the actual target token from the training data is fed as input to the next time step, instead of the model's own output."
     }
   ],
-  workedExamples: [
-    {
-      title: "Vanilla RNN Hidden State Computation",
-      problem: "Given a vanilla RNN with weight matrices $W_{hh} = 0.5$ (hidden-to-hidden) and $W_{xh} = 0.8$ (input-to-hidden), bias $b_h = 0.1$, and tanh activation. If the initial hidden state $h_0 = 0.0$ and we receive sequence inputs $x_1 = 1.0$ and $x_2 = -0.5$, compute the hidden states $h_1$ and $h_2$. Use $\\tanh(0.9) \\approx 0.716$ and $\\tanh(-0.042) \\approx -0.042$.",
-      solution: "The recurrence equation for a vanilla RNN is:\n$$h_t = \\tanh(W_{hh} h_{t-1} + W_{xh} x_t + b_h)$$\n\n### Time Step 1:\n- Compute linear combination:\n  $$z_1 = 0.5 \\times h_0 + 0.8 \\times x_1 + 0.1 = 0.5 \\times 0.0 + 0.8 \\times 1.0 + 0.1 = 0.9$$\n- Apply activation function:\n  $$h_1 = \\tanh(0.9) \\approx 0.716$$\n\n### Time Step 2:\n- Compute linear combination:\n  $$z_2 = 0.5 \\times h_1 + 0.8 \\times x_2 + 0.1 = 0.5 \\times 0.716 + 0.8 \\times (-0.5) + 0.1 = 0.358 - 0.400 + 0.1 = 0.058$$\n- Apply activation function:\n  $$h_2 = \\tanh(0.058) \\approx 0.058$$\n\nSo the hidden states are $h_1 \\approx 0.716$ and $h_2 \\approx 0.058$."
-    }
-  ],
   misconceptions: [
     {
       claim: "Vanilla Recurrent Neural Networks can easily learn very long-term dependencies in sequences.",
@@ -200,35 +193,6 @@ $$ f_t \\approx 1 \\;\\Longrightarrow\\; \\prod_{t=k+1}^{T} \\operatorname{diag}
 
 This is the same intuition as a residual/skip connection in a feedforward network: an additive identity-like path through time means the gradient does not have to survive repeated multiplication by the *same* contractive matrix. The hidden state $h_t = o_t \\odot \\tanh(C_t)$ still goes through a $\\tanh$ squashing nonlinearity, so gradients flowing through $h_t$ can still attenuate somewhat — but the protected, gated cell-state path is what allows LSTMs to retain signal over hundreds of steps where vanilla RNNs fail after a few dozen.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'A vanilla RNN has $W_{hh} = 0.4$, $W_{xh} = 0.4$, $b_h = 0.0$, and $h_0 = 0.0$. Given input $x_1 = 0.5$, compute $h_1$ using $\\tanh(0.2) \\approx 0.197$.',
-      difficulty: 'warm-up',
-      solution: 'Apply the recurrence $h_1 = \\tanh(W_{hh} h_0 + W_{xh} x_1 + b_h)$. Plugging in the values: $z_1 = 0.4 \\times 0.0 + 0.4 \\times 0.5 + 0.0 = 0.2$. So $h_1 = \\tanh(0.2) \\approx 0.197$. Note that since $h_0 = 0$, only the input term contributes at the very first step — the recurrent term $W_{hh} h_{t-1}$ only starts to matter from $h_2$ onward.',
-      tags: ['computation'],
-    },
-    {
-      prompt: 'A chain of 10 BPTT Jacobian factors each have approximate magnitude $0.7$ (from $(1-h_t^2) \\cdot w_{hh} \\approx 0.7$). Estimate the surviving gradient magnitude after propagating back 10 steps, and state whether this is vanishing or exploding.',
-      difficulty: 'warm-up',
-      hints: ["Calculate the total attenuation by multiplying the factors.", "Since it's 10 steps of 0.7, compute $0.7^{10}$."],
-      solution: '$0.7^{10} \\approx 0.0282$. The gradient signal has shrunk to about 2.8% of its original magnitude after only 10 steps — this is the **vanishing gradient** regime. Extrapolating further, after 30 steps it would be $0.7^{30} \\approx 2.2 \\times 10^{-5}$, effectively zero, which is why vanilla RNNs cannot learn dependencies spanning many tens of steps.',
-      tags: ['gradient-flow', 'conceptual'],
-    },
-    {
-      prompt: 'An LSTM forget gate, input gate, and candidate are computed as $f_t = 0.9$, $i_t = 0.2$, $\\tilde{c}_t = 0.8$ (all scalars, one dimension for simplicity). Given the previous cell state $c_{t-1} = 1.5$, compute the new cell state $c_t$. Then explain qualitatively what would happen to long-range gradient flow if $f_t$ were instead close to $0$.',
-      difficulty: 'core',
-      hints: ['First compute the forward pass using $c_t = f_t \\cdot c_{t-1} + i_t \\cdot \\tilde{c}_t$.', 'For the gradient, think about what happens to $\\partial c_t/\\partial c_{t-1} = f_t$ when $f_t$ is close to 0.'],
-      solution: 'First the forward computation: $c_t = f_t \\cdot c_{t-1} + i_t \\cdot \\tilde{c}_t = 0.9 \\times 1.5 + 0.2 \\times 0.8 = 1.35 + 0.16 = 1.51$. The gate values mean the cell mostly keeps its old memory ($f_t = 0.9$ retains 90% of $c_{t-1}$) while writing in a small amount of new information ($i_t = 0.2$ scales the candidate). For the gradient question: since $\\partial c_t/\\partial c_{t-1} = f_t$, if $f_t$ were close to $0$ instead of $0.9$, the backward path through the cell state at this particular step would strongly attenuate the gradient (multiplying by $\\approx 0$), effectively "cutting" the memory — exactly mirroring the *intent* of the forget gate: erase information that is no longer relevant. A consistently high $f_t \\approx 1$ across many steps is what lets gradients (and information) survive over long sequences; the network learns to set $f_t$ near 1 only for the dimensions/time steps where memory should persist.',
-      tags: ['lstm', 'gradient-flow'],
-    },
-    {
-      prompt: 'Compare how GRUs and LSTMs control information flow. Focus on their gating architectures, state management, and parameter efficiency.',
-      difficulty: 'challenge',
-      hints: ['Recall how a GRU handles the forget and input functions compared to an LSTM.', 'Consider whether a GRU maintains a separate cell state or just a hidden state.'],
-      solution: '(a) An LSTM uses **three** gates — forget $f_t$, input $i_t$, and output $o_t$ — plus a candidate cell-state computation, giving four weight matrices (and four bias vectors) per layer that map $[h_{t-1}, x_t]$ to gate/candidate pre-activations. A GRU uses only **two** gates — an update gate $z_t$ (which plays the combined role of LSTM forget+input, deciding how much of the past hidden state to retain vs. overwrite with a new candidate) and a reset gate $r_t$ (which controls how much past hidden state is used when computing the candidate) — requiring only three weight matrices. (b) No: a GRU does **not** maintain a separate cell state. It folds the LSTM cell state and hidden state into a single hidden state $h_t$, with the update $h_t = (1-z_t) \\odot h_{t-1} + z_t \\odot \\tilde{h}_t$, which is structurally analogous to the LSTM cell-state update but operates directly on the externally-visible hidden state. (c) Because the GRU has one fewer gate and no separate cell-state pathway, it has roughly **25% fewer parameters** than an LSTM of the same hidden size (3 weight matrices vs. 4, ignoring the output projection). In practice GRUs often match LSTM accuracy on small-to-medium datasets while training faster, though LSTMs can have a slight edge on tasks demanding very long-range memory because the separate, undiluted cell state gives a cleaner long-term storage channel.',
-      tags: ['comparison', 'conceptual'],
     },
   ],
   comparisons: [

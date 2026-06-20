@@ -9,13 +9,6 @@ export const llmSynthesis: LearningModule = {
     'Analyze the trade-offs between fine-tuning a model versus using Prompt Engineering and RAG.',
     'Evaluate the risks, safety, and deployment costs associated with modern Large Language Models.'
   ],
-  workedExamples: [
-    {
-      title: 'Enterprise Internal Knowledge Assistant',
-      problem: 'A company wants a chatbot that answers employee questions based on private HR documents. The documents update weekly.',
-      solution: 'Instead of continually fine-tuning an LLM on the changing documents (which is slow, expensive, and prone to hallucinations), deploy a RAG (Retrieval-Augmented Generation) system. Use a vector database to fetch relevant HR policies and inject them into the context window of a frozen LLM.'
-    }
-  ],
   misconceptions: [
     {
       claim: 'Fine-tuning an LLM is the best way to teach it new factual knowledge.',
@@ -85,17 +78,6 @@ When a model fails to perform a task, you must diagnose if it is a **Knowledge**
     }
   ],
 
-  practiceExercises: [
-    {
-      prompt: "You are designing an AI agent to automatically parse incoming customer emails and trigger API calls. The agent consistently extracts the right information but outputs invalid JSON that breaks your API. Explain whether you should use RAG or Fine-Tuning to fix this, and justify your answer based on the Knowledge vs. Behavior paradigm.",
-      difficulty: "challenge",
-      hints: [
-        "Does the model lack the necessary information to answer the question?",
-        "Is the failure related to the *format* and *style* of the output?"
-      ],
-      solution: "This is a classic **Behavior** failure. The model has the Knowledge (it extracts the right info), but fails to adhere to a strict structural behavior. You should use **Fine-Tuning** (specifically, LoRA on a dataset of strictly formatted JSON outputs). RAG is useless here because adding more context to the prompt won't teach the model the strict syntactic adherence required."
-    }
-  ],
 
   shortAnswerQuestions: [
     {

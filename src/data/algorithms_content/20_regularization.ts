@@ -21,13 +21,6 @@ export const regularization: LearningModule = {
     { term: 'L2 Regularization (Ridge)', definition: 'A regularization technique that adds a penalty equal to the sum of the squared values of the weights.' },
     { term: 'Sparsity', definition: 'A state where many model weights are exactly equal to zero, effectively removing the corresponding features.' },
   ],
-  workedExamples: [
-    {
-      title: 'Regularized Loss calculation',
-      problem: 'Given base MSE loss $L_0 = 2.0$, model weights $w = [3.0, -4.0]$, and regularization strength $\\lambda = 0.1$, calculate the total loss with L2 regularization.',
-      solution: 'L2 penalty = $\\|w\\|_2^2 = 3.0^2 + (-4.0)^2 = 9.0 + 16.0 = 25.0$. Total Loss = $L_0 + \\lambda \\|w\\|_2^2 = 2.0 + 0.1 \\times 25.0 = 2.0 + 2.5 = 4.5$.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'Regularization is used to reduce model training error.',
@@ -180,42 +173,6 @@ Whenever the unregularized estimate $z$ falls inside the band $[-\\lambda, \\lam
     },
   ],
 
-  practiceExercises: [
-    {
-      prompt: 'You have one standardized predictor ($X^TX = 1$) with OLS estimate $z = X^Ty = 4$. Compute the Ridge coefficient with $\\lambda = 1$.',
-      difficulty: 'warm-up',
-      hints: [
-        'Use $\\hat\\beta_{\\text{ridge}} = \\dfrac{z}{1+2\\lambda}$.'
-      ],
-      solution: '$\\hat\\beta_{\\text{ridge}} = \\dfrac{4}{1 + 2(1)} = \\dfrac{4}{3} \\approx 1.33$. Compare to the unregularized OLS estimate of $z = 4$: Ridge has shrunk it toward zero by a factor of $1/3$, but it remains non-zero.',
-    },
-    {
-      prompt: 'For the same predictor ($z = 4$), compute the Lasso coefficient using soft-thresholding with $\\lambda = 1$ and then with $\\lambda = 5$.',
-      difficulty: 'warm-up',
-      hints: [
-        'Use $\\hat\\beta_{\\text{lasso}} = \\operatorname{sign}(z)\\max(|z| - \\lambda, 0)$.'
-      ],
-      solution: 'With $\\lambda = 1$: $|z| = 4 > \\lambda$, so $\\hat\\beta = \\operatorname{sign}(4)(4 - 1) = 3$. With $\\lambda = 5$: $|z| = 4 \\le \\lambda$, so $\\hat\\beta = 0$ — the coefficient is killed entirely because the penalty exceeds the strength of evidence for that feature. This illustrates the sparsity threshold explicitly: any $|z| \\le \\lambda$ is zeroed out by Lasso, whereas Ridge would only ever approach (never reach) zero as $\\lambda$ grows.',
-    },
-    {
-      prompt: 'Explain what happens to the Ridge solution $\\hat\\beta_{\\text{ridge}} = (X^TX + \\lambda I)^{-1}X^Ty$ as $\\lambda \\to 0$ and as $\\lambda \\to \\infty$. Connect each limit to the bias-variance tradeoff.',
-      difficulty: 'core',
-      hints: [
-        'Think about what each limit does to the eigenvalues $\\mu_j + \\lambda$ of $X^TX + \\lambda I$.'
-      ],
-      solution: 'As $\\lambda \\to 0$, $X^TX + \\lambda I \\to X^TX$, so $\\hat\\beta_{\\text{ridge}} \\to \\hat\\beta_{\\text{OLS}} = (X^TX)^{-1}X^Ty$ (when this inverse exists) — zero bias from regularization but potentially high variance, especially with correlated or many features. As $\\lambda \\to \\infty$, every eigenvalue $\\mu_j + \\lambda$ is dominated by $\\lambda$, so $(X^TX+\\lambda I)^{-1} \\to \\frac{1}{\\lambda}I \\to 0$, forcing $\\hat\\beta_{\\text{ridge}} \\to 0$. This is maximal bias (the model predicts a constant, ignoring all features) but minimal variance (the estimate no longer depends on the noise in $y$ at all). The useful operating point is some intermediate $\\lambda$, chosen by cross-validation, that minimizes total expected test error = bias$^2$ + variance.',
-    },
-    {
-      prompt: 'Given a dataset where $x_1$ and $x_2$ are perfectly correlated and both highly predictive, analyze the behavior of the coefficient paths for Ridge and Lasso as $\\lambda$ increases. Defend why Elastic Net is often preferred in real-world high-dimensional datasets with correlated features.',
-      difficulty: 'challenge',
-      hints: [
-        'Consider the strict convexity of the L2 penalty vs the non-strict convexity of the L1 penalty along the line $\\beta_1 + \\beta_2 = k$.',
-        'How does Elastic Net combine the properties of both penalties for correlated groups?'
-      ],
-      solution: 'With $x_1 \\approx x_2$, the loss is nearly constant along the line $\\beta_1 + \\beta_2 = k$ for any fixed combined contribution $k$ (the data cannot distinguish how credit is split between two identical columns). For **Ridge**, among all $(\\beta_1, \\beta_2)$ achieving the same $\\beta_1 + \\beta_2$, the L2 penalty $\\beta_1^2 + \\beta_2^2$ is uniquely minimized by splitting the weight evenly, $\\beta_1 = \\beta_2 = k/2$, because the squared penalty is strictly convex and symmetric — so Ridge’s coefficient paths for the two correlated features stay tied together and roughly equal as $\\lambda$ grows, both shrinking smoothly toward $0$. For **Lasso**, the L1 penalty $|\\beta_1| + |\\beta_2|$ is exactly the *same* value, $k$, for *every* such split (e.g. $(\\beta_1,\\beta_2) = (k,0)$ costs the same as $(k/2,k/2)$) — the L1 ball is flat-faced along that direction, so the optimizer has no preference and effectively picks one of the two arbitrarily (sensitive to tiny numerical perturbations), driving the other to exactly $0$. In practice Lasso’s coefficient paths for near-duplicate features are erratic: one path stays large while the other collapses to zero, and which one "wins" can flip with small data changes — a known instability that Elastic Net (mixing in an L2 term) is designed to fix by re-introducing the Ridge-style grouping effect.',
-      tags: ['derivation', 'conceptual'],
-    },
-  ],
 
   comparisons: [
     {

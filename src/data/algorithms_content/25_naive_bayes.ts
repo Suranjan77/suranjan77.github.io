@@ -34,13 +34,6 @@ export const naiveBayes: LearningModule = {
       definition: "The conditional probability of observing a specific feature value given the class label."
     }
   ],
-  workedExamples: [
-    {
-      title: "Laplace-Smoothed Document Classification",
-      problem: "A text corpus contains 10 'Spam' emails and 20 'Ham' (not spam) emails. The word 'free' occurs 8 times in Spam and 1 time in Ham. Calculate the prior probabilities, and then use Laplace smoothing (with $\\alpha = 1$, vocabulary size $|V| = 1000$) to find the conditional probabilities $P(\\text{free} | \\text{Spam})$ and $P(\\text{free} | \\text{Ham})$.",
-      solution: "First, find class priors:\n$$P(\\text{Spam}) = \\frac{10}{30} = \\frac{1}{3}, \\quad P(\\text{Ham}) = \\frac{20}{30} = \\frac{2}{3}$$\n\nApplying Laplace smoothing, let $N_c$ be the total word count in class $c$. Suppose Spam has $N_{\\text{Spam}} = 200$ total words and Ham has $N_{\\text{Ham}} = 400$ total words. The smoothed conditional probabilities are:\n$$P(\\text{free} | \\text{Spam}) = \\frac{\\text{count}(\\text{free}, \\text{Spam}) + 1}{N_{\\text{Spam}} + |V|} = \\frac{8 + 1}{200 + 1000} = \\frac{9}{1200} = 0.0075$$\n\n$$P(\\text{free} | \\text{Ham}) = \\frac{\\text{count}(\\text{free}, \\text{Ham}) + 1}{N_{\\text{Ham}} + |V|} = \\frac{1 + 1}{400 + 1000} = \\frac{2}{1400} \\approx 0.0014$$"
-    }
-  ],
   misconceptions: [
     {
       claim: "Naive Bayes requires features to be truly independent in the real world to perform well.",
@@ -198,38 +191,6 @@ $$ \\hat{P}(x_i = v \\mid c) = \\frac{\\text{count}(v, c) + \\alpha}{\\text{coun
 
 where $K$ is the number of distinct values the feature can take (the vocabulary size for text). With $\\alpha = 1$ every value gets at least one phantom observation, so no probability is ever exactly $0$, and the denominator is inflated by $\\alpha K$ to keep the conditional distribution normalized. Larger $\\alpha$ pulls estimates toward the uniform distribution (stronger regularization); $\\alpha \\to 0$ recovers the raw maximum-likelihood counts.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'A training set has 6 Spam and 4 Ham emails. Compute the class priors $P(\\text{Spam})$ and $P(\\text{Ham})$, and explain what role the prior plays before any words are observed.',
-      difficulty: 'warm-up',
-      solution: 'The priors are the class proportions: $P(\\text{Spam}) = 6/10 = 0.6$ and $P(\\text{Ham}) = 4/10 = 0.4$. They encode the base rate of each class before looking at the email’s words. If a message had no informative tokens, Naive Bayes would default to predicting the higher-prior class (Spam), since the posterior is proportional to $P(y)$ times the likelihood product.',
-    },
-    {
-      prompt: 'In a Spam class with a vocabulary of $|V| = 5$ words, the word "deal" was seen 3 times out of 12 total Spam tokens, but the word "meeting" was never seen in Spam. Using Laplace smoothing with $\\alpha = 1$, compute $P(\\text{deal} \\mid \\text{Spam})$ and $P(\\text{meeting} \\mid \\text{Spam})$.',
-      difficulty: 'core',
-      hints: [
-        'Use $\\hat{P}(v \\mid c) = \\frac{\\text{count}(v, c) + \\alpha}{\\text{count}(c) + \\alpha |V|}$ with $\\text{count}(c) = 12$ and $|V| = 5$.'
-      ],
-      solution: 'The smoothed denominator is $12 + 1 \\times 5 = 17$. For "deal": $\\hat{P}(\\text{deal} \\mid \\text{Spam}) = \\frac{3 + 1}{17} = \\frac{4}{17} \\approx 0.235$. For the unseen "meeting": $\\hat{P}(\\text{meeting} \\mid \\text{Spam}) = \\frac{0 + 1}{17} = \\frac{1}{17} \\approx 0.059$. Smoothing gives the unseen word a small non-zero probability instead of $0$, so it cannot single-handedly veto the Spam class.',
-    },
-    {
-      prompt: 'Classify the document $\\mathbf{x} = (\\text{"free"}, \\text{"money"})$. Given priors $P(S)=0.5$, $P(H)=0.5$ and likelihoods $P(\\text{free}\\mid S)=0.2$, $P(\\text{money}\\mid S)=0.1$, $P(\\text{free}\\mid H)=0.05$, $P(\\text{money}\\mid H)=0.04$, compute the posterior-proportional score for each class and give the predicted label.',
-      difficulty: 'core',
-      hints: [
-        'Score $\\propto P(y)\\,P(\\text{free}\\mid y)\\,P(\\text{money}\\mid y)$. You do not need to normalize — just compare.'
-      ],
-      solution: 'Spam score: $0.5 \\times 0.2 \\times 0.1 = 0.010$. Ham score: $0.5 \\times 0.05 \\times 0.04 = 0.001$. Since $0.010 > 0.001$, the prediction is **Spam**. To turn these into true posteriors, normalize: $P(S \\mid \\mathbf{x}) = 0.010 / (0.010 + 0.001) \\approx 0.91$.',
-    },
-    {
-      prompt: 'An email with 200 tokens yields per-token likelihoods around 0.01 under the Spam model. Demonstrate the numerical vulnerability of computing the joint probability directly via a product, and mathematically prove why transitioning to log-space resolves this issue while preserving the classification decision.',
-      difficulty: 'challenge',
-      hints: [
-        'Calculate the approximate value of the raw product ($0.01^{200}$) and compare it to the limits of double-precision floating-point numbers.',
-        'Why does applying a monotonic function like the logarithm preserve the relative ordering of the class scores?'
-      ],
-      solution: 'The raw product is roughly $0.01^{200} = 10^{-400}$, far below the smallest positive double-precision float (about $10^{-308}$). It underflows to exactly $0$, making every class score $0$ and the comparison meaningless. In log-space the score becomes $\\sum_i \\log(0.01) = 200 \\times (-4.6) \\approx -920$ — a perfectly representable number. Because $\\log$ is strictly increasing, the class with the largest log-score is the same class that would have had the largest product, so the $\\arg\\max$ decision is unchanged; only numerical stability improves.',
     },
   ],
   comparisons: [

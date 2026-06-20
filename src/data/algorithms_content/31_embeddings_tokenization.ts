@@ -34,13 +34,6 @@ export const embeddingsTokenization: LearningModule = {
       definition: "A geometric metric calculating the cosine of the angle between two vectors, measuring their directional alignment regardless of magnitude."
     }
   ],
-  workedExamples: [
-    {
-      title: "Cosine Similarity Computation",
-      problem: "Given two 3-dimensional token embeddings $\\mathbf{u} = [0.6, 0.8, 0.0]$ and $\\mathbf{v} = [0.5, 0.0, 0.866]$, calculate their dot product, their Euclidean norms, and their cosine similarity to assess semantic relatedness.",
-      solution: "First, let's calculate the dot product:\n$$\\mathbf{u} \\cdot \\mathbf{v} = (0.6 \\times 0.5) + (0.8 \\times 0.0) + (0.0 \\times 0.866) = 0.3 + 0.0 + 0.0 = 0.3$$\n\nNext, calculate the Euclidean norms (lengths) of each vector:\n$$\\|\\mathbf{u}\\| = \\sqrt{0.6^2 + 0.8^2 + 0.0^2} = \\sqrt{0.36 + 0.64 + 0.0} = \\sqrt{1.0} = 1.0$$\n$$\\|\\mathbf{v}\\| = \\sqrt{0.5^2 + 0.0^2 + 0.866^2} = \\sqrt{0.25 + 0.0 + 0.75} = \\sqrt{1.0} = 1.0$$\n\nNow, calculate the cosine similarity:\n$$\\text{Similarity} = \\frac{\\mathbf{u} \\cdot \\mathbf{v}}{\\|\\mathbf{u}\\| \\|\\mathbf{v}\\|} = \\frac{0.3}{1.0 \\times 1.0} = 0.3$$\n\nThe cosine similarity between $\\mathbf{u}$ and $\\mathbf{v}$ is $0.3$, representing a moderate positive alignment in the embedding space."
-    }
-  ],
   misconceptions: [
     {
       claim: "Tokenization is a simple rule-based split on whitespace and punctuation marks.",
@@ -239,35 +232,6 @@ After four merges the learned vocabulary now contains the subwords “es”, “
 
 **Why this balances vocabulary size against OOV.** A pure word vocabulary explodes in size and still cannot represent any word it never saw (it emits an [UNK] token, losing all information). A pure character vocabulary is tiny and never hits OOV, but produces very long sequences that strain the model’s context window. BPE interpolates: frequent whole words like “low” earn their own token (short sequences, like a word vocabulary), while a rare or unseen word such as “lowest” gracefully decomposes into known subwords (“low” + “est”), so there is **no out-of-vocabulary failure**. The number of merges is a single knob — typically tuned to a vocabulary of roughly 32k–100k tokens — that trades sequence length against vocabulary size.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'Compute the cosine similarity between $\\mathbf{u} = [3, 4]$ and $\\mathbf{v} = [4, 3]$ by hand.',
-      difficulty: 'warm-up',
-      hints: ['Notice that both vectors have the exact same length.', 'You only need to compute the dot product and one of the squared norms.'],
-      solution: 'Dot product: $\\mathbf{u}\\cdot\\mathbf{v} = (3)(4) + (4)(3) = 12 + 12 = 24$. Norms: $\\|\\mathbf{u}\\| = \\sqrt{9+16} = 5$ and $\\|\\mathbf{v}\\| = \\sqrt{16+9} = 5$. Cosine similarity $= \\frac{24}{5 \\times 5} = \\frac{24}{25} = 0.96$ — a high similarity, since the two vectors are close in direction.',
-      tags: ['coding', 'conceptual'],
-    },
-    {
-      prompt: 'Given the toy corpus $\\texttt{hug} \\times 4$, $\\texttt{pug} \\times 2$, $\\texttt{hugs} \\times 1$ (split into characters), run **one** BPE merge step: identify the most frequent adjacent pair and show the resulting sequences.',
-      difficulty: 'core',
-      hints: ['First, count the occurrences of each adjacent pair, weighting by the word’s frequency.', 'Once you find the most frequent pair, merge it everywhere it occurs and update the vocabulary.'],
-      solution: 'Initial splits: h u g (×4), p u g (×2), h u g s (×1). Pair counts: (h,u) = 4 + 1 = 5; (u,g) = 4 + 2 + 1 = 7; (p,u) = 2; (g,s) = 1. The most frequent pair is (u, g) with count 7, so we merge it into the subword “ug”. Resulting sequences: h **ug** (×4), p **ug** (×2), h **ug** s (×1). The vocabulary now gains the token “ug”.',
-      tags: ['derivation', 'conceptual'],
-    },
-    {
-      prompt: 'The famous word2vec analogy is $\\text{king} - \\text{man} + \\text{woman} \\approx \\text{queen}$. Explain in terms of vector arithmetic why this works, and what relationship the difference vector $\\text{king} - \\text{man}$ encodes.',
-      difficulty: 'core',
-      solution: 'Embeddings learned from co-occurrence place words so that consistent *relationships* become roughly constant **offset vectors**. The difference $\\text{king} - \\text{man}$ isolates the component that distinguishes a male royal from a generic male — informally a “royalty + female-to-male contrast” direction. Because the same gender offset $\\text{woman} - \\text{man}$ recurs across many word pairs, adding it back gives $\\text{king} - \\text{man} + \\text{woman} = \\text{king} + (\\text{woman} - \\text{man})$, which lands near the vector that is royal but female: $\\text{queen}$. The analogy is solved by finding the vocabulary vector with highest cosine similarity to that computed point (excluding the input words). It works only to the extent that the relationship is *linear and consistent* in the space; many analogies are only approximate, and the same mechanism encodes social biases present in the corpus.',
-      tags: ['conceptual'],
-    },
-    {
-      prompt: 'Analyze the impact of embedding dimension on model capacity and resource requirements. Compare the tradeoffs between choosing $d=256$ and $d=1024$ for a 50,000 token vocabulary.',
-      difficulty: 'challenge',
-      hints: ['Recall that the embedding matrix has dimensions $V \\times d$.', 'Consider how increasing $d$ affects memory usage, computation, and the ability to capture complex semantic nuances.'],
-      solution: 'Parameters $= V \\times d$. For $d = 256$: $50{,}000 \\times 256 = 12{,}800{,}000$ ($\\approx 12.8$M parameters). For $d = 1024$: $50{,}000 \\times 1024 = 51{,}200{,}000$ ($\\approx 51.2$M parameters) — a 4× increase, matching the 4× increase in $d$. The tradeoff: a larger $d$ gives the model more capacity to encode fine-grained semantic and syntactic distinctions and tends to improve downstream quality, but it costs 4× the embedding memory and compute, raises the risk of overfitting on smaller corpora, and increases the size of the output (un-embedding) projection if weights are tied. Dimension is therefore tuned to the data scale and compute budget.',
-      tags: ['derivation', 'conceptual'],
     },
   ],
   comparisons: [

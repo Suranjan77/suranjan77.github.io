@@ -25,7 +25,6 @@ import {
 // Lesson section components
 import PrerequisiteLinks from "./PrerequisiteLinks";
 import NotationTable from "./NotationTable";
-import WorkedExamples from "./WorkedExamples";
 import Misconceptions from "./Misconceptions";
 import ReferenceList from "./ReferenceList";
 import RelatedModules from "./RelatedModules";
@@ -34,7 +33,6 @@ import MetadataBar from "./MetadataBar";
 import LessonNavigator from "./LessonNavigator";
 import TLDR from "./TLDR";
 import LearningObjectives from "./LearningObjectives";
-import PracticeExercises from "./PracticeExercises";
 import ComparisonTable from "./ComparisonTable";
 import WhenToUse from "./WhenToUse";
 import CaseStudy from "./CaseStudy";
@@ -202,16 +200,6 @@ export default function LessonPage({ module, allModules }: LessonPageProps) {
             )}
           </div>
         )}
-
-        {/* Worked Examples Section */}
-        <div id="examples" className="scroll-mt-32 lg:scroll-mt-48">
-          <WorkedExamples examples={module.workedExamples} />
-        </div>
-
-        {/* Practice Exercises Section */}
-        <div id="practice" className="scroll-mt-32 lg:scroll-mt-48">
-          <PracticeExercises exercises={module.practiceExercises} />
-        </div>
 
         {/* In-Depth Description Section */}
         <div

@@ -21,13 +21,6 @@ export const linearRegression: LearningModule = {
     { term: 'Ordinary Least Squares (OLS)', definition: 'A method for estimating the parameters of a linear regression model by minimizing the sum of squared residuals.' },
     { term: 'Multicollinearity', definition: 'A state where two or more predictor variables in a multiple regression model are highly correlated.' },
   ],
-  workedExamples: [
-    {
-      title: 'Ordinary Least Squares Parameters',
-      problem: 'Given data points $(1, 2)$, $(2, 3)$, $(3, 5)$, compute the slope $w$ and intercept $b$ for the line $y = wx + b$.',
-      solution: 'Means are $\\bar{x} = 2$, $\\bar{y} = 10/3$. $w = \\frac{\\sum (x_i-\\bar{x})(y_i-\\bar{y})}{\\sum (x_i-\\bar{x})^2} = \\frac{(1-2)(2-10/3) + (2-2)(3-10/3) + (3-2)(5-10/3)}{(1-2)^2 + (2-2)^2 + (3-2)^2} = \\frac{4/3 + 0 + 5/3}{2} = 1.5$. Intercept $b = \\bar{y} - w\\bar{x} = 10/3 - 1.5 \\times 2 = 1/3$.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'Linear regression can only fit straight lines.',
@@ -157,30 +150,6 @@ $$ w = \\frac{\\sum_i (x_i - \\bar{x})(y_i - \\bar{y})}{\\sum_i (x_i - \\bar{x})
 
 So the slope is just the covariance of $x$ and $y$ divided by the variance of $x$, and the line always passes through the point of means $(\\bar{x}, \\bar{y})$.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'A fitted model is $\\hat{y} = 1.5x + 0.5$. Compute the predictions and residuals for the observed points $(2, 4)$ and $(4, 6)$.',
-      difficulty: 'warm-up',
-      solution: 'At $x=2$: $\\hat{y} = 1.5(2) + 0.5 = 3.5$, residual $r = 4 - 3.5 = 0.5$. At $x=4$: $\\hat{y} = 1.5(4) + 0.5 = 6.5$, residual $r = 6 - 6.5 = -0.5$. The residuals have opposite signs, so the line passes between the two points.',
-    },
-    {
-      prompt: 'Fit an OLS line $y = wx + b$ to the three points $(0, 1)$, $(1, 1)$, $(2, 3)$. Report the slope and intercept.',
-      difficulty: 'core',
-      hints: ['Use $w = \\frac{\\sum (x_i - \\bar{x})(y_i - \\bar{y})}{\\sum (x_i - \\bar{x})^2}$ and $b = \\bar{y} - w\\bar{x}$.'],
-      solution: 'Means: $\\bar{x} = 1$, $\\bar{y} = 5/3$. Numerator $\\sum (x_i-\\bar{x})(y_i-\\bar{y}) = (-1)(1-5/3) + (0)(1-5/3) + (1)(3-5/3) = (-1)(-2/3) + 0 + (1)(4/3) = 2/3 + 4/3 = 2$. Denominator $\\sum (x_i-\\bar{x})^2 = 1 + 0 + 1 = 2$. So $w = 2/2 = 1$ and $b = 5/3 - 1 \\cdot 1 = 2/3$. The line is $\\hat{y} = x + 2/3$.',
-    },
-    {
-      prompt: 'Suppose you add a constant $c$ to **every** target value $y_i$, leaving the features unchanged, and refit OLS. How do the slope $w$ and intercept $b$ change?',
-      difficulty: 'core',
-      solution: 'The slope is unchanged. From $w = \\operatorname{Cov}(x, y)/\\operatorname{Var}(x)$, shifting every $y_i$ by $c$ shifts $\\bar{y}$ by $c$ but leaves $(y_i - \\bar{y})$ — and hence the covariance — unchanged. The intercept increases by exactly $c$: $b_{new} = (\\bar{y}+c) - w\\bar{x} = b_{old} + c$. Geometrically the whole line is translated up by $c$.',
-    },
-    {
-      prompt: 'Prove that when an intercept term is included, the OLS residuals always sum to zero: $\\sum_i r_i = 0$. Provide a formal proof.',
-      difficulty: 'challenge',
-      hints: ['Consider the normal equations $X^T(y - X\\hat{\\beta}) = 0$.', 'Look at the normal equation that corresponds to the intercept column (the column of ones in $X$).'],
-      solution: 'The normal equations state $X^T(y - X\\hat{\\beta}) = X^T r = 0$, one equation per column of $X$. The intercept corresponds to a column of all ones, $\\mathbf{1}$. Its equation is $\\mathbf{1}^T r = \\sum_i r_i = 0$. Hence the residuals are mean-zero by construction whenever an intercept is fit. (Without an intercept this guarantee disappears.)',
     },
   ],
   comparisons: [

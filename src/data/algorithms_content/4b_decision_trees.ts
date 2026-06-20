@@ -20,13 +20,6 @@ export const decisionTrees: LearningModule = {
     { term: 'Information Gain', definition: 'The reduction in entropy or impurity achieved by partitioning a dataset according to a feature.' },
     { term: 'Pruning', definition: 'A technique that simplifies a decision tree by removing sections that provide little power to classify instances.' },
   ],
-  workedExamples: [
-    {
-      title: 'Information Gain Calculation',
-      problem: 'A node has 4 positive and 4 negative instances (entropy = 1). A split divides it into Node A (3 positive, 1 negative) and Node B (1 positive, 3 negative). Calculate the Information Gain. (Use entropy: Node A & B entropy $\\approx 0.811$).',
-      solution: 'Parent entropy $H(D) = 1.0$. Split sizes are $|D_A| = 4, |D_B| = 4, |D| = 8$. Weighted child entropy = $\\frac{4}{8}(0.811) + \\frac{4}{8}(0.811) = 0.811$. Information Gain = $1.0 - 0.811 = 0.189$.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'Decision Trees always require features to be scaled (e.g. Z-score normalization).',
@@ -162,31 +155,6 @@ $$ Gain = Gini(D) - Gini_{split} = 0.5 - 0.32 = 0.18 $$
 
 A positive gain of $0.18$ means the split makes the node meaningfully purer. The tree compares this gain against every other candidate feature and threshold, and **greedily** keeps the one with the largest gain. If we had used entropy instead, the parent entropy would be $1$ bit, each child entropy $-0.8\\log_2 0.8 - 0.2\\log_2 0.2 \\approx 0.722$, weighted child entropy $0.722$, giving an information gain of $1 - 0.722 = 0.278$ bits — a different scale, but the same ordering of which split is best.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'A leaf node contains 6 examples of class A and 2 of class B. Compute its Gini impurity.',
-      difficulty: 'warm-up',
-      hints: ['Use $Gini = 1 - \\sum_i p_i^2$ with $p_A = 6/8$ and $p_B = 2/8$.'],
-      solution: 'The proportions are $p_A = 6/8 = 0.75$ and $p_B = 2/8 = 0.25$. Then $Gini = 1 - (0.75^2 + 0.25^2) = 1 - (0.5625 + 0.0625) = 1 - 0.625 = 0.375$.',
-    },
-    {
-      prompt: 'A node with 8 examples (4 positive, 4 negative) is split into $D_L = \\{3\\text{ pos}, 1\\text{ neg}\\}$ and $D_R = \\{1\\text{ pos}, 3\\text{ neg}\\}$. Compute the information gain using Gini impurity.',
-      difficulty: 'core',
-      hints: ['First get the parent Gini, then each child Gini, then weight the children by their fraction of examples.'],
-      solution: 'Parent: $p_+ = p_- = 0.5$, so $Gini(D) = 1 - (0.25 + 0.25) = 0.5$. Each child has 4 examples with proportions $0.75/0.25$: $Gini(D_L) = Gini(D_R) = 1 - (0.75^2 + 0.25^2) = 1 - 0.625 = 0.375$. Weighted child Gini $= \\frac{4}{8}(0.375) + \\frac{4}{8}(0.375) = 0.375$. Information gain $= 0.5 - 0.375 = 0.125$.',
-    },
-    {
-      prompt: 'A node of 8 examples (4 positive, 4 negative) can be split two ways. Split X yields children $\\{4\\text{ pos}, 0\\text{ neg}\\}$ and $\\{0\\text{ pos}, 4\\text{ neg}\\}$. Split Y yields $\\{3\\text{ pos}, 1\\text{ neg}\\}$ and $\\{1\\text{ pos}, 3\\text{ neg}\\}$. Which split should the tree choose, and why?',
-      difficulty: 'core',
-      solution: "Parent $Gini = 0.5$. Split X produces two **pure** children, each with $Gini = 1 - (1^2 + 0^2) = 0$, so weighted child Gini $= 0$ and gain $= 0.5 - 0 = 0.5$. Split Y (from the previous exercise) has weighted child Gini $= 0.375$ and gain $= 0.125$. The tree chooses **Split X** because it has the larger information gain ($0.5 > 0.125$) — it perfectly separates the classes.",
-    },
-    {
-      prompt: 'A decision tree is grown to full depth on a noisy dataset. Analyze the relationship between training accuracy, test accuracy, impurity, and model variance in this scenario.',
-      difficulty: 'challenge',
-      hints: ["Consider what happens to the leaf size as the tree keeps splitting.", "Relate the purity of terminal nodes to the model's capacity to memorize noise."],
-      solution: "An unrestricted tree keeps splitting until every leaf is pure ($Gini = 0$, $entropy = 0$), which in the limit means one (or a few same-class) training points per leaf. Such leaves carve the feature space into tiny axis-aligned regions that fit not just the signal but also the **noise** in the training labels, so training accuracy approaches 100%. Because these fine partitions are determined by individual points, a small change in the data would relocate them — this is the tree high variance. On unseen data those memorized boundaries do not transfer, so test accuracy drops. The fixes constrain capacity: limit max depth, require a minimum number of samples per split/leaf, or prune back low-gain branches.",
     },
   ],
   comparisons: [

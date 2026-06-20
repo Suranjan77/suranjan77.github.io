@@ -21,13 +21,6 @@ export const ensembleLearning: LearningModule = {
     { term: 'Boosting', definition: 'An ensemble method where base learners are trained sequentially, each trying to correct the errors of the prior models.' },
     { term: 'Out-Of-Bag (OOB) Error', definition: 'A method of measuring the prediction error of boostrapped ensembles by testing samples on trees that did not include them.' },
   ],
-  workedExamples: [
-    {
-      title: 'Random Forest Variance Reduction',
-      problem: 'Given single tree variance $\\sigma^2 = 1.0$, tree correlation $\\rho = 0.2$, calculate the ensemble variance for $B = 1$ tree vs $B = 100$ trees.',
-      solution: 'For $B=1$: $\\text{Var} = 0.2 \\times 1.0 + \\frac{1-0.2}{1} \\times 1.0 = 1.0$. For $B=100$: $\\text{Var} = 0.2 \\times 1.0 + \\frac{0.8}{100} \\times 1.0 = 0.2 + 0.008 = 0.208$. The variance is reduced by nearly 80%.',
-    },
-  ],
   misconceptions: [
     {
       claim: 'Random Forests and Gradient Boosting always give identical predictions.',
@@ -166,30 +159,6 @@ $$ r_{im} = -\\left[\\frac{\\partial L(y_i, f(x_i))}{\\partial f(x_i)}\\right]_{
 
 For squared-error loss $L = \\frac{1}{2}(y_i - f(x_i))^2$, this gradient is simply the ordinary residual $r_{im} = y_i - f_{m-1}(x_i)$, so each tree literally predicts what the current ensemble still gets wrong. Because every round drives the model toward the part of the target it has not yet captured, the **systematic error (bias) shrinks** step by step. The price is that the model has no automatic variance protection: keep adding trees and it will eventually fit noise, so shrinkage ($\\nu \\ll 1$) and early stopping are essential.
       `,
-    },
-  ],
-  practiceExercises: [
-    {
-      prompt: 'Five trees in a forest classify a sample as classes $[1, 0, 1, 1, 0]$. What is the majority-vote prediction, and what would the averaged (soft) probability of class $1$ be if the trees output probabilities $[0.9, 0.4, 0.7, 0.6, 0.3]$?',
-      difficulty: 'warm-up',
-      solution: 'Hard vote: three trees say class $1$ and two say class $0$, so the majority vote is **class $1$**. Soft vote: average the probabilities, $(0.9 + 0.4 + 0.7 + 0.6 + 0.3)/5 = 2.9/5 = 0.58$. Since $0.58 > 0.5$, soft voting also predicts class $1$.',
-    },
-    {
-      prompt: 'A single tree has variance $\\sigma^2 = 4$. Using the bagging variance formula, compute the ensemble variance for $M = 25$ trees when (a) the trees are independent ($\\rho = 0$) and (b) they are correlated with $\\rho = 0.3$.',
-      difficulty: 'core',
-      hints: ['Use $\\operatorname{Var} = \\rho\\sigma^2 + \\frac{1-\\rho}{M}\\sigma^2$.', 'The first term is the correlated variance, the second is the independent variance.'],
-      solution: '(a) With $\\rho = 0$: $\\operatorname{Var} = 0 + \\frac{1}{25}\\times 4 = 0.16$ — a $25\\times$ reduction. (b) With $\\rho = 0.3$: $\\operatorname{Var} = 0.3 \\times 4 + \\frac{0.7}{25}\\times 4 = 1.2 + 0.112 = 1.312$. The correlation term $\\rho\\sigma^2 = 1.2$ dominates and sets a floor: even with infinitely many trees the variance cannot drop below $1.2$.',
-    },
-    {
-      prompt: 'You are modeling a complex, highly non-linear tabular dataset where a single decision tree already trains with **low variance but high bias** (it underfits badly). Would bagging or boosting be the more appropriate first choice, and why?',
-      difficulty: 'core',
-      solution: 'Boosting. Bagging primarily reduces **variance**; averaging many already-low-variance learners barely helps if the dominant error is **bias** (underfitting). Boosting fits learners sequentially to the residuals/gradients of the current model, directly attacking bias and letting the ensemble represent the complex non-linear structure. Bagging would mostly reproduce the same underfit prediction many times.',
-    },
-    {
-      prompt: 'Derive the limiting ensemble variance for a Random Forest as the number of trees approaches infinity. Based on your derivation, propose a mechanism to further reduce this irreducible variance.',
-      difficulty: 'challenge',
-      hints: ['Take the limit of $\\rho\\sigma^2 + \\frac{1-\\rho}{M}\\sigma^2$ as $M \\to \\infty$.', 'Ask which term survives the limit.'],
-      solution: 'As $M \\to \\infty$ the term $\\frac{1-\\rho}{M}\\sigma^2 \\to 0$, leaving $\\lim_{M\\to\\infty}\\operatorname{Var} = \\rho\\sigma^2$. So the *irreducible* part of the bagged variance is governed entirely by the pairwise correlation $\\rho$ between trees, not by how many trees you grow. Feature subsampling forces individual trees to split on different variables, decorrelating them and lowering $\\rho$. A lower $\\rho$ lowers the floor $\\rho\\sigma^2$, which is exactly why Random Forests beat plain bagged trees even though both average over many trees.',
     },
   ],
   comparisons: [
