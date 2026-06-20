@@ -35,12 +35,14 @@ import { llmSynthesis } from "./36b_synthesis_llms";
 import { imageSegmentation } from "./37_image_segmentation";
 import { visionTransformers } from "./38_vision_transformers";
 import { diffusionModels } from "./39_diffusion_models";
+import { modelEvaluation } from "./40_model_evaluation";
 
 export const algorithmsList: LearningModule[] = [
   appliedMlWorkflow,
   linearRegression,
   logisticRegression,
   regularization,
+  modelEvaluation,
   knn,
   naiveBayes,
   svm,

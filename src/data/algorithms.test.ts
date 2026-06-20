@@ -11,6 +11,7 @@ const requiredIds = [
   "linear-regression",
   "logistic-regression",
   "regularization",
+  "model-evaluation",
   "knn",
   "naive-bayes",
   "support-vector-machines",

@@ -39,6 +39,7 @@ import AIInferenceViz from "./AIInferenceViz";
 import ImageSegmentationViz from "./ImageSegmentationViz";
 import VisionTransformersViz from "./VisionTransformersViz";
 import DiffusionViz from "./DiffusionViz";
+import ModelEvaluationViz from "./ModelEvaluationViz";
 
 interface VizMetadata {
   title: string;
@@ -127,6 +128,12 @@ const extendedVisualizations: Record<
     title: "Bury an Image in Noise, Then Learn to Dig It Out",
     subtitle: "Slide the diffusion step right to watch the closed-form forward process mix shrinking signal with growing noise until the image is pure static; slide left to imagine the reverse process, and watch the model's single-step denoised estimate sharpen as the noise recedes.",
     insight: "Diffusion defines a fixed forward process that turns any image into Gaussian noise, then trains a network to reverse it — so generation starts from pure noise and denoises step by step, and denoising is easy near the data but hard far from it.",
+  },
+  "model-evaluation": {
+    component: ModelEvaluationViz,
+    title: "One Model, Many Operating Points: The Threshold Sweep",
+    subtitle: "Drag the decision threshold and watch the confusion matrix, precision, recall, and F1 all move while the pink dot slides along a fixed ROC curve. The model never changes — only where you choose to operate it does.",
+    insight: "Classification quality is not one number: the threshold trades precision against recall, the confusion matrix counts both error types, and threshold-independent summaries like ROC-AUC describe the model while you still must choose an operating point.",
   },
 };
 
@@ -411,6 +418,7 @@ const visualizationComponents: Record<string, React.ComponentType> = {
   "image-segmentation": ImageSegmentationViz,
   "vision-transformers": VisionTransformersViz,
   "diffusion-models": DiffusionViz,
+  "model-evaluation": ModelEvaluationViz,
 };
 
 const accessibleLabels: Record<string, string> = {
@@ -445,6 +453,7 @@ const accessibleLabels: Record<string, string> = {
   "image-segmentation": "Semantic Segmentation Mask and Dice Score",
   "vision-transformers": "Vision Transformer Patch Attention Map",
   "diffusion-models": "Diffusion Forward Noising and Reverse Denoising",
+  "model-evaluation": "ROC Curve and Confusion Matrix Threshold Sweep",
 };
 
 const legacyConfigId: Record<string, string> = {
