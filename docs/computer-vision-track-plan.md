@@ -3,11 +3,19 @@
 > **Status:** ✅ **All phases (1–6) shipped** + track re-partition/rebrand · **Branch:** `claude/compassionate-ptolemy-2ockq9`
 > **Owner:** Suranjan · **Last updated:** 2026-06-20
 >
-> **Done:** the Computer Vision track is live as a focused 4-module vision path,
-> `modern-ai` is rebranded to "Deep Learning", three new CV modules and three new
-> unit modules (model-evaluation, gradient-boosting, optimization-optimizers) ship,
-> and every module has an interactive visualization. 8149 tests, 36 module pages.
-> Read §8 (Implementation Playbook) before authoring any future module.
+> **Done:** the Computer Vision track is live and `modern-ai` is rebranded to
+> "Deep Learning". Three original CV modules + three unit modules (model-evaluation,
+> gradient-boosting, optimization-optimizers) shipped, then the **CV track was
+> expanded to 8 modules** (added object-detection, cnn-architectures,
+> self-supervised-vision, vision-language-models). Every module has an interactive
+> visualization. 9031 tests, 40 module pages. Read §8 (Implementation Playbook)
+> before authoring any future module.
+>
+> **CV track expansion (owner-requested, 2026-06-20).** Final ordered path (zero
+> overlap with Deep Learning): `cnn-architectures` → `computer-vision` →
+> `object-detection` → `image-segmentation` → `vision-transformers` →
+> `self-supervised-vision` → `vision-language-models` → `diffusion-models`. All
+> tagged `tracks: ['computer-vision']`; DL foundations remain assumed-covered prereqs.
 >
 > **⚠️ Major design change (owner sign-off, 2026-06-20) — supersedes §3a and §7.**
 > The original additive plan put every vision module in *both* `modern-ai` and
@@ -20,7 +28,7 @@
 >    treated as *assumed-covered prerequisites* for CV. The **Computer Vision** track
 >    holds only the **vision-specific** modules: `computer-vision`, `image-segmentation`,
 >    `vision-transformers`, `diffusion-models` (each now `tracks: ['computer-vision']`).
->    Verified: Deep Learning = 18 modules, Computer Vision = 4, overlap = none.
+>    Verified: Deep Learning = 19 modules, Computer Vision = 8, overlap = none.
 >
 > Living source of truth for adding a third **learning track**, *Computer Vision*,
 > to ML Learn. Update the **Work Tracker** checkboxes as tasks land; keep the design
