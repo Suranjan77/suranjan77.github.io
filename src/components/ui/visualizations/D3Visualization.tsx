@@ -38,6 +38,7 @@ import LLMEvalSafetyViz from "./LLMEvalSafetyViz";
 import AIInferenceViz from "./AIInferenceViz";
 import ImageSegmentationViz from "./ImageSegmentationViz";
 import VisionTransformersViz from "./VisionTransformersViz";
+import DiffusionViz from "./DiffusionViz";
 
 interface VizMetadata {
   title: string;
@@ -120,6 +121,12 @@ const extendedVisualizations: Record<
     title: "Patches, Not Pixels: A Global Receptive Field in One Layer",
     subtitle: "Pick any patch as the attention query and watch where it looks. In ViT mode it attends across the whole image to patches with similar content; switch to CNN mode and it is boxed into a 3×3 neighborhood — the locality bias a Vision Transformer trades away.",
     insight: "A Vision Transformer turns an image into a sequence of patch tokens and lets every patch attend to every other one, so a single self-attention layer already has a global, content-based receptive field — flexibility that costs data but pays off at scale.",
+  },
+  "diffusion-models": {
+    component: DiffusionViz,
+    title: "Bury an Image in Noise, Then Learn to Dig It Out",
+    subtitle: "Slide the diffusion step right to watch the closed-form forward process mix shrinking signal with growing noise until the image is pure static; slide left to imagine the reverse process, and watch the model's single-step denoised estimate sharpen as the noise recedes.",
+    insight: "Diffusion defines a fixed forward process that turns any image into Gaussian noise, then trains a network to reverse it — so generation starts from pure noise and denoises step by step, and denoising is easy near the data but hard far from it.",
   },
 };
 
@@ -403,6 +410,7 @@ const visualizationComponents: Record<string, React.ComponentType> = {
   "ai-inference": AIInferenceViz,
   "image-segmentation": ImageSegmentationViz,
   "vision-transformers": VisionTransformersViz,
+  "diffusion-models": DiffusionViz,
 };
 
 const accessibleLabels: Record<string, string> = {
@@ -436,6 +444,7 @@ const accessibleLabels: Record<string, string> = {
   "ai-inference": "AI inference memory and throughput calculator",
   "image-segmentation": "Semantic Segmentation Mask and Dice Score",
   "vision-transformers": "Vision Transformer Patch Attention Map",
+  "diffusion-models": "Diffusion Forward Noising and Reverse Denoising",
 };
 
 const legacyConfigId: Record<string, string> = {

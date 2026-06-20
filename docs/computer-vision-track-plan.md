@@ -1,12 +1,13 @@
 # Computer Vision Learning Track — Implementation Plan & Work Tracker
 
-> **Status:** In progress — Phases 1–3 shipped (track live + Image Segmentation + Vision Transformers) · **Branch:** `claude/compassionate-ptolemy-2ockq9`
+> **Status:** In progress — Phases 1–4 shipped (track live + Image Segmentation + Vision Transformers + Diffusion Models) · **Branch:** `claude/compassionate-ptolemy-2ockq9`
 > **Owner:** Suranjan · **Last updated:** 2026-06-20
 >
 > **Start here next time:** read §8 (Implementation Playbook) — it is the verified,
 > end-to-end recipe for authoring a module. The `computer-vision` track is live
-> (route `/tracks/computer-vision`, 8 modules bundled). **Phase 4 (Diffusion Models) is
-> next**, then Phases 5–6 (polish + the §3c practitioner/modern-ai unit modules).
+> (route `/tracks/computer-vision`, 9 modules bundled) and all three new CV modules
+> ship. **Phase 5 (polish) and Phase 6 (the §3c practitioner/modern-ai unit modules:
+> gradient-boosting, model-evaluation, optimization-optimizers) remain.**
 >
 > Living source of truth for adding a third **learning track**, *Computer Vision*,
 > to ML Learn. Update the **Work Tracker** checkboxes as tasks land; keep the design
@@ -186,9 +187,11 @@ Mirror a published exemplar such as `12_computer_vision.ts` or `3b_logistic_regr
 - [x] Meets §4 checklist; `status: 'published'` (prereqs `transformers`, `computer-vision`; tracks `['modern-ai','computer-vision']`)
 - [x] lint + test (7259 passing) + build green
 
-### Phase 4 — New module: Diffusion Models
-- [ ] Author `39_diffusion_models.ts` + register + (optional) `DiffusionViz`
-- [ ] Meets §4 checklist; `status: 'published'`
+### Phase 4 — New module: Diffusion Models ✅
+- [x] Author `39_diffusion_models.ts` + register in `index.ts` (end of list) + `requiredIds`
+- [x] Author `DiffusionViz` (timestep slider over the closed-form forward sample; noisy `x_t` vs model's `x̂₀` estimate, live √ᾱ / √(1−ᾱ) / ᾱ_t / SNR) + register in `D3Visualization.tsx`
+- [x] Meets §4 checklist; `status: 'published'` (prereqs `generative-models`, `neural-networks`; tracks `['modern-ai','computer-vision']` — also satisfies Phase 6's "add modern-ai to diffusion-models")
+- [x] lint + test (7482 passing) + build green (35 module pages)
 
 ### Phase 5 — Polish
 - [ ] Confirm topological order of the CV path reads sensibly on the homepage

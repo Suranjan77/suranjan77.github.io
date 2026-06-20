@@ -41,6 +41,7 @@ const requiredIds = [
   "ai-inference",
   "reinforcement-learning",
   "llm-synthesis",
+  "diffusion-models",
 ];
 
 const textFields = [
