@@ -21,6 +21,25 @@ describe('Prerequisite Graph Utilities', () => {
     }
   });
 
+  it('getTrackModules("computer-vision") returns only computer-vision modules', () => {
+    const mods = getTrackModules('computer-vision');
+    expect(mods.length).toBeGreaterThan(0);
+    for (const m of mods) {
+      expect(m.tracks).toContain('computer-vision');
+    }
+  });
+
+  it('computer-vision track orders foundations before dependent vision modules', () => {
+    const ids = getTrackModules('computer-vision').map(m => m.id);
+
+    const cnnIndex = ids.indexOf('cnn');
+    const segmentationIndex = ids.indexOf('image-segmentation');
+
+    if (cnnIndex !== -1 && segmentationIndex !== -1) {
+      expect(cnnIndex).toBeLessThan(segmentationIndex);
+    }
+  });
+
   it('track modules appear before modules that depend on them in sorted result', () => {
     const allTrackMods = getTrackModules('practitioner');
     const ids = allTrackMods.map(m => m.id);

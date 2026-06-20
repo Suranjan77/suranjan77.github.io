@@ -21,6 +21,7 @@ import { getTrackAnchor } from "@/lib/tracks";
 const trackLabels: Partial<Record<TrackId, string>> = {
   practitioner: "ML Practitioner",
   "modern-ai": "Modern AI",
+  "computer-vision": "Computer Vision",
 };
 
 function getModuleId(pathname: string) {

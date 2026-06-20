@@ -5,7 +5,7 @@ export const imageSegmentation: LearningModule = {
   title: "Image Segmentation",
   category: "Computer Vision",
   prerequisites: ["cnn", "computer-vision"],
-  tracks: ["modern-ai"],
+  tracks: ["modern-ai", "computer-vision"],
   difficulty: 3,
   relatedModules: ["computer-vision", "cnn", "autoencoders"],
   shortDescription:

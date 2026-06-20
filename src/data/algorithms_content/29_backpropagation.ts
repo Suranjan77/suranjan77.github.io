@@ -5,7 +5,7 @@ export const backpropagation: LearningModule = {
   title: "Backpropagation",
   category: "Backpropagation",
   prerequisites: ["neural-networks"],
-  tracks: ["modern-ai"],
+  tracks: ["modern-ai", "computer-vision"],
   difficulty: 3,
   estimatedMinutes: 40,
   shortDescription: "The foundational algorithm for training neural networks, using the chain rule of calculus to compute loss gradients with respect to model weights.",

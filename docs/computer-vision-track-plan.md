@@ -1,12 +1,12 @@
 # Computer Vision Learning Track — Implementation Plan & Work Tracker
 
-> **Status:** In progress — Phase 2 (Image Segmentation) shipped · **Branch:** `claude/compassionate-ptolemy-2ockq9`
+> **Status:** In progress — Phase 1 (track live) + Phase 2 (Image Segmentation) shipped · **Branch:** `claude/compassionate-ptolemy-2ockq9`
 > **Owner:** Suranjan · **Last updated:** 2026-06-20
 >
 > **Start here next time:** read §8 (Implementation Playbook) — it is the verified,
-> end-to-end recipe for authoring a module. Phase 1 (stand up the track) and Phases 3–6
-> (Vision Transformers, Diffusion, plus the §3c practitioner/modern-ai unit modules)
-> remain.
+> end-to-end recipe for authoring a module. The `computer-vision` track is now live
+> (route `/tracks/computer-vision`, 7 modules bundled). Phases 3–6 (Vision Transformers,
+> Diffusion, plus the §3c practitioner/modern-ai unit modules) remain.
 >
 > Living source of truth for adding a third **learning track**, *Computer Vision*,
 > to ML Learn. Update the **Work Tracker** checkboxes as tasks land; keep the design
@@ -164,21 +164,21 @@ Mirror a published exemplar such as `12_computer_vision.ts` or `3b_logistic_regr
 
 ## 5. Work Tracker
 
-### Phase 1 — Stand up the empty track (no new content yet)
-- [ ] Extend `TrackId` union (file #1)
-- [ ] Add `learningTracks` entry (file #2)
-- [ ] Add `trackLabels` + `formatTrackLabel` mappings (files #3, #4)
-- [ ] Append `'computer-vision'` to existing vision modules' `tracks` (§3a)
-- [ ] Add `getTrackModules('computer-vision')` test (file #9)
-- [ ] Verify `/` (TrackCurriculumExplorer) shows the new track with the bundled modules
-- [ ] `npm run lint && npm run test && npm run build` green
+### Phase 1 — Stand up the empty track (no new content yet) ✅
+- [x] Extend `TrackId` union (file #1)
+- [x] Add `learningTracks` entry (file #2)
+- [x] Add `trackLabels` + `formatTrackLabel` mappings (files #3, #4)
+- [x] Append `'computer-vision'` to existing vision modules' `tracks` (§3a) — neural-networks, backpropagation, cnn, computer-vision, autoencoders, generative-models
+- [x] Add `getTrackModules('computer-vision')` test (file #9) — added 2 tests (membership + ordering)
+- [x] Verify build emits `/tracks/computer-vision` as a static route
+- [x] `npm run lint && npm run test && npm run build` green (7039 tests)
 
 ### Phase 2 — New module: Image Segmentation ✅
 - [x] Author `37_image_segmentation.ts` + register in `index.ts`
 - [x] Author `ImageSegmentationViz` (threshold → per-pixel mask, live Dice/IoU) + register in `D3Visualization.tsx`
 - [x] Meets §4 checklist; `status: 'published'`
 - [x] lint + test (7037 passing) + build green
-- [ ] Re-tag `tracks` to include `'computer-vision'` once Phase 1 lands (currently `['modern-ai']`)
+- [x] Re-tag `tracks` to include `'computer-vision'` (now `['modern-ai', 'computer-vision']`) — done with Phase 1
 
 ### Phase 3 — New module: Vision Transformers
 - [ ] Author `38_vision_transformers.ts` + register + (optional) `VisionTransformersViz`

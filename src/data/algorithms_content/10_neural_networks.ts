@@ -5,7 +5,7 @@ export const neuralNetworks: LearningModule = {
   title: "Neural Networks & Deep Learning",
   category: "Neural Networks / Deep Learning",
   prerequisites: ["logistic-regression"],
-  tracks: ["modern-ai"],
+  tracks: ["modern-ai", "computer-vision"],
   difficulty: 3,
   relatedModules: ["logistic-regression", "cnn", "transformers"],
   shortDescription: "Layered differentiable models that learn feature representations by optimizing weights with gradient descent.",

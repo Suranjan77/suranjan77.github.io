@@ -48,6 +48,8 @@ export default function MetadataBar({ difficulty, estimatedMinutes, tracks }: Me
         return 'Practitioner';
       case 'modern-ai':
         return 'Modern AI';
+      case 'computer-vision':
+        return 'Computer Vision';
       default:
         return track;
     }
