@@ -37,6 +37,7 @@ import FineTuningViz from "./FineTuningViz";
 import LLMEvalSafetyViz from "./LLMEvalSafetyViz";
 import AIInferenceViz from "./AIInferenceViz";
 import ImageSegmentationViz from "./ImageSegmentationViz";
+import VisionTransformersViz from "./VisionTransformersViz";
 
 interface VizMetadata {
   title: string;
@@ -113,6 +114,12 @@ const extendedVisualizations: Record<
     title: "Segmentation: A Class for Every Pixel, Scored by Overlap",
     subtitle: "A model predicts a per-pixel probability that each cell belongs to the object. Drag the threshold to turn those probabilities into a hard mask and watch Dice and IoU rise and fall as misses and false alarms trade off.",
     insight: "Segmentation is per-pixel classification graded by mask overlap (Dice / IoU), so the threshold trades recall against precision — there is a sweet spot that maximizes overlap.",
+  },
+  "vision-transformers": {
+    component: VisionTransformersViz,
+    title: "Patches, Not Pixels: A Global Receptive Field in One Layer",
+    subtitle: "Pick any patch as the attention query and watch where it looks. In ViT mode it attends across the whole image to patches with similar content; switch to CNN mode and it is boxed into a 3×3 neighborhood — the locality bias a Vision Transformer trades away.",
+    insight: "A Vision Transformer turns an image into a sequence of patch tokens and lets every patch attend to every other one, so a single self-attention layer already has a global, content-based receptive field — flexibility that costs data but pays off at scale.",
   },
 };
 
@@ -395,6 +402,7 @@ const visualizationComponents: Record<string, React.ComponentType> = {
   "llm-evaluation-safety": LLMEvalSafetyViz,
   "ai-inference": AIInferenceViz,
   "image-segmentation": ImageSegmentationViz,
+  "vision-transformers": VisionTransformersViz,
 };
 
 const accessibleLabels: Record<string, string> = {
@@ -427,6 +435,7 @@ const accessibleLabels: Record<string, string> = {
   "llm-evaluation-safety": "LLM Model Scores Bar Chart",
   "ai-inference": "AI inference memory and throughput calculator",
   "image-segmentation": "Semantic Segmentation Mask and Dice Score",
+  "vision-transformers": "Vision Transformer Patch Attention Map",
 };
 
 const legacyConfigId: Record<string, string> = {

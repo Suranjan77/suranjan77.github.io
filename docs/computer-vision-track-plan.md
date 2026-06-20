@@ -1,12 +1,12 @@
 # Computer Vision Learning Track — Implementation Plan & Work Tracker
 
-> **Status:** In progress — Phase 1 (track live) + Phase 2 (Image Segmentation) shipped · **Branch:** `claude/compassionate-ptolemy-2ockq9`
+> **Status:** In progress — Phases 1–3 shipped (track live + Image Segmentation + Vision Transformers) · **Branch:** `claude/compassionate-ptolemy-2ockq9`
 > **Owner:** Suranjan · **Last updated:** 2026-06-20
 >
 > **Start here next time:** read §8 (Implementation Playbook) — it is the verified,
-> end-to-end recipe for authoring a module. The `computer-vision` track is now live
-> (route `/tracks/computer-vision`, 7 modules bundled). Phases 3–6 (Vision Transformers,
-> Diffusion, plus the §3c practitioner/modern-ai unit modules) remain.
+> end-to-end recipe for authoring a module. The `computer-vision` track is live
+> (route `/tracks/computer-vision`, 8 modules bundled). **Phase 4 (Diffusion Models) is
+> next**, then Phases 5–6 (polish + the §3c practitioner/modern-ai unit modules).
 >
 > Living source of truth for adding a third **learning track**, *Computer Vision*,
 > to ML Learn. Update the **Work Tracker** checkboxes as tasks land; keep the design
@@ -180,9 +180,11 @@ Mirror a published exemplar such as `12_computer_vision.ts` or `3b_logistic_regr
 - [x] lint + test (7037 passing) + build green
 - [x] Re-tag `tracks` to include `'computer-vision'` (now `['modern-ai', 'computer-vision']`) — done with Phase 1
 
-### Phase 3 — New module: Vision Transformers
-- [ ] Author `38_vision_transformers.ts` + register + (optional) `VisionTransformersViz`
-- [ ] Meets §4 checklist; `status: 'published'`
+### Phase 3 — New module: Vision Transformers ✅
+- [x] Author `38_vision_transformers.ts` + register in `index.ts` + `requiredIds`
+- [x] Author `VisionTransformersViz` (clickable query patch → attention map; ViT-global vs CNN-3×3 toggle, live receptive-field + object-attention metrics) + register in `D3Visualization.tsx`
+- [x] Meets §4 checklist; `status: 'published'` (prereqs `transformers`, `computer-vision`; tracks `['modern-ai','computer-vision']`)
+- [x] lint + test (7259 passing) + build green
 
 ### Phase 4 — New module: Diffusion Models
 - [ ] Author `39_diffusion_models.ts` + register + (optional) `DiffusionViz`

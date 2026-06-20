@@ -33,6 +33,7 @@ import { aiInference } from "./35_ai_inference";
 import { appliedMlWorkflow } from "./36_applied_ml_workflow";
 import { llmSynthesis } from "./36b_synthesis_llms";
 import { imageSegmentation } from "./37_image_segmentation";
+import { visionTransformers } from "./38_vision_transformers";
 
 export const algorithmsList: LearningModule[] = [
   appliedMlWorkflow,
@@ -60,6 +61,7 @@ export const algorithmsList: LearningModule[] = [
   autoencoders,
   generativeModels,
   transformers,
+  visionTransformers,
   llms,
   dlSynthesis,
   fineTuning,

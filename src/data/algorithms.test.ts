@@ -32,6 +32,7 @@ const requiredIds = [
   "autoencoders",
   "generative-models",
   "transformers",
+  "vision-transformers",
   "llms",
   "dl-synthesis",
   "fine-tuning",
