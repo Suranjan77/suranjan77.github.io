@@ -40,6 +40,7 @@ import ImageSegmentationViz from "./ImageSegmentationViz";
 import VisionTransformersViz from "./VisionTransformersViz";
 import DiffusionViz from "./DiffusionViz";
 import ModelEvaluationViz from "./ModelEvaluationViz";
+import GradientBoostingViz from "./GradientBoostingViz";
 
 interface VizMetadata {
   title: string;
@@ -134,6 +135,12 @@ const extendedVisualizations: Record<
     title: "One Model, Many Operating Points: The Threshold Sweep",
     subtitle: "Drag the decision threshold and watch the confusion matrix, precision, recall, and F1 all move while the pink dot slides along a fixed ROC curve. The model never changes — only where you choose to operate it does.",
     insight: "Classification quality is not one number: the threshold trades precision against recall, the confusion matrix counts both error types, and threshold-independent summaries like ROC-AUC describe the model while you still must choose an operating point.",
+  },
+  "gradient-boosting": {
+    component: GradientBoostingViz,
+    title: "Add Trees That Fix What's Left Over",
+    subtitle: "Start from the mean and add shallow trees one at a time, each fit to the yellow residuals. Raise the tree count to watch the green ensemble curve bend toward the data, and change the learning rate to feel the shrinkage trade-off between smooth fitting and chasing noise.",
+    insight: "Gradient boosting descends the loss one shallow tree at a time, each fit to the current residuals; a small learning rate with many trees regularizes by averaging out noise instead of letting any one tree overfit.",
   },
 };
 
@@ -419,6 +426,7 @@ const visualizationComponents: Record<string, React.ComponentType> = {
   "vision-transformers": VisionTransformersViz,
   "diffusion-models": DiffusionViz,
   "model-evaluation": ModelEvaluationViz,
+  "gradient-boosting": GradientBoostingViz,
 };
 
 const accessibleLabels: Record<string, string> = {
@@ -454,6 +462,7 @@ const accessibleLabels: Record<string, string> = {
   "vision-transformers": "Vision Transformer Patch Attention Map",
   "diffusion-models": "Diffusion Forward Noising and Reverse Denoising",
   "model-evaluation": "ROC Curve and Confusion Matrix Threshold Sweep",
+  "gradient-boosting": "Gradient Boosting Stage-wise Residual Fitting",
 };
 
 const legacyConfigId: Record<string, string> = {

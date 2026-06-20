@@ -36,6 +36,7 @@ import { imageSegmentation } from "./37_image_segmentation";
 import { visionTransformers } from "./38_vision_transformers";
 import { diffusionModels } from "./39_diffusion_models";
 import { modelEvaluation } from "./40_model_evaluation";
+import { gradientBoosting } from "./41_gradient_boosting";
 
 export const algorithmsList: LearningModule[] = [
   appliedMlWorkflow,
@@ -48,6 +49,7 @@ export const algorithmsList: LearningModule[] = [
   svm,
   decisionTrees,
   ensembleLearning,
+  gradientBoosting,
   clustering,
   gmmEm,
   dimensionalityReduction,

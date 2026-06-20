@@ -17,6 +17,7 @@ const requiredIds = [
   "support-vector-machines",
   "decision-trees",
   "ensemble-learning",
+  "gradient-boosting",
   "clustering",
   "gmm-em",
   "dimensionality-reduction",
