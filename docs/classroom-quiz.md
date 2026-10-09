@@ -7,7 +7,8 @@ A live quiz for Level 3 and below. A teacher starts a session on the projector,
 students join on their phones with a code or QR code, and the room answers
 together. The answer screen is where teaching starts: it shows how the room
 split, the correct answer and its reason. The results screen lists the
-questions the room found hardest.
+questions the room found hardest, with how the room did the first time and
+the second.
 
 ## Routes
 
@@ -44,6 +45,13 @@ the passcode; v1 does not.
 - Teacher-started sessions, behind a teacher passcode; join by six-digit code or QR code.
 - Nicknames are generated from a colour and an animal. Students cannot type a
   name; they can ask for a different one up to three times in the lobby.
+- One set per weekly lesson, of 8 to 12 questions. A game asks every question
+  twice, in a random order: the repeat comes at least three rounds after the
+  first, and its choices are reshuffled so the answer is under a different
+  letter. Retrieving the same idea again after a gap is what makes it stick;
+  remembering "it was B" does not. Repeats are marked "Seen before" on the
+  projector. With 8 questions a game is 16 rounds, about 10–12 minutes; the
+  teacher can skip to the results at any reveal.
 - Multiple-choice questions with two to four choices: text choices, a picture
   as the question, or pictures as the choices. Pictures appear on the
   projector only; phones show A–D.
@@ -85,7 +93,8 @@ Sets live in `src/features/play/sets/`, one file per course unit, registered in
 `sets/index.ts`. The first sets cover BTEC AAQ IT Unit 3 (Website Development),
 Topics 2, 4 and 12, written from that unit's decks in academic-materials
 (`modules/l3-aaq-u3-website-development`). Each question carries an
-explanation that gives the reason, not just the fact.
+explanation that gives the reason, not just the fact. Explanations never name
+a letter, because the letters change between a question's two rounds.
 
 Pictures are real rendered pages, authored in `scripts/play-figures/<set>.html`
 in the style of the unit's lecture figures. Run `npm run play:figures`
@@ -93,7 +102,7 @@ in the style of the unit's lecture figures. Run `npm run play:figures`
 `public/play/<set>/<name>.png` and update `sets/figure-sizes.json`. No picture
 carries a caption or pass/fail label that gives the answer away.
 
-`sets/sets.test.ts` checks every set: two to four choices of one kind, a valid
+`sets/sets.test.ts` checks every set: 8 to 12 questions, two to four choices of one kind, a valid
 answer, an explanation, alt text on every picture, and that each picture file
 exists. It also measures the contrast question's button colours from the
 figure source, so the question cannot drift from the picture.

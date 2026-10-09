@@ -136,7 +136,7 @@ export const userExperience: QuestionSet = {
         { image: figure("t04-button-mid", "White label on a mid blue button.") },
       ],
       answer: 1,
-      explanation: "Normal-size text needs at least 4.5:1. B measures 7.0:1. A is 2.2:1, C is 1.4:1, and D, at 3.9:1, looks fine to many people but still fails.",
+      explanation: "Normal-size text needs at least 4.5:1. The dark blue button measures 7.0:1. The pale blue is 2.2:1 and the faded one 1.4:1; the mid blue, at 3.9:1, looks fine to many people but still fails.",
     },
     {
       id: "contrast-minimum",
@@ -153,7 +153,7 @@ export const userExperience: QuestionSet = {
         { image: figure("t04-focus-visible", "Site menu after three Tab presses. The 'Book' link has a thick orange outline.") },
       ],
       answer: 1,
-      explanation: "The focus outline is the keyboard user's cursor. Both pages have focus on 'Book'; only B shows it. 'outline: none' leaves the user navigating blind.",
+      explanation: "The focus outline is the keyboard user's cursor. Both pages have focus on 'Book'; only the one with the orange outline shows it. 'outline: none' leaves the user navigating blind.",
     },
     {
       id: "colour-only",

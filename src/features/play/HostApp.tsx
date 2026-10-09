@@ -6,25 +6,27 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   advance,
   everyoneAnswered,
+  finish,
   hardestQuestions,
   joinPlayer,
   leavePlayer,
   newGame,
-  questionSeconds,
   removePlayer,
   rerollName,
   revealAnswer,
+  shownQuestion,
   submitAnswer,
   syncConnected,
   topThree,
   viewFor,
   type GameState,
+  type ShownQuestion,
   type Standing,
 } from "./game";
 import { RelayClose, parsePlayerMessage } from "./protocol";
 import { RelaySocket, relayBaseUrl, type SocketStatus } from "./relaySocket";
 import { findSet, questionSets } from "./sets";
-import { CHOICE_LABELS, type Question, type QuestionSet, type QuizImage } from "./types";
+import { CHOICE_LABELS, type QuestionSet, type QuizImage } from "./types";
 import { CHOICE_STYLES, ChoiceMark, QrCode, formatCode } from "./ui";
 
 /**
@@ -140,7 +142,9 @@ export default function HostApp() {
     if (m.t === "room" && typeof m.code === "string" && typeof m.token === "string") {
       live.current.room = { code: m.code, token: m.token };
       setRoom(live.current.room);
-      const start = current ?? newGame(live.current.pendingSetId);
+      const pending = findSet(live.current.pendingSetId);
+      const start = current ?? (pending ? newGame(pending) : null);
+      if (!start) return;
       commit(syncConnected(start, Array.isArray(m.players) ? m.players : []), "all");
       return;
     }
@@ -189,7 +193,7 @@ export default function HostApp() {
     setPasscode(saved.passcode);
     setRemember(saved.remembered);
     const session = loadSaved();
-    if (relay && session && findSet(session.game.setId)) {
+    if (relay && session && findSet(session.game.setId) && Array.isArray(session.game.plan)) {
       live.current.room = { code: session.code, token: session.token };
       live.current.game = session.game;
       setRoom(live.current.room);
@@ -282,6 +286,11 @@ export default function HostApp() {
     if (current && set) commit(advance(current, set, Date.now()), "all");
   }
 
+  function finishNow() {
+    const current = live.current.game;
+    if (current) commit(finish(current), "all");
+  }
+
   function revealNow() {
     const current = live.current.game;
     const set = current && findSet(current.setId);
@@ -328,7 +337,7 @@ export default function HostApp() {
       <TopBar set={set} code={room.code} status={status} onEnd={endSession} />
       {game.phase === "lobby" && <Lobby code={room.code} game={game} onStart={next} onRemove={removeStudent} />}
       {game.phase === "question" && <QuestionScreen set={set} game={game} now={now} onReveal={revealNow} />}
-      {game.phase === "reveal" && <RevealScreen set={set} game={game} onNext={next} />}
+      {game.phase === "reveal" && <RevealScreen set={set} game={game} onNext={next} onFinish={finishNow} />}
       {game.phase === "final" && <FinalScreen set={set} game={game} onEnd={endSession} />}
     </Frame>
   );
@@ -397,7 +406,7 @@ function Setup(props: {
               <span>
                 <span className="block font-medium">{set.title}</span>
                 <span className="mt-1 block text-sm text-on-surface-variant">
-                  {set.course} · Spec {set.spec} · {set.questions.length} questions
+                  {set.course} · Spec {set.spec} · {set.questions.length} questions, each asked twice
                 </span>
               </span>
             </label>
@@ -515,9 +524,9 @@ function Picture({ image, className, sizes }: { image: QuizImage; className?: st
   return <Image src={image.src} alt={image.alt} width={image.width} height={image.height} className={className} sizes={sizes} unoptimized />;
 }
 
-function ChoiceTiles({ question, game, reveal, single = false }: { question: Question; game: GameState; reveal: boolean; single?: boolean }) {
+function ChoiceTiles({ question, game, reveal, single = false }: { question: ShownQuestion; game: GameState; reveal: boolean; single?: boolean }) {
   const pictures = question.choices.some((c) => c.image);
-  const result = reveal ? game.results.find((r) => r.index === game.index) : undefined;
+  const result = reveal ? game.results.find((r) => r.round === game.index) : undefined;
   const total = result ? result.counts.reduce((sum, n) => sum + n, 0) : 0;
   const columns = single ? "" : pictures ? (question.choices.length === 4 ? "sm:grid-cols-2 xl:grid-cols-4" : question.choices.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2") : "sm:grid-cols-2";
 
@@ -555,18 +564,20 @@ function ChoiceTiles({ question, game, reveal, single = false }: { question: Que
   );
 }
 
-function QuestionHeading({ set, game }: { set: QuestionSet; game: GameState }) {
-  const question = set.questions[game.index];
+function QuestionHeading({ question }: { question: ShownQuestion }) {
   return (
     <>
-      <p className="font-mono text-sm uppercase tracking-label text-on-surface-variant">Question {game.index + 1} of {set.questions.length}</p>
+      <p className="font-mono text-sm uppercase tracking-label text-on-surface-variant">
+        Question {question.round + 1} of {question.total}
+        {question.repeat && <span className="ml-3 bg-accent-container px-2 py-0.5 text-on-accent-container">Seen before</span>}
+      </p>
       <h1 className="mt-2 max-w-5xl font-headline text-3xl font-medium leading-tight sm:text-4xl">{question.prompt}</h1>
     </>
   );
 }
 
 /** The choices, with the question's own picture beside them when it has one, so both fit a projector. */
-function QuestionBody({ question, game, reveal }: { question: Question; game: GameState; reveal: boolean }) {
+function QuestionBody({ question, game, reveal }: { question: ShownQuestion; game: GameState; reveal: boolean }) {
   if (!question.image) return <ChoiceTiles question={question} game={game} reveal={reveal} />;
   return (
     <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -579,15 +590,16 @@ function QuestionBody({ question, game, reveal }: { question: Question; game: Ga
 }
 
 function QuestionScreen({ set, game, now, onReveal }: { set: QuestionSet; game: GameState; now: number; onReveal: () => void }) {
-  const question = set.questions[game.index];
-  const limit = questionSeconds(set, game.index) * 1000;
+  const question = shownQuestion(game, set);
+  if (!question) return null;
+  const limit = question.seconds * 1000;
   const left = Math.max(0, game.deadline - now);
   const connected = Object.values(game.players).filter((p) => p.connected).length;
   const answered = Object.keys(game.answers).length;
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-4 py-6 sm:px-8">
-      <div><QuestionHeading set={set} game={game} /></div>
+      <div><QuestionHeading question={question} /></div>
       <QuestionBody question={question} game={game} reveal={false} />
       <div className="mt-auto flex flex-wrap items-center gap-6">
         <div className="flex min-w-60 flex-1 items-center gap-3" aria-hidden="true">
@@ -618,13 +630,14 @@ function TopThree({ standings }: { standings: Standing[] }) {
   );
 }
 
-function RevealScreen({ set, game, onNext }: { set: QuestionSet; game: GameState; onNext: () => void }) {
-  const question = set.questions[game.index];
-  const last = game.index + 1 >= set.questions.length;
+function RevealScreen({ set, game, onNext, onFinish }: { set: QuestionSet; game: GameState; onNext: () => void; onFinish: () => void }) {
+  const question = shownQuestion(game, set);
+  if (!question) return null;
+  const last = game.index + 1 >= game.plan.length;
   return (
     <div className="grid flex-1 gap-8 px-4 py-6 sm:px-8 xl:grid-cols-[1fr_24rem]">
       <div className="flex flex-col gap-6">
-        <div><QuestionHeading set={set} game={game} /></div>
+        <div><QuestionHeading question={question} /></div>
         <QuestionBody question={question} game={game} reveal />
       </div>
       <aside className="flex flex-col gap-4">
@@ -634,6 +647,11 @@ function RevealScreen({ set, game, onNext }: { set: QuestionSet; game: GameState
         <h2 className="mt-2 font-headline text-2xl font-medium">Top three</h2>
         <TopThree standings={topThree(game)} />
         <button type="button" className={`${primaryButton} mt-2`} onClick={onNext}>{last ? "See the results" : "Next question"}</button>
+        {!last && (
+          <button type="button" className={`${quietButton} self-start`} onClick={onFinish}>
+            Skip to the results
+          </button>
+        )}
       </aside>
     </div>
   );
@@ -650,14 +668,21 @@ function FinalScreen({ set, game, onEnd }: { set: QuestionSet; game: GameState; 
       <section>
         <h2 className="font-headline text-3xl font-medium">What the room found hardest</h2>
         <ol className="mt-6 space-y-4">
-          {hardest.map((result) => {
-            const question = set.questions[result.index];
-            const percent = result.players ? Math.round((result.correct / result.players) * 100) : 0;
+          {hardest.map((summary) => {
+            const question = set.questions[summary.question];
+            const answer = question.choices[question.answer];
+            const percent = (rate: number | null) => (rate === null ? "not asked" : `${Math.round(rate * 100)}% correct`);
             return (
-              <li key={result.index} className="border border-outline bg-surface p-4">
-                <p className="font-mono text-xs uppercase tracking-label text-on-surface-variant">Question {result.index + 1} · {percent}% correct</p>
+              <li key={summary.question} className="border border-outline bg-surface p-4">
+                <p className="font-mono text-xs uppercase tracking-label text-on-surface-variant">
+                  First time {percent(summary.first)} · second time {percent(summary.second)}
+                </p>
                 <p className="mt-1 text-lg">{question.prompt}</p>
-                <p className="mt-2 text-on-surface-variant">Answer {CHOICE_LABELS[question.answer]}. {question.explanation}</p>
+                {answer.image && <Picture image={answer.image} className="mt-3 h-auto max-h-28 w-auto border border-outline" sizes="200px" />}
+                <p className="mt-2 text-on-surface-variant">
+                  {answer.text !== undefined && <span className="font-semibold text-on-surface">Answer: {answer.text}. </span>}
+                  {question.explanation}
+                </p>
               </li>
             );
           })}

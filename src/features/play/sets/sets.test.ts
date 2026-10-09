@@ -23,8 +23,9 @@ describe("question sets", () => {
 
   for (const set of questionSets) {
     describe(set.title, () => {
-      it("has questions with unique ids", () => {
-        expect(set.questions.length).toBeGreaterThan(0);
+      it("has 8 to 12 questions with unique ids: few enough to ask each twice in one lesson", () => {
+        expect(set.questions.length).toBeGreaterThanOrEqual(8);
+        expect(set.questions.length).toBeLessThanOrEqual(12);
         expect(new Set(set.questions.map((q) => q.id)).size).toBe(set.questions.length);
       });
 

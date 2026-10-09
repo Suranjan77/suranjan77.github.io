@@ -2,21 +2,27 @@ import { describe, expect, it } from "vitest";
 import {
   ANSWER_GRACE_MS,
   MAX_REROLLS,
+  MIN_REPEAT_GAP,
   advance,
+  buildPlan,
   everyoneAnswered,
+  finish,
   hardestQuestions,
   joinPlayer,
   leavePlayer,
   newGame,
   pointsFor,
+  questionOrder,
   removePlayer,
   rerollName,
   revealAnswer,
+  shownQuestion,
   submitAnswer,
   syncConnected,
   topThree,
   viewFor,
   type GameState,
+  type Round,
 } from "./game";
 import type { QuestionSet } from "./types";
 
@@ -31,8 +37,16 @@ const set: QuestionSet = {
   ],
 };
 
-function seeded() {
-  let x = 1;
+/** Choices in authored order, so a test knows which shown position is correct. */
+const FIXED_PLAN: Round[] = [
+  { question: 0, order: [0, 1], repeat: false },
+  { question: 1, order: [0, 1, 2], repeat: false },
+  { question: 0, order: [1, 0], repeat: true },
+  { question: 1, order: [2, 0, 1], repeat: true },
+];
+
+function seeded(seed = 1) {
+  let x = seed;
   return () => {
     x = (x * 16807) % 2147483647;
     return x / 2147483647;
@@ -41,8 +55,62 @@ function seeded() {
 
 function lobbyWith(...pids: string[]): GameState {
   const random = seeded();
-  return pids.reduce((state, pid) => joinPlayer(state, pid, random), newGame(set.id));
+  const start: GameState = { ...newGame(set, random), plan: FIXED_PLAN };
+  return pids.reduce((state, pid) => joinPlayer(state, pid, random), start);
 }
+
+describe("the order questions come in", () => {
+  it("asks every question exactly twice, with at least MIN_REPEAT_GAP rounds before the repeat", () => {
+    for (const count of [8, 10, 12]) {
+      for (let seed = 1; seed <= 200; seed += 1) {
+        const order = questionOrder(count, seeded(seed));
+        expect(order).toHaveLength(count * 2);
+        for (let q = 0; q < count; q += 1) {
+          expect(order.filter((x) => x === q)).toHaveLength(2);
+          expect(order.lastIndexOf(q) - order.indexOf(q)).toBeGreaterThanOrEqual(MIN_REPEAT_GAP);
+        }
+      }
+    }
+  });
+
+  it("varies from game to game", () => {
+    const orders = new Set(Array.from({ length: 20 }, (_, seed) => questionOrder(8, seeded(seed + 1)).join(",")));
+    expect(orders.size).toBeGreaterThan(15);
+  });
+
+  it("still spaces repeats when there are too few questions to shuffle", () => {
+    const order = questionOrder(3, seeded());
+    expect(order.slice(0, 3)).toEqual(order.slice(3));
+  });
+
+  it("reshuffles the choices on the repeat so the answer is under a different letter", () => {
+    const bigger: QuestionSet = {
+      ...set,
+      questions: Array.from({ length: 8 }, (_, i) => ({
+        id: `q${i}`,
+        prompt: `Q${i}?`,
+        choices: [{ text: "a" }, { text: "b" }, { text: "c" }, { text: "d" }].slice(0, 2 + (i % 3)),
+        answer: i % 2,
+        explanation: "Because.",
+      })),
+    };
+    for (let seed = 1; seed <= 50; seed += 1) {
+      const plan = buildPlan(bigger, seeded(seed));
+      const state: GameState = { ...newGame(bigger), plan };
+      bigger.questions.forEach((question, q) => {
+        const [first, second] = plan.map((round, i) => ({ round, i })).filter(({ round }) => round.question === q);
+        expect(first.round.repeat).toBe(false);
+        expect(second.round.repeat).toBe(true);
+        expect([...first.round.order].sort()).toEqual(question.choices.map((_, i) => i));
+        const a = shownQuestion(state, bigger, first.i)!;
+        const b = shownQuestion(state, bigger, second.i)!;
+        expect(a.choices[a.answer]).toBe(question.choices[question.answer]);
+        expect(b.choices[b.answer]).toBe(question.choices[question.answer]);
+        expect(b.answer).not.toBe(a.answer);
+      });
+    }
+  });
+});
 
 describe("joining", () => {
   it("gives every student a different name and keeps it when they reconnect", () => {
@@ -77,7 +145,7 @@ describe("joining", () => {
 });
 
 describe("answering", () => {
-  it("accepts one answer per student, for the current question, until just after the deadline", () => {
+  it("accepts one answer per student, for the current round, until just after the deadline", () => {
     let state = advance(lobbyWith("p1", "p2", "p3"), set, 1000);
     state = submitAnswer(state, set, "p1", 0, 1, 2000);
     expect(state.answers.p1).toEqual({ choice: 1, at: 2000 });
@@ -116,7 +184,16 @@ describe("scoring", () => {
     expect(state.players.p1).toMatchObject({ score: 1000, lastGained: 1000, lastOutcome: "correct" });
     expect(state.players.p2).toMatchObject({ score: 0, lastOutcome: "wrong" });
     expect(state.players.p3).toMatchObject({ score: 0, lastOutcome: "none" });
-    expect(state.results).toEqual([{ index: 0, counts: [1, 1], correct: 1, players: 3 }]);
+    expect(state.results).toEqual([{ round: 0, question: 0, repeat: false, counts: [1, 1], correct: 1, players: 3 }]);
+  });
+
+  it("marks a repeat by where the answer is shown this time, not where it was before", () => {
+    let state = lobbyWith("p1");
+    for (const at of [0, 20_000]) state = revealAnswer(advance(state, set, at), set);
+    state = advance(state, set, 40_000);
+    expect(shownQuestion(state, set)).toMatchObject({ question: 0, repeat: true, answer: 0 });
+    state = revealAnswer(submitAnswer(state, set, "p1", 2, 0, 40_000), set);
+    expect(state.players.p1.lastOutcome).toBe("correct");
   });
 });
 
@@ -130,6 +207,9 @@ describe("standings", () => {
     state = submitAnswer(state, set, "p5", 0, 0, 0);
     state = advance(revealAnswer(state, set), set, 20_000);
     state = submitAnswer(state, set, "p4", 1, 0, 20_000);
+    state = advance(revealAnswer(state, set), set, 40_000);
+    for (const pid of ["p1", "p2", "p3", "p4", "p5"]) state = submitAnswer(state, set, pid, 2, 0, 40_000);
+    state = advance(revealAnswer(state, set), set, 60_000);
     return revealAnswer(state, set);
   }
 
@@ -140,15 +220,24 @@ describe("standings", () => {
     expect(topThree(lobbyWith("p1"))).toEqual([]);
   });
 
-  it("ends after the last question and tells only the top three their place", () => {
-    const final = advance(played(), set, 40_000);
+  it("ends after the last round and tells only the top three their place", () => {
+    const final = advance(played(), set, 80_000);
     expect(final.phase).toBe("final");
     expect(viewFor(final, set, "p4", 0)).toMatchObject({ phase: "final", place: 1 });
-    expect(viewFor(final, set, "p5", 0)).toMatchObject({ phase: "final", place: null, score: 0 });
+    expect(viewFor(final, set, "p5", 0)).toMatchObject({ phase: "final", place: null, score: 1000 });
   });
 
-  it("lists the questions the room found hardest first", () => {
-    expect(hardestQuestions(played()).map((r) => r.index)).toEqual([1, 0]);
+  it("can skip to the results before the last round", () => {
+    const early = finish(advance(lobbyWith("p1"), set, 0));
+    expect(early.phase).toBe("final");
+    expect(finish(lobbyWith("p1")).phase).toBe("lobby");
+  });
+
+  it("lists the hardest questions first, with the first and second time side by side", () => {
+    expect(hardestQuestions(played())).toEqual([
+      { question: 1, first: 0.2, second: 0 },
+      { question: 0, first: 0.8, second: 1 },
+    ]);
   });
 });
 
@@ -164,9 +253,10 @@ describe("what a phone is shown", () => {
         ],
       }],
     };
-    let state = advance(lobbyWith("p1"), pictureSet, 0);
+    let state: GameState = { ...lobbyWith("p1"), setId: pictureSet.id, plan: [FIXED_PLAN[0], FIXED_PLAN[2]] };
+    state = advance(state, pictureSet, 0);
     expect(viewFor(state, pictureSet, "p1", 2500)).toEqual({
-      phase: "question", name: state.players.p1.name, index: 0, total: 1, prompt: "One?",
+      phase: "question", name: state.players.p1.name, index: 0, total: 2, prompt: "One?",
       choices: [{ label: "A" }, { label: "B" }], pictures: true, secondsLeft: 8, answered: null,
     });
     state = revealAnswer(submitAnswer(state, pictureSet, "p1", 0, 0, 100), pictureSet);
