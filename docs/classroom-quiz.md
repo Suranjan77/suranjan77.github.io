@@ -13,16 +13,35 @@ questions the room found hardest.
 
 | Route | Who | What |
 | --- | --- | --- |
-| `/play/host` | Teacher, on the projector | Pick a question set, start a session, run the questions, end the session. |
+| `/play/host` | Teacher, on the projector | Enter the teacher passcode, pick a question set, start a session, run the questions, end the session. |
 | `/play?c=123456` | Students, on phones | Join with the code, get a nickname, answer. |
 | `/play/privacy` | Students and staff | What is kept, where, and for how long, written for students. |
 
 The quiz routes are not indexed by search engines (`/play/privacy` is indexed),
 and `/play` and `/play/host` render without the site's header and footer.
 
+## Teacher passcode
+
+Anyone can load `/play/host`, because the site is public files, but only the
+relay can open a room, and it opens one only for the teacher passcode (the
+`TEACHER_KEY` secret on Cloudflare; see `relay/README.md`). Without it, the
+page cannot start a session. The passcode travels in the body of an HTTPS
+request, never in a URL. Once a room is open, the teacher's screen uses a
+per-room token for reconnects, so the passcode is not sent again.
+
+The teacher's screen keeps the passcode for the current tab only, so a
+second session can start without retyping it. "Remember on this device" puts
+it in localStorage instead, and is meant for a teacher's own laptop, not a
+shared classroom computer. A wrong passcode is never saved.
+
+Known limit: the question sets, answers included, are part of the site's
+public JavaScript. A determined student could find this week's answers in the
+page source. Keeping them secret would mean serving sets from the relay behind
+the passcode; v1 does not.
+
 ## Scope of v1
 
-- Teacher-started sessions; join by six-digit code or QR code.
+- Teacher-started sessions, behind a teacher passcode; join by six-digit code or QR code.
 - Nicknames are generated from a colour and an animal. Students cannot type a
   name; they can ask for a different one up to three times in the lobby.
 - Multiple-choice questions with two to four choices: text choices, a picture

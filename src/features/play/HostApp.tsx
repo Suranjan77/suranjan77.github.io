@@ -35,6 +35,32 @@ import { CHOICE_STYLES, ChoiceMark, QrCode, formatCode } from "./ui";
  */
 
 const STORAGE_KEY = "classroom-quiz-host";
+/**
+ * The teacher passcode. Kept for this tab only unless the teacher ticks
+ * "Remember on this device", which puts it in localStorage: never on a shared
+ * classroom computer.
+ */
+const PASSCODE_KEY = "classroom-quiz-teacher-passcode";
+
+function loadPasscode(): { passcode: string; remembered: boolean } {
+  try {
+    const remembered = localStorage.getItem(PASSCODE_KEY);
+    if (remembered) return { passcode: remembered, remembered: true };
+    return { passcode: sessionStorage.getItem(PASSCODE_KEY) ?? "", remembered: false };
+  } catch {
+    return { passcode: "", remembered: false };
+  }
+}
+
+function savePasscode(passcode: string | null, remember: boolean) {
+  try {
+    localStorage.removeItem(PASSCODE_KEY);
+    sessionStorage.removeItem(PASSCODE_KEY);
+    if (passcode) (remember ? localStorage : sessionStorage).setItem(PASSCODE_KEY, passcode);
+  } catch {
+    // Storage unavailable: the teacher types the passcode each time.
+  }
+}
 
 type Room = { code: string; token: string };
 type Saved = Room & { game: GameState };
@@ -67,6 +93,10 @@ export default function HostApp() {
   const [status, setStatus] = useState<SocketStatus>("closed");
   const [notice, setNotice] = useState<string | null>(null);
   const [now, setNow] = useState(0);
+  const [passcode, setPasscode] = useState("");
+  const [remember, setRemember] = useState(false);
+  const [opening, setOpening] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
 
   const socket = useRef<RelaySocket | null>(null);
   const live = useRef<{ room: Room | null; game: GameState | null; pendingSetId: string }>({
@@ -135,7 +165,7 @@ export default function HostApp() {
     const s = new RelaySocket(
       () => {
         const r = live.current.room;
-        return r ? `${relay}/host?code=${r.code}&token=${encodeURIComponent(r.token)}` : `${relay}/host`;
+        return `${relay}/host?code=${r?.code ?? ""}&token=${encodeURIComponent(r?.token ?? "")}`;
       },
       {
         onMessage,
@@ -155,12 +185,15 @@ export default function HostApp() {
     const relay = relayBaseUrl();
     setBase(relay);
     setNow(Date.now());
-    const saved = loadSaved();
-    if (relay && saved && findSet(saved.game.setId)) {
-      live.current.room = { code: saved.code, token: saved.token };
-      live.current.game = saved.game;
+    const saved = loadPasscode();
+    setPasscode(saved.passcode);
+    setRemember(saved.remembered);
+    const session = loadSaved();
+    if (relay && session && findSet(session.game.setId)) {
+      live.current.room = { code: session.code, token: session.token };
+      live.current.game = session.game;
       setRoom(live.current.room);
-      setGame(saved.game);
+      setGame(session.game);
       connect(relay);
     }
     return () => socket.current?.stop();
@@ -180,13 +213,49 @@ export default function HostApp() {
     return () => clearInterval(timer);
   }, [game?.phase, game?.index, commit]);
 
-  function startSession() {
-    if (!base) return;
-    live.current.pendingSetId = chosenSetId;
-    live.current.game = null;
-    live.current.room = null;
+  /** Ask the relay for a room with the teacher passcode, then connect to it with the token it returns. */
+  async function startSession() {
+    if (!base || opening) return;
+    const key = passcode.trim();
     setNotice(null);
-    connect(base);
+    if (!key) {
+      setProblem("Enter the teacher passcode.");
+      return;
+    }
+    setOpening(true);
+    setProblem(null);
+    try {
+      const response = await fetch(`${base.replace(/^ws/, "http")}/rooms`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key }),
+      });
+      if (response.status === 401) {
+        savePasscode(null, false);
+        setProblem("That passcode is not right.");
+        return;
+      }
+      if (!response.ok) {
+        setProblem("The relay could not open a room. Try again in a moment.");
+        return;
+      }
+      const { code, token } = (await response.json()) as Room;
+      savePasscode(key, remember);
+      live.current.pendingSetId = chosenSetId;
+      live.current.game = null;
+      live.current.room = { code, token };
+      connect(base);
+    } catch {
+      setProblem("Cannot reach the relay. Check the internet connection and try again.");
+    } finally {
+      setOpening(false);
+    }
+  }
+
+  function forgetPasscode() {
+    savePasscode(null, false);
+    setPasscode("");
+    setRemember(false);
   }
 
   function endSession() {
@@ -241,9 +310,14 @@ export default function HostApp() {
           chosen={chosenSetId}
           onChoose={setChosenSetId}
           onStart={startSession}
-          busy={connecting}
-          problem={status === "reconnecting" && !room ? "Cannot reach the relay. Check the connection; this screen keeps trying." : null}
+          busy={opening || connecting}
+          problem={problem ?? (status === "reconnecting" ? "Cannot reach the relay. Check the connection; this screen keeps trying." : null)}
           notice={notice}
+          passcode={passcode}
+          onPasscode={setPasscode}
+          remember={remember}
+          onRemember={setRemember}
+          onForget={forgetPasscode}
         />
       </Frame>
     );
@@ -285,6 +359,11 @@ function Setup(props: {
   busy: boolean;
   problem: string | null;
   notice: string | null;
+  passcode: string;
+  onPasscode: (value: string) => void;
+  remember: boolean;
+  onRemember: (value: boolean) => void;
+  onForget: () => void;
 }) {
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:py-14">
@@ -326,9 +405,33 @@ function Setup(props: {
         </div>
       </fieldset>
 
-      <button type="button" className={`${primaryButton} mt-8`} onClick={props.onStart} disabled={props.busy}>
-        {props.busy ? "Opening a room…" : "Start session"}
-      </button>
+      <form
+        className="mt-8 flex flex-col gap-3"
+        onSubmit={(event) => {
+          event.preventDefault();
+          props.onStart();
+        }}
+      >
+        <label htmlFor="passcode" className="font-mono text-[10px] uppercase tracking-label text-on-surface-variant">Teacher passcode</label>
+        <input
+          id="passcode"
+          type="password"
+          autoComplete="off"
+          value={props.passcode}
+          onChange={(e) => props.onPasscode(e.target.value)}
+          className="min-h-12 max-w-md border-2 border-outline-dark bg-surface px-3 text-lg focus:border-primary focus:outline-none"
+        />
+        <label className="flex items-center gap-2 text-sm text-on-surface-variant">
+          <input type="checkbox" checked={props.remember} onChange={(e) => props.onRemember(e.target.checked)} className="h-4 w-4 accent-[#556B4A]" />
+          Remember on this device (not on a shared classroom computer)
+        </label>
+        {props.remember && props.passcode && (
+          <button type="button" onClick={props.onForget} className="self-start text-sm text-primary underline underline-offset-4">Forget the saved passcode</button>
+        )}
+        <button type="submit" className={`${primaryButton} mt-3 self-start`} disabled={props.busy}>
+          {props.busy ? "Opening a room…" : "Start session"}
+        </button>
+      </form>
       {props.problem && <p role="alert" className="mt-4 text-sm text-error">{props.problem}</p>}
     </div>
   );

@@ -4,7 +4,7 @@
   "private": true,
   "description": "Message relay for the classroom quiz. Holds no data beyond the live session.",
   "scripts": {
-    "dev": "wrangler dev --port 8787 --var ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000 --var ROOM_JURISDICTION:none",
+    "dev": "wrangler dev --port 8787 --var ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000 --var ROOM_JURISDICTION:none --var TEACHER_KEY:local-teacher-passcode",
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
     "test": "node scripts/run-integration-tests.mjs"

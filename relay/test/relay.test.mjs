@@ -8,6 +8,17 @@ const test = (name, fn) => nodeTest(name, { timeout: 45_000 }, fn);
 
 const RELAY = process.env.RELAY_URL ?? "ws://127.0.0.1:8788";
 const ORIGIN = "http://localhost:3000";
+const HTTP = RELAY.replace(/^ws/, "http");
+const TEACHER_KEY = process.env.TEACHER_KEY ?? "test-teacher-passcode";
+
+/** POST /rooms, as the teacher's screen does before it connects. */
+function requestRoom(key, origin = ORIGIN) {
+  return fetch(`${HTTP}/rooms`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Origin: origin },
+    body: JSON.stringify({ key }),
+  });
+}
 
 /** A WebSocket with a queue of parsed messages and a promise for its close event. */
 function connect(path, origin = ORIGIN) {
@@ -55,14 +66,47 @@ const playerId = () => randomBytes(16).toString("hex");
 const type = (t) => (message) => message.t === t;
 
 async function openRoom() {
-  const host = connect("/host");
+  const response = await requestRoom(TEACHER_KEY);
+  assert.equal(response.status, 200);
+  const { code, token } = await response.json();
+  const host = connect(`/host?code=${code}&token=${token}`);
   const room = await host.next(type("room"));
+  assert.equal(room.code, code);
   return { host, room };
 }
 
-test("refuses a connection from another site", async () => {
-  const stranger = connect("/host", "https://example.com");
+test("only the teacher passcode opens a room", async () => {
+  for (const key of ["wrong-passcode-of-length", "", undefined, 12345]) {
+    const response = await requestRoom(key);
+    assert.equal(response.status, 401);
+    assert.equal(response.headers.get("Access-Control-Allow-Origin"), ORIGIN);
+  }
+  const ok = await requestRoom(TEACHER_KEY);
+  assert.equal(ok.status, 200);
+  assert.equal(ok.headers.get("Access-Control-Allow-Origin"), ORIGIN);
+  const body = await ok.json();
+  assert.match(body.code, /^[1-9]\d{5}$/);
+  assert.deepEqual(Object.keys(body).sort(), ["code", "token"]);
+});
+
+test("a room nobody connects to as teacher is deleted after the grace period", async () => {
+  const { code } = await (await requestRoom(TEACHER_KEY)).json();
+  await sleep(14_000);
+  const late = connect(`/join?code=${code}&pid=${playerId()}`);
+  assert.equal((await late.closed).code, 4004);
+});
+
+test("refuses requests from another site", async () => {
+  assert.equal((await requestRoom(TEACHER_KEY, "https://example.com")).status, 403);
+  const preflight = await fetch(`${HTTP}/rooms`, { method: "OPTIONS", headers: { Origin: "https://example.com" } });
+  assert.equal(preflight.status, 403);
+  const stranger = connect(`/join?code=123456&pid=${playerId()}`, "https://example.com");
   assert.equal(await stranger.opened, false);
+});
+
+test("a teacher cannot open a room without the passcode by connecting directly", async () => {
+  const direct = connect("/host");
+  assert.equal(await direct.opened, false);
 });
 
 test("a teacher opens a room and a student's messages reach only the teacher", async () => {

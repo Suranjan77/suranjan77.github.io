@@ -1,6 +1,8 @@
 import { expect, test, type Browser, type Page } from "@playwright/test";
 
 const phone = { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true };
+/** The passcode `npm --prefix relay run dev` is started with. */
+const TEACHER_PASSCODE = "local-teacher-passcode";
 
 async function joinAsStudent(browser: Browser, code: string): Promise<Page> {
   const context = await browser.newContext(phone);
@@ -20,6 +22,7 @@ test("a teacher runs a session, students play on phones, and ending it deletes t
   const teacher = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
   await teacher.goto("/play/host");
   await teacher.getByLabel(/Topic 4 · User experience/).check();
+  await teacher.getByLabel("Teacher passcode").fill(TEACHER_PASSCODE);
   await teacher.getByRole("button", { name: "Start session" }).click();
 
   const codeText = (await teacher.getByTestId("room-code").textContent()) ?? "";
@@ -99,7 +102,8 @@ test("a teacher runs a session, students play on phones, and ending it deletes t
   await expect(ana.getByText("Your teacher ended the session. Your nickname and score have been deleted.")).toBeVisible();
   await expect(ben.getByText("Your teacher ended the session. Your nickname and score have been deleted.")).toBeVisible();
   expect(await ana.evaluate(() => Object.keys(sessionStorage).filter((k) => k.startsWith("classroom-quiz")))).toEqual([]);
-  expect(await teacher.evaluate(() => Object.keys(sessionStorage).filter((k) => k.startsWith("classroom-quiz")))).toEqual([]);
+  // The session is gone from the teacher's tab; only the passcode stays, for starting the next one.
+  expect(await teacher.evaluate(() => Object.keys(sessionStorage).filter((k) => k.startsWith("classroom-quiz")))).toEqual(["classroom-quiz-teacher-passcode"]);
 
   const late = await (await browser.newContext(phone)).newPage();
   await late.goto(`/play?c=${code}`);
@@ -110,6 +114,7 @@ test("a teacher runs a session, students play on phones, and ending it deletes t
 test("the teacher can remove a student", async ({ browser }) => {
   const teacher = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
   await teacher.goto("/play/host");
+  await teacher.getByLabel("Teacher passcode").fill(TEACHER_PASSCODE);
   await teacher.getByRole("button", { name: "Start session" }).click();
   const code = ((await teacher.getByTestId("room-code").textContent()) ?? "").replace(/\D/g, "");
 
@@ -122,4 +127,37 @@ test("the teacher can remove a student", async ({ browser }) => {
   await teacher.getByRole("button", { name: "End session" }).click();
   await teacher.getByRole("button", { name: "End and delete" }).click();
   await expect(teacher.getByRole("button", { name: "Start session" })).toBeVisible();
+});
+
+test("without the teacher passcode, nobody can open a room", async ({ browser }) => {
+  const student = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
+  await student.goto("/play/host");
+
+  await student.getByRole("button", { name: "Start session" }).click();
+  await expect(student.getByText("Enter the teacher passcode.")).toBeVisible();
+
+  await student.getByLabel("Teacher passcode").fill("a-guess-at-the-passcode");
+  await student.getByRole("button", { name: "Start session" }).click();
+  await expect(student.getByText("That passcode is not right.")).toBeVisible();
+  await expect(student.getByTestId("room-code")).toHaveCount(0);
+  expect(await student.evaluate(() => [localStorage.length, sessionStorage.length])).toEqual([0, 0]);
+});
+
+test("a remembered passcode is filled in next time and can be forgotten", async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+  const teacher = await context.newPage();
+  await teacher.goto("/play/host");
+  await teacher.getByLabel("Teacher passcode").fill(TEACHER_PASSCODE);
+  await teacher.getByLabel(/Remember on this device/).check();
+  await teacher.getByRole("button", { name: "Start session" }).click();
+  await expect(teacher.getByTestId("room-code")).toBeVisible();
+  await teacher.getByRole("button", { name: "End session" }).click();
+  await teacher.getByRole("button", { name: "End and delete" }).click();
+
+  const later = await context.newPage();
+  await later.goto("/play/host");
+  await expect(later.getByLabel("Teacher passcode")).toHaveValue(TEACHER_PASSCODE);
+  await later.getByRole("button", { name: "Forget the saved passcode" }).click();
+  await expect(later.getByLabel("Teacher passcode")).toHaveValue("");
+  expect(await later.evaluate(() => localStorage.getItem("classroom-quiz-teacher-passcode"))).toBeNull();
 });

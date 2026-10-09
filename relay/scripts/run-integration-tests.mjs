@@ -15,6 +15,7 @@ const relay = spawn(
     "--var", "ALLOWED_ORIGINS:http://localhost:3000",
     "--var", "HOST_GRACE_SECONDS:2",
     "--var", "ROOM_JURISDICTION:none",
+    "--var", "TEACHER_KEY:test-teacher-passcode",
   ],
   { stdio: ["ignore", "pipe", "pipe"], detached: true, env: { ...process.env, WRANGLER_SEND_METRICS: "false" } },
 );
@@ -43,7 +44,7 @@ if (!ready) {
 
 const tests = spawn(process.execPath, ["test/relay.test.mjs"], {
   stdio: "inherit",
-  env: { ...process.env, RELAY_URL: `ws://127.0.0.1:${port}` },
+  env: { ...process.env, RELAY_URL: `ws://127.0.0.1:${port}`, TEACHER_KEY: "test-teacher-passcode" },
 });
 tests.on("exit", (code) => {
   stop();

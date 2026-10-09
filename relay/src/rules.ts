@@ -56,6 +56,16 @@ export function newHostToken(): string {
   return btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
+/** The teacher passcode must be at least this long, or no room can be opened. */
+export const MIN_TEACHER_KEY_LENGTH = 16;
+
+/** Compares a submitted passcode with the configured one in constant time. */
+export async function teacherKeyMatches(given: unknown, configured: string | undefined): Promise<boolean> {
+  if (typeof given !== "string" || !configured || configured.length < MIN_TEACHER_KEY_LENGTH) return false;
+  const encode = async (text: string) => crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return crypto.subtle.timingSafeEqual(await encode(given), await encode(configured));
+}
+
 export async function sha256(text: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");

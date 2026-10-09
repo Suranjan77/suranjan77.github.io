@@ -21,6 +21,9 @@ import {
  * metadata (its code, a hash of the teacher's reconnect token and its start
  * time), and ending the room deletes that too.
  *
+ * A room is opened by the Worker's POST /rooms, which has already checked the
+ * teacher passcode; the teacher's screen then connects with the returned token.
+ *
  * Messages, all JSON text:
  *   relay → host    {t:"room", code, token, players}  {t:"joined", pid}  {t:"left", pid}  {t:"from", pid, m}
  *   host → relay    {t:"send", to, m}  {t:"batch", items:[{to, m}]}  {t:"broadcast", m}  {t:"remove", to}  {t:"end"}
@@ -59,8 +62,9 @@ export class Room extends DurableObject<Env> {
       const token = newHostToken();
       const created: Meta = { code, tokenHash: await sha256(token), createdAt: Date.now() };
       await this.ctx.storage.put("meta", created);
-      await this.ctx.storage.setAlarm(created.createdAt + MAX_ROOM_LIFETIME_MS);
-      return this.acceptHost(created, token);
+      // The teacher's screen connects straight after; if it never does, the room expires like an abandoned one.
+      await this.ctx.storage.setAlarm(created.createdAt + this.graceMs());
+      return Response.json({ code, token });
     }
 
     const [client, server] = Object.values(new WebSocketPair());
@@ -164,8 +168,7 @@ export class Room extends DurableObject<Env> {
     }
     if (this.sockets("host").every((socket) => socket === ws)) {
       this.broadcastToPlayers({ t: "relay.host", up: false });
-      const grace = Number(this.env.HOST_GRACE_SECONDS ?? "900") * 1000;
-      await this.ctx.storage.setAlarm(Date.now() + grace);
+      await this.ctx.storage.setAlarm(Date.now() + this.graceMs());
     }
   }
 
@@ -183,6 +186,10 @@ export class Room extends DurableObject<Env> {
     } else {
       await this.ctx.storage.setAlarm(meta.createdAt + MAX_ROOM_LIFETIME_MS);
     }
+  }
+
+  private graceMs(): number {
+    return Number(this.env.HOST_GRACE_SECONDS ?? "900") * 1000;
   }
 
   private async endRoom(reason: string): Promise<void> {
