@@ -81,6 +81,9 @@ jobs:
         run: npm run test
       - name: Build with Next.js
         run: npm run build
+        env:
+          # The classroom quiz relay (relay/README.md). Unset: the quiz pages say the relay is not configured.
+          NEXT_PUBLIC_QUIZ_RELAY_URL: ${{ vars.QUIZ_RELAY_URL }}
       - name: Check static JavaScript budgets
         run: npm run budget
       - name: Run browser tests

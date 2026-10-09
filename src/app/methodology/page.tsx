@@ -34,7 +34,7 @@ const sections = [
   {
     id: "privacy",
     title: "Privacy",
-    body: "The site is a static export. It uses no analytics, tracking pixels, cookies, accounts, advertising, or stored visitor profiles. Search, filters, and exhibit state remain in the browser and are represented in ordinary URLs when they need to be shared.",
+    body: "The site is a static export. It uses no analytics, tracking pixels, cookies, accounts, advertising, or stored visitor profiles. Search, filters, and exhibit state remain in the browser and are represented in ordinary URLs when they need to be shared. The classroom quiz passes messages through a relay only while a session runs; its own privacy page sets out what that involves.",
   },
 ] as const;
 

@@ -1,0 +1,17 @@
+{
+  "name": "classroom-quiz-relay",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Message relay for the classroom quiz. Holds no data beyond the live session.",
+  "scripts": {
+    "dev": "wrangler dev --port 8787 --var ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000 --var ROOM_JURISDICTION:none",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "test": "node scripts/run-integration-tests.mjs"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20260924.1",
+    "typescript": "5.9.3",
+    "wrangler": "4.138.0"
+  }
+}
