@@ -13,7 +13,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
     globals: true,
-    // Playwright specs live in e2e/ and are run via `npm run e2e`.
-    exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
+    // Playwright specs live in e2e/ and e2e-play/ (`npm run e2e`, `npm run e2e:play`); the relay has its own tests.
+    exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**', 'e2e-play/**', 'relay/**'],
   },
 });

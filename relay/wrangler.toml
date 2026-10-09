@@ -1,0 +1,25 @@
+name = "classroom-quiz-relay"
+main = "src/index.ts"
+compatibility_date = "2026-09-20"
+
+# Origins allowed to open a room or join one. `npm run dev` overrides this for
+# localhost; production accepts only the deployed site.
+[vars]
+ALLOWED_ORIGINS = "https://suranjan77.github.io"
+# How long a room survives after the teacher's screen disconnects.
+HOST_GRACE_SECONDS = "900"
+# Room data is processed in the EU only.
+ROOM_JURISDICTION = "eu"
+
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "Room"
+
+# SQLite-backed Durable Objects are the kind the Workers Free plan provides.
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]
+
+# No request logs are kept. Workers Logs is off, and nothing here calls console.
+[observability]
+enabled = false

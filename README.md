@@ -39,6 +39,9 @@ SVG/WebGL smoke checks in Firefox and WebKit.
 - `docs/identity-decision.md`: visual identity and public-language rules.
 - `docs/embedding-and-static-reuse.md`: exhibit links, iframe embeds, and static hosting.
 - `CONTRIBUTING.md`: contributor requirements and the exhibit workflow.
+- `src/features/play/`, `src/app/play/`: the classroom quiz (`/play/host`, `/play`).
+- `relay/`: the quiz's Cloudflare message relay and its deploy steps.
+- `docs/classroom-quiz.md`: the quiz's scope, privacy design, and question sets.
 
 ## Adding a visualisation
 

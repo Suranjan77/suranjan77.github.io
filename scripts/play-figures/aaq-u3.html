@@ -1,0 +1,276 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Classroom quiz figures: BTEC AAQ IT Unit 3</title>
+<!--
+  Every <figure data-name> on this page is rendered to public/play/aaq-u3/<name>.png
+  by scripts/render-play-figures.mjs. Each is a real rendered page, in the style of
+  the Unit 3 lecture figures, with nothing on it that gives an answer away: no
+  captions, no pass/fail labels. The studio, the shop and the law firm are invented.
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; background: #e9ecef; color: #1b1f24;
+         font: 16px/1.45 "Segoe UI", Inter, system-ui, sans-serif;
+         display: flex; flex-direction: column; align-items: flex-start; gap: 24px; }
+  figure { margin: 0; background: #fff; padding: 14px; }
+  .frame { border: 2px solid #b9c2cb; border-radius: 8px; overflow: hidden; background: #fff; }
+  .site header { background: #2d5677; color: #fff; padding: 9px 12px; font-weight: 600; font-size: 14px; }
+  .site nav { background: #eef2f6; padding: 7px 12px; display: flex; gap: 12px; color: #42545f; font-size: 12px; }
+  .band { background: #dce8f2; border-radius: 3px; }
+  .line { background: #e3e8ed; border-radius: 2px; height: 7px; margin-bottom: 6px; }
+  .line.s { width: 60%; }
+  .btn { display: inline-block; background: #1f5d8c; color: #fff; font-weight: 600; border-radius: 5px; }
+
+  /* Topic 2: three layouts for the same shop. */
+  .layout { width: 300px; }
+  .layout .frame { height: 220px; display: flex; flex-direction: column; }
+  .layout .body { padding: 10px; flex: 1; }
+  .layout .hero { height: 44px; margin-bottom: 9px; }
+  .layout .split { display: flex; gap: 9px; height: 100%; }
+  .layout aside { width: 34%; background: #f4f6f8; border: 1px solid #e6ebf0; border-radius: 3px; padding: 7px; }
+  .layout .main { flex: 1; }
+  .layout .cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; }
+  .layout .card { border: 1px solid #dde3e9; border-radius: 3px; padding: 5px; }
+  .layout .card i { display: block; background: #e3e8ed; height: 30px; border-radius: 2px; margin-bottom: 4px; }
+  .layout .card .line { height: 5px; margin-bottom: 4px; }
+
+  /* Topic 2: a Z-pattern landing page with the action in four places. */
+  .z { width: 300px; }
+  .z .frame { height: 210px; position: relative; }
+  .z .logo { position: absolute; left: 14px; top: 14px; width: 70px; height: 18px; background: #2d5677; border-radius: 3px; }
+  .z .menu { position: absolute; right: 14px; top: 17px; display: flex; gap: 8px; }
+  .z .menu span { width: 34px; height: 10px; background: #c8d3dd; border-radius: 2px; }
+  .z .headline { position: absolute; left: 14px; top: 56px; width: 140px; height: 18px; background: #3a4652; border-radius: 3px; }
+  .z .copy { position: absolute; left: 14px; top: 86px; width: 130px; }
+  .z .picture { position: absolute; right: 14px; top: 56px; width: 92px; height: 70px; background: #dce8f2; border-radius: 3px; }
+  .z .btn { position: absolute; font-size: 11px; padding: 7px 11px; white-space: nowrap; }
+
+  /* Topic 2: class cards (grouping). */
+  .classes { width: 560px; }
+  .classes .body { padding: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .classes .card { border: 1px solid #d3dbe2; border-radius: 6px; padding: 11px; font-size: 13px; }
+  .classes .card b { display: block; font-size: 14px; margin-bottom: 3px; }
+  .classes .card span { display: block; color: #4b5661; }
+  .classes .card .btn { display: inline-block; margin-top: 9px; font-size: 12px; padding: 6px 14px; color: #fff; }
+
+  /* Topic 2: three takes on the same hero (hierarchy). */
+  .hero-v { width: 300px; }
+  .hero-v .body { padding: 14px; height: 170px; }
+  .hero-v h3, .hero-v p { margin: 0 0 8px; }
+  .flat h3, .flat p, .flat .act { font-size: 13px; font-weight: 400; color: #3c4753; }
+  .flat .act { text-decoration: underline; }
+  .clear h3 { font-size: 21px; line-height: 1.2; color: #14202b; }
+  .clear p { font-size: 12px; color: #4b5661; }
+  .clear .btn { font-size: 12.5px; padding: 8px 14px; }
+  .shout h3 { font-size: 18px; line-height: 1.15; color: #b02a2a; }
+  .shout p { font-size: 17px; font-weight: 700; line-height: 1.2; color: #1f5d8c; }
+  .shout .btns { display: flex; gap: 6px; }
+  .shout .btn { font-size: 11px; padding: 6px 8px; }
+
+  /* Topic 2: a text-heavy page (scan pattern). */
+  .scan { width: 460px; }
+  .scan .frame { height: 300px; }
+  .scan .body { padding: 12px; font-size: 11px; }
+  .scan h2 { font-size: 16px; margin: 0 0 8px; }
+  .scan p { margin: 0 0 9px; color: #3c4753; line-height: 1.6; font-size: 11px; }
+  .scan .aside { float: right; width: 140px; background: #f4f6f8; border: 1px solid #e6ebf0;
+                 border-radius: 4px; padding: 8px; font-size: 10px; color: #6b7681; margin-left: 10px; }
+
+  /* Topic 4: four buttons. Colours are measured by src/features/play/sets/contrast.test.ts. */
+  .button-v { width: 240px; }
+  .button-v .body { padding: 22px 18px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+  .button-v h3 { margin: 0; font-size: 15px; color: #14202b; }
+  .button-v .btn { font-size: 14px; padding: 10px 18px; }
+
+  /* Topic 4: keyboard focus. */
+  .focus { width: 420px; }
+  .focus nav { padding: 11px 14px; display: flex; gap: 9px; }
+  .focus nav a { font-size: 12.5px; color: #2d5677; background: #fff; border: 1px solid #d7dee5;
+                 padding: 7px 12px; border-radius: 4px; text-decoration: none; }
+  .focus .body { padding: 14px; font-size: 12.5px; color: #3c4753; }
+  .focus .ring a.on { outline: 3px solid #d4700d; outline-offset: 2px; background: #fff7ec; }
+  .focus .keys { margin-top: 9px; font-size: 12px; color: #5b6570; }
+  .focus kbd { font: 600 11px/1 "Segoe UI", Inter, system-ui, sans-serif; background: #eceff2;
+               border: 1px solid #ccd3da; border-bottom-width: 2px; border-radius: 4px; padding: 3px 6px; }
+
+  /* Topic 4: two pages of one site (branding). */
+  .pair { width: 660px; display: flex; gap: 18px; }
+  .pair > div { flex: 1; }
+  .pair .tag { font-size: 12px; color: #5b6570; margin-bottom: 6px; }
+  .pair .body { padding: 12px; height: 120px; font-size: 12px; color: #3c4753; }
+  .pair .body b { display: block; font-size: 14px; color: #14202b; margin-bottom: 6px; }
+  .pair .btn { font-size: 11.5px; padding: 6px 12px; margin-top: 8px; }
+  .pair .other header { background: #7b2d6b; }
+
+  /* Topic 12: page regions. */
+  .regions { width: 460px; }
+  .regions .frame { position: relative; }
+  .regions .r { position: relative; border: 2px dashed #d4700d; margin: 6px; border-radius: 4px; }
+  .regions .n { position: absolute; right: -2px; top: -2px; background: #d4700d; color: #fff;
+                font: 700 13px/24px "Segoe UI", Inter, system-ui, sans-serif; width: 24px; text-align: center; border-radius: 0 3px 0 4px; }
+  .regions .r header { border-radius: 2px 2px 0 0; }
+  .regions .content { padding: 12px; font-size: 12px; color: #3c4753; }
+  .regions .content b { display: block; font-size: 15px; color: #14202b; margin-bottom: 6px; }
+  .regions .foot { padding: 9px 12px; font-size: 11px; color: #6b7681; background: #f4f6f8; }
+</style>
+<body>
+
+<!-- ── Topic 2 ─────────────────────────────────────────────────────────── -->
+<figure data-name="t02-layout-single" class="layout"><div class="frame site">
+  <header>Riverside Studio Shop</header>
+  <nav><span>Mugs</span><span>Bowls</span><span>Basket</span></nav>
+  <div class="body"><div class="band hero"></div>
+    <div class="line"></div><div class="line"></div><div class="line s"></div><div class="line"></div><div class="line s"></div></div>
+</div></figure>
+
+<figure data-name="t02-layout-sidebar" class="layout"><div class="frame site">
+  <header>Riverside Studio Shop</header>
+  <nav><span>Mugs</span><span>Bowls</span><span>Basket</span></nav>
+  <div class="body"><div class="split">
+    <div class="main"><div class="band hero"></div><div class="line"></div><div class="line"></div><div class="line s"></div><div class="line"></div></div>
+    <aside><div class="line"></div><div class="line"></div><div class="line s"></div><div class="line"></div></aside>
+  </div></div>
+</div></figure>
+
+<figure data-name="t02-layout-grid" class="layout"><div class="frame site">
+  <header>Riverside Studio Shop</header>
+  <nav><span>Mugs</span><span>Bowls</span><span>Basket</span></nav>
+  <div class="body"><div class="cards">
+    <div class="card"><i></i><div class="line"></div><div class="line s"></div></div>
+    <div class="card"><i></i><div class="line"></div><div class="line s"></div></div>
+    <div class="card"><i></i><div class="line"></div><div class="line s"></div></div>
+    <div class="card"><i></i><div class="line"></div><div class="line s"></div></div>
+    <div class="card"><i></i><div class="line"></div><div class="line s"></div></div>
+    <div class="card"><i></i><div class="line"></div><div class="line s"></div></div>
+  </div></div>
+</div></figure>
+
+<figure data-name="t02-z-top-left" class="z"><div class="frame">
+  <div class="logo"></div><div class="menu"><span></span><span></span><span></span></div>
+  <span class="btn" style="left:14px;top:44px">Book a place</span>
+  <div class="headline" style="top:88px"></div><div class="copy" style="top:118px"><div class="line"></div><div class="line"></div><div class="line s"></div></div>
+  <div class="picture" style="top:88px"></div>
+</div></figure>
+
+<figure data-name="t02-z-middle" class="z"><div class="frame">
+  <div class="logo"></div><div class="menu"><span></span><span></span><span></span></div>
+  <div class="headline"></div><div class="copy"><div class="line"></div><div class="line"></div><div class="line s"></div></div>
+  <div class="picture"></div>
+  <span class="btn" style="left:100px;top:136px">Book a place</span>
+</div></figure>
+
+<figure data-name="t02-z-bottom-left" class="z"><div class="frame">
+  <div class="logo"></div><div class="menu"><span></span><span></span><span></span></div>
+  <div class="headline"></div><div class="copy"><div class="line"></div><div class="line"></div><div class="line s"></div></div>
+  <div class="picture"></div>
+  <span class="btn" style="left:14px;top:164px">Book a place</span>
+</div></figure>
+
+<figure data-name="t02-z-bottom-right" class="z"><div class="frame">
+  <div class="logo"></div><div class="menu"><span></span><span></span><span></span></div>
+  <div class="headline"></div><div class="copy"><div class="line"></div><div class="line"></div><div class="line s"></div></div>
+  <div class="picture"></div>
+  <span class="btn" style="right:14px;top:164px">Book a place</span>
+</div></figure>
+
+<figure data-name="t02-class-cards" class="classes"><div class="frame site">
+  <header>Riverside Studio</header>
+  <nav><span>Classes</span><span>Shop</span><span>Visit</span></nav>
+  <div class="body">
+    <div class="card"><b>Beginners</b><span>Tuesday 18:00</span><span>£95 · 6 weeks</span><span class="btn">Book</span></div>
+    <div class="card"><b>Improvers</b><span>Thursday 19:00</span><span>£110 · 6 weeks</span><span class="btn">Book</span></div>
+    <div class="card"><b>Glazing</b><span>Wednesday 18:30</span><span>£40 · one evening</span><span class="btn">Book</span></div>
+  </div>
+</div></figure>
+
+<figure data-name="t02-hierarchy-flat" class="hero-v"><div class="frame site">
+  <header>Riverside Studio</header>
+  <div class="body flat">
+    <h3>Beginners pottery, Tuesdays</h3>
+    <p>Six weeks, all materials included. No experience needed.</p>
+    <p>£95 · 12 places left</p>
+    <span class="act">Book a place</span>
+  </div>
+</div></figure>
+
+<figure data-name="t02-hierarchy-clear" class="hero-v"><div class="frame site">
+  <header>Riverside Studio</header>
+  <div class="body clear">
+    <h3>Beginners pottery, Tuesdays</h3>
+    <p>Six weeks, all materials included. No experience needed. £95 · 12 places left</p>
+    <span class="btn">Book a place</span>
+  </div>
+</div></figure>
+
+<figure data-name="t02-hierarchy-shout" class="hero-v"><div class="frame site">
+  <header>Riverside Studio</header>
+  <div class="body shout">
+    <h3>BEGINNERS POTTERY, TUESDAYS!</h3>
+    <p>ONLY £95! 12 PLACES LEFT!</p>
+    <div class="btns"><span class="btn">Book</span><span class="btn">Gift</span><span class="btn">Shop</span><span class="btn">Call</span></div>
+  </div>
+</div></figure>
+
+<figure data-name="t02-text-page" class="scan"><div class="frame site">
+  <header>Marlow &amp; Reed</header>
+  <nav><span>Services</span><span>Sectors</span><span>People</span><span>Insights</span><span>Contact</span></nav>
+  <div class="body">
+    <div class="aside"><b>Get in touch</b><br>01752 000 000<br>hello@marlowreed.co.uk<br><br>Mon–Fri 9–5</div>
+    <h2>Employment law for growing businesses</h2>
+    <p>Our employment team advises businesses across the South West on contracts, policies, disciplinary process and settlement agreements. We work with companies from first hire to first hundred.</p>
+    <p>Most clients come to us with a question that has already become urgent. We answer quickly, in plain English, and tell you what it will cost before we start.</p>
+    <p>Where a dispute cannot be settled, we represent clients at tribunal. We will always tell you honestly whether that is the right route.</p>
+  </div>
+</div></figure>
+
+<!-- ── Topic 4 ─────────────────────────────────────────────────────────── -->
+<figure data-name="t04-button-pale" class="button-v"><div class="frame">
+  <div class="body"><h3>Beginners pottery</h3><span class="btn" data-contrast style="background:#8fb3cc;color:#ffffff">Book a place</span></div>
+</div></figure>
+
+<figure data-name="t04-button-dark" class="button-v"><div class="frame">
+  <div class="body"><h3>Beginners pottery</h3><span class="btn" data-contrast style="background:#1f5d8c;color:#ffffff">Book a place</span></div>
+</div></figure>
+
+<figure data-name="t04-button-ghost" class="button-v"><div class="frame">
+  <div class="body"><h3>Beginners pottery</h3><span class="btn" data-contrast style="background:#c9d6de;color:#f2f6f8">Book a place</span></div>
+</div></figure>
+
+<figure data-name="t04-button-mid" class="button-v"><div class="frame">
+  <div class="body"><h3>Beginners pottery</h3><span class="btn" data-contrast style="background:#4d86b0;color:#ffffff">Book a place</span></div>
+</div></figure>
+
+<figure data-name="t04-focus-visible" class="focus"><div class="frame site ring">
+  <header>Riverside Studio</header>
+  <nav><a>Home</a><a>Classes</a><a class="on">Book</a><a>Contact</a></nav>
+  <div class="body">Pottery classes in Plymouth. Small classes, all materials included.</div>
+</div><p class="keys">Pressed <kbd>Tab</kbd> <kbd>Tab</kbd> <kbd>Tab</kbd></p></figure>
+
+<figure data-name="t04-focus-none" class="focus"><div class="frame site">
+  <header>Riverside Studio</header>
+  <nav><a>Home</a><a>Classes</a><a class="on">Book</a><a>Contact</a></nav>
+  <div class="body">Pottery classes in Plymouth. Small classes, all materials included.</div>
+</div><p class="keys">Pressed <kbd>Tab</kbd> <kbd>Tab</kbd> <kbd>Tab</kbd></p></figure>
+
+<figure data-name="t04-two-pages" class="pair">
+  <div><div class="tag">Home page</div><div class="frame site">
+    <header>Riverside Studio</header>
+    <nav><span>Home</span><span>Classes</span><span>Contact</span></nav>
+    <div class="body"><b>Pottery classes in Plymouth</b>Small classes, all materials included.<br><span class="btn">See classes</span></div>
+  </div></div>
+  <div class="other"><div class="tag">Contact page</div><div class="frame site">
+    <header>The Riverside Pottery Studio</header>
+    <nav><span>Home</span><span>Classes</span><span>Contact</span></nav>
+    <div class="body"><b>Get in touch</b>We reply within one working day.<br><span class="btn">Send a message</span></div>
+  </div></div>
+</figure>
+
+<!-- ── Topic 12 ────────────────────────────────────────────────────────── -->
+<figure data-name="t12-regions" class="regions"><div class="frame">
+  <div class="r"><span class="n">1</span><div class="site"><header>Riverside Studio</header>
+    <nav><span>Home</span><span>Classes</span><span>Gallery</span><span>Contact</span></nav></div></div>
+  <div class="r"><span class="n">2</span><div class="content"><b>Pottery classes in Plymouth</b>Small evening classes for complete beginners. Six weeks, all materials included, and no experience needed.</div></div>
+  <div class="r"><span class="n">3</span><div class="foot">© Riverside Studio · 12 Quay Road, Plymouth · 01752 000 000</div></div>
+</div></figure>
+
+</body>

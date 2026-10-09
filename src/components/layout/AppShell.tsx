@@ -14,11 +14,15 @@ export default function AppShell({
 }>) {
   const pathname = usePathname();
   const isVisualisation = pathname.startsWith("/visualisations/");
+  // The quiz screens run full-screen on a projector or a phone, without the site's navigation.
+  const isQuiz = pathname === "/play" || pathname.startsWith("/play/host");
   const [embedMode, setEmbedMode] = useState(false);
 
   useEffect(() => {
     setEmbedMode(isVisualisation && new URLSearchParams(window.location.search).get("embed") === "1");
   }, [isVisualisation]);
+
+  if (isQuiz) return <main id="main-content" className="min-h-dvh min-w-0 bg-background">{children}</main>;
 
   return (
     <div
