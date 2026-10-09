@@ -87,6 +87,9 @@ function writeSaved(saved: Saved | null) {
 
 type Pushed = "all" | "none" | string[];
 
+/** Phones per relay message: 20 views are about 10 KB, well under the relay's limit. */
+const BATCH_SIZE = 20;
+
 export default function HostApp() {
   const [base, setBase] = useState<string | null | undefined>(undefined);
   const [chosenSetId, setChosenSetId] = useState(questionSets[0].id);
@@ -120,7 +123,10 @@ export default function HostApp() {
       const view = viewFor(next, set, pid, at);
       return view ? [{ to: pid, m: { t: "view", view } }] : [];
     });
-    if (items.length > 0) socket.current?.send({ t: "batch", items });
+    // The relay closes a connection that sends one oversized message; a full room fits in a few.
+    for (let i = 0; i < items.length; i += BATCH_SIZE) {
+      socket.current?.send({ t: "batch", items: items.slice(i, i + BATCH_SIZE) });
+    }
   }, []);
 
   const forget = useCallback((message: string | null) => {
@@ -175,6 +181,13 @@ export default function HostApp() {
         onMessage,
         onStatus: setStatus,
         onFinalClose: (code) => {
+          // A throttled or refused message closes only this connection: the room and its token are still good.
+          if (code === RelayClose.tooFast || code === RelayClose.badRequest) {
+            setTimeout(() => {
+              if (socket.current === s) s.start();
+            }, 1000);
+            return;
+          }
           if (code === RelayClose.replaced) forget("This session was opened in another tab. Carry on there, or start a new session here.");
           else forget("That session has ended and its room has been deleted.");
         },

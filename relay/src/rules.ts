@@ -3,10 +3,14 @@
 export const MAX_PLAYERS = 60;
 export const MAX_ROOM_LIFETIME_MS = 4 * 60 * 60 * 1000;
 export const PLAYER_MESSAGE_MAX_BYTES = 1024;
-export const HOST_MESSAGE_MAX_BYTES = 64 * 1024;
-/** Messages a socket may send per second before it is closed. */
+export const HOST_MESSAGE_MAX_BYTES = 256 * 1024;
+/**
+ * Messages a socket may send per second before it is closed. The teacher's
+ * screen answers every phone's message, so its allowance must cover a full
+ * room answering in the same second, several times over.
+ */
 export const PLAYER_MESSAGES_PER_SECOND = 8;
-export const HOST_MESSAGES_PER_SECOND = 60;
+export const HOST_MESSAGES_PER_SECOND = MAX_PLAYERS * 10;
 
 /** Close codes the browser clients understand (4000–4999 are application codes). */
 export const CloseCode = {

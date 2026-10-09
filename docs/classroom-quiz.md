@@ -116,5 +116,6 @@ figure source, so the question cannot drift from the picture.
 - `npm --prefix relay test`: the relay on its own (rooms, reconnects, expiry,
   limits, origin checks).
 
-The quiz browser tests are not part of the deploy workflow, because they need
-the relay's dependencies.
+The deploy workflow runs lint, the unit tests, the build and the JavaScript
+budgets. No browser tests run there; run `npm run e2e:play` locally before
+changing the quiz.

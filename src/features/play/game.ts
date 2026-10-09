@@ -192,13 +192,17 @@ export function leavePlayer(state: GameState, pid: string): GameState {
   return { ...state, players: { ...state.players, [pid]: { ...player, connected: false } } };
 }
 
-/** Mark exactly the given players as connected, e.g. after the teacher's screen reconnects. */
-export function syncConnected(state: GameState, connected: readonly string[]): GameState {
+/**
+ * Mark exactly the given players as connected, e.g. after the teacher's screen
+ * reconnects. A phone that joined while the teacher's screen was away is new
+ * here, and joins now.
+ */
+export function syncConnected(state: GameState, connected: readonly string[], random: () => number = Math.random): GameState {
   const present = new Set(connected);
   const players = Object.fromEntries(
     Object.entries(state.players).map(([pid, player]) => [pid, { ...player, connected: present.has(pid) }]),
   );
-  return { ...state, players };
+  return [...present].reduce((next, pid) => (next.players[pid] ? next : joinPlayer(next, pid, random)), { ...state, players });
 }
 
 export function removePlayer(state: GameState, pid: string): GameState {
@@ -285,7 +289,7 @@ export function revealAnswer(state: GameState, set: QuestionSet): GameState {
     repeat: shown.repeat,
     counts,
     correct,
-    players: Object.keys(players).length,
+    players: Object.values(state.players).filter((p) => p.connected || state.answers[p.pid]).length,
   };
   return {
     ...state,

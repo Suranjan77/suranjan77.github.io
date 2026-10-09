@@ -113,6 +113,9 @@ test("a teacher runs a session, students play on phones, and ending it deletes t
       await expect(ana.getByRole("button", { name: `${key.right}: ${key.question.choices[key.question.answer].text}` })).toBeVisible();
     }
 
+    // A phone may send 8 messages a second (relay/src/rules.ts). No student answers faster than
+    // that, but this loop would, so it keeps answers at a human pace.
+    await ana.waitForTimeout(150);
     await choose(ana, key.right);
     await teacher.getByRole("button", { name: "Show the answer" }).click();
     await expect(ana.getByRole("heading", { name: "Correct" })).toBeVisible();

@@ -142,6 +142,12 @@ describe("joining", () => {
     expect(state.players.p1.connected).toBe(false);
     expect(state.players.p2.connected).toBe(true);
   });
+
+  it("gives a name to a student who joined while the teacher's screen was away", () => {
+    const state = syncConnected(lobbyWith("p1"), ["p1", "p2"], seeded(2));
+    expect(state.players.p2).toMatchObject({ connected: true, score: 0, joinOrder: 1 });
+    expect(state.players.p2.name).not.toBe(state.players.p1.name);
+  });
 });
 
 describe("answering", () => {
@@ -185,6 +191,14 @@ describe("scoring", () => {
     expect(state.players.p2).toMatchObject({ score: 0, lastOutcome: "wrong" });
     expect(state.players.p3).toMatchObject({ score: 0, lastOutcome: "none" });
     expect(state.results).toEqual([{ round: 0, question: 0, repeat: false, counts: [1, 1], correct: 1, players: 3 }]);
+  });
+
+  it("counts only students still in the room, or who answered, towards the correct rate", () => {
+    let state = advance(lobbyWith("p1", "p2", "p3"), set, 0);
+    state = submitAnswer(state, set, "p1", 0, 1, 0);
+    state = submitAnswer(state, set, "p2", 0, 1, 0);
+    state = leavePlayer(leavePlayer(state, "p2"), "p3");
+    expect(revealAnswer(state, set).results[0]).toMatchObject({ correct: 2, players: 2 });
   });
 
   it("marks a repeat by where the answer is shown this time, not where it was before", () => {
