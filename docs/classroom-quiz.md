@@ -51,7 +51,8 @@ the passcode; v1 does not.
   letter. Retrieving the same idea again after a gap is what makes it stick;
   remembering "it was B" does not. Repeats are marked "Seen before" on the
   projector. With 8 questions a game is 16 rounds, about 10–12 minutes; the
-  teacher can skip to the results at any reveal.
+  Unit 3 sets have 12, so 24 rounds, about 15–18 minutes. The teacher can skip
+  to the results at any reveal.
 - Multiple-choice questions with two to four choices: text choices, a picture
   as the question, or pictures as the choices. Pictures appear on the
   projector only; phones show A–D.
@@ -93,8 +94,9 @@ Sets live in `src/features/play/sets/`, one file per course unit, registered in
 `sets/index.ts` in teaching order. BTEC AAQ IT Unit 3 (Website Development) has
 a set for each of its 20 weekly topics, written from that unit's lecture notes
 and decks in academic-materials (`modules/l3-aaq-u3-website-development`).
-Topics 2, 4 and 12 use rendered pictures; the others are text questions,
-including short code to read. Each question carries an
+Every topic has 12 questions, and every topic has some rendered pictures:
+page mock-ups, wireframes, planning documents, code to read and measured
+diagrams. The other questions are text. Each question carries an
 explanation that gives the reason, not just the fact. Explanations never name
 a letter, because the letters change between a question's two rounds.
 

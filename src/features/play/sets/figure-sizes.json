@@ -326,5 +326,61 @@
   "aaq-u3/t20-email-abc": [
     330,
     286
+  ],
+  "aaq-u3/t01-two-purposes": [
+    420,
+    285
+  ],
+  "aaq-u3/t02-video-home": [
+    560,
+    282
+  ],
+  "aaq-u3/t03-five-buttons": [
+    460,
+    239
+  ],
+  "aaq-u3/t04-ui-buttons": [
+    660,
+    245
+  ],
+  "aaq-u3/t05-no-viewport": [
+    300,
+    448
+  ],
+  "aaq-u3/t07-extra-page": [
+    560,
+    268
+  ],
+  "aaq-u3/t09-review-log": [
+    680,
+    132
+  ],
+  "aaq-u3/t10-svg-path": [
+    740,
+    196
+  ],
+  "aaq-u3/t11-register": [
+    720,
+    155
+  ],
+  "aaq-u3/t12-head": [
+    650,
+    238
+  ],
+  "aaq-u3/t14-zebra": [
+    520,
+    300
+  ],
+  "aaq-u3/t16-accordion": [
+    600,
+    238
+  ],
+  "aaq-u3/t17-reduce": [
+    520,
+    176
+  ],
+  "aaq-u3/t19-validator": [
+    520,
+    289
   ]
 }

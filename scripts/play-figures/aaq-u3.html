@@ -380,6 +380,56 @@
   .plan th { background: #eef2f6; }
   .plan .fail { background: #fbe4e2; color: #8c1d18; font-weight: 700; } .plan .pass { background: #e1f3e8; color: #0c6b39; font-weight: 700; }
   .plan .q td { color: #9aa4ae; text-align: center; font-size: 14px; }
+
+  /* Twelve-question sets: one more picture per topic. */
+  .two-purp { width: 420px; } .two-purp .body { padding: 14px; font-size: 12px; color: #3c4753; }
+  .two-purp h3 { margin: 0 0 4px; font-size: 17px; color: #14202b; }
+  .two-purp .big { display: inline-block; background: #1f5d8c; color: #fff; font-weight: 700; font-size: 15px; padding: 11px 18px; border-radius: 5px; margin: 10px 0 12px; }
+  .two-purp .small { font-size: 11.5px; color: #5b6570; border-top: 1px solid #e6ebf0; padding-top: 8px; }
+  .two-purp .small u { color: #1d4f91; }
+  .screens { width: 560px; display: flex; gap: 14px; }
+  .screens > div { flex: 1; }
+  .screens .phone { width: auto; height: 236px; border-width: 5px; border-radius: 14px; position: relative; }
+  .screens .vid { position: absolute; inset: 0; background: linear-gradient(160deg, #6f5a49, #2f2620); display: grid; place-items: center; color: #fff; font-size: 26px; }
+  .screens .vid span { position: absolute; bottom: 12px; left: 8px; right: 8px; text-align: center; font-size: 10.5px; opacity: .85; }
+  .screens .panel { position: absolute; inset: 0; padding: 12px 10px; background: #f4efe7; font-size: 12px; color: #14202b; }
+  .screens .panel b { display: block; margin: 46px 0 8px; font-size: 14px; }
+  .screens .panel .line { background: #ddd3c4; }
+  .screens .cards { padding: 7px; font-size: 10px; white-space: nowrap; }
+  .screens .cards div { border: 1px solid #d3dbe2; border-radius: 4px; padding: 5px 6px; margin-bottom: 6px; }
+  .screens .cards .btn { font-size: 10px; padding: 3px 8px; margin-top: 3px; }
+  .five { width: 460px; } .five .body { padding: 14px; font-size: 12.5px; color: #3c4753; }
+  .five h3 { margin: 0 0 4px; font-size: 18px; color: #14202b; }
+  .five .btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .five .btn { font-size: 12.5px; padding: 9px 12px; }
+  .pair .alt-btn { display: inline-block; margin-top: 8px; border: 1.5px solid #8a96a3; color: #3c4753; font-size: 10px; padding: 4px 8px; text-transform: uppercase; letter-spacing: .04em; }
+  .noview { width: 300px; }
+  .noview .phone { width: 220px; height: 420px; margin: 0 auto; position: relative; }
+  .noview .desk { position: absolute; left: 0; top: 0; width: 980px; transform: scale(.2122); transform-origin: 0 0; }
+  .noview .desk header { background: #2d5677; color: #fff; padding: 22px 40px; font-weight: 600; font-size: 34px; display: flex; justify-content: space-between; }
+  .noview .desk header span { font-size: 22px; font-weight: 400; display: flex; gap: 34px; align-items: center; }
+  .noview .desk .hero { margin: 30px 40px; height: 360px; background: #dce8f2; border-radius: 8px; padding: 40px; font-size: 52px; font-weight: 700; color: #14202b; }
+  .noview .desk .row { margin: 0 40px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+  .noview .desk .row div { border: 2px solid #d3dbe2; border-radius: 8px; padding: 22px; font-size: 22px; color: #3c4753; height: 300px; }
+  .noview .desk .row b { display: block; font-size: 30px; color: #14202b; margin-bottom: 10px; }
+  .log { width: 680px; }
+  .log table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .log th, .log td { border: 1px solid #c9d1d9; padding: 7px 8px; text-align: left; vertical-align: top; }
+  .log th { background: #eef2f6; }
+  .log td.hl { outline: 3px solid #d4700d; outline-offset: -3px; color: #9aa4ae; text-align: center; font-size: 15px; }
+  .svgcode { width: 740px; }
+  .svgcode .duo > div:last-child { flex: none; width: 150px; border: 2px solid #b9c2cb; border-radius: 8px; height: 150px; display: grid; place-items: center; }
+  .reg { width: 720px; }
+  .reg table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .reg th, .reg td { border: 1px solid #c9d1d9; padding: 6px 7px; text-align: left; }
+  .reg th { background: #eef2f6; }
+  .reg td.hl { outline: 3px solid #d4700d; outline-offset: -3px; color: #9aa4ae; text-align: center; font-size: 15px; }
+  .vnu { width: 520px; } .vnu .body { padding: 14px; font-size: 12.5px; color: #3c4753; }
+  .vnu h3 { margin: 0 0 10px; font-size: 15px; color: #14202b; }
+  .vnu .msg { border-left: 4px solid #b3261e; background: #fbeeed; padding: 8px 10px; margin-bottom: 8px; }
+  .vnu .msg.info { border-color: #2d5677; background: #eef3f8; }
+  .vnu .msg b { color: #14202b; } .vnu .where { font-size: 11.5px; color: #5b6570; margin: 3px 0 6px; }
+  .vnu .code { font-size: 11.5px; padding: 6px 10px; }
 </style>
 <body>
 
@@ -1073,5 +1123,156 @@
     <span class="btn">Book my place</span>
   </div>
 </div></figure>
+
+<!-- ── Twelve-question sets: one more picture per topic ────────────────── -->
+<figure data-name="t01-two-purposes" class="two-purp"><div class="frame site">
+  <header>Riverside Studio</header>
+  <nav><span>Classes</span><span>Shop</span><span>Gift vouchers</span><span>Visit us</span></nav>
+  <div class="body">
+    <h3>Pottery classes in Plymouth</h3>Small evening classes for complete beginners. All materials included.<br>
+    <span class="big">Book a taster class</span>
+    <div class="small">Also from our shop: pottery kits to make at home, from £25. <u>Shop kits</u></div>
+  </div>
+</div></figure>
+
+<figure data-name="t02-video-home" class="screens">
+  <div><div class="cap">Screen 1</div><div class="phone"><div class="vid">▶<span>Video: clay being thrown</span></div></div></div>
+  <div><div class="cap">Screen 2</div><div class="phone"><div class="panel"><b>Our story</b><div class="line"></div><div class="line"></div><div class="line s"></div></div></div></div>
+  <div><div class="cap">Screen 3</div><div class="phone"><div class="panel"><b>Made by hand</b><div class="line"></div><div class="line s"></div><div class="line"></div></div></div></div>
+  <div><div class="cap">Screen 4</div><div class="phone"><div class="cards">
+    <div><b>Beginners</b><br>Tue 18:00 · £95<br><span class="btn">Book</span></div>
+    <div><b>Improvers</b><br>Thu 19:00 · £110<br><span class="btn">Book</span></div>
+    <div><b>Glaze night</b><br>Wed 18:30 · £40<br><span class="btn">Book</span></div>
+  </div></div></div>
+</figure>
+
+<figure data-name="t03-five-buttons" class="five"><div class="frame site">
+  <header>Riverside Studio</header>
+  <div class="body"><h3>Pottery classes in Plymouth</h3>Small evening classes for complete beginners.
+    <div class="btns"><span class="btn">Book a class</span><span class="btn">Gift vouchers</span><span class="btn">Shop</span><span class="btn">Newsletter</span><span class="btn">Contact us</span></div>
+  </div>
+</div></figure>
+
+<figure data-name="t04-ui-buttons" class="pair">
+  <div><div class="tag">Classes page</div><div class="frame site">
+    <header>Riverside Studio</header>
+    <nav><span>Home</span><span>Classes</span><span>Vouchers</span><span>Contact</span></nav>
+    <div class="body"><b>Beginners pottery</b>Six Tuesday evenings, £95.<br><span class="btn">Book a place</span></div>
+  </div></div>
+  <div><div class="tag">Vouchers page</div><div class="frame site">
+    <header>Riverside Studio</header>
+    <nav><span>Home</span><span>Classes</span><span>Vouchers</span><span>Contact</span></nav>
+    <div class="body"><b>Gift vouchers</b>Any amount from £20.<br><span class="alt-btn">Ask about a voucher</span></div>
+  </div></div>
+</figure>
+
+<figure data-name="t05-no-viewport" class="noview"><div class="phone"><div class="desk">
+  <header>Riverside Studio <span><span>Classes</span><span>Gallery</span><span>Vouchers</span><span>Visit us</span></span></header>
+  <div class="hero">Pottery classes in Plymouth</div>
+  <div class="row">
+    <div><b>Beginners</b>Six Tuesday evenings at the wheel. All materials included. £95.</div>
+    <div><b>Improvers</b>Take your throwing further, Thursdays at 19:00. £110.</div>
+    <div><b>Glaze night</b>One Wednesday evening of glazing your own pieces. £40.</div>
+  </div>
+  <div class="hero" style="height:420px;background:#eef2f6;font-size:40px">Student work</div>
+  <div class="row"><div><b>Visit us</b>12 Quay Road, Plymouth. Open Tuesday to Saturday.</div><div><b>Gift vouchers</b>Any amount from £20.</div><div><b>Newsletter</b>Monthly class news by email.</div></div>
+  <div style="margin-top:40px;background:#2d5677;color:#fff;padding:40px;font-size:22px">© Riverside Studio · Privacy · Accessibility · Contact</div>
+</div></div></figure>
+
+<figure data-name="t07-extra-page" class="map"><svg width="560" height="140" viewBox="0 0 560 140">
+  <path d="M262 41 V60 H48 V80 M262 60 H155 V80 M262 60 V80 M262 60 H369 V80 M262 60 H476 V80"/>
+  <rect class="box home" x="217" y="15" width="90" height="26" rx="4"/><text x="262" y="32" text-anchor="middle">Home</text>
+  <text class="ann" x="317" y="32">R1</text>
+  <rect class="box" x="5" y="80" width="86" height="26" rx="4"/><text x="48" y="97" text-anchor="middle">Classes</text>
+  <text class="ann" x="48" y="124" text-anchor="middle">R2, R5</text>
+  <rect class="box" x="112" y="80" width="86" height="26" rx="4"/><text x="155" y="97" text-anchor="middle">Gallery</text>
+  <text class="ann" x="155" y="124" text-anchor="middle">R3</text>
+  <rect class="box" x="219" y="80" width="86" height="26" rx="4"/><text x="262" y="97" text-anchor="middle">Team blog</text>
+  <rect class="box" x="326" y="80" width="86" height="26" rx="4"/><text x="369" y="97" text-anchor="middle">Vouchers</text>
+  <text class="ann" x="369" y="124" text-anchor="middle">R4</text>
+  <rect class="box" x="433" y="80" width="86" height="26" rx="4"/><text x="476" y="97" text-anchor="middle">Visit us</text>
+  <text class="ann" x="476" y="124" text-anchor="middle">R6</text>
+</svg>
+  <div class="reqs">
+    <div><b>R1</b> Say what the studio offers</div><div><b>R2</b> Let visitors send an enquiry</div>
+    <div><b>R3</b> Show finished student work</div><div><b>R4</b> Sell gift vouchers</div>
+    <div><b>R5</b> List class times and prices</div><div><b>R6</b> Give opening hours and directions</div>
+  </div>
+</figure>
+
+<figure data-name="t09-review-log" class="log"><table>
+  <tr><th>Feedback</th><th>Review area</th><th>Req.</th><th>Change made</th><th>How checked</th></tr>
+  <tr><td>Grey class times are hard to read on the cream background</td><td>User experience: accessibility</td><td>R6</td><td>Class times changed to charcoal #2b2b2b</td><td class="hl">?</td></tr>
+</table></figure>
+
+<figure data-name="t10-svg-path" class="svgcode"><div class="duo">
+  <pre class="code"><span class="t">&lt;svg</span> <span class="a">viewBox</span>=<span class="s">"0 0 120 120"</span> <span class="a">role</span>=<span class="s">"img"</span><span class="t">&gt;</span>
+  <span class="t">&lt;title&gt;</span>Riverside Studio<span class="t">&lt;/title&gt;</span>
+  <span class="t">&lt;circle</span> <span class="a">cx</span>=<span class="s">"60"</span> <span class="a">cy</span>=<span class="s">"60"</span> <span class="a">r</span>=<span class="s">"56"</span> <span class="a">fill</span>=<span class="s">"#2F5D50"</span><span class="t">/&gt;</span>
+  <span class="t">&lt;path</span> <span class="a">d</span>=<span class="s">"M40 38 <span class="hl">h40</span> l-6 50 a8 8 0 0 1 -8 7
+           h-12 a8 8 0 0 1 -8 -7 z"</span> <span class="a">fill</span>=<span class="s">"#FAF6EE"</span><span class="t">/&gt;</span>
+  <span class="t">&lt;rect</span> <span class="a">x</span>=<span class="s">"36"</span> <span class="a">y</span>=<span class="s">"32"</span> <span class="a">width</span>=<span class="s">"48"</span> <span class="a">height</span>=<span class="s">"8"</span> <span class="a">rx</span>=<span class="s">"4"</span> <span class="a">fill</span>=<span class="s">"#B5542D"</span><span class="t">/&gt;</span>
+<span class="t">&lt;/svg&gt;</span></pre>
+  <div><svg viewBox="0 0 120 120" width="120" height="120"><circle cx="60" cy="60" r="56" fill="#2F5D50"/>
+    <path d="M40 38 h40 l-6 50 a8 8 0 0 1 -8 7 h-12 a8 8 0 0 1 -8 -7 z" fill="#FAF6EE"/>
+    <rect x="36" y="32" width="48" height="8" rx="4" fill="#B5542D"/></svg></div>
+</div></figure>
+
+<figure data-name="t11-register" class="reg"><table>
+  <tr><th>File</th><th>Source</th><th>Creator</th><th>Licence</th><th>Credit needed?</th><th>Page</th></tr>
+  <tr><td>hero-wheel-class.jpg</td><td>unsplash.com/photos/…</td><td>J. Mensah</td><td>Unsplash licence</td><td>No (appreciated)</td><td>Home</td></tr>
+  <tr><td>glaze-close-up.jpg</td><td>flickr.com/photos/…</td><td>A. Okafor</td><td>CC BY 4.0</td><td class="hl">?</td><td>Classes</td></tr>
+  <tr><td>icon-calendar.svg</td><td>Studio's own drawing</td><td>The studio</td><td>Owned by the client</td><td>No</td><td>Classes</td></tr>
+</table></figure>
+
+<figure data-name="t12-head" class="snip" style="width:650px"><pre class="code"><span class="ln">1</span><span class="t">&lt;!doctype html&gt;</span>
+<span class="ln">2</span><span class="t">&lt;html</span> <span class="a">lang</span>=<span class="s">"en"</span><span class="t">&gt;</span>
+<span class="ln">3</span><span class="t">&lt;head&gt;</span>
+<span class="ln">4</span>  <span class="t">&lt;meta</span> <span class="a">charset</span>=<span class="s">"utf-8"</span><span class="t">&gt;</span>
+<span class="ln">5</span>  <span class="t">&lt;meta</span> <span class="a">name</span>=<span class="s">"viewport"</span> <span class="a">content</span>=<span class="s">"width=device-width, initial-scale=1"</span><span class="t">&gt;</span>
+<span class="ln">6</span>  <span class="t">&lt;title&gt;</span>Classes | Riverside Studio<span class="t">&lt;/title&gt;</span>
+<span class="ln">7</span>  <span class="t">&lt;link</span> <span class="a">rel</span>=<span class="s">"stylesheet"</span> <span class="a">href</span>=<span class="s">"css/style.css"</span><span class="t">&gt;</span>
+<span class="ln">8</span>  <span class="t">&lt;script</span> <span class="a">src</span>=<span class="s">"js/main.js"</span> <span class="a">defer</span><span class="t">&gt;&lt;/script&gt;</span>
+<span class="ln">9</span><span class="t">&lt;/head&gt;</span></pre></figure>
+
+<figure data-name="t14-zebra" class="snip"><pre class="code"><span class="t">&lt;table&gt;</span>
+  <span class="t">&lt;thead&gt;&lt;tr&gt;&lt;th&gt;</span>Class<span class="t">&lt;/th&gt;&lt;th&gt;</span>Day<span class="t">&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</span>
+  <span class="t">&lt;tbody&gt;</span>
+    <span class="t">&lt;tr&gt;&lt;td&gt;</span>Beginners<span class="t">&lt;/td&gt;&lt;td&gt;</span>Tuesday<span class="t">&lt;/td&gt;&lt;/tr&gt;</span>
+    <span class="t">&lt;tr&gt;&lt;td&gt;</span>Glaze night<span class="t">&lt;/td&gt;&lt;td&gt;</span>Wednesday<span class="t">&lt;/td&gt;&lt;/tr&gt;</span>
+    <span class="t">&lt;tr&gt;&lt;td&gt;</span>Improvers<span class="t">&lt;/td&gt;&lt;td&gt;</span>Thursday<span class="t">&lt;/td&gt;&lt;/tr&gt;</span>
+    <span class="t">&lt;tr&gt;&lt;td&gt;</span>Open studio<span class="t">&lt;/td&gt;&lt;td&gt;</span>Saturday<span class="t">&lt;/td&gt;&lt;/tr&gt;</span>
+  <span class="t">&lt;/tbody&gt;</span>
+<span class="t">&lt;/table&gt;</span>
+
+<span class="c">/* style.css */</span>
+<span class="k">tbody tr:nth-child(even)</span> { <span class="a">background</span>: #f1ebdf; }</pre></figure>
+
+<figure data-name="t16-accordion" class="snip" style="width:600px"><pre class="code"><span class="c">// Now: the button has aria-expanded="false" and panel.hidden is true.</span>
+<span class="k">const</span> button = document.querySelector(<span class="s">".faq button"</span>);
+<span class="k">const</span> panel = document.querySelector(<span class="s">".faq .panel"</span>);
+
+button.addEventListener(<span class="s">"click"</span>, () =&gt; {
+  <span class="k">const</span> open = button.getAttribute(<span class="s">"aria-expanded"</span>) === <span class="s">"true"</span>;
+  button.setAttribute(<span class="s">"aria-expanded"</span>, String(!open));
+  panel.hidden = open;
+});</pre></figure>
+
+<figure data-name="t17-reduce" class="snip"><pre class="code"><span class="k">@media</span> (prefers-reduced-motion: reduce) {
+  <span class="k">*, *::before, *::after</span> {
+    <span class="a">animation-duration</span>: 0.01ms <span class="hl">!important</span>;
+    <span class="a">transition-duration</span>: 0.01ms <span class="hl">!important</span>;
+  }
+}</pre></figure>
+
+<figure data-name="t19-validator" class="vnu"><div class="frame"><div class="body">
+  <h3>Showing results for classes.html</h3>
+  <div class="msg"><b>Error</b> Duplicate ID <code>prices</code>.
+    <div class="where">From line 42, column 5; to line 42, column 21</div>
+    <pre class="code"><span class="t">&lt;h2</span> <span class="a">id</span>=<span class="s">"prices"</span><span class="t">&gt;</span>Prices<span class="t">&lt;/h2&gt;</span></pre></div>
+  <div class="msg info"><b>Info</b> The first occurrence of ID <code>prices</code> was here.
+    <div class="where">From line 18, column 3; to line 18, column 24</div>
+    <pre class="code"><span class="t">&lt;section</span> <span class="a">id</span>=<span class="s">"prices"</span><span class="t">&gt;</span></pre></div>
+</div></div></figure>
 
 </body>
