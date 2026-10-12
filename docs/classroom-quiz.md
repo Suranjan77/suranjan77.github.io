@@ -1,7 +1,7 @@
 # Classroom quiz
 
 Status: v1 built
-Updated: 2026-10-09
+Updated: 2026-10-12
 
 A live quiz for Level 3 and below. A teacher starts a session on the projector,
 students join on their phones with a code or QR code, and the room answers
@@ -90,9 +90,11 @@ this page and `/play/privacy` first.
 ## Question sets
 
 Sets live in `src/features/play/sets/`, one file per course unit, registered in
-`sets/index.ts`. The first sets cover BTEC AAQ IT Unit 3 (Website Development),
-Topics 2, 4 and 12, written from that unit's decks in academic-materials
-(`modules/l3-aaq-u3-website-development`). Each question carries an
+`sets/index.ts` in teaching order. BTEC AAQ IT Unit 3 (Website Development) has
+a set for each of its 20 weekly topics, written from that unit's lecture notes
+and decks in academic-materials (`modules/l3-aaq-u3-website-development`).
+Topics 2, 4 and 12 use rendered pictures; the others are text questions,
+including short code to read. Each question carries an
 explanation that gives the reason, not just the fact. Explanations never name
 a letter, because the letters change between a question's two rounds.
 

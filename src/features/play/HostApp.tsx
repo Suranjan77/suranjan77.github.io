@@ -402,7 +402,7 @@ function Setup(props: {
 
       <fieldset className="mt-8">
         <legend className="font-mono text-[10px] uppercase tracking-label text-on-surface-variant">Question set</legend>
-        <div className="mt-3 grid gap-3">
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
           {questionSets.map((set) => (
             <label
               key={set.id}
