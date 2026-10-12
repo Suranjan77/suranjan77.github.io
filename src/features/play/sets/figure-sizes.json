@@ -78,5 +78,253 @@
   "aaq-u3/t12-regions": [
     460,
     258
+  ],
+  "aaq-u3/t01-council": [
+    420,
+    231
+  ],
+  "aaq-u3/t01-persona": [
+    430,
+    366
+  ],
+  "aaq-u3/t01-two-visitors": [
+    520,
+    177
+  ],
+  "aaq-u3/t03-breadcrumbs": [
+    440,
+    196
+  ],
+  "aaq-u3/t03-cta-submit": [
+    250,
+    165
+  ],
+  "aaq-u3/t03-cta-click": [
+    250,
+    165
+  ],
+  "aaq-u3/t03-cta-benefit": [
+    250,
+    183
+  ],
+  "aaq-u3/t03-cta-go": [
+    250,
+    165
+  ],
+  "aaq-u3/t03-measure-narrow": [
+    640,
+    206
+  ],
+  "aaq-u3/t03-measure-mid": [
+    640,
+    122
+  ],
+  "aaq-u3/t03-measure-wide": [
+    640,
+    102
+  ],
+  "aaq-u3/t05-heart": [
+    420,
+    201
+  ],
+  "aaq-u3/t05-search-result": [
+    520,
+    229
+  ],
+  "aaq-u3/t05-hover-price": [
+    400,
+    240
+  ],
+  "aaq-u3/t06-brief": [
+    520,
+    177
+  ],
+  "aaq-u3/t06-enquiry": [
+    330,
+    421
+  ],
+  "aaq-u3/t07-deep-map": [
+    560,
+    293
+  ],
+  "aaq-u3/t07-annotated-map": [
+    560,
+    298
+  ],
+  "aaq-u3/t07-card-sort": [
+    560,
+    198
+  ],
+  "aaq-u3/t08-balance-even": [
+    328,
+    228
+  ],
+  "aaq-u3/t08-balance-left": [
+    328,
+    228
+  ],
+  "aaq-u3/t08-balance-top": [
+    328,
+    228
+  ],
+  "aaq-u3/t08-align-yes": [
+    328,
+    228
+  ],
+  "aaq-u3/t08-align-no": [
+    328,
+    228
+  ],
+  "aaq-u3/t08-align-centre": [
+    328,
+    228
+  ],
+  "aaq-u3/t08-placeholder": [
+    328,
+    228
+  ],
+  "aaq-u3/t08-wire-to-build": [
+    780,
+    276
+  ],
+  "aaq-u3/t08-measured": [
+    400,
+    468
+  ],
+  "aaq-u3/t09-style-tile": [
+    520,
+    259
+  ],
+  "aaq-u3/t09-type-scale": [
+    520,
+    218
+  ],
+  "aaq-u3/t10-edit": [
+    600,
+    234
+  ],
+  "aaq-u3/t10-cut-out": [
+    600,
+    234
+  ],
+  "aaq-u3/t10-logo-zoom": [
+    560,
+    248
+  ],
+  "aaq-u3/t11-licence": [
+    440,
+    199
+  ],
+  "aaq-u3/t11-resize": [
+    470,
+    358
+  ],
+  "aaq-u3/t11-case": [
+    560,
+    183
+  ],
+  "aaq-u3/t12-folders": [
+    380,
+    232
+  ],
+  "aaq-u3/t12-skip-link": [
+    440,
+    207
+  ],
+  "aaq-u3/t13-placeholders": [
+    600,
+    231
+  ],
+  "aaq-u3/t13-timetable": [
+    420,
+    193
+  ],
+  "aaq-u3/t13-radios": [
+    340,
+    228
+  ],
+  "aaq-u3/t14-match": [
+    520,
+    196
+  ],
+  "aaq-u3/t14-specificity": [
+    520,
+    217
+  ],
+  "aaq-u3/t14-button-box": [
+    470,
+    178
+  ],
+  "aaq-u3/t15-box": [
+    460,
+    337
+  ],
+  "aaq-u3/t15-footer-gallery": [
+    460,
+    238
+  ],
+  "aaq-u3/t15-ruler": [
+    720,
+    210
+  ],
+  "aaq-u3/t16-head-script": [
+    520,
+    238
+  ],
+  "aaq-u3/t16-menu-states": [
+    500,
+    226
+  ],
+  "aaq-u3/t16-tabs": [
+    440,
+    158
+  ],
+  "aaq-u3/t17-slides": [
+    520,
+    178
+  ],
+  "aaq-u3/t17-slider": [
+    440,
+    256
+  ],
+  "aaq-u3/t17-card-lift": [
+    460,
+    199
+  ],
+  "aaq-u3/t18-filters": [
+    420,
+    186
+  ],
+  "aaq-u3/t18-basket": [
+    340,
+    202
+  ],
+  "aaq-u3/t18-error": [
+    330,
+    327
+  ],
+  "aaq-u3/t19-root-path": [
+    560,
+    279
+  ],
+  "aaq-u3/t19-audit": [
+    560,
+    229
+  ],
+  "aaq-u3/t19-cut-off": [
+    520,
+    192
+  ],
+  "aaq-u3/t20-test-plan": [
+    720,
+    192
+  ],
+  "aaq-u3/t20-last-slide": [
+    440,
+    256
+  ],
+  "aaq-u3/t20-email-abc": [
+    330,
+    286
   ]
 }

@@ -33,6 +33,7 @@ for (const file of readdirSync(sourceDir).filter((name) => name.endsWith(".html"
   mkdirSync(outDir, { recursive: true });
   await page.goto(pathToFileURL(join(sourceDir, file)).href);
   await page.evaluate(() => document.fonts.ready);
+  await page.waitForFunction(() => [...document.images].every((image) => image.complete));
 
   for (const figure of await page.locator("figure[data-name]").all()) {
     const name = await figure.getAttribute("data-name");

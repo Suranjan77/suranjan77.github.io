@@ -112,6 +112,274 @@
   .regions .content { padding: 12px; font-size: 12px; color: #3c4753; }
   .regions .content b { display: block; font-size: 15px; color: #14202b; margin-bottom: 6px; }
   .regions .foot { padding: 9px 12px; font-size: 11px; color: #6b7681; background: #f4f6f8; }
+  /* Shared pieces for the later topics. */
+  .cap { font: 600 11px/1 "Segoe UI", Inter, system-ui, sans-serif; letter-spacing: .05em; text-transform: uppercase;
+         color: #5b6570; margin-bottom: 7px; }
+  .num { display: inline-block; background: #d4700d; color: #fff; font: 700 12px/20px "Segoe UI", Inter, system-ui, sans-serif;
+         min-width: 20px; text-align: center; border-radius: 4px; padding: 0 4px; }
+  .duo { display: flex; gap: 18px; align-items: flex-start; }
+  .duo > div { flex: 1; }
+  .code { background: #1e2530; color: #e6edf3; font: 12.5px/1.65 Consolas, "Cascadia Mono", "DejaVu Sans Mono", monospace;
+          padding: 12px 14px; border-radius: 6px; white-space: pre; margin: 0; }
+  .code .t { color: #7ee0a1; } .code .a { color: #f2c27b; } .code .s { color: #9ecbff; }
+  .code .c { color: #8b949e; } .code .k { color: #ff9f8e; }
+  .code .ln { color: #6b7681; display: inline-block; width: 22px; }
+  .code .hl { background: #3b4a5c; border-radius: 3px; }
+  .wf { background: #e8ebee; border: 1px solid #d5dbe0; border-radius: 3px; color: #8d97a1; font-size: 10.5px; padding: 4px 7px; }
+  .field { margin-bottom: 9px; font-size: 12px; color: #3c4753; }
+  .field label { display: block; font-weight: 600; margin-bottom: 3px; color: #1b1f24; }
+  .field .in { border: 1.5px solid #8a96a3; border-radius: 4px; padding: 6px 8px; font-size: 12px; color: #1b1f24; background: #fff; min-height: 30px; }
+  .field .in.ph { color: #9aa4ae; }
+  .browser { border: 2px solid #b9c2cb; border-radius: 8px; overflow: hidden; background: #fff; }
+  .browser .bar { background: #eceff2; padding: 6px 10px; display: flex; gap: 6px; align-items: center; font-size: 11.5px; color: #3c4753; }
+  .browser .bar i { width: 8px; height: 8px; border-radius: 50%; background: #c3cad1; }
+  .browser .bar .url { flex: 1; background: #fff; border: 1px solid #d5dbe0; border-radius: 12px; padding: 3px 10px; margin-left: 6px; }
+  .phone { width: 190px; border: 7px solid #2a3139; border-radius: 22px; overflow: hidden; background: #fff; }
+
+  /* Topic 1 */
+  .council { width: 420px; }
+  .council header { background: #34495e; }
+  .council .body { padding: 14px; font-size: 12px; color: #3c4753; }
+  .council .big { display: inline-block; background: #00703c; color: #fff; font-weight: 700; font-size: 15px; padding: 11px 18px; border-radius: 4px; margin: 8px 0 10px; }
+  .council .small { display: flex; gap: 12px; font-size: 11.5px; color: #1d4f91; text-decoration: underline; }
+  .persona { width: 430px; }
+  .persona .card { border: 2px solid #b9c2cb; border-radius: 8px; padding: 14px; display: grid; grid-template-columns: 70px 1fr; gap: 12px; }
+  .persona .face { width: 70px; height: 70px; border-radius: 50%; background: #dce8f2; display: grid; place-items: center; font-size: 28px; color: #2d5677; font-weight: 700; }
+  .persona h3 { margin: 0 0 2px; font-size: 16px; } .persona .who { font-size: 12px; color: #5b6570; }
+  .persona .row { grid-column: 1 / -1; display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; padding: 6px 0; border-top: 1px solid #e6ebf0; }
+  .persona .row b { display: block; font-size: 11px; color: #5b6570; text-transform: uppercase; letter-spacing: .04em; }
+  .two-people { width: 520px; display: flex; gap: 14px; }
+  .two-people > div { flex: 1; border: 2px solid #b9c2cb; border-radius: 8px; padding: 12px; font-size: 12.5px; color: #3c4753; }
+  .two-people b { display: block; font-size: 14px; color: #1b1f24; margin-bottom: 6px; }
+  .two-people .goal { margin-top: 8px; background: #f4f6f8; border-radius: 4px; padding: 7px; }
+
+  /* Topic 3 */
+  .crumbs { width: 440px; }
+  .crumbs .trail { padding: 9px 14px; font-size: 12px; color: #1d4f91; border-bottom: 1px solid #e6ebf0; }
+  .crumbs .trail span { color: #5b6570; padding: 0 5px; } .crumbs .trail em { font-style: normal; color: #3c4753; }
+  .crumbs .body { padding: 12px 14px; font-size: 12px; color: #3c4753; } .crumbs h3 { margin: 0 0 6px; font-size: 17px; color: #14202b; }
+  .news { width: 250px; }
+  .news .body { padding: 14px; font-size: 12px; color: #3c4753; }
+  .news b { display: block; font-size: 14px; color: #14202b; margin-bottom: 8px; }
+  .news .btn { font-size: 12.5px; padding: 8px 14px; margin-top: 2px; }
+  .measure { width: 640px; }
+  .measure .body { padding: 14px; } .measure p { margin: 0; font-size: 13px; line-height: 1.6; color: #2c3640; }
+
+  /* Topic 5 */
+  .heart { width: 420px; }
+  .heart .duo > div { border: 2px solid #b9c2cb; border-radius: 8px; padding: 14px; text-align: center; }
+  .heart .photo { height: 70px; background: #dce8f2; border-radius: 4px; margin-bottom: 10px; }
+  .heart svg { width: 36px; height: 36px; }
+  .serp { width: 520px; }
+  .serp .body { padding: 16px; }
+  .serp .res { display: grid; grid-template-columns: 1fr 26px; gap: 4px 8px; align-items: start; }
+  .serp .u { font-size: 12px; color: #3c4753; } .serp .ti { font-size: 18px; color: #1a0dab; }
+  .serp .de { font-size: 12.5px; color: #4d5156; line-height: 1.5; }
+  .serp .q { border: 1px solid #d5dbe0; border-radius: 18px; padding: 6px 14px; font-size: 13px; color: #3c4753; margin-bottom: 14px; }
+  .hover { width: 400px; }
+  .hover .body { padding: 14px; position: relative; height: 170px; }
+  .hover .card { width: 170px; border: 1px solid #d3dbe2; border-radius: 6px; padding: 10px; font-size: 12.5px; }
+  .hover .card b { display: block; font-size: 14px; }
+  .hover .tip { position: absolute; left: 196px; top: 50px; background: #1b1f24; color: #fff; font-size: 12px; padding: 7px 10px; border-radius: 5px; }
+  .hover .tip::before { content: ""; position: absolute; left: -6px; top: 9px; border: 6px solid transparent; border-left: 0; border-right-color: #1b1f24; }
+  .hover .cursor { position: absolute; left: 160px; top: 58px; }
+  .hover .note { position: absolute; left: 14px; bottom: 10px; font-size: 11.5px; color: #5b6570; }
+
+  /* Topic 6 */
+  .brief { width: 520px; }
+  .brief .doc { border: 2px solid #b9c2cb; border-radius: 8px; padding: 16px 18px; font: 13px/1.7 Georgia, "Times New Roman", serif; color: #2c3640; }
+  .brief h3 { font: 600 14px/1.2 "Segoe UI", Inter, system-ui, sans-serif; margin: 0 0 8px; color: #14202b; }
+  .brief mark { background: #fff1c7; padding: 1px 2px; }
+  .brief .num { font-size: 10.5px; line-height: 17px; min-width: 17px; margin-right: 3px; vertical-align: 1px; }
+  .enquiry { width: 330px; } .enquiry .body { padding: 14px; } .enquiry h3 { margin: 0 0 10px; font-size: 15px; }
+  .enquiry .btn { font-size: 12.5px; padding: 8px 14px; }
+
+  /* Topic 7: site maps */
+  .map { width: 560px; padding: 18px; }
+  .map svg text { font: 12px "Segoe UI", Inter, system-ui, sans-serif; fill: #1b1f24; }
+  .map svg .box { fill: #fff; stroke: #2d5677; stroke-width: 1.5; }
+  .map svg .home { fill: #2d5677; } .map svg .home + text { fill: #fff; font-weight: 600; }
+  .map svg line, .map svg path { stroke: #8a96a3; stroke-width: 1.5; fill: none; }
+  .map svg .ann { font-size: 10.5px; fill: #b05a0a; font-weight: 600; }
+  .reqs { font-size: 12px; color: #3c4753; border-top: 1px solid #e6ebf0; margin-top: 10px; padding-top: 10px; columns: 2; }
+  .reqs div { margin-bottom: 4px; } .reqs b { color: #1b1f24; }
+  .sort { width: 560px; }
+  .sort .piles { display: flex; gap: 14px; }
+  .sort .pile { flex: 1; background: #f4f6f8; border-radius: 8px; padding: 10px; }
+  .sort .card { background: #fffbea; border: 1px solid #e3d9a8; border-radius: 4px; padding: 6px 8px; font-size: 12px; margin-bottom: 6px;
+                box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .sort .pile:nth-child(2) .card { transform: rotate(-1deg); } .sort .pile:nth-child(3) .card { transform: rotate(1deg); }
+
+  /* Topic 8: wireframes */
+  .wire { width: 328px; }
+  .wire .frame { height: 200px; padding: 10px; position: relative; }
+  .wire .wf { position: absolute; }
+  .wire .bar { left: 10px; right: 10px; top: 10px; height: 22px; }
+  .pair-wire { width: 780px; display: flex; gap: 20px; align-items: center; }
+  .pair-wire > div:not(.arrow) { flex: 1; }
+  .pair-wire .frame { height: 230px; padding: 10px; position: relative; }
+  .pair-wire .wf { position: absolute; font-size: 12px; }
+  .pair-wire .num { position: absolute; right: -2px; top: -8px; font-size: 11px; line-height: 18px; min-width: 18px; }
+  .pair-wire .arrow { color: #8a96a3; font-size: 12px; text-align: center; }
+  .pair-wire .built { padding: 0; }
+  .pair-wire .built header { background: #2d5677; color: #fff; padding: 10px 12px; font-weight: 600; font-size: 14px; }
+  .pair-wire .built .hero { margin: 10px; height: 70px; background: #dce8f2; border-radius: 4px; display: grid; place-items: center; font-size: 11px; color: #6b8296; }
+  .pair-wire .built .cards { margin: 0 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+  .pair-wire .built .cards div { border: 1px solid #d3dbe2; border-radius: 4px; padding: 6px; font-size: 12px; height: 70px; }
+  .pair-wire .built .cards i { display: block; background: #eef2f6; height: 22px; border-radius: 2px; margin-bottom: 4px; }
+  .xbox { background: #fff; border: 1.5px solid #8d97a1; }
+  .xbox svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .measured { width: 400px; }
+  .measured .stage { position: relative; height: 440px; }
+  .measured .phone { position: absolute; left: 80px; top: 26px; width: 224px; height: 400px; border-width: 2px; border-color: #8a96a3; border-radius: 12px; }
+  .measured .phone .wf { position: absolute; left: 16px; right: 16px; }
+  .measured .dim { position: absolute; white-space: nowrap; font: 600 11px/1 "Segoe UI", Inter, system-ui, sans-serif; color: #b05a0a; }
+  .measured .h { border-top: 1.5px solid #d4700d; height: 0; }
+  .measured .v { border-left: 1.5px solid #d4700d; width: 0; }
+
+  /* Topic 9 */
+  .tile { width: 520px; }
+  .tile .body { padding: 16px; background: #f7f1e6; }
+  .tile .sw { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .tile .sw div { font-size: 11px; color: #2b2b2b; }
+  .tile .sw i { display: block; height: 54px; border-radius: 6px; margin-bottom: 6px; border: 1px solid rgba(0,0,0,.08); }
+  .tile .sw b { display: block; font-size: 12px; }
+  .tile .sample { margin-top: 16px; display: flex; gap: 14px; align-items: center; }
+  .tile h3 { margin: 0; font: 600 20px/1.2 Georgia, serif; color: #2f5d46; }
+  .tile .tb { background: #b25630; color: #fff; font-weight: 600; font-size: 13px; padding: 9px 16px; border-radius: 6px; }
+  .tile .rule { height: 3px; background: #97ad9a; border-radius: 2px; margin-top: 14px; }
+  .scale { width: 520px; }
+  .scale .body { padding: 16px; }
+  .scale .step { display: flex; align-items: baseline; gap: 14px; border-bottom: 1px dashed #d5dbe0; padding: 8px 0; }
+  .scale .step span { width: 74px; font-size: 11.5px; color: #5b6570; flex: none; }
+  .scale .step b { font-weight: 600; color: #14202b; line-height: 1.1; }
+
+  /* Topic 10: the class photo, drawn. */
+  .photo-pair { width: 600px; display: flex; gap: 22px; align-items: flex-start; }
+  .photo-pair > div:not(.arrow) { flex: 1; }
+  .photo-pair .arrow { color: #8a96a3; font-size: 26px; align-self: center; }
+  .photo-pair svg { display: block; width: 100%; border-radius: 4px; }
+  .logo-zoom { width: 560px; }
+  .logo-zoom .duo > div { border: 2px solid #b9c2cb; border-radius: 8px; overflow: hidden; height: 220px; display: grid; place-items: center; background: #fff; }
+  .logo-zoom img, .logo-zoom svg { width: 230px; height: 230px; }
+
+  /* Topic 11 */
+  .licence { width: 440px; }
+  .licence .body { padding: 14px; display: grid; grid-template-columns: 150px 1fr; gap: 14px; font-size: 12.5px; color: #3c4753; }
+  .licence .ph { height: 112px; background: linear-gradient(160deg, #c9b7a2, #8a6f57); border-radius: 4px; }
+  .licence b { display: block; font-size: 14px; color: #14202b; margin-bottom: 4px; }
+  .licence .lic { margin-top: 8px; border: 1px solid #d5dbe0; border-radius: 4px; padding: 7px 9px; background: #f4f6f8; }
+  .licence .lic strong { color: #14202b; }
+  .resize { width: 470px; }
+  .resize .stage { position: relative; height: 330px; }
+  .resize .big { position: absolute; left: 0; top: 0; width: 400px; height: 300px; border: 2px solid #2d5677; background: #eef3f8; }
+  .resize .small { position: absolute; left: 0; top: 0; width: 80px; height: 60px; background: #d4700d; opacity: .85; }
+  .resize .lb { position: absolute; font-size: 12.5px; color: #14202b; font-weight: 600; }
+  .files { width: 560px; }
+  .tree { border: 2px solid #b9c2cb; border-radius: 8px; padding: 10px 12px; font: 12.5px/1.8 Consolas, "Cascadia Mono", "DejaVu Sans Mono", monospace; color: #1b1f24; background: #fff; }
+  .tree div { white-space: pre; } .tree .dir { color: #2d5677; font-weight: 700; } .tree .me { background: #fff1c7; border-radius: 3px; }
+
+  /* Topic 12 */
+  .skip { width: 440px; }
+  .skip .sk { position: absolute; left: 8px; top: 8px; background: #fff; color: #1d4f91; font-size: 12.5px; padding: 6px 10px;
+              outline: 3px solid #d4700d; outline-offset: 2px; text-decoration: underline; border-radius: 3px; }
+  .skip .frame { position: relative; }
+  .skip .body { padding: 12px 14px; font-size: 12px; color: #3c4753; } .skip h3 { margin: 0 0 6px; font-size: 16px; color: #14202b; }
+
+  /* Topic 13 */
+  .ph-pair { width: 600px; } .ph-pair .frame { padding: 14px; }
+  .timetable { width: 420px; } .timetable .body { padding: 14px; }
+  .timetable table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .timetable th, .timetable td { text-align: left; padding: 7px 9px; border-bottom: 1px solid #e0e6eb; }
+  .timetable th { background: #eef2f6; color: #14202b; }
+  .timetable td.hl { outline: 3px solid #d4700d; outline-offset: -3px; }
+  .radios { width: 340px; } .radios .body { padding: 14px; font-size: 12.5px; }
+  .radios .q { font-weight: 600; margin: 4px 0 6px; } .radios .opt { display: flex; gap: 6px; align-items: center; margin-bottom: 5px; }
+  .radios .opt i { width: 14px; height: 14px; border: 1.5px solid #5b6570; border-radius: 50%; }
+
+  /* Topic 14 */
+  .snip { width: 520px; }
+  .btn-box { width: 470px; }
+  .btn-box .stage { position: relative; height: 150px; }
+  .btn-box .b { position: absolute; left: 60px; top: 30px; width: 200px; background: #1f5d8c; border-radius: 6px; }
+  .btn-box .pad { height: 26px; background: repeating-linear-gradient(45deg, #2b6a99 0 4px, #1f5d8c 4px 8px); }
+  .btn-box .txt { height: 52px; display: grid; place-items: center; color: #fff; font-weight: 600; font-size: 22px; outline: 1px dashed #9ecbff; outline-offset: -1px; }
+  .btn-box .lb { position: absolute; left: 280px; font-size: 12px; color: #3c4753; white-space: nowrap; }
+  .btn-box .lb::before { content: ""; position: absolute; left: -16px; top: 7px; width: 12px; border-top: 1.5px solid #d4700d; }
+
+  /* Topic 15 */
+  .boxm { width: 460px; }
+  .boxm .m { border: 1.5px dashed #b9c2cb; padding: 18px; position: relative; background: #fff; }
+  .boxm .b { border: 10px solid #4b5661; position: relative; }
+  .boxm .p { background: #d6efd9; padding: 26px; position: relative; }
+  .boxm .c { background: #dce8f2; height: 60px; display: grid; place-items: center; font: 600 13px Consolas, monospace; color: #14202b; }
+  .boxm .t { position: absolute; font-size: 11px; color: #3c4753; }
+  .layout2 { width: 460px; } .layout2 .body { padding: 12px; }
+  .layout2 .gal { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; position: relative; }
+  .layout2 .gal i { height: 46px; background: #dce8f2; border-radius: 3px; }
+  .layout2 footer { background: #2d5677; color: #fff; padding: 9px 12px; display: flex; gap: 16px; font-size: 12px; position: relative; }
+  .layout2 .num { position: absolute; right: 6px; top: 6px; }
+  .ruler { width: 720px; }
+
+  /* Topic 16 */
+  .menu-pair { width: 500px; display: flex; gap: 22px; }
+  .menu-pair > div { flex: 1; }
+  .menu-pair .bar { background: #2d5677; color: #fff; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 13px; }
+  .menu-pair .mb { border: 1.5px solid #fff; border-radius: 4px; padding: 3px 8px; font-size: 12px; }
+  .menu-pair .links { background: #eef2f6; font-size: 12.5px; } .menu-pair .links div { padding: 8px 12px; border-bottom: 1px solid #d5dbe0; color: #1d4f91; }
+  .menu-pair .rest { height: 60px; padding: 10px 12px; } .menu-pair .code { margin-top: 8px; font-size: 11.5px; padding: 8px 10px; }
+  .tabs { width: 440px; } .tabs .body { padding: 14px; }
+  .tabs .tl { display: flex; border-bottom: 2px solid #d5dbe0; }
+  .tabs .tl span { padding: 8px 16px; font-size: 13px; color: #5b6570; }
+  .tabs .tl .on { color: #14202b; font-weight: 600; border-bottom: 3px solid #1f5d8c; margin-bottom: -2px; }
+  .tabs .panel { padding: 12px 4px; font-size: 12.5px; color: #3c4753; }
+
+  /* Topic 17 */
+  .slides { width: 520px; } .slides .body { padding: 18px; }
+  .slides .row { display: flex; gap: 10px; }
+  .slides .sl { flex: 1; height: 64px; background: #eef3f8; border: 2px solid #b9c2cb; border-radius: 6px; display: grid; place-items: center;
+              font: 700 18px Consolas, monospace; color: #2d5677; }
+  .slides .sl.cur { border-color: #d4700d; background: #fff7ec; }
+  .slides .meta { margin-top: 12px; font: 13px Consolas, monospace; color: #3c4753; }
+  .slider { width: 440px; } .slider .body { padding: 14px; }
+  .slider .stage { position: relative; height: 170px; border-radius: 6px; background: linear-gradient(160deg, #cbb8a3, #7d6450); }
+  .slider .nav { position: absolute; top: 64px; width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.9);
+                 display: grid; place-items: center; font-size: 22px; color: #14202b; }
+  .slider .count { margin-top: 8px; font-size: 12.5px; color: #3c4753; text-align: center; }
+  .lift { width: 460px; }
+  .lift .duo > div { padding: 18px 10px 10px; }
+  .lift .card { border: 1px solid #d3dbe2; border-radius: 8px; padding: 10px; font-size: 12.5px; background: #fff; }
+  .lift .card i { display: block; height: 60px; background: #dce8f2; border-radius: 4px; margin-bottom: 7px; }
+  .lift .up { transform: translateY(-8px); box-shadow: 0 10px 18px rgba(20, 32, 43, .18); }
+
+  /* Topic 18 */
+  .filters { width: 420px; } .filters .body { padding: 14px; }
+  .filters .fb { display: flex; gap: 8px; margin-bottom: 12px; }
+  .filters .fb span { border: 1.5px solid #1f5d8c; color: #1f5d8c; border-radius: 16px; padding: 5px 14px; font-size: 12.5px; }
+  .filters .fb .on { background: #1f5d8c; color: #fff; }
+  .filters .item { border: 1px solid #d3dbe2; border-radius: 5px; padding: 8px 10px; font-size: 12.5px; margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .basket { width: 340px; } .basket .body { padding: 14px; font-size: 13px; }
+  .basket .r { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #e6ebf0; }
+  .basket .tot { font-weight: 700; font-size: 15px; border-bottom: 0; }
+  .err .in { border-color: #b3261e; border-width: 2px; }
+  .err .msg { color: #b3261e; font-size: 12px; margin-top: 4px; display: flex; gap: 5px; }
+
+  /* Topic 19 */
+  .gh { width: 560px; } .gh .body { padding: 12px; display: grid; grid-template-columns: 170px 1fr; gap: 12px; font-size: 12px; color: #3c4753; }
+  .gh .broken { height: 110px; border: 1.5px dashed #b9c2cb; border-radius: 4px; display: grid; place-items: center; color: #8a96a3; font-size: 11px; text-align: center; }
+  .audit { width: 560px; display: flex; gap: 16px; }
+  .audit .panel { flex: 1.2; border: 2px solid #b9c2cb; border-radius: 8px; padding: 12px; font-size: 12px; color: #3c4753; }
+  .audit .score { width: 54px; height: 54px; border-radius: 50%; border: 5px solid #0c8a4a; display: grid; place-items: center; font-weight: 700; color: #0c8a4a; font-size: 16px; margin-bottom: 8px; }
+  .audit .ok { display: flex; gap: 6px; padding: 5px 0; border-top: 1px solid #e6ebf0; } .audit .ok::before { content: "✓"; color: #0c8a4a; font-weight: 700; }
+  .audit .side { flex: 1; } .audit .side .ph { height: 100px; border-radius: 4px; background: linear-gradient(160deg, #cbb8a3, #7d6450); margin-bottom: 8px; }
+
+  /* Topic 20 */
+  .plan { width: 720px; }
+  .plan table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .plan th, .plan td { border: 1px solid #c9d1d9; padding: 6px 7px; text-align: left; vertical-align: top; }
+  .plan th { background: #eef2f6; }
+  .plan .fail { background: #fbe4e2; color: #8c1d18; font-weight: 700; } .plan .pass { background: #e1f3e8; color: #0c6b39; font-weight: 700; }
+  .plan .q td { color: #9aa4ae; text-align: center; font-size: 14px; }
 </style>
 <body>
 
@@ -271,6 +539,539 @@
     <nav><span>Home</span><span>Classes</span><span>Gallery</span><span>Contact</span></nav></div></div>
   <div class="r"><span class="n">2</span><div class="content"><b>Pottery classes in Plymouth</b>Small evening classes for complete beginners. Six weeks, all materials included, and no experience needed.</div></div>
   <div class="r"><span class="n">3</span><div class="foot">© Riverside Studio · 12 Quay Road, Plymouth · 01752 000 000</div></div>
+</div></figure>
+
+<!-- ── Topic 1 ─────────────────────────────────────────────────────────── -->
+<figure data-name="t01-council" class="council"><div class="frame site">
+  <header>Northbridge Council</header>
+  <nav><span>Bins and recycling</span><span>Council tax</span><span>Parking</span><span>Libraries</span></nav>
+  <div class="body">
+    <b style="font-size:16px;color:#14202b">Bin collections</b><br>
+    <span class="big">Check my collection day</span>
+    <div class="small"><span>Report a missed bin</span><span>Order a new bin</span><span>What goes in which bin</span></div>
+  </div>
+</div></figure>
+
+<figure data-name="t01-persona" class="persona"><div class="card">
+  <div class="face">P</div>
+  <div><h3>Priya, 34</h3><div class="who">Nurse · lives three miles from the studio</div>
+    <div style="font-size:12.5px;color:#3c4753;margin-top:6px;font-style:italic">"If I can't see the price, I'm gone."</div></div>
+  <div class="row"><span class="num">1</span><div><b>Goals</b>A relaxing weekly hobby after long shifts</div></div>
+  <div class="row"><span class="num">2</span><div><b>Frustrations</b>Sites that hide prices, or make her ring to book</div></div>
+  <div class="row"><span class="num">3</span><div><b>Devices</b>Books everything on her phone, confident online</div></div>
+  <div class="row"><span class="num">4</span><div><b>Colour scheme</b>Sage green and terracotta, with a cream background</div></div>
+</div></figure>
+
+<figure data-name="t01-two-visitors" class="two-people">
+  <div><b>Visitor A</b>Aged 34 · lives in Plymouth · uses a phone
+    <div class="goal">Wants a weekly evening class to unwind after work</div></div>
+  <div><b>Visitor B</b>Aged 34 · lives in Plymouth · uses a phone
+    <div class="goal">Wants a gift voucher for her sister's birthday next week</div></div>
+</figure>
+
+<!-- ── Topic 3 ─────────────────────────────────────────────────────────── -->
+<figure data-name="t03-breadcrumbs" class="crumbs"><div class="frame site">
+  <header>Riverside Studio</header>
+  <div class="trail">Home<span>›</span>Classes<span>›</span>Beginners<span>›</span><em>Wheel throwing</em></div>
+  <div class="body"><h3>Wheel throwing for beginners</h3>Six Tuesday evenings at the wheel. You will throw, trim and glaze two pieces to take home.</div>
+</div></figure>
+
+<figure data-name="t03-cta-submit" class="news"><div class="frame"><div class="body"><b>Class news</b>
+  <div class="field"><div class="in ph">Email address</div></div><span class="btn">Submit</span></div></div></figure>
+<figure data-name="t03-cta-click" class="news"><div class="frame"><div class="body"><b>Class news</b>
+  <div class="field"><div class="in ph">Email address</div></div><span class="btn">Click here</span></div></div></figure>
+<figure data-name="t03-cta-benefit" class="news"><div class="frame"><div class="body"><b>Class news</b>
+  <div class="field"><div class="in ph">Email address</div></div><span class="btn">Send me monthly class news</span></div></div></figure>
+<figure data-name="t03-cta-go" class="news"><div class="frame"><div class="body"><b>Class news</b>
+  <div class="field"><div class="in ph">Email address</div></div><span class="btn">Go</span></div></div></figure>
+
+<figure data-name="t03-measure-narrow" class="measure"><div class="frame"><div class="body">
+  <p style="width:150px">Our beginners' course runs for six Tuesday evenings. You will learn to centre clay on the wheel, throw a cylinder and a bowl, and trim them once they have dried.</p>
+</div></div></figure>
+<figure data-name="t03-measure-mid" class="measure"><div class="frame"><div class="body">
+  <p style="width:430px">Our beginners' course runs for six Tuesday evenings. You will learn to centre clay on the wheel, throw a cylinder and a bowl, and trim them once they have dried.</p>
+</div></div></figure>
+<figure data-name="t03-measure-wide" class="measure"><div class="frame"><div class="body">
+  <p>Our beginners' course runs for six Tuesday evenings. You will learn to centre clay on the wheel, throw a cylinder and a bowl, and trim them once they have dried.</p>
+</div></div></figure>
+
+<!-- ── Topic 5 ─────────────────────────────────────────────────────────── -->
+<figure data-name="t05-heart" class="heart"><div class="duo">
+  <div><div class="cap">Before the tap</div><div class="photo"></div>
+    <svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.3 3 4.5 6.6 4.5c2.1 0 3.6 1.2 5.4 3.1 1.8-1.9 3.3-3.1 5.4-3.1 3.6 0 5.7 3.8 4.2 7.3C19.5 16.4 12 21 12 21z" fill="none" stroke="#5b6570" stroke-width="1.8"/></svg></div>
+  <div><div class="cap">The moment after</div><div class="photo"></div>
+    <svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.3 3 4.5 6.6 4.5c2.1 0 3.6 1.2 5.4 3.1 1.8-1.9 3.3-3.1 5.4-3.1 3.6 0 5.7 3.8 4.2 7.3C19.5 16.4 12 21 12 21z" fill="#d6364a" stroke="#d6364a" stroke-width="1.8"/>
+      <g stroke="#d6364a" stroke-width="1.6" stroke-linecap="round"><path d="M12 1.2v1.6M3.2 3l1.1 1.1M20.8 3l-1.1 1.1"/></g></svg></div>
+</div></figure>
+
+<figure data-name="t05-search-result" class="serp"><div class="frame"><div class="body">
+  <div class="q">pottery classes plymouth beginners</div>
+  <div class="res">
+    <div class="u">riversidestudio.co.uk › classes › beginners</div><span class="num">1</span>
+    <div class="ti">Beginners pottery classes in Plymouth | Riverside Studio</div><span class="num">2</span>
+    <div class="de">Six-week evening classes for complete beginners. Small groups, all materials included, from £95. Book online in a minute.</div><span class="num">3</span>
+  </div>
+</div></div></figure>
+
+<figure data-name="t05-hover-price" class="hover"><div class="frame site">
+  <header>Riverside Studio</header>
+  <div class="body">
+    <div class="card"><b>Glaze night</b>Wednesday 18:30<br><span style="color:#8a96a3">Price: hover to see</span></div>
+    <svg class="cursor" width="18" height="24" viewBox="0 0 18 24"><path d="M1 1l0 18 5-4.5 3.5 7.5 3-1.4-3.5-7.4 7 0z" fill="#fff" stroke="#14202b" stroke-width="1.4" stroke-linejoin="round"/></svg>
+    <div class="tip">£40 · one evening</div>
+    <div class="note">The price appears only while the pointer rests on the card.</div>
+  </div>
+</div></figure>
+
+<!-- ── Topic 6 ─────────────────────────────────────────────────────────── -->
+<figure data-name="t06-brief" class="brief"><div class="doc">
+  <h3>Client brief: Riverside Studio (extract)</h3>
+  <mark><span class="num">1</span>Most of our students are working adults who book in the evening on their phones.</mark>
+  We run four classes a week and an open studio on Saturdays.
+  <mark><span class="num">2</span>Enquiries arrive as social-media messages and we lose track of them.</mark>
+  <mark><span class="num">3</span>We want people to know we are friendly, welcome beginners, keep classes small, and that booking takes a minute.</mark>
+</div></figure>
+
+<figure data-name="t06-enquiry" class="enquiry"><div class="frame site">
+  <header>Riverside Studio</header>
+  <div class="body"><h3>Ask about a class</h3>
+    <div class="field"><label>Name</label><div class="in"></div></div>
+    <div class="field"><label>Email</label><div class="in"></div></div>
+    <div class="field"><label>Date of birth</label><div class="in ph">DD / MM / YYYY</div></div>
+    <div class="field"><label>Your message</label><div class="in" style="height:48px"></div></div>
+    <span class="btn">Send my question</span>
+  </div>
+</div></figure>
+
+<!-- ── Topic 7 ─────────────────────────────────────────────────────────── -->
+<figure data-name="t07-deep-map" class="map"><svg width="560" height="250" viewBox="0 0 560 250">
+  <path d="M100 41 V60 H40 V75 M100 60 H160 V75 M100 60 H280 V75 M100 60 H400 V75"/>
+  <path d="M280 101 V125 M280 151 V175 M280 201 V215"/>
+  <rect class="box home" x="55" y="15" width="90" height="26" rx="4"/><text x="100" y="32" text-anchor="middle">Home</text>
+  <rect class="box" x="5" y="75" width="70" height="26" rx="4"/><text x="40" y="92" text-anchor="middle">About</text>
+  <rect class="box" x="125" y="75" width="70" height="26" rx="4"/><text x="160" y="92" text-anchor="middle">Gallery</text>
+  <rect class="box" x="235" y="75" width="90" height="26" rx="4"/><text x="280" y="92" text-anchor="middle">The studio</text>
+  <rect class="box" x="355" y="75" width="90" height="26" rx="4"/><text x="400" y="92" text-anchor="middle">Contact</text>
+  <rect class="box" x="235" y="125" width="90" height="26" rx="4"/><text x="280" y="142" text-anchor="middle">Learning</text>
+  <rect class="box" x="235" y="175" width="90" height="26" rx="4"/><text x="280" y="192" text-anchor="middle">Courses</text>
+  <rect class="box" x="235" y="215" width="90" height="26" rx="4" style="stroke:#d4700d;stroke-width:2.5"/><text x="280" y="232" text-anchor="middle">Prices</text>
+</svg></figure>
+
+<figure data-name="t07-annotated-map" class="map"><svg width="560" height="170" viewBox="0 0 560 170">
+  <path d="M280 41 V60 H70 V80 M280 60 H210 V80 M280 60 H350 V80 M280 60 H490 V80"/>
+  <rect class="box home" x="235" y="15" width="90" height="26" rx="4"/><text x="280" y="32" text-anchor="middle">Home</text>
+  <text class="ann" x="335" y="32">R1</text>
+  <rect class="box" x="25" y="80" width="90" height="26" rx="4"/><text x="70" y="97" text-anchor="middle">Classes</text>
+  <text class="ann" x="70" y="124" text-anchor="middle">R2, R5</text>
+  <rect class="box" x="165" y="80" width="90" height="26" rx="4"/><text x="210" y="97" text-anchor="middle">Gallery</text>
+  <text class="ann" x="210" y="124" text-anchor="middle">R3</text>
+  <rect class="box" x="305" y="80" width="90" height="26" rx="4"/><text x="350" y="97" text-anchor="middle">Visit us</text>
+  <text class="ann" x="350" y="124" text-anchor="middle">R6</text>
+  <rect class="box" x="445" y="80" width="90" height="26" rx="4"/><text x="490" y="97" text-anchor="middle">Contact</text>
+  <text class="ann" x="490" y="124" text-anchor="middle">R2</text>
+</svg>
+  <div class="reqs">
+    <div><b>R1</b> Say what the studio offers</div><div><b>R2</b> Let visitors send an enquiry</div>
+    <div><b>R3</b> Show finished student work</div><div><b>R4</b> Sell gift vouchers</div>
+    <div><b>R5</b> List class times and prices</div><div><b>R6</b> Give opening hours and directions</div>
+  </div>
+</figure>
+
+<figure data-name="t07-card-sort" class="sort">
+  <div class="piles">
+    <div class="pile"><div class="card">Beginners course</div><div class="card">Class prices</div><div class="card">Improvers course</div><div class="card">Glaze night</div></div>
+    <div class="pile"><div class="card">Opening hours</div><div class="card">Parking</div><div class="card">Map and directions</div></div>
+    <div class="pile"><div class="card">Student work</div><div class="card">Studio photos</div><div class="card">Tutor's pieces</div></div>
+  </div>
+</figure>
+
+<!-- ── Topic 8: greybox wireframes ─────────────────────────────────────── -->
+<figure data-name="t08-balance-even" class="wire"><div class="frame">
+  <div class="wf bar">Logo · navigation</div>
+  <div class="wf" style="left:10px;top:44px;width:130px;height:140px">Photo</div>
+  <div class="wf" style="left:152px;top:56px;width:118px;height:22px">Heading</div>
+  <div class="wf" style="left:152px;top:86px;width:118px;height:52px">Text</div>
+  <div class="wf" style="left:152px;top:148px;width:76px;height:24px">Button</div>
+</div></figure>
+<figure data-name="t08-balance-left" class="wire"><div class="frame">
+  <div class="wf bar">Logo · navigation</div>
+  <div class="wf" style="left:10px;top:44px;width:150px;height:62px">Photo</div>
+  <div class="wf" style="left:10px;top:112px;width:150px;height:18px">Heading</div>
+  <div class="wf" style="left:10px;top:134px;width:150px;height:28px">Text</div>
+  <div class="wf" style="left:10px;top:166px;width:70px;height:20px">Button</div>
+</div></figure>
+<figure data-name="t08-balance-top" class="wire"><div class="frame">
+  <div class="wf bar">Logo · navigation</div>
+  <div class="wf" style="left:10px;top:40px;width:276px;height:74px">Photo</div>
+  <div class="wf" style="left:10px;top:118px;width:276px;height:30px">Heading</div>
+  <div class="wf" style="left:10px;top:154px;width:120px;height:9px;padding:0"></div>
+  <div class="wf" style="left:240px;top:170px;width:46px;height:16px;padding:0 4px;font-size:8.5px">Button</div>
+</div></figure>
+
+<figure data-name="t08-align-yes" class="wire"><div class="frame">
+  <div class="wf bar">Logo · navigation</div>
+  <div class="wf" style="left:10px;top:44px;width:276px;height:22px">Heading</div>
+  <div class="wf" style="left:10px;top:76px;width:84px;height:110px">Card</div>
+  <div class="wf" style="left:106px;top:76px;width:84px;height:110px">Card</div>
+  <div class="wf" style="left:202px;top:76px;width:84px;height:110px">Card</div>
+</div></figure>
+<figure data-name="t08-align-no" class="wire"><div class="frame">
+  <div class="wf bar">Logo · navigation</div>
+  <div class="wf" style="left:28px;top:44px;width:230px;height:22px">Heading</div>
+  <div class="wf" style="left:10px;top:80px;width:80px;height:100px">Card</div>
+  <div class="wf" style="left:104px;top:72px;width:92px;height:116px">Card</div>
+  <div class="wf" style="left:208px;top:88px;width:76px;height:90px">Card</div>
+</div></figure>
+<figure data-name="t08-align-centre" class="wire"><div class="frame">
+  <div class="wf bar">Logo · navigation</div>
+  <div class="wf" style="left:58px;top:44px;width:180px;height:22px;text-align:center">Heading</div>
+  <div class="wf" style="left:10px;top:76px;width:84px;height:110px;text-align:right">Card</div>
+  <div class="wf" style="left:106px;top:84px;width:84px;height:96px;text-align:center">Card</div>
+  <div class="wf" style="left:202px;top:76px;width:84px;height:104px">Card</div>
+</div></figure>
+
+<figure data-name="t08-placeholder" class="wire"><div class="frame">
+  <div class="wf bar">Logo · navigation</div>
+  <div class="wf xbox" style="left:10px;top:44px;width:276px;height:84px"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 0L100 100M100 0L0 100" stroke="#8d97a1" stroke-width="0.8" vector-effect="non-scaling-stroke"/></svg></div>
+  <div class="wf" style="left:10px;top:138px;width:180px;height:18px">Heading</div>
+  <div class="wf" style="left:10px;top:162px;width:76px;height:22px">Button</div>
+</div></figure>
+
+<figure data-name="t08-wire-to-build" class="pair-wire">
+  <div><div class="cap">The wireframe</div><div class="frame">
+    <div class="wf" style="left:10px;right:10px;top:10px;height:26px">Logo + site name<span class="num">A</span></div>
+    <div class="wf" style="left:10px;right:10px;top:44px;height:22px">Primary navigation, 4 items<span class="num">B</span></div>
+    <div class="wf" style="left:10px;right:10px;top:74px;height:66px">Hero image: studio in use<span class="num">C</span></div>
+    <div class="wf" style="left:10px;width:88px;top:148px;height:68px">Class card<span class="num">D</span></div>
+    <div class="wf" style="left:106px;width:88px;top:148px;height:68px">Class card</div>
+    <div class="wf" style="left:202px;width:88px;top:148px;height:68px">Class card</div>
+  </div></div>
+  <div class="arrow">→<br>built</div>
+  <div><div class="cap">The built page</div><div class="frame built">
+    <header>Riverside Studio</header>
+    <div class="hero">studio photograph</div>
+    <div class="cards"><div><i></i><b>Beginners</b><br>Tue 18:00</div><div><i></i><b>Improvers</b><br>Thu 19:00</div><div><i></i><b>Open studio</b><br>Sat 10:00</div></div>
+  </div></div>
+</figure>
+
+<figure data-name="t08-measured" class="measured"><div class="stage">
+  <div class="phone">
+    <div class="wf" style="top:14px;height:30px">Logo · Menu button</div>
+    <div class="wf" style="top:56px;height:110px">Hero image</div>
+    <div class="wf" style="top:178px;height:26px">Heading</div>
+    <div class="wf" style="top:212px;height:60px">Text</div>
+    <div class="wf" style="top:286px;height:48px;background:#d5dbe0;color:#5b6570">Book button</div>
+  </div>
+  <div class="dim h" style="left:80px;width:224px;top:14px"></div><div class="dim" style="left:170px;top:0">390 px</div>
+  <div class="dim h" style="left:82px;width:16px;top:140px"></div><div class="dim h" style="left:40px;width:38px;top:140px;border-top-style:dotted"></div><div class="dim" style="left:6px;top:134px">16 px</div>
+  <div class="dim v" style="left:316px;top:314px;height:48px"></div><div class="dim" style="left:324px;top:332px">48 px</div>
+</div></figure>
+
+<!-- ── Topic 9 ─────────────────────────────────────────────────────────── -->
+<figure data-name="t09-style-tile" class="tile"><div class="frame"><div class="body">
+  <div class="sw">
+    <div><i style="background:#f7f1e6"></i><b>Cream</b>#f7f1e6<br>Page background</div>
+    <div><i style="background:#2b2b2b"></i><b>Charcoal</b>#2b2b2b<br>Body text</div>
+    <div><i style="background:#2f5d46"></i><b>Green</b>#2f5d46<br>Headings</div>
+    <div><i style="background:#b25630"></i><b>Terracotta</b>#b25630<br>Buttons</div>
+    <div><i style="background:#97ad9a"></i><b>Sage</b>#97ad9a<br>?</div>
+  </div>
+  <div class="sample"><h3>Pottery classes in Plymouth</h3><span class="tb">Book a place</span></div>
+  <div class="rule"></div>
+</div></div></figure>
+
+<figure data-name="t09-type-scale" class="scale"><div class="frame"><div class="body">
+  <div class="step"><span>Body</span><b style="font-size:16px;font-weight:400">Small classes, all materials included · 16 px</b></div>
+  <div class="step"><span>Step 1</span><b style="font-size:20px">Class times · 20 px</b></div>
+  <div class="step"><span>Step 2</span><b style="font-size:25px">Beginners course · ? px</b></div>
+  <div class="step" style="border:0"><span>Ratio</span><b style="font-size:14px;font-weight:400;color:#3c4753">× 1.25 at every step</b></div>
+</div></div></figure>
+
+<!-- ── Topic 10: one class photo, drawn so it can be cropped and cut out ── -->
+<svg width="0" height="0" style="position:absolute"><defs>
+  <g id="pot">
+    <path d="M178 92 C170 96 168 104 172 112 C160 124 156 142 162 158 C166 170 176 176 200 176 C224 176 234 170 238 158 C244 142 240 124 228 112 C232 104 230 96 222 92 Z" fill="#b8754e"/>
+    <path d="M178 92 C186 88 214 88 222 92 C214 96 186 96 178 92 Z" fill="#8a5132"/>
+    <path d="M168 132 C190 140 210 140 232 132" stroke="#e7c9a8" stroke-width="4" fill="none"/>
+    <path d="M174 118 C178 140 178 156 186 170" stroke="#d6996f" stroke-width="5" fill="none" opacity=".6"/>
+  </g>
+  <g id="scene">
+    <rect width="300" height="200" fill="#8f8172"/>
+    <rect x="20" y="18" width="70" height="80" fill="#c9d6dc"/><path d="M55 18V98M20 58H90" stroke="#8f8172" stroke-width="4"/>
+    <rect x="0" y="170" width="300" height="30" fill="#6b5442"/><rect x="0" y="166" width="300" height="6" fill="#7d6450"/>
+    <path d="M250 120h34l-4 50h-26z" fill="#5d6d74"/><rect x="248" y="116" width="38" height="6" fill="#4a575d"/>
+    <rect x="104" y="148" width="40" height="22" fill="#a2a69e"/><rect x="100" y="144" width="48" height="6" fill="#8b8f87"/>
+    <use href="#pot"/>
+  </g>
+</defs></svg>
+
+<figure data-name="t10-edit" class="photo-pair">
+  <div><div class="cap">Original</div><svg viewBox="0 0 300 200" style="filter:brightness(.62) saturate(.8)"><use href="#scene"/></svg></div>
+  <div class="arrow">→</div>
+  <div><div class="cap">After</div><svg viewBox="125 64 150 112.5" style="filter:brightness(1.08) saturate(1.05)"><use href="#scene"/></svg></div>
+</figure>
+
+<figure data-name="t10-cut-out" class="photo-pair">
+  <div><div class="cap">Original</div><svg viewBox="0 0 300 200"><use href="#scene"/></svg></div>
+  <div class="arrow">→</div>
+  <div><div class="cap">After</div><svg viewBox="125 64 150 112.5"><rect x="0" y="0" width="300" height="200" fill="#f7f1e6"/><ellipse cx="200" cy="177" rx="44" ry="5" fill="#000" opacity=".08"/><use href="#pot"/></svg></div>
+</figure>
+
+<figure data-name="t10-logo-zoom" class="logo-zoom"><div class="duo">
+  <div><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#2f5d46"/><path d="M14 13h12l-2 4c3 2 4 5 3 9-1 3-4 5-7 5s-6-2-7-5c-1-4 0-7 3-9z" fill="#f7f1e6"/></svg></div>
+  <div><img id="jpeg-logo" alt=""></div>
+</div></figure>
+<script>
+  // The right-hand logo: the same drawing saved as a small, low-quality JPEG, then shown at the same size.
+  (() => {
+    const c = document.createElement("canvas"); c.width = c.height = 40;
+    const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, 40, 40);
+    x.fillStyle = "#2f5d46"; x.beginPath(); x.arc(20, 20, 17, 0, Math.PI * 2); x.fill();
+    x.fillStyle = "#f7f1e6"; x.fill(new Path2D("M14 13h12l-2 4c3 2 4 5 3 9-1 3-4 5-7 5s-6-2-7-5c-1-4 0-7 3-9z"));
+    const img = document.getElementById("jpeg-logo");
+    img.src = c.toDataURL("image/jpeg", 0.35);
+    img.style.imageRendering = "pixelated";
+  })();
+</script>
+
+<!-- ── Topic 11 ────────────────────────────────────────────────────────── -->
+<figure data-name="t11-licence" class="licence"><div class="frame"><div class="body">
+  <div class="ph"></div>
+  <div><b>Hands shaping clay on a wheel</b>Photo by A. Okafor<br>Free photo library
+    <div class="lic">Licence: <strong>CC BY-NC 4.0</strong><br>Attribution-NonCommercial 4.0 International</div></div>
+</div></div></figure>
+
+<figure data-name="t11-resize" class="resize"><div class="stage">
+  <div class="big"></div><div class="small"></div>
+  <div class="lb" style="left:92px;top:18px">The card on the page: 800 × 600</div>
+  <div class="lb" style="left:140px;top:150px;color:#2d5677">The photo downloaded: 4000 × 3000</div>
+  <div class="lb" style="left:0;top:308px;font-weight:400;color:#5b6570;font-size:11.5px">Drawn to scale.</div>
+</div></figure>
+
+<figure data-name="t11-case" class="files"><div class="duo">
+  <div><div class="cap">index.html</div><pre class="code"><span class="t">&lt;img</span> <span class="a">src</span>=<span class="s">"images/Hero.jpg"</span>
+     <span class="a">alt</span>=<span class="s">"A beginners' class at the wheels"</span><span class="t">&gt;</span></pre></div>
+  <div style="flex:.7"><div class="cap">The site's files</div><div class="tree">
+    <div class="dir">riverside/</div><div>  index.html</div><div class="dir">  images/</div><div>    hero.jpg</div><div>    bowl.jpg</div>
+  </div></div>
+</div></figure>
+
+<!-- ── Topic 12 ────────────────────────────────────────────────────────── -->
+<figure data-name="t12-folders" style="width:380px"><div class="tree">
+  <div class="dir">riverside/</div><div>  index.html</div><div>  contact.html</div><div class="dir">  classes/</div><div>    <span class="me">wheel-throwing.html</span>  ← editing</div><div>    hand-building.html</div><div class="dir">  css/</div><div>    style.css</div>
+</div></figure>
+
+<figure data-name="t12-skip-link" class="skip"><div class="frame site">
+  <span class="sk">Skip to main content</span>
+  <header style="padding-top:44px">Riverside Studio</header>
+  <nav><span>Home</span><span>Classes</span><span>Gallery</span><span>Prices</span><span>Visit</span><span>Contact</span></nav>
+  <div class="body"><h3>Pottery classes in Plymouth</h3>Small evening classes for complete beginners.</div>
+</div></figure>
+
+<!-- ── Topic 13 ────────────────────────────────────────────────────────── -->
+<figure data-name="t13-placeholders" class="ph-pair duo">
+  <div><div class="cap">Before typing</div><div class="frame">
+    <div class="field"><div class="in ph">Your name</div></div>
+    <div class="field"><div class="in ph">Name on the voucher</div></div>
+    <div class="field"><div class="in ph">Your email</div></div>
+    <div class="field" style="margin:0"><div class="in ph">Email to send the voucher to</div></div>
+  </div></div>
+  <div><div class="cap">Halfway through</div><div class="frame">
+    <div class="field"><div class="in">Sam Okafor</div></div>
+    <div class="field"><div class="in">Ana Okafor</div></div>
+    <div class="field"><div class="in">sam.okafor@example.com</div></div>
+    <div class="field" style="margin:0"><div class="in ph">Email to send the voucher to</div></div>
+  </div></div>
+</figure>
+
+<figure data-name="t13-timetable" class="timetable"><div class="frame"><div class="body"><table>
+  <tr><th>Class</th><th>Day</th><th>Time</th><th>Price</th></tr>
+  <tr><td>Beginners</td><td>Tuesday</td><td>18:00</td><td>£95</td></tr>
+  <tr><td>Glaze night</td><td>Wednesday</td><td>18:30</td><td class="hl">£28</td></tr>
+  <tr><td>Improvers</td><td>Thursday</td><td>19:00</td><td>£110</td></tr>
+</table></div></div></figure>
+
+<figure data-name="t13-radios" class="radios"><div class="frame site">
+  <header>Book a taster class</header>
+  <div class="body">
+    <div class="field"><label>Name</label><div class="in"></div></div>
+    <div class="q">Have you done pottery before?</div>
+    <div class="opt"><i></i>Yes</div><div class="opt"><i></i>No</div>
+  </div>
+</div></figure>
+
+<!-- ── Topic 14 ────────────────────────────────────────────────────────── -->
+<figure data-name="t14-match" class="snip"><pre class="code"><span class="ln">1</span><span class="t">&lt;button&gt;</span>Send<span class="t">&lt;/button&gt;</span>
+<span class="ln">2</span><span class="t">&lt;a</span> <span class="a">class</span>=<span class="s">"button"</span> <span class="a">href</span>=<span class="s">"book.html"</span><span class="t">&gt;</span>Book<span class="t">&lt;/a&gt;</span>
+<span class="ln">3</span><span class="t">&lt;p</span> <span class="a">id</span>=<span class="s">"button"</span><span class="t">&gt;</span>Prices include clay.<span class="t">&lt;/p&gt;</span>
+<span class="ln">4</span><span class="t">&lt;button</span> <span class="a">class</span>=<span class="s">"button big"</span><span class="t">&gt;</span>Book now<span class="t">&lt;/button&gt;</span>
+
+<span class="c">/* style.css */</span>
+<span class="k">.button</span> { background: #1f5d8c; color: white; }</pre></figure>
+
+<figure data-name="t14-specificity" class="snip"><pre class="code"><span class="c">/* top of style.css */</span>
+<span class="k">#title</span> { color: white; }
+
+<span class="c">/* … 200 lines later, at the bottom */</span>
+<span class="k">h1.title</span> { color: navy; }
+
+<span class="c">&lt;!-- the page --&gt;</span>
+<span class="t">&lt;h1</span> <span class="a">id</span>=<span class="s">"title"</span> <span class="a">class</span>=<span class="s">"title"</span><span class="t">&gt;</span>Riverside Studio<span class="t">&lt;/h1&gt;</span></pre></figure>
+
+<figure data-name="t14-button-box" class="btn-box"><div class="stage">
+  <div class="b"><div class="pad"></div><div class="txt">Book a place</div><div class="pad"></div></div>
+  <div class="lb" style="top:36px">padding-top: 0.75rem</div>
+  <div class="lb" style="top:76px">16 px text, line-height: 1.5</div>
+  <div class="lb" style="top:114px">padding-bottom: 0.75rem</div>
+  <div style="position:absolute;left:0;top:2px;font-size:12px;color:#5b6570">Root font size 16 px. Button height: ?</div>
+</div></figure>
+
+<!-- ── Topic 15 ────────────────────────────────────────────────────────── -->
+<figure data-name="t15-box" class="boxm"><div class="m">
+  <span class="t" style="left:6px;top:2px">margin</span>
+  <div class="b">
+    <div class="p"><span class="t" style="left:6px;top:5px">padding: 15px</span>
+      <div class="c">width: 200px</div></div></div>
+  <span class="t" style="right:22px;top:2px">border: 5px solid</span>
+</div>
+<pre class="code" style="margin-top:12px">.card {
+  <span class="a">width</span>: 200px;
+  <span class="a">padding</span>: 15px;
+  <span class="a">border</span>: 5px solid;
+}</pre></figure>
+
+<figure data-name="t15-footer-gallery" class="layout2"><div class="frame site">
+  <header>Riverside Studio · Gallery</header>
+  <div class="body">
+    <div class="gal"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><span class="num">2</span></div>
+  </div>
+  <footer><span>Privacy</span><span>Accessibility</span><span>Instagram</span><span>Contact</span><span class="num">1</span></footer>
+</div></figure>
+
+<figure data-name="t15-ruler" class="ruler">
+<svg width="600" height="96" viewBox="0 0 600 96" style="display:block;font:12px 'Segoe UI', Inter, system-ui, sans-serif">
+  <rect x="20" y="40" width="216" height="14" fill="#eef2f6"/><rect x="236" y="40" width="152" height="14" fill="#dce8f2"/><rect x="388" y="40" width="192" height="14" fill="#c4d8ea"/>
+  <line x1="20" y1="54" x2="580" y2="54" stroke="#4b5661" stroke-width="1.5"/>
+  <line x1="236" y1="30" x2="236" y2="62" stroke="#2d5677" stroke-width="2"/><text x="236" y="24" text-anchor="middle" fill="#2d5677">40rem (640 px)</text>
+  <line x1="388" y1="30" x2="388" y2="62" stroke="#2d5677" stroke-width="2"/><text x="388" y="24" text-anchor="middle" fill="#2d5677">64rem (1024 px)</text>
+  <path d="M414 76 l-7 -12 h14 z" fill="#d4700d"/><text x="414" y="90" text-anchor="middle" fill="#b05a0a" font-weight="600">window: 1100 px</text>
+  <text x="20" y="74" fill="#5b6570">0</text>
+</svg>
+<pre class="code">.classes { <span class="a">grid-template-columns</span>: 1fr; }
+<span class="k">@media</span> (min-width: 40rem) { .classes { <span class="a">grid-template-columns</span>: repeat(2, 1fr); } }
+<span class="k">@media</span> (min-width: 64rem) { .classes { <span class="a">grid-template-columns</span>: repeat(3, 1fr); } }</pre></figure>
+
+<!-- ── Topic 16 ────────────────────────────────────────────────────────── -->
+<figure data-name="t16-head-script" class="snip"><pre class="code"><span class="t">&lt;head&gt;</span>
+  <span class="c">&lt;!-- menu.js runs document.querySelector("#menu") --&gt;</span>
+  <span class="t">&lt;script</span> <span class="a">src</span>=<span class="s">"menu.js"</span><span class="t">&gt;&lt;/script&gt;</span>
+<span class="t">&lt;/head&gt;</span>
+<span class="t">&lt;body&gt;</span>
+  <span class="t">&lt;header&gt;</span>
+    <span class="t">&lt;nav</span> <span class="a">id</span>=<span class="s">"menu"</span><span class="t">&gt;</span> … <span class="t">&lt;/nav&gt;</span>
+  <span class="t">&lt;/header&gt;</span>
+<span class="t">&lt;/body&gt;</span></pre></figure>
+
+<figure data-name="t16-menu-states" class="menu-pair">
+  <div><div class="frame"><div class="bar">Riverside Studio <span class="mb">☰ Menu</span></div><div class="rest"><div class="line"></div><div class="line"></div><div class="line s"></div></div></div>
+    <pre class="code">aria-expanded=<span class="s">"false"</span></pre></div>
+  <div><div class="frame"><div class="bar">Riverside Studio <span class="mb">✕ Close</span></div><div class="links"><div>Classes</div><div>Gallery</div><div>Contact</div></div></div>
+    <pre class="code">aria-expanded=<span class="s">"true"</span></pre></div>
+</figure>
+
+<figure data-name="t16-tabs" class="tabs"><div class="frame"><div class="body">
+  <div class="tl"><span>Classes</span><span class="on">Prices</span><span>Visit us</span></div>
+  <div class="panel">Beginners course £95 · Improvers £110 · Glaze night £28. All materials and firing included.</div>
+</div></div></figure>
+
+<!-- ── Topic 17 ────────────────────────────────────────────────────────── -->
+<figure data-name="t17-slides" class="slides"><div class="frame"><div class="body">
+  <div class="row"><div class="sl cur">0</div><div class="sl">1</div><div class="sl">2</div><div class="sl">3</div><div class="sl">4</div></div>
+  <div class="meta">current = 0 · slides.length = 5 · the visitor presses ‹ previous</div>
+</div></div></figure>
+
+<figure data-name="t17-slider" class="slider"><div class="frame"><div class="body">
+  <div class="stage"><span class="nav" style="left:10px">‹</span><span class="nav" style="right:10px">›</span></div>
+  <div class="count">Photo 2 of 3</div>
+</div></div></figure>
+
+<figure data-name="t17-card-lift" class="lift"><div class="duo">
+  <div><div class="cap">Resting</div><div class="card"><i></i><b>Beginners</b><br>Tuesday 18:00</div></div>
+  <div><div class="cap">Hovered, 200 ms later</div><div class="card up"><i></i><b>Beginners</b><br>Tuesday 18:00</div></div>
+</div></figure>
+
+<!-- ── Topic 18 ────────────────────────────────────────────────────────── -->
+<figure data-name="t18-filters" class="filters"><div class="frame"><div class="body">
+  <div class="fb"><span>All</span><span class="on">Beginner</span><span>Improver</span></div>
+  <div class="item"><span>Wheel throwing for beginners</span><span>£95</span></div>
+  <div class="item"><span>Hand building taster</span><span>£40</span></div>
+</div></div></figure>
+
+<figure data-name="t18-basket" class="basket"><div class="frame site">
+  <header>Your basket</header>
+  <div class="body">
+    <div class="r"><span>Taster class</span><span>£30</span></div>
+    <div class="r"><span>Glaze night</span><span>£18</span></div>
+    <div class="r tot"><span>Total</span><span>£03018</span></div>
+  </div>
+</div></figure>
+
+<figure data-name="t18-error" class="enquiry"><div class="frame site">
+  <header>Riverside Studio</header>
+  <div class="body"><h3>Book a taster class</h3>
+    <div class="field"><label>Name</label><div class="in">Sam Okafor</div></div>
+    <div class="field err"><label>Email</label><div class="in">sam.okafor.example.com</div>
+      <div class="msg"><b>!</b> Enter an email address with an @, like name@example.com</div></div>
+    <span class="btn">Book my place</span>
+  </div>
+</div></figure>
+
+<!-- ── Topic 19 ────────────────────────────────────────────────────────── -->
+<figure data-name="t19-root-path" class="gh"><div class="browser">
+  <div class="bar"><i></i><i></i><i></i><span class="url">https://username.github.io/riverside/</span></div>
+  <div class="body">
+    <div class="broken">image not found</div>
+    <div><pre class="code" style="font-size:11.5px"><span class="t">&lt;img</span> <span class="a">src</span>=<span class="s">"/images/hero.jpg"</span> …<span class="t">&gt;</span></pre>
+      <div style="margin-top:10px">Repository files:<div class="tree" style="margin-top:4px;border-width:1px"><div class="dir">riverside/</div><div>  index.html</div><div class="dir">  images/</div><div>    hero.jpg</div></div></div></div>
+  </div>
+</div></figure>
+
+<figure data-name="t19-audit" class="audit">
+  <div class="panel"><div class="score">100</div><b>Accessibility</b> · automated audit
+    <div class="ok" style="margin-top:8px">Image elements have [alt] attributes</div>
+    <div class="ok">Document has a &lt;title&gt; element</div>
+    <div class="ok">Buttons have an accessible name</div></div>
+  <div class="side"><div class="ph"></div><pre class="code" style="font-size:11.5px"><span class="t">&lt;img</span> <span class="a">src</span>=<span class="s">"class.jpg"</span>
+     <span class="a">alt</span>=<span class="s">"photo"</span><span class="t">&gt;</span></pre></div>
+</figure>
+
+<figure data-name="t19-cut-off" class="serp"><div class="frame"><div class="body">
+  <div class="q">riverside studio pottery</div>
+  <div class="u">riversidestudio.co.uk</div>
+  <div class="ti">Riverside Studio | Pottery classes in Plymouth</div>
+  <div class="de">Welcome to the Riverside Studio website. We are a small independent pottery studio on Quay Road in Plymouth, founded in 2014 by two friends who …</div>
+</div></div></figure>
+
+<!-- ── Topic 20 ────────────────────────────────────────────────────────── -->
+<figure data-name="t20-test-plan" class="plan"><table>
+  <tr><th>No.</th><th>Test</th><th>Data</th><th>Expected result</th><th>Actual result</th><th>Result</th></tr>
+  <tr><td>T4</td><td>Booking form: valid email accepted</td><td>sam@example.com</td><td>Form sends; thank-you message</td><td>Form sent; message shown</td><td class="pass">Pass</td></tr>
+  <tr><td>T5</td><td>Booking form: invalid email rejected</td><td>abc</td><td>Form does not send; error under the email field</td><td>Form sent with no error</td><td class="fail">Fail</td></tr>
+  <tr class="q"><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td><td>?</td></tr>
+</table></figure>
+
+<figure data-name="t20-last-slide" class="slider"><div class="frame"><div class="body">
+  <div class="stage" style="background:linear-gradient(160deg,#b9c9b9,#5f7a66)"><span class="nav" style="left:10px">‹</span><span class="nav" style="right:10px;outline:3px solid #d4700d;outline-offset:2px">›</span></div>
+  <div class="count">Photo 5 of 5</div>
+</div></div></figure>
+
+<figure data-name="t20-email-abc" class="enquiry"><div class="frame site">
+  <header>Riverside Studio</header>
+  <div class="body"><h3>Book a taster class</h3>
+    <div class="field"><label>Name</label><div class="in">Test Student</div></div>
+    <div class="field"><label>Email</label><div class="in">abc</div></div>
+    <span class="btn">Book my place</span>
+  </div>
 </div></figure>
 
 </body>

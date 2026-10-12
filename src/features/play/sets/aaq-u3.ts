@@ -28,7 +28,8 @@ export const purposesAudiences: QuestionSet = {
   questions: [
     {
       id: "purpose-bins",
-      prompt: "A council page's biggest button reads 'Check my collection day'. What is the site's purpose?",
+      prompt: "A council's bin collections page. What is the site's purpose?",
+      image: figure("t01-council", "Northbridge Council's bin collections page. The biggest thing on it is a green 'Check my collection day' button; below are small links to report a missed bin, order a new bin and see what goes in which bin."),
       choices: [{ text: "eCommerce" }, { text: "To provide information" }, { text: "To promote products or services" }, { text: "To provide entertainment" }],
       answer: 1,
       explanation: "The visitor needs one answer quickly, and the biggest button gets them to it. Nothing is sold and nothing is advertised: the site informs.",
@@ -78,19 +79,21 @@ export const purposesAudiences: QuestionSet = {
     },
     {
       id: "same-age",
-      prompt: "Two 34-year-olds visit the studio's site: one wants a weekly hobby, the other is buying a gift voucher. How many personas?",
+      prompt: "Two visitors to the studio's site. How many personas do they need?",
+      image: figure("t01-two-visitors", "Two visitor cards. Both are aged 34, live in Plymouth and use a phone. Visitor A wants a weekly evening class to unwind after work; visitor B wants a gift voucher for her sister's birthday next week."),
       choices: [{ text: "One: they share the same demographics" }, { text: "Two: they have different goals" }],
       answer: 1,
       explanation: "Group people by what they are trying to do, not by age. A hobby booker and a gift buyer need different pages, so they are different personas.",
     },
     {
       id: "persona-field",
-      prompt: "Which of these does NOT belong in a user persona?",
+      prompt: "Which numbered field does NOT belong in this user persona?",
+      image: figure("t01-persona", "A persona card for Priya, 34, a nurse who lives three miles from the studio, quoting 'If I can't see the price, I'm gone.' Field 1, goals: a relaxing weekly hobby. Field 2, frustrations: sites that hide prices. Field 3, devices: books on her phone. Field 4, colour scheme: sage green and terracotta on cream."),
       choices: [
-        { text: "Goals and motivations" },
-        { text: "Frustrations" },
-        { text: "Devices and confidence" },
-        { text: "The site's colour scheme" },
+        { text: "Field 1: goals" },
+        { text: "Field 2: frustrations" },
+        { text: "Field 3: devices" },
+        { text: "Field 4: colour scheme" },
       ],
       answer: 3,
       explanation: "A persona describes a person: demographics, goals, frustrations, devices, a quote. The colour scheme is a design decision that the persona helps you test.",
@@ -229,7 +232,8 @@ export const navigationContent: QuestionSet = {
   questions: [
     {
       id: "breadcrumbs",
-      prompt: "'Home › Classes › Beginners › Wheel throwing' at the top of a page. Which navigation pattern is this?",
+      prompt: "Which navigation pattern runs across this page, just under the header?",
+      image: figure("t03-breadcrumbs", "A class page. Under the site header a single line reads 'Home › Classes › Beginners › Wheel throwing'; every step but the last is a link. Below it, the heading 'Wheel throwing for beginners'."),
       choices: [{ text: "Sticky bar" }, { text: "Vertical navigation" }, { text: "Hamburger menu" }, { text: "Breadcrumbs" }],
       answer: 3,
       explanation: "Breadcrumbs show the route from the home page to where you are, so a visitor deep in a site can see where they are and climb back up.",
@@ -274,8 +278,13 @@ export const navigationContent: QuestionSet = {
     },
     {
       id: "cta-newsletter",
-      prompt: "Which is the strongest button text for a newsletter sign-up form?",
-      choices: [{ text: "Submit" }, { text: "Click here" }, { text: "Send me monthly class news" }, { text: "Go" }],
+      prompt: "Which newsletter sign-up has the strongest button text?",
+      choices: [
+        { image: figure("t03-cta-submit", "'Class news' sign-up box: an email field and a button reading 'Submit'.") },
+        { image: figure("t03-cta-click", "'Class news' sign-up box: an email field and a button reading 'Click here'.") },
+        { image: figure("t03-cta-benefit", "'Class news' sign-up box: an email field and a button reading 'Send me monthly class news'.") },
+        { image: figure("t03-cta-go", "'Class news' sign-up box: an email field and a button reading 'Go'.") },
+      ],
       answer: 2,
       explanation: "A strong call-to-action is a verb plus what the visitor gets, and makes sense on its own. 'Submit' says what the computer does, not what the visitor gets.",
     },
@@ -293,10 +302,14 @@ export const navigationContent: QuestionSet = {
     },
     {
       id: "line-length",
-      prompt: "About how many characters per line make body text easiest to read?",
-      choices: [{ text: "20 to 30" }, { text: "45 to 75" }, { text: "100 to 120" }, { text: "As wide as the screen" }],
+      prompt: "The same paragraph at three widths. Which is easiest to read?",
+      choices: [
+        { image: figure("t03-measure-narrow", "The paragraph in a very narrow column, about 25 characters to a line, broken over eight short lines.") },
+        { image: figure("t03-measure-mid", "The paragraph in a medium column, about 65 characters to a line, over three lines.") },
+        { image: figure("t03-measure-wide", "The paragraph stretched across the full width, about 115 characters to a line, over two long lines.") },
+      ],
       answer: 1,
-      explanation: "Short lines break the reading rhythm; very long lines make it hard for the eye to find the start of the next one. Around 45 to 75 characters is comfortable.",
+      explanation: "The medium column runs about 65 characters to a line. Short lines break the reading rhythm; very long lines make it hard for the eye to find the start of the next one. Around 45 to 75 characters is comfortable.",
     },
     {
       id: "accent",
@@ -400,7 +413,8 @@ export const motionDynamicSeo: QuestionSet = {
   questions: [
     {
       id: "micro-interaction",
-      prompt: "A heart icon fills with colour the moment you tap it. Which kind of motion is this?",
+      prompt: "The heart fills with colour the moment it is tapped. Which kind of motion is this?",
+      image: figure("t05-heart", "Two moments of the same post: before the tap the heart icon is an empty outline; just after, it is filled red with three small lines bursting from it."),
       choices: [{ text: "Micro-interaction" }, { text: "Parallax scrolling" }, { text: "Image slider" }, { text: "Background video" }],
       answer: 0,
       explanation: "A micro-interaction is a small response to an action. Its purpose is feedback: it confirms that the tap worked.",
@@ -462,7 +476,8 @@ export const motionDynamicSeo: QuestionSet = {
     },
     {
       id: "hover-touch",
-      prompt: "Why must a feature never depend on hovering?",
+      prompt: "This class card shows its price only while the pointer hovers over it. Why is that a problem?",
+      image: figure("t05-hover-price", "A 'Glaze night, Wednesday 18:30' class card reading 'Price: hover to see'. A mouse pointer rests on the card and a dark tooltip beside it shows '£40 · one evening'."),
       choices: [
         { text: "Hover effects are not valid CSS" },
         { text: "A touchscreen cannot hover" },
@@ -481,15 +496,16 @@ export const motionDynamicSeo: QuestionSet = {
     },
     {
       id: "search-result",
-      prompt: "Which two parts of a page usually appear as its entry in search results?",
+      prompt: "The studio's entry in search results. Where do parts 2 and 3 come from?",
+      image: figure("t05-search-result", "A search for 'pottery classes plymouth beginners'. The result has three numbered parts: 1, the address 'riversidestudio.co.uk › classes › beginners'; 2, the blue link 'Beginners pottery classes in Plymouth | Riverside Studio'; 3, the summary 'Six-week evening classes for complete beginners. Small groups, all materials included, from £95. Book online in a minute.'"),
       choices: [
-        { text: "The <title> and the meta description" },
-        { text: "The <h1> and the footer" },
+        { text: "The page's <title> and its meta description" },
+        { text: "The <h1> and the first paragraph" },
         { text: "The alt text and the stylesheet" },
         { text: "The menu and the logo" },
       ],
       answer: 0,
-      explanation: "A search engine shows the page title as the link and the meta description as the summary, so each page needs a unique title and a one-sentence description.",
+      explanation: "A search engine shows the page title as the link and the meta description as the summary, so each page needs a unique title and a one-sentence description. The <h1> is on the page itself, and it need not match.",
     },
     {
       id: "seo-access",
@@ -514,14 +530,20 @@ export const planningBrief: QuestionSet = {
   questions: [
     {
       id: "problem",
-      prompt: "'Enquiries arrive as social-media messages and the studio loses track of them.' Which part of the purpose is this?",
-      choices: [{ text: "Problem to be solved" }, { text: "Key messages" }, { text: "Intended audience" }, { text: "Technical requirements" }],
-      answer: 0,
-      explanation: "The problem to be solved is the business problem behind the site. Here, a booking form that emails the studio would fix it.",
+      prompt: "Which numbered sentence in this client brief states the problem to be solved?",
+      image: figure("t06-brief", "An extract from the studio's client brief with three highlighted sentences. 1: 'Most of our students are working adults who book in the evening on their phones.' 2: 'Enquiries arrive as social-media messages and we lose track of them.' 3: 'We want people to know we are friendly, welcome beginners, keep classes small, and that booking takes a minute.'"),
+      choices: [
+        { text: "Sentence 1" },
+        { text: "Sentence 2" },
+        { text: "Sentence 3" },
+      ],
+      answer: 1,
+      explanation: "Sentence 2 is the business problem behind the site: enquiries get lost. A booking form that emails the studio would fix it. Sentence 1 describes the audience, and sentence 3 the key messages.",
     },
     {
       id: "key-messages",
-      prompt: "'Friendly, beginner-welcome, small classes, book in a minute.' Which part of the purpose is this?",
+      prompt: "In the same brief, which part of the purpose is sentence 3?",
+      image: figure("t06-brief", "An extract from the studio's client brief with three highlighted sentences. 1: 'Most of our students are working adults who book in the evening on their phones.' 2: 'Enquiries arrive as social-media messages and we lose track of them.' 3: 'We want people to know we are friendly, welcome beginners, keep classes small, and that booking takes a minute.'"),
       choices: [{ text: "Problem to be solved" }, { text: "Key messages" }, { text: "User motivations and goals" }, { text: "Available resources" }],
       answer: 1,
       explanation: "Key messages are what visitors should come away believing. They steer the copy, the photos and the tone of the whole site.",
@@ -564,7 +586,8 @@ export const planningBrief: QuestionSet = {
     },
     {
       id: "data-protection",
-      prompt: "A class enquiry form asks for name, email, message and date of birth. Which constraint does the date of birth break?",
+      prompt: "Which constraint does this class enquiry form break?",
+      image: figure("t06-enquiry", "An 'Ask about a class' form with four fields: name, email, date of birth (DD / MM / YYYY) and a message box, then a 'Send my question' button."),
       choices: [{ text: "Copyright" }, { text: "Data protection" }, { text: "Digital accessibility" }, { text: "Inclusive representation" }],
       answer: 1,
       explanation: "UK GDPR says collect only the personal data you need, and say why. An enquiry does not need a date of birth.",
@@ -630,7 +653,8 @@ export const siteMaps: QuestionSet = {
     },
     {
       id: "card-sort",
-      prompt: "People sort cards, each naming one piece of content, into the groups they expect. What does a card sort decide?",
+      prompt: "People sorted cards, each naming one piece of content, into these groups. What does a card sort decide?",
+      image: figure("t07-card-sort", "Three piles of cards. Pile one: beginners course, class prices, improvers course, glaze night. Pile two: opening hours, parking, map and directions. Pile three: student work, studio photos, tutor's pieces."),
       choices: [
         { text: "The site's pages" },
         { text: "The font sizes" },
@@ -642,7 +666,8 @@ export const siteMaps: QuestionSet = {
     },
     {
       id: "clicks",
-      prompt: "Anything visitors commonly want should be within how many clicks of the home page?",
+      prompt: "Visitors most often want class prices; on this map they are four clicks from home. Common content should be within how many?",
+      image: figure("t07-deep-map", "A site map. Home links to About, Gallery, The studio and Contact. The studio leads to Learning, Learning to Courses, and Courses to Prices, which is outlined, four levels below Home."),
       choices: [{ text: "Two or three" }, { text: "Five or six" }, { text: "Eight to ten" }, { text: "Any number, if the menu is clear" }],
       answer: 0,
       explanation: "Every extra level is another choice a visitor can get wrong. A shallow map keeps common tasks two or three clicks away.",
@@ -670,6 +695,19 @@ export const siteMaps: QuestionSet = {
       ],
       answer: 1,
       explanation: "A requirement with no page is a gap. A page with no requirement is something you invented. The check catches both.",
+    },
+    {
+      id: "missing-requirement",
+      prompt: "Which requirement has no page on this annotated site map?",
+      image: figure("t07-annotated-map", "A site map: Home (R1) links to Classes (R2, R5), Gallery (R3), Visit us (R6) and Contact (R2). Beneath, the requirements: R1 say what the studio offers; R2 let visitors send an enquiry; R3 show finished student work; R4 sell gift vouchers; R5 list class times and prices; R6 give opening hours and directions."),
+      choices: [
+        { text: "R2" },
+        { text: "R3" },
+        { text: "R4" },
+        { text: "R6" },
+      ],
+      answer: 2,
+      explanation: "R4, selling gift vouchers, sits against no page. The two-way check catches it: either a page is added, or the map records honestly how R4 is met differently.",
     },
     {
       id: "non-functional",
@@ -729,6 +767,19 @@ export const wireframing: QuestionSet = {
       explanation: "A polished design invites comments on colour and fonts. A sketch invites comments on where things go, which is what matters first.",
     },
     {
+      id: "cross-box",
+      prompt: "In this wireframe, what does the box with a cross through it stand for?",
+      image: figure("t08-placeholder", "A greybox wireframe: a bar for logo and navigation, then a large empty box with two diagonal lines crossing it, then a heading and a button."),
+      choices: [
+        { text: "An image" },
+        { text: "Content to be deleted" },
+        { text: "A broken link" },
+        { text: "A pop-up window" },
+      ],
+      answer: 0,
+      explanation: "A box with a cross is the wireframe sign for an image or other media. It fixes the size and position without drawing the picture, so feedback stays on the layout.",
+    },
+    {
       id: "ux-tool",
       prompt: "Which kind of tool gives you device frames, layout grids, reusable components and clickable prototypes?",
       choices: [
@@ -754,21 +805,43 @@ export const wireframing: QuestionSet = {
     },
     {
       id: "balance",
-      prompt: "A large photo on the left is matched by text and a button on the right. Which technique is this?",
-      choices: [{ text: "Hierarchy of page elements" }, { text: "Balance of content" }, { text: "Grouping elements" }, { text: "Aligning elements" }],
-      answer: 1,
-      explanation: "Balance spreads visual weight so no area overwhelms the page. Hierarchy is different: it uses size and position to show what matters most.",
+      prompt: "Which wireframe has the best balance of content?",
+      choices: [
+        { image: figure("t08-balance-even", "Greybox wireframe: a tall photo fills the left half; a heading, a block of text and a button sit in the right half.") },
+        { image: figure("t08-balance-left", "Greybox wireframe: photo, heading, text and button are stacked down the left side; the right side is empty.") },
+        { image: figure("t08-balance-top", "Greybox wireframe: a wide photo and a tall heading fill the top; a thin line of text and a tiny button sit at the bottom.") },
+      ],
+      answer: 0,
+      explanation: "Balance spreads visual weight so no area overwhelms the page: the large photo on one side is matched by the heading, text and button on the other. The others pile everything on the left or everything at the top.",
     },
     {
       id: "align",
-      prompt: "Every card's text starts on the same column line. Which technique is this?",
-      choices: [{ text: "Balance of content" }, { text: "Grouping elements" }, { text: "Aligning elements" }, { text: "Accurate dimensions" }],
-      answer: 2,
-      explanation: "Aligning edges to a shared grid makes a page look ordered, and makes it easier to build, because the grid becomes the CSS.",
+      prompt: "Which wireframe has its elements aligned?",
+      choices: [
+        { image: figure("t08-align-yes", "Greybox wireframe: the heading and three equal cards all start on the same left edge, and the cards share one top edge.") },
+        { image: figure("t08-align-no", "Greybox wireframe: an indented heading over three cards of different heights that start at different depths.") },
+        { image: figure("t08-align-centre", "Greybox wireframe: a centred heading over three cards, one with its label on the right, one centred and shorter, one on the left.") },
+      ],
+      answer: 0,
+      explanation: "Only one lines every edge up: the heading and the cards start on the same column line and the cards share a top edge. Aligning to a shared grid makes a page look ordered, and the grid becomes the CSS.",
+    },
+    {
+      id: "wire-to-build",
+      prompt: "The page on the right was built from the wireframe on the left. Which labelled box was not built?",
+      image: figure("t08-wire-to-build", "Left, a wireframe with labelled boxes: A logo and site name, B primary navigation with 4 items, C hero image of the studio in use, D three class cards. Right, the built page: a header reading Riverside Studio, a studio photograph and three class cards."),
+      choices: [
+        { text: "Box A" },
+        { text: "Box B" },
+        { text: "Box C" },
+        { text: "Box D" },
+      ],
+      answer: 1,
+      explanation: "The wireframe plans primary navigation with four items, and the built page has none: the header runs straight into the photo. Comparing the build with the wireframe box by box catches a missing piece before a visitor does.",
     },
     {
       id: "dimensions",
-      prompt: "Why draw a wireframe at accurate dimensions, such as a 390 px phone frame and 16 px margins?",
+      prompt: "This wireframe gives a 390 px phone frame, 16 px margins and a 48 px button. Why draw it at accurate dimensions?",
+      image: figure("t08-measured", "A phone wireframe with measurements: the frame is 390 px wide, the margin between edge and content is 16 px, and the Book button is 48 px tall. Inside: logo and menu button, hero image, heading, text and the button."),
       choices: [
         { text: "So the developer can build exactly what was planned" },
         { text: "So it prints neatly" },
@@ -813,7 +886,8 @@ export const visualStyle: QuestionSet = {
     },
     {
       id: "sage",
-      prompt: "Sage green measures 2.13:1 on the cream background. What can it still be used for?",
+      prompt: "Sage, the one colour on this style tile with no role yet, measures 2.13:1 on the cream. What can it still be used for?",
+      image: figure("t09-style-tile", "A style tile on cream: swatches for cream (page background), charcoal (body text), green (headings), terracotta (buttons) and sage (role: a question mark). Below, a green heading, a terracotta 'Book a place' button and a thin sage rule."),
       choices: [
         { text: "Body text" },
         { text: "Links" },
@@ -844,7 +918,8 @@ export const visualStyle: QuestionSet = {
     },
     {
       id: "type-scale",
-      prompt: "Body text is 16 px and the type scale ratio is 1.25. What size is two steps up?",
+      prompt: "Body text is 16 px and the type scale ratio is 1.25. What size is step 2?",
+      image: figure("t09-type-scale", "A type scale: body text at 16 px, step 1 at 20 px, step 2 with its size shown as a question mark, and the note 'times 1.25 at every step'."),
       choices: [{ text: "20 px" }, { text: "24 px" }, { text: "25 px" }, { text: "32 px" }],
       answer: 2,
       explanation: "Each step multiplies by the same ratio: 16 × 1.25 = 20, then 20 × 1.25 = 25. The steps keep growing by the ratio, not by a fixed number of pixels.",
@@ -941,21 +1016,24 @@ export const creatingAssets: QuestionSet = {
     },
     {
       id: "editing",
-      prompt: "You crop the class photo to 4:3 and brighten it. Which technique is this?",
+      prompt: "The class photo, before and after. Which technique is this?",
+      image: figure("t10-edit", "Left, a dim, wide photo of a pot on a studio table, with a window, a jar and a bucket around it. Right, the same photo cropped to 4:3 around the pot and brightened."),
       choices: [{ text: "Image editing" }, { text: "Image manipulation" }, { text: "Vector drawing" }],
       answer: 0,
       explanation: "Image editing changes a single photo: crop, straighten, exposure, colour, small blemishes. Manipulation combines or transforms images.",
     },
     {
       id: "manipulation",
-      prompt: "You cut a pot out of its photo and place it on the cream brand colour. Which technique is this?",
+      prompt: "The pot photo, before and after. Which technique is this?",
+      image: figure("t10-cut-out", "Left, a photo of a pot on a studio table with a window and a bucket behind. Right, the pot alone, cut out of the photo and placed on a plain cream background."),
       choices: [{ text: "Image editing" }, { text: "Image manipulation" }, { text: "Vector drawing" }],
       answer: 1,
       explanation: "Removing a background and compositing onto something else transforms the image, which is manipulation. Editing only adjusts the one photo.",
     },
     {
       id: "logo-svg",
-      prompt: "Why should the studio's logo be an SVG rather than a JPEG?",
+      prompt: "The same logo zoomed in: an SVG on the left, a small JPEG on the right. Why should the logo be an SVG?",
+      image: figure("t10-logo-zoom", "Two copies of a round green logo with a cream pot shape, enlarged. The left one has smooth, sharp edges. The right one is blocky and blurred, with smudges of stray colour around the edges."),
       choices: [
         { text: "It stays sharp at any size and is usually tiny" },
         { text: "SVG makes photos look more realistic" },
@@ -1000,7 +1078,8 @@ export const sourcingAssets: QuestionSet = {
   questions: [
     {
       id: "by-nc",
-      prompt: "A photo is licensed CC BY-NC. Can you use it on the studio's business website?",
+      prompt: "This is the licence under a photo you like. Can you use it on the studio's business website?",
+      image: figure("t11-licence", "A photo library page: 'Hands shaping clay on a wheel', photo by A. Okafor. Licence: CC BY-NC 4.0, Attribution-NonCommercial 4.0 International."),
       choices: [
         { text: "Yes, with credit to the creator" },
         { text: "Yes, with no conditions" },
@@ -1031,6 +1110,7 @@ export const sourcingAssets: QuestionSet = {
     {
       id: "resize",
       prompt: "A 4000 × 3000 photo is shown in an 800 × 600 card. How many times more pixels does the browser download than it can show?",
+      image: figure("t11-resize", "Two rectangles drawn to scale: a small orange 800 × 600 rectangle, the card on the page, sits in the corner of a large 4000 × 3000 rectangle, the photo downloaded."),
       choices: [{ text: "5 times" }, { text: "10 times" }, { text: "25 times" }, { text: "100 times" }],
       answer: 2,
       explanation: "It is 5 times wider and 5 times taller, so 5 × 5 = 25 times the pixels. Resize to the largest size the page shows, then compress.",
@@ -1060,7 +1140,8 @@ export const sourcingAssets: QuestionSet = {
     },
     {
       id: "lower-case",
-      prompt: "Your site works on your laptop but an image breaks once published. The HTML says Hero.jpg; the file is hero.jpg. Why?",
+      prompt: "The image shows on your laptop but breaks once the site is published. Why?",
+      image: figure("t11-case", "Left, index.html with the tag img src=\"images/Hero.jpg\". Right, the site's files: a folder riverside containing index.html and an images folder holding hero.jpg and bowl.jpg."),
       choices: [
         { text: "Most web servers treat Hero.jpg and hero.jpg as different files" },
         { text: "The image is too large for the server" },
@@ -1125,7 +1206,8 @@ export const htmlStructure: QuestionSet = {
     },
     {
       id: "up-a-folder",
-      prompt: "You are editing classes/wheel-throwing.html. Which link reaches index.html, one folder up?",
+      prompt: "You are editing the highlighted file. Which link reaches index.html?",
+      image: figure("t12-folders", "A folder tree: riverside contains index.html, contact.html, a classes folder and a css folder. In classes, wheel-throwing.html is highlighted as the file being edited, beside hand-building.html. css holds style.css."),
       choices: [{ text: "index.html" }, { text: "../index.html" }, { text: "classes/index.html" }, { text: "./index.html" }],
       answer: 1,
       explanation: "../ means 'up one folder'. index.html and ./index.html both look inside classes/, where there is no home page.",
@@ -1151,7 +1233,8 @@ export const htmlStructure: QuestionSet = {
     },
     {
       id: "skip-link",
-      prompt: "Where does a skip link take a keyboard user?",
+      prompt: "This link appears on the first press of Tab. Where does it take a keyboard user?",
+      image: figure("t12-skip-link", "A page with six menu links. Above the header, at the very top, a link with an orange focus outline reads 'Skip to main content'."),
       choices: [
         { text: "To the footer" },
         { text: "Straight to the main content" },
@@ -1222,7 +1305,8 @@ export const htmlContentForms: QuestionSet = {
     },
     {
       id: "scope",
-      prompt: 'What does scope="col" on a <th> let a screen reader do?',
+      prompt: "A screen-reader user reaches the outlined cell. What does scope=\"col\" on the header cells let the screen reader do?",
+      image: figure("t13-timetable", "A timetable with the column headings Class, Day, Time and Price, and rows for Beginners, Glaze night and Improvers. The cell £28, in the Price column of the Glaze night row, is outlined."),
       choices: [
         { text: "Announce the column heading with each cell, such as 'Price, £28'" },
         { text: "Make the column wider" },
@@ -1241,7 +1325,8 @@ export const htmlContentForms: QuestionSet = {
     },
     {
       id: "placeholder",
-      prompt: "Why is a placeholder not a replacement for a label?",
+      prompt: "One form, before typing and halfway through. Why is a placeholder not a replacement for a label?",
+      image: figure("t13-placeholders", "Before typing, four boxes show grey placeholder text: your name, name on the voucher, your email, email to send the voucher to. Halfway through, the first three hold Sam Okafor, Ana Okafor and sam.okafor@example.com, with nothing to say which question each answered."),
       choices: [
         { text: "It vanishes as soon as the visitor starts typing" },
         { text: "It is not valid HTML" },
@@ -1253,7 +1338,8 @@ export const htmlContentForms: QuestionSet = {
     },
     {
       id: "radio",
-      prompt: "Two radio buttons answer 'Have you done pottery before?' What should wrap them?",
+      prompt: "These two radio buttons answer one question. What should wrap them in the HTML?",
+      image: figure("t13-radios", "A 'Book a taster class' form: a name field, then the question 'Have you done pottery before?' with two radio buttons, Yes and No."),
       choices: [
         { text: "A <fieldset> with a <legend> asking the question" },
         { text: "A <table>" },
@@ -1281,15 +1367,16 @@ export const cssStyling: QuestionSet = {
   questions: [
     {
       id: "class-selector",
-      prompt: "Which elements does the selector .button match?",
+      prompt: "Which numbered elements does the .button rule match?",
+      image: figure("t14-match", "Four lines of HTML. 1: a button element reading Send, with no class. 2: a link with class=\"button\" reading Book. 3: a paragraph with id=\"button\". 4: a button element with class=\"button big\" reading Book now. Below, the CSS rule .button sets a blue background and white text."),
       choices: [
-        { text: "Every <button> element" },
-        { text: 'Every element with class="button"' },
-        { text: 'The one element with id="button"' },
-        { text: "Every element inside a button" },
+        { text: "1 and 4" },
+        { text: "2 and 4" },
+        { text: "3 only" },
+        { text: "1, 2 and 4" },
       ],
       answer: 1,
-      explanation: "A dot selects by class, a hash by id, and a bare name by element type. A link styled with class=\"button\" is matched too.",
+      explanation: "A dot selects by class, so .button matches every element whose class list includes button: the link on line 2 and the button on line 4, which has two classes. Line 1 has no class and line 3 has only an id.",
     },
     {
       id: "descendant",
@@ -1305,7 +1392,8 @@ export const cssStyling: QuestionSet = {
     },
     {
       id: "specificity",
-      prompt: "#title { color: white } is at the top of the file. h1.title { color: navy } is at the bottom. What colour is <h1 id=\"title\" class=\"title\">?",
+      prompt: "What colour is this heading?",
+      image: figure("t14-specificity", "CSS and HTML. At the top of style.css, #title sets color white. 200 lines later, at the bottom, h1.title sets color navy. The page has an h1 with id=\"title\" and class=\"title\" reading Riverside Studio."),
       choices: [{ text: "White" }, { text: "Navy" }],
       answer: 0,
       explanation: "Specificity is compared first: ids, then classes, then elements. One id beats no ids, so the rule at the top wins. Order in the file only settles a true tie.",
@@ -1361,7 +1449,8 @@ export const cssStyling: QuestionSet = {
     },
     {
       id: "button-height",
-      prompt: "A button has 16 px text, line-height 1.5 and padding 0.75rem top and bottom. How tall is it?",
+      prompt: "How tall is this button?",
+      image: figure("t14-button-box", "A 'Book a place' button cut into three bands: padding-top 0.75rem, a line of 16 px text with line-height 1.5, and padding-bottom 0.75rem. The root font size is 16 px; the total height is a question mark."),
       choices: [{ text: "36 px" }, { text: "40 px" }, { text: "48 px" }, { text: "56 px" }],
       answer: 2,
       explanation: "The line is 16 × 1.5 = 24 px. Padding adds 12 px above and 12 px below, so 24 + 24 = 48 px, comfortably above the 44 px touch target.",
@@ -1409,7 +1498,8 @@ export const cssLayout: QuestionSet = {
     },
     {
       id: "content-box",
-      prompt: "A box has width 200 px, padding 15 px and a 5 px border, with box-sizing: content-box. How wide is it on screen?",
+      prompt: "This .card has box-sizing: content-box. How wide is it on screen?",
+      image: figure("t15-box", "A box-model diagram for .card: content width 200px, padding 15px, a 5px solid border, and margin outside. Beneath, the CSS: width 200px, padding 15px, border 5px solid."),
       choices: [{ text: "200 px" }, { text: "220 px" }, { text: "240 px" }, { text: "250 px" }],
       answer: 2,
       explanation: "With content-box, width sets only the content; padding and border are added on both sides: 200 + 15 + 15 + 5 + 5 = 240 px.",
@@ -1417,14 +1507,16 @@ export const cssLayout: QuestionSet = {
     },
     {
       id: "border-box",
-      prompt: "The same box with box-sizing: border-box. How wide is it on screen?",
+      prompt: "The same .card with box-sizing: border-box. How wide is it on screen?",
+      image: figure("t15-box", "A box-model diagram for .card: content width 200px, padding 15px, a 5px solid border, and margin outside. Beneath, the CSS: width 200px, padding 15px, border 5px solid."),
       choices: [{ text: "160 px" }, { text: "200 px" }, { text: "240 px" }],
       answer: 1,
       explanation: "With border-box, width sets the whole box and the content shrinks to fit. Widths mean what they say, which is why most sites apply it to every element.",
     },
     {
       id: "flex-or-grid",
-      prompt: "Which tool suits a row of footer links, and which a photo gallery?",
+      prompt: "Which tool suits the row of footer links (1), and which the photo gallery (2)?",
+      image: figure("t15-footer-gallery", "A gallery page. Marked 2: a gallery of eight photos in two rows of four. Marked 1: a footer with one row of links: Privacy, Accessibility, Instagram, Contact."),
       choices: [
         { text: "Flexbox for the links; grid for the gallery" },
         { text: "Grid for the links; flexbox for the gallery" },
@@ -1448,11 +1540,12 @@ export const cssLayout: QuestionSet = {
     },
     {
       id: "both-match",
-      prompt: "At 1100 px, both @media (min-width: 40rem) and the later @media (min-width: 64rem) match. Which column count applies?",
+      prompt: "In a 1100 px window, both media queries match. How many columns do the classes get?",
+      image: figure("t15-ruler", "A width ruler marking 40rem (640 px) and 64rem (1024 px), with the window at 1100 px, past both. Below, the CSS: .classes has one column; a min-width 40rem query sets two; a later min-width 64rem query sets three."),
       choices: [
-        { text: "The later query's three columns" },
-        { text: "The earlier query's two columns" },
-        { text: "The base rule's one column" },
+        { text: "Three: the later query wins" },
+        { text: "Two: the earlier query wins" },
+        { text: "One: the base rule wins" },
       ],
       answer: 0,
       explanation: "Both queries are true and set the same property with equal specificity, so the one later in the file wins.",
@@ -1504,7 +1597,8 @@ export const jsComponents: QuestionSet = {
   questions: [
     {
       id: "null",
-      prompt: 'A script in the <head> without defer runs document.querySelector("#menu"). What does it return?',
+      prompt: "menu.js runs document.querySelector(\"#menu\") from the <head>, with no defer. What does it return?",
+      image: figure("t16-head-script", "HTML: inside the head, a script tag loads menu.js, which runs document.querySelector(\"#menu\"). After the head, the body contains a header, and inside it a nav with id=\"menu\"."),
       choices: [
         { text: "null, because the menu has not been built yet" },
         { text: "The menu" },
@@ -1552,7 +1646,8 @@ export const jsComponents: QuestionSet = {
     },
     {
       id: "aria-expanded",
-      prompt: "What does aria-expanded on the menu button tell assistive technology?",
+      prompt: "The menu button, closed and then open. What does aria-expanded tell assistive technology?",
+      image: figure("t16-menu-states", "Two phone headers. Left, the button reads 'Menu' and no links show; its attribute is aria-expanded=\"false\". Right, the button reads 'Close' and links to Classes, Gallery and Contact show below; aria-expanded=\"true\"."),
       choices: [
         { text: "Whether the content it controls is shown" },
         { text: "How large the button is" },
@@ -1595,7 +1690,8 @@ export const jsComponents: QuestionSet = {
     },
     {
       id: "tabs-state",
-      prompt: "In a tabs component, which attribute marks the tab whose panel is showing?",
+      prompt: "The Prices tab's panel is showing. Which attribute marks that tab?",
+      image: figure("t16-tabs", "A tabs component with three tabs: Classes, Prices and Visit us. Prices is bold and underlined, and its panel lists the class prices."),
       choices: [{ text: "aria-selected" }, { text: "aria-expanded" }, { text: "aria-hidden" }, { text: "aria-current" }],
       answer: 0,
       explanation: "On a click, every tab is updated: the clicked one gets aria-selected=\"true\" and its panel is shown; the others are deselected and hidden.",
@@ -1611,7 +1707,8 @@ export const jsImagesMotion: QuestionSet = {
   questions: [
     {
       id: "wrap-back",
-      prompt: "A slider has 5 slides and current = 0. What does (current − 1 + 5) % 5 give?",
+      prompt: "On slide 0 of 5, the visitor presses previous. What does (current − 1 + 5) % 5 give?",
+      image: figure("t17-slides", "Five slides in a row numbered 0 to 4, with slide 0 outlined as current. Caption: current = 0, slides.length = 5, the visitor presses previous."),
       choices: [{ text: "−1" }, { text: "0" }, { text: "4" }, { text: "5" }],
       answer: 2,
       explanation: "(0 − 1 + 5) is 4, and 4 % 5 is 4: the last slide. Pressing 'previous' on the first slide wraps round to the end.",
@@ -1643,7 +1740,8 @@ export const jsImagesMotion: QuestionSet = {
     },
     {
       id: "aria-label",
-      prompt: "The slider's buttons show ‹ and ›. Why do they also need aria-label?",
+      prompt: "This slider's buttons show only ‹ and ›. Why do they also need aria-label?",
+      image: figure("t17-slider", "A photo slider with a round button on each side, one showing ‹ and one showing ›, and the counter 'Photo 2 of 3' beneath."),
       choices: [
         { text: "The symbols mean nothing when read aloud" },
         { text: "To make them bigger" },
@@ -1663,6 +1761,7 @@ export const jsImagesMotion: QuestionSet = {
     {
       id: "transition",
       prompt: "A card lifts smoothly over 200 ms when hovered. Which CSS makes the change smooth?",
+      image: figure("t17-card-lift", "A class card shown twice: resting, then hovered 200 ms later, risen slightly with a soft shadow beneath it."),
       choices: [{ text: "transition" }, { text: "@keyframes" }, { text: "animation-iteration-count" }, { text: "prefers-reduced-motion" }],
       answer: 0,
       explanation: "A transition smooths the change between two states over a set time. @keyframes defines an animation that runs a sequence by itself, such as a logo that rises once.",
@@ -1745,7 +1844,8 @@ export const jsFilterSearchCart: QuestionSet = {
     },
     {
       id: "aria-pressed",
-      prompt: "Filter buttons All, Beginner and Improver. Which attribute tells a screen reader which filter is on?",
+      prompt: "The Beginner filter is on. Which attribute tells a screen reader that?",
+      image: figure("t18-filters", "Three filter buttons, All, Beginner and Improver, with Beginner filled in. Below, two classes: wheel throwing for beginners, £95, and a hand building taster, £40."),
       choices: [{ text: "aria-pressed" }, { text: "aria-expanded" }, { text: "aria-live" }, { text: "aria-describedby" }],
       answer: 0,
       explanation: "aria-pressed marks a toggle button as on or off, so a listener hears 'Beginner, pressed'.",
@@ -1765,6 +1865,7 @@ export const jsFilterSearchCart: QuestionSet = {
     {
       id: "describedby",
       prompt: "The error message sits in <p id=\"email-error\">. What links it to the email field for a screen reader?",
+      image: figure("t18-error", "A booking form. The email field holds sam.okafor.example.com and has a red border; under it in red: 'Enter an email address with an @, like name@example.com'."),
       choices: [
         { text: 'aria-describedby="email-error" on the input' },
         { text: 'for="email-error" on the input' },
@@ -1788,10 +1889,16 @@ export const jsFilterSearchCart: QuestionSet = {
     },
     {
       id: "number",
-      prompt: 'Prices come from data-price as text. Without Number(), what does 0 + "30" + "18" show as the total?',
-      choices: [{ text: "48" }, { text: "03018" }, { text: "3018" }, { text: "NaN" }],
-      answer: 1,
-      explanation: "Data attributes are always strings, and + with a string joins text: 0 + \"30\" is \"030\", then \"03018\". Number() turns them into numbers first.",
+      prompt: "The basket reads each price from data-price and adds it to 0. Why does it show this total?",
+      image: figure("t18-basket", "A basket: taster class £30, glaze night £18, and the total shown as £03018."),
+      choices: [
+        { text: "data-price is text, so + joins the prices instead of adding them" },
+        { text: "The prices are stored in pence" },
+        { text: "The total is padded with zeros" },
+        { text: "The second price was typed wrongly" },
+      ],
+      answer: 0,
+      explanation: "Data attributes are always strings, and + with a string joins text: 0 + \"30\" is \"030\", then \"03018\". Number() turns each price into a number first, giving 48.",
       seconds: 30,
     },
     {
@@ -1867,7 +1974,8 @@ export const standardsPublishing: QuestionSet = {
     },
     {
       id: "automated-limit",
-      prompt: "Lighthouse reports that every image has alt text. What can it NOT tell you?",
+      prompt: "The automated audit scores 100 and passes the alt-text check. What can it NOT tell you?",
+      image: figure("t19-audit", "An automated accessibility audit scoring 100, with three passed checks: image elements have alt attributes, the document has a title, buttons have an accessible name. Beside it, a class photo whose HTML reads alt=\"photo\"."),
       choices: [
         { text: "Whether the alt text makes sense" },
         { text: "Whether the alt attribute exists" },
@@ -1886,7 +1994,8 @@ export const standardsPublishing: QuestionSet = {
     },
     {
       id: "root-path",
-      prompt: "On a GitHub Pages project site, an image path starts with /images/. The image breaks. Why?",
+      prompt: "Published at username.github.io/riverside/, this image breaks. Why?",
+      image: figure("t19-root-path", "A browser at https://username.github.io/riverside/ showing an empty 'image not found' box. The HTML is img src=\"/images/hero.jpg\". The repository holds riverside/index.html and riverside/images/hero.jpg."),
       choices: [
         { text: "A path starting with / points to the domain root, not the project folder" },
         { text: "GitHub Pages cannot host images" },
@@ -1910,7 +2019,8 @@ export const standardsPublishing: QuestionSet = {
     },
     {
       id: "meta-length",
-      prompt: "About how long should a page's meta description be?",
+      prompt: "This page's description is cut off in search results. About how long should a meta description be?",
+      image: figure("t19-cut-off", "A search result for Riverside Studio. The description begins 'Welcome to the Riverside Studio website. We are a small independent pottery studio on Quay Road in Plymouth, founded in 2014 by two friends who…' and stops mid-sentence."),
       choices: [{ text: "Under 20 characters" }, { text: "One sentence, under about 155 characters" }, { text: "A full paragraph" }, { text: "The whole page's text" }],
       answer: 1,
       explanation: "Search results show roughly 155 characters. One clear sentence per page tells searchers what they will find before they click.",
@@ -1945,21 +2055,24 @@ export const testingReview: QuestionSet = {
     },
     {
       id: "erroneous",
-      prompt: "Testing the booking form with 'abc' as the email address uses which kind of test data?",
+      prompt: "Testing the booking form with this email address uses which kind of test data?",
+      image: figure("t20-email-abc", "A booking form filled in for a test: name 'Test Student', email 'abc'."),
       choices: [{ text: "Normal" }, { text: "Boundary" }, { text: "Erroneous" }],
       answer: 2,
       explanation: "Erroneous data should be rejected with a helpful message. Normal data, such as name@example.com, should be accepted.",
     },
     {
       id: "boundary",
-      prompt: "Pressing 'next' on the last slide of the slider uses which kind of test data?",
+      prompt: "Pressing next on this slide uses which kind of test data?",
+      image: figure("t20-last-slide", "A photo slider showing 'Photo 5 of 5', with the next button outlined, about to be pressed."),
       choices: [{ text: "Normal" }, { text: "Boundary" }, { text: "Erroneous" }],
       answer: 1,
       explanation: "Boundary data sits at the edge of what is allowed, where off-by-one mistakes live. The last slide should wrap back to the first.",
     },
     {
       id: "after-fail",
-      prompt: "A test fails. What should the test plan show next?",
+      prompt: "Test T5 has failed. What should the test plan show next?",
+      image: figure("t20-test-plan", "A test plan. T4, valid email accepted: pass. T5, invalid email 'abc' rejected: expected the form not to send and an error under the email field; actual, the form sent with no error: fail. The next row is all question marks."),
       choices: [
         { text: "A defect log entry, the fix, a saved version and a retest" },
         { text: "The test deleted" },
