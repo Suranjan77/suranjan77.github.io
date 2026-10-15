@@ -780,3 +780,27 @@ button,
         stroke-dashoffset: 0;
     }
 }
+
+/* Classroom quiz: lightning strikes one of the top three. */
+@keyframes quiz-bolt {
+    0% { opacity: 0; transform: translateY(-40px) scale(0.6); }
+    15% { opacity: 1; transform: translateY(0) scale(1.15); }
+    25%, 35% { opacity: 0.35; }
+    30%, 40%, 80% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(0) scale(1); }
+}
+
+@keyframes quiz-struck {
+    0%, 100% { background: transparent; }
+    10%, 30% { background: #FCE7A6; }
+    12%, 20%, 28% { translate: -6px 0; }
+    16%, 24%, 32% { translate: 6px 0; }
+    36% { translate: 0 0; }
+    60% { background: color-mix(in srgb, var(--color-error-container) 80%, transparent); }
+}
+
+.quiz-bolt { animation: quiz-bolt 1.9s ease-out both; }
+.quiz-struck { animation: quiz-struck 1.9s ease-out both; }
+
+/* Classroom quiz: the reload link appears only if the page has not started after a while. */
+.quiz-slow { animation: pop-in 0.3s 8s both; }

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { RelayClose, parseHostMessage, type PlayerView } from "./protocol";
 import { RelaySocket, relayBaseUrl, type SocketStatus } from "./relaySocket";
-import { CHOICE_STYLES, ChoiceMark, formatCode } from "./ui";
+import { CHOICE_STYLES, ChoiceMark, Loading, formatCode } from "./ui";
 
 /**
  * A student's phone. It holds no game state of its own: the teacher's screen
@@ -15,6 +15,8 @@ import { CHOICE_STYLES, ChoiceMark, formatCode } from "./ui";
 
 const ID_KEY = "classroom-quiz-player-id";
 const CODE_KEY = "classroom-quiz-player-code";
+/** How long a joined phone waits for the teacher's screen before joining again. */
+const REJOIN_AFTER_MS = 6_000;
 
 function storage(): Storage | null {
   try {
@@ -126,6 +128,13 @@ export default function PlayerApp() {
     return () => socket.current?.stop();
   }, [join]);
 
+  // Connected, the teacher's screen is up, and still nothing to show: its welcome went missing, so join again.
+  useEffect(() => {
+    if (status !== "open" || view || hostAway) return;
+    const timer = setTimeout(() => socket.current?.reconnect(), REJOIN_AFTER_MS);
+    return () => clearTimeout(timer);
+  }, [status, view, hostAway]);
+
   useEffect(() => {
     if (view?.phase !== "question") return;
     const timer = setInterval(() => setNow(Date.now()), 500);
@@ -143,7 +152,7 @@ export default function PlayerApp() {
     if (socket.current?.send({ t: "answer", index: view.index, choice })) setPending(choice);
   }
 
-  if (base === undefined) return <Shell><p className="text-on-surface-variant">Loading…</p></Shell>;
+  if (base === undefined) return <Shell><Loading /></Shell>;
   if (base === null) return <Shell><h1 className="font-headline text-3xl">The quiz is not set up on this site yet.</h1></Shell>;
 
   if (!code) {
@@ -270,6 +279,12 @@ function PhoneView({ view, pending, secondsLeft, onAnswer, onReroll }: {
           <p className="mt-3 text-lg">
             {view.outcome === "correct" ? `+${view.gained} points. ` : ""}The answer was {view.correctLabel}.
           </p>
+          {view.struck > 0 && (
+            <p className="mt-6 flex items-center gap-2 border-l-2 border-error bg-error-container px-4 py-3 text-lg text-on-error-container">
+              <span aria-hidden="true">⚡</span>
+              Lightning struck you: −{view.struck} points. Everyone else gets a chance to catch up.
+            </p>
+          )}
           <p className="mt-6 text-lg">Your score: <span className="font-mono font-semibold">{view.score}</span></p>
           <p className="mt-6 text-on-surface-variant">Look at the screen for why.</p>
         </div>

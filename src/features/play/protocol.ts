@@ -29,6 +29,8 @@ export type PlayerView =
       gained: number;
       score: number;
       correctLabel: string;
+      /** Points lightning took from this student at this reveal; 0 if it did not strike them. */
+      struck: number;
     }
   | { phase: "final"; name: string; score: number; place: 1 | 2 | 3 | null };
 

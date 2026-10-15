@@ -1096,11 +1096,16 @@ export const wireframing: QuestionSet = {
       explanation: "Four columns on a phone and twelve on desktop, with 16 px margins, give every element a shared set of edges to align to. Twelve divides into halves, thirds and quarters.",
     },
     {
-      id: "wireframe-app",
-      prompt: "Which kind of tool, such as Balsamiq, gives ready-made interface parts in a deliberately rough style?",
-      choices: [{ text: "Sketching on paper" }, { text: "Graphic design software" }, { text: "UX design software" }, { text: "A wireframing app" }],
-      answer: 3,
-      explanation: "A wireframing app gives buttons, menus and form fields ready-made, drawn roughly on purpose so feedback stays on structure. The cost is less control over detail.",
+      id: "free-tools",
+      prompt: "There is no budget for design software. Which plan covers wireframing from first idea to accurate layout?",
+      choices: [
+        { text: "Paper sketches first, then the free plan of UX design software such as Figma" },
+        { text: "A free trial of paid wireframing software" },
+        { text: "A word processor with tables" },
+        { text: "Photo-editing software" },
+      ],
+      answer: 0,
+      explanation: "Paper costs nothing and is the quickest way to try ideas. Figma's free plan runs in a browser and adds real sizes, grids and sharing. A trial runs out before the project does.",
     },
   ],
 };

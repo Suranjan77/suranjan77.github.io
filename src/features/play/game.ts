@@ -21,6 +21,14 @@ export const MAX_REROLLS = 3;
 export const ANSWER_GRACE_MS = 1000;
 /** A question's repeat comes at least this many rounds after its first appearance. */
 export const MIN_REPEAT_GAP = 3;
+/** After a reveal, the chance that lightning strikes one of the top three. */
+export const STRIKE_CHANCE = 0.2;
+/** Lightning never strikes before this round (counted from 0), so the scores mean something first. */
+export const STRIKE_FIRST_ROUND = 3;
+/** Lightning strikes at most once in this many rounds. */
+export const STRIKE_MIN_GAP = 3;
+/** A struck player loses between these shares of their score. */
+export const STRIKE_SHARE = [0.25, 0.5] as const;
 
 export type Outcome = "correct" | "wrong" | "none";
 
@@ -56,6 +64,16 @@ export type RoundResult = {
 
 export type GamePhase = "lobby" | "question" | "reveal" | "final";
 
+/** Lightning struck one of the top three at a round's reveal. */
+export type Strike = {
+  round: number;
+  pid: string;
+  name: string;
+  /** Their score before the strike. */
+  before: number;
+  lost: number;
+};
+
 export type GameState = {
   setId: string;
   plan: Round[];
@@ -68,6 +86,7 @@ export type GameState = {
   /** Answers to the current round, by shown position. */
   answers: Record<string, { choice: number; at: number }>;
   results: RoundResult[];
+  strikes: Strike[];
   nextJoinOrder: number;
 };
 
@@ -126,6 +145,7 @@ export function newGame(set: QuestionSet, random: () => number = Math.random): G
     players: {},
     answers: {},
     results: [],
+    strikes: [],
     nextJoinOrder: 0,
   };
 }
@@ -299,6 +319,42 @@ export function revealAnswer(state: GameState, set: QuestionSet): GameState {
   };
 }
 
+/**
+ * Lightning: after some reveals, one of the top three, picked at random, loses
+ * a quarter to a half of their points, so the rest of the room keeps a chance
+ * at the top. Never in the first rounds or on the last one, never twice close
+ * together, and only when someone else has points to overtake with.
+ */
+export function maybeStrike(state: GameState, random: () => number = Math.random): GameState {
+  const strikes = state.strikes ?? [];
+  const last = strikes.at(-1);
+  if (
+    state.phase !== "reveal" ||
+    state.index < STRIKE_FIRST_ROUND ||
+    state.index + 1 >= state.plan.length ||
+    (last && state.index - last.round < STRIKE_MIN_GAP) ||
+    Object.values(state.players).filter((p) => p.score > 0).length < 2 ||
+    random() >= STRIKE_CHANCE
+  ) {
+    return state;
+  }
+  const top = topThree(state);
+  const player = state.players[top[Math.floor(random() * top.length)].pid];
+  const share = STRIKE_SHARE[0] + (STRIKE_SHARE[1] - STRIKE_SHARE[0]) * random();
+  const lost = Math.min(player.score, Math.max(10, Math.round((player.score * share) / 10) * 10));
+  const strike: Strike = { round: state.index, pid: player.pid, name: player.name, before: player.score, lost };
+  return {
+    ...state,
+    players: { ...state.players, [player.pid]: { ...player, score: player.score - lost } },
+    strikes: [...strikes, strike],
+  };
+}
+
+/** The strike at the current round's reveal, if lightning struck. */
+export function currentStrike(state: GameState): Strike | null {
+  return state.phase === "reveal" ? (state.strikes ?? []).find((s) => s.round === state.index) ?? null : null;
+}
+
 /** After a reveal: the next round, or the final standings after the last one. */
 export function advance(state: GameState, set: QuestionSet, now: number): GameState {
   if (state.phase === "lobby") return startRound(state, set, 0, now);
@@ -373,8 +429,9 @@ export function viewFor(state: GameState, set: QuestionSet, pid: string, now: nu
         secondsLeft: Math.max(0, Math.ceil((state.deadline - now) / 1000)),
         answered: state.answers[pid]?.choice ?? null,
       };
-    case "reveal":
+    case "reveal": {
       if (!shown) return null;
+      const strike = currentStrike(state);
       return {
         phase: "reveal",
         name,
@@ -384,7 +441,9 @@ export function viewFor(state: GameState, set: QuestionSet, pid: string, now: nu
         gained: player.lastGained,
         score: player.score,
         correctLabel: CHOICE_LABELS[shown.answer],
+        struck: strike?.pid === pid ? strike.lost : 0,
       };
+    }
     case "final": {
       const standing = topThree(state).find((s) => s.pid === pid);
       return { phase: "final", name, score: player.score, place: standing?.place ?? null };

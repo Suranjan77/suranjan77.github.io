@@ -1,7 +1,7 @@
 # Classroom quiz
 
 Status: v1 built
-Updated: 2026-10-12
+Updated: 2026-10-15
 
 A live quiz for Level 3 and below. A teacher starts a session on the projector,
 students join on their phones with a code or QR code, and the room answers
@@ -57,6 +57,13 @@ the passcode; v1 does not.
   as the question, or pictures as the choices. Pictures appear on the
   projector only; phones show A–D.
 - Scoring: 500–1000 points for a correct answer, more for a faster one.
+- Lightning: after a reveal, from round 4 on and never on the last round,
+  there is a 1 in 5 chance that lightning strikes one of the top three, picked
+  at random, who loses a quarter to a half of their points. It strikes at most
+  once in three rounds, and only when at least two students have points, so the
+  rest of the room keeps a chance at the top. The projector shows the bolt hit,
+  the score drain and the standings re-order; only the struck student's phone
+  says so. `maybeStrike` in `game.ts` holds the rule.
 - The room sees only the top three. Each student sees only their own score.
 - Ending the session deletes everything (see Privacy).
 
@@ -88,6 +95,17 @@ session:
 If the College uses this with students, its Data Protection Officer should see
 this page and `/play/privacy` first.
 
+## Staying connected
+
+Phones on school Wi-Fi drop and sleep. Every screen pings the relay every 15
+seconds and starts a fresh connection when no answer comes within 8 seconds, or
+within 4 seconds of a phone waking up: browsers can keep a dead connection
+looking open for minutes. A connection that has not opened in 10 seconds is
+tried again, and coming back online retries at once. A phone that is connected
+but has had nothing from the teacher's screen for 6 seconds joins again. If the
+page's JavaScript has not started after 8 seconds, a "Reload the page" link
+appears.
+
 ## Question sets
 
 Sets live in `src/features/play/sets/`, one file per course unit, registered in
@@ -104,7 +122,12 @@ Pictures are real rendered pages, authored in `scripts/play-figures/<set>.html`
 in the style of the unit's lecture figures. Run `npm run play:figures`
 (`CHROMIUM_PATH=…` to choose a browser) to render each `<figure data-name>` to
 `public/play/<set>/<name>.png` and update `sets/figure-sizes.json`. No picture
-carries a caption or pass/fail label that gives the answer away.
+carries a caption or pass/fail label that gives the answer away. Figures are
+drawn for low vision as well as a projector: text greys are at least 4.5:1
+against their background (most 7:1 or more), and borders, lines and shapes
+that carry meaning at least 3:1. The only exceptions are the deliberately
+failing buttons in the contrast question. Tools named in questions must be free
+to use: no paid apps or trials.
 
 `sets/sets.test.ts` checks every set: 8 to 12 questions, two to four choices of one kind, a valid
 answer, an explanation, alt text on every picture, and that each picture file

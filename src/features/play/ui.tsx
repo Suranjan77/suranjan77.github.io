@@ -62,3 +62,18 @@ export function QrCode({ text, size = 220, label }: { text: string; size?: numbe
 export function formatCode(code: string): string {
   return `${code.slice(0, 3)} ${code.slice(3)}`;
 }
+
+/**
+ * Shown until the page's JavaScript runs. If it never does (a slow network, or
+ * a page cached from before the site was updated), a reload link appears.
+ */
+export function Loading() {
+  return (
+    <div>
+      <p className="text-on-surface-variant">Loading…</p>
+      <p className="quiz-slow mt-6 text-lg">
+        Still loading? <a href="" className="text-primary underline underline-offset-4">Reload the page</a>
+      </p>
+    </div>
+  );
+}

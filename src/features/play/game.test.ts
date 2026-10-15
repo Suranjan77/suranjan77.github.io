@@ -3,13 +3,17 @@ import {
   ANSWER_GRACE_MS,
   MAX_REROLLS,
   MIN_REPEAT_GAP,
+  STRIKE_FIRST_ROUND,
+  STRIKE_MIN_GAP,
   advance,
   buildPlan,
   everyoneAnswered,
   finish,
+  currentStrike,
   hardestQuestions,
   joinPlayer,
   leavePlayer,
+  maybeStrike,
   newGame,
   pointsFor,
   questionOrder,
@@ -252,6 +256,62 @@ describe("standings", () => {
       { question: 1, first: 0.2, second: 0 },
       { question: 0, first: 0.8, second: 1 },
     ]);
+  });
+});
+
+describe("lightning", () => {
+  /** A reveal mid-game, with the given scores. */
+  function revealWith(scores: Record<string, number>, index = 4): GameState {
+    const state = lobbyWith(...Object.keys(scores));
+    const players = Object.fromEntries(Object.entries(state.players).map(([pid, p]) => [pid, { ...p, score: scores[pid] }]));
+    return { ...state, plan: [...FIXED_PLAN, ...FIXED_PLAN], phase: "reveal", index, players };
+  }
+  /** Always strikes, at the first of the top three, taking the smallest share. */
+  const always = () => 0;
+  const never = () => 0.99;
+  /** Strikes, at the third of the top three, taking just under half. */
+  const atThird = () => {
+    const draws = [0, 0.99, 0.99];
+    return () => draws.shift() ?? 0;
+  };
+
+  it("strikes one of the top three, who loses a quarter to a half of their points", () => {
+    const before = revealWith({ a: 3000, b: 2000, c: 1000, d: 900 });
+    const after = maybeStrike(before, always);
+    expect(after.players.a.score).toBe(2250);
+    expect(after.players.b.score).toBe(2000);
+    expect(currentStrike(after)).toEqual({ round: 4, pid: "a", name: before.players.a.name, before: 3000, lost: 750 });
+
+    const third = maybeStrike(before, atThird());
+    expect(currentStrike(third)?.pid).toBe("c");
+    expect(third.players.c.score).toBe(1000 - 500);
+    expect(third.players.d.score).toBe(900);
+  });
+
+  it("can let someone else into the top three", () => {
+    const after = maybeStrike(revealWith({ a: 3000, b: 2000, c: 1000, d: 900 }), atThird());
+    expect(topThree(after).map((s) => s.pid)).toEqual(["a", "b", "d"]);
+  });
+
+  it("does not strike early, on the last round, twice close together, or with only one scorer", () => {
+    const scores = { a: 3000, b: 2000 };
+    expect(maybeStrike(revealWith(scores, STRIKE_FIRST_ROUND - 1), always).strikes).toEqual([]);
+    expect(maybeStrike(revealWith(scores, 7), always).strikes).toEqual([]);
+    expect(maybeStrike(revealWith({ a: 3000, b: 0 }), always).strikes).toEqual([]);
+    expect(maybeStrike(revealWith(scores), never).strikes).toEqual([]);
+
+    const first = maybeStrike(revealWith(scores, 3), always);
+    const soon = maybeStrike({ ...first, index: 3 + STRIKE_MIN_GAP - 1 }, always);
+    expect(soon.strikes).toHaveLength(1);
+    const later = maybeStrike({ ...first, index: 3 + STRIKE_MIN_GAP }, always);
+    expect(later.strikes).toHaveLength(2);
+  });
+
+  it("tells only the struck student's phone", () => {
+    const after = maybeStrike(revealWith({ a: 3000, b: 2000 }), always);
+    const view = (pid: string) => viewFor(after, set, pid, 0);
+    expect(view("a")).toMatchObject({ phase: "reveal", struck: 750, score: 2250 });
+    expect(view("b")).toMatchObject({ phase: "reveal", struck: 0 });
   });
 });
 

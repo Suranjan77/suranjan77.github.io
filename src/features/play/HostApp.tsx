@@ -2,14 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   advance,
+  currentStrike,
   everyoneAnswered,
   finish,
   hardestQuestions,
   joinPlayer,
   leavePlayer,
+  maybeStrike,
   newGame,
   removePlayer,
   rerollName,
@@ -22,12 +24,13 @@ import {
   type GameState,
   type ShownQuestion,
   type Standing,
+  type Strike,
 } from "./game";
 import { RelayClose, parsePlayerMessage } from "./protocol";
 import { RelaySocket, relayBaseUrl, type SocketStatus } from "./relaySocket";
 import { findSet, questionSets } from "./sets";
 import { CHOICE_LABELS, type QuestionSet, type QuizImage } from "./types";
-import { CHOICE_STYLES, ChoiceMark, QrCode, formatCode } from "./ui";
+import { CHOICE_STYLES, ChoiceMark, Loading, QrCode, formatCode } from "./ui";
 
 /**
  * The teacher's screen. It holds the whole game in this browser tab: the relay
@@ -70,7 +73,10 @@ type Saved = Room & { game: GameState };
 function loadSaved(): Saved | null {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Saved) : null;
+    if (!raw) return null;
+    const saved = JSON.parse(raw) as Saved;
+    // Sessions saved before lightning was added have no strikes.
+    return { ...saved, game: { ...saved.game, strikes: saved.game.strikes ?? [] } };
   } catch {
     return null;
   }
@@ -224,7 +230,7 @@ export default function HostApp() {
       const current = live.current.game;
       const set = current && findSet(current.setId);
       if (current?.phase === "question" && set && (Date.now() >= current.deadline || everyoneAnswered(current))) {
-        commit(revealAnswer(current, set), "all");
+        commit(maybeStrike(revealAnswer(current, set)), "all");
       }
     }, 250);
     return () => clearInterval(timer);
@@ -307,10 +313,10 @@ export default function HostApp() {
   function revealNow() {
     const current = live.current.game;
     const set = current && findSet(current.setId);
-    if (current && set) commit(revealAnswer(current, set), "all");
+    if (current && set) commit(maybeStrike(revealAnswer(current, set)), "all");
   }
 
-  if (base === undefined) return <Frame><p className="p-8 text-on-surface-variant">Loading…</p></Frame>;
+  if (base === undefined) return <Frame><div className="p-8"><Loading /></div></Frame>;
 
   if (base === null) {
     return (
@@ -643,10 +649,96 @@ function TopThree({ standings }: { standings: Standing[] }) {
   );
 }
 
+const ROW_HEIGHT = 52;
+
+/**
+ * The top three when lightning strikes: the standings as they were, a bolt
+ * hits the struck row and its score drains away, then the rows slide into
+ * their new places and anyone who has climbed into the top three slides in.
+ */
+function StruckTopThree({ game, strike }: { game: GameState; strike: Strike }) {
+  const [stage, setStage] = useState<"before" | "strike" | "after">("before");
+  const [shown, setShown] = useState(strike.before);
+
+  useLayoutEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setStage("after");
+      setShown(strike.before - strike.lost);
+      return;
+    }
+    const timers = [setTimeout(() => setStage("strike"), 900), setTimeout(() => setStage("after"), 2900)];
+    return () => timers.forEach(clearTimeout);
+  }, [strike]);
+
+  // The struck score drains away while the bolt is on it.
+  useEffect(() => {
+    if (stage !== "strike") return;
+    const start = performance.now();
+    let frame = requestAnimationFrame(function tick(at) {
+      const t = Math.min((at - start) / 1400, 1);
+      setShown(Math.round(strike.before - strike.lost * (1 - (1 - t) ** 3)));
+      if (t < 1) frame = requestAnimationFrame(tick);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [stage, strike]);
+
+  const struckPlayer = game.players[strike.pid];
+  const before = topThree(struckPlayer ? { ...game, players: { ...game.players, [strike.pid]: { ...struckPlayer, score: strike.before } } } : game);
+  const after = topThree(game);
+  const standings = stage === "after" ? after : before;
+  const rows = [...before, ...after.filter((s) => !before.some((b) => b.pid === s.pid))];
+
+  return (
+    <div>
+      <ol className="relative" style={{ height: ROW_HEIGHT * Math.max(before.length, after.length) }}>
+        {rows.map((row) => {
+          const place = standings.findIndex((s) => s.pid === row.pid);
+          const isStruck = row.pid === strike.pid;
+          const score = isStruck ? shown : row.score;
+          const visible = place !== -1;
+          return (
+            <li
+              key={row.pid}
+              aria-hidden={!visible}
+              className={`absolute inset-x-0 top-0 flex items-baseline gap-3 border-b border-outline pb-2 pt-1 text-xl transition-[transform,opacity] duration-700 ease-out ${isStruck && stage === "strike" ? "quiz-struck" : ""}`}
+              style={{
+                height: ROW_HEIGHT,
+                transform: `translateY(${(visible ? place : standings.length) * ROW_HEIGHT}px)`,
+                opacity: visible ? 1 : 0,
+              }}
+            >
+              <span className="w-8 font-mono text-on-surface-variant">{visible ? place + 1 : ""}.</span>
+              <span className="flex-1 font-medium">{row.name}</span>
+              <span className={`font-mono tabular-nums ${isStruck && stage !== "before" ? "text-error" : ""}`}>{score}</span>
+              {isStruck && stage === "strike" && <Bolt />}
+            </li>
+          );
+        })}
+      </ol>
+      <p
+        aria-live="polite"
+        className={`mt-3 flex items-center gap-2 border-l-2 border-error bg-error-container px-3 py-2 text-lg text-on-error-container transition-opacity duration-500 ${stage === "before" ? "opacity-0" : "opacity-100"}`}
+      >
+        <span aria-hidden="true">⚡</span>
+        {stage === "before" ? "" : `Lightning struck ${strike.name}: −${strike.lost} points`}
+      </p>
+    </div>
+  );
+}
+
+function Bolt() {
+  return (
+    <svg viewBox="0 0 24 48" width="30" height="60" aria-hidden="true" className="quiz-bolt pointer-events-none absolute -top-8 right-16">
+      <path d="M15 0 L2 27 H11 L7 48 L22 17 H13 L19 0 Z" fill="#F2B705" stroke="#3B1713" strokeWidth="1.5" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function RevealScreen({ set, game, onNext, onFinish }: { set: QuestionSet; game: GameState; onNext: () => void; onFinish: () => void }) {
   const question = shownQuestion(game, set);
   if (!question) return null;
   const last = game.index + 1 >= game.plan.length;
+  const strike = currentStrike(game);
   return (
     <div className="grid flex-1 gap-8 px-4 py-6 sm:px-8 xl:grid-cols-[1fr_24rem]">
       <div className="flex flex-col gap-6">
@@ -658,7 +750,7 @@ function RevealScreen({ set, game, onNext, onFinish }: { set: QuestionSet; game:
           <span className="font-semibold">Answer {CHOICE_LABELS[question.answer]}. </span>{question.explanation}
         </p>
         <h2 className="mt-2 font-headline text-2xl font-medium">Top three</h2>
-        <TopThree standings={topThree(game)} />
+        {strike ? <StruckTopThree key={strike.round} game={game} strike={strike} /> : <TopThree standings={topThree(game)} />}
         <button type="button" className={`${primaryButton} mt-2`} onClick={onNext}>{last ? "See the results" : "Next question"}</button>
         {!last && (
           <button type="button" className={`${quietButton} self-start`} onClick={onFinish}>
