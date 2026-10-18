@@ -383,113 +383,153 @@
     520,
     289
   ],
-  "l2-u9/t1-blank-row": [
-    411,
-    234
+  "l1-a4/s1-brief": [
+    628,
+    252
   ],
-  "l2-u9/t1-header-sorted": [
-    411,
-    235
+  "l1-a4/s1-topics": [
+    628,
+    232
   ],
-  "l2-u9/t1-tabs": [
-    548,
-    165
-  ],
-  "l2-u9/t2-orders": [
-    398,
-    235
-  ],
-  "l2-u9/t2-copied": [
-    323,
-    236
-  ],
-  "l2-u9/t3-numbers-left": [
-    183,
-    183
-  ],
-  "l2-u9/t3-numbers-mixed": [
-    183,
-    183
-  ],
-  "l2-u9/t3-numbers-right": [
-    183,
-    183
-  ],
-  "l2-u9/t3-style-messy": [
-    256,
-    138
-  ],
-  "l2-u9/t3-style-tidy": [
-    295,
-    133
-  ],
-  "l2-u9/t4-validation-panel": [
-    358,
-    447
-  ],
-  "l2-u9/t4-warning-cell": [
-    363,
-    132
-  ],
-  "l2-u9/t5-cf-column-a": [
-    652,
+  "l1-a4/s1-title-good": [
+    428,
     253
   ],
-  "l2-u9/t5-chart-raw": [
-    548,
-    285
+  "l1-a4/s1-title-vague": [
+    428,
+    253
   ],
-  "l2-u9/t5-chart-summary": [
-    448,
-    305
+  "l1-a4/s1-title-crowded": [
+    428,
+    253
   ],
-  "l2-u9/t5-chart-bare": [
-    448,
-    275
-  ],
-  "l2-u9/t6-script-clear": [
-    605,
-    138
-  ],
-  "l2-u9/t6-script-sort": [
-    597,
-    138
-  ],
-  "l2-u9/t6-pivot": [
-    328,
-    378
-  ],
-  "l2-u9/t7-number-line": [
+  "l1-a4/s1-plan-vs-slides": [
     588,
-    155
+    298
   ],
-  "l2-u9/t7-test-log": [
-    788,
-    242
+  "l1-a4/s1-one-idea": [
+    428,
+    253
   ],
-  "l2-u9/t8-feedback-log": [
-    788,
-    178
+  "l1-a4/s1-many-ideas": [
+    428,
+    253
   ],
-  "l1-a4/s1-title-slide": [
+  "l1-a4/s1-jargon": [
     508,
     298
   ],
-  "l1-a4/s1-slide-order": [
-    846,
-    148
+  "l1-a4/s1-log-and-plan": [
+    668,
+    208
+  ],
+  "l1-a4/s2-article-summary": [
+    774,
+    259
   ],
   "l1-a4/s2-research-log": [
     668,
-    182
+    221
+  ],
+  "l1-a4/s2-copied": [
+    704,
+    218
+  ],
+  "l1-a4/s2-log-topic": [
+    668,
+    259
+  ],
+  "l1-a4/s2-fact-opinion": [
+    508,
+    298
+  ],
+  "l1-a4/s2-focus-outline": [
+    428,
+    253
+  ],
+  "l1-a4/s2-focus-clear": [
+    428,
+    253
+  ],
+  "l1-a4/s2-focus-focused": [
+    428,
+    253
+  ],
+  "l1-a4/s2-tips": [
+    508,
+    298
+  ],
+  "l1-a4/s2-three-sources": [
+    668,
+    213
+  ],
+  "l1-a4/s2-missing-slide": [
+    570,
+    288
+  ],
+  "l1-a4/s2-paragraph": [
+    428,
+    253
+  ],
+  "l1-a4/s2-bullets": [
+    428,
+    253
+  ],
+  "l1-a4/s3-search": [
+    628,
+    264
+  ],
+  "l1-a4/s3-reference-parts": [
+    648,
+    240
   ],
   "l1-a4/s3-references": [
-    588,
-    188
+    648,
+    258
+  ],
+  "l1-a4/s3-log-vs-sources": [
+    734,
+    231
   ],
   "l1-a4/s3-source-line": [
     508,
     298
+  ],
+  "l1-a4/s3-trust-ncsc": [
+    358,
+    167
+  ],
+  "l1-a4/s3-trust-comment": [
+    358,
+    158
+  ],
+  "l1-a4/s3-trust-post": [
+    358,
+    163
+  ],
+  "l1-a4/s3-date-old": [
+    408,
+    223
+  ],
+  "l1-a4/s3-date-new": [
+    408,
+    223
+  ],
+  "l1-a4/s3-credit-yes": [
+    428,
+    253
+  ],
+  "l1-a4/s3-credit-no": [
+    428,
+    253
+  ],
+  "l1-a4/s3-quote-yes": [
+    428,
+    253
+  ],
+  "l1-a4/s3-quote-no": [
+    428,
+    253
   ],
   "l1-a4/s4-read-wall": [
     428,
@@ -523,24 +563,364 @@
     508,
     298
   ],
-  "l1-a4/s5-layout-title": [
-    268,
-    163
+  "l1-a4/s4-size-tiny": [
+    428,
+    253
   ],
-  "l1-a4/s5-layout-content": [
-    268,
-    163
+  "l1-a4/s4-size-good": [
+    428,
+    253
   ],
-  "l1-a4/s5-layout-two": [
-    268,
-    163
+  "l1-a4/s4-size-huge": [
+    428,
+    253
   ],
-  "l1-a4/s5-layout-blank": [
-    268,
-    163
+  "l1-a4/s4-fonts-many": [
+    428,
+    253
+  ],
+  "l1-a4/s4-fonts-one": [
+    428,
+    253
+  ],
+  "l1-a4/s4-theme-mixed": [
+    440,
+    264
+  ],
+  "l1-a4/s4-theme-same": [
+    440,
+    264
+  ],
+  "l1-a4/s4-motion": [
+    368,
+    315
+  ],
+  "l1-a4/s4-colour-only": [
+    428,
+    253
+  ],
+  "l1-a4/s4-colour-symbols": [
+    428,
+    253
+  ],
+  "l1-a4/s4-bullet-short": [
+    428,
+    253
+  ],
+  "l1-a4/s4-bullet-long": [
+    428,
+    253
+  ],
+  "l1-a4/s5-editor": [
+    688,
+    437
+  ],
+  "l1-a4/s5-layouts": [
+    630,
+    268
+  ],
+  "l1-a4/s5-slide-menu": [
+    448,
+    402
+  ],
+  "l1-a4/s5-insert-image": [
+    668,
+    311
   ],
   "l1-a4/s5-spelling": [
-    508,
-    298
+    558,
+    393
+  ],
+  "l1-a4/s5-title-box": [
+    648,
+    143
+  ],
+  "l1-a4/s5-download": [
+    728,
+    466
+  ],
+  "l2-u9/t1-blank-row": [
+    518,
+    292
+  ],
+  "l2-u9/t1-layout-records": [
+    412,
+    226
+  ],
+  "l2-u9/t1-layout-wide": [
+    454,
+    193
+  ],
+  "l2-u9/t1-row-count": [
+    518,
+    250
+  ],
+  "l2-u9/t1-sort-menu": [
+    859,
+    394
+  ],
+  "l2-u9/t1-sort-dialog": [
+    458,
+    259
+  ],
+  "l2-u9/t1-header-sorted": [
+    518,
+    293
+  ],
+  "l2-u9/t1-sorted-date": [
+    518,
+    260
+  ],
+  "l2-u9/t1-input-clean": [
+    435,
+    232
+  ],
+  "l2-u9/t1-input-mixed": [
+    439,
+    232
+  ],
+  "l2-u9/t1-tabs": [
+    588,
+    198
+  ],
+  "l2-u9/t1-freeze-menu": [
+    622,
+    376
+  ],
+  "l2-u9/t1-version-menu": [
+    615,
+    459
+  ],
+  "l2-u9/t1-heading": [
+    321,
+    193
+  ],
+  "l2-u9/t2-orders": [
+    501,
+    293
+  ],
+  "l2-u9/t2-copied": [
+    369,
+    291
+  ],
+  "l2-u9/t2-fixed": [
+    369,
+    291
+  ],
+  "l2-u9/t2-typed-total": [
+    512,
+    283
+  ],
+  "l2-u9/t3-locale": [
+    590,
+    431
+  ],
+  "l2-u9/t3-number-menu": [
+    706,
+    434
+  ],
+  "l2-u9/t3-numbers-left": [
+    209,
+    226
+  ],
+  "l2-u9/t3-numbers-mixed": [
+    209,
+    226
+  ],
+  "l2-u9/t3-numbers-right": [
+    209,
+    226
+  ],
+  "l2-u9/t3-style-messy": [
+    323,
+    172
+  ],
+  "l2-u9/t3-style-tidy": [
+    372,
+    161
+  ],
+  "l2-u9/t3-format-menu": [
+    547,
+    527
+  ],
+  "l2-u9/t3-toolbar": [
+    268,
+    98
+  ],
+  "l2-u9/t3-wrap": [
+    497,
+    150
+  ],
+  "l2-u9/t3-row-menu": [
+    481,
+    378
+  ],
+  "l2-u9/t4-data-menu": [
+    648,
+    466
+  ],
+  "l2-u9/t4-validation-panel": [
+    708,
+    324
+  ],
+  "l2-u9/t4-warning-cell": [
+    435,
+    199
+  ],
+  "l2-u9/t4-nort-total": [
+    779,
+    299
+  ],
+  "l2-u9/t4-criteria": [
+    656,
+    436
+  ],
+  "l2-u9/t4-labels-poor": [
+    399,
+    160
+  ],
+  "l2-u9/t4-labels-good": [
+    439,
+    160
+  ],
+  "l2-u9/t4-insert-link": [
+    448,
+    237
+  ],
+  "l2-u9/t4-back-home": [
+    436,
+    297
+  ],
+  "l2-u9/t4-home": [
+    655,
+    265
+  ],
+  "l2-u9/t4-form": [
+    368,
+    383
+  ],
+  "l2-u9/t5-cf-conditions": [
+    636,
+    447
+  ],
+  "l2-u9/t5-cf-column-a": [
+    776,
+    300
+  ],
+  "l2-u9/t5-cf-fixed": [
+    776,
+    300
+  ],
+  "l2-u9/t5-chart-raw": [
+    548,
+    285
+  ],
+  "l2-u9/t5-chart-summary": [
+    448,
+    305
+  ],
+  "l2-u9/t5-chart-bare": [
+    448,
+    275
+  ],
+  "l2-u9/t5-pie": [
+    328,
+    255
+  ],
+  "l2-u9/t5-line-regions": [
+    328,
+    255
+  ],
+  "l2-u9/t5-line-months": [
+    348,
+    255
+  ],
+  "l2-u9/t5-pie-months": [
+    348,
+    255
+  ],
+  "l2-u9/t5-customise": [
+    388,
+    445
+  ],
+  "l2-u9/t5-commentary": [
+    648,
+    191
+  ],
+  "l2-u9/t5-chart-range": [
+    627,
+    303
+  ],
+  "l2-u9/t6-script-clear": [
+    713,
+    345
+  ],
+  "l2-u9/t6-extensions-menu": [
+    728,
+    216
+  ],
+  "l2-u9/t6-assign": [
+    400,
+    181
+  ],
+  "l2-u9/t6-script-sort": [
+    704,
+    345
+  ],
+  "l2-u9/t6-named-ranges": [
+    408,
+    246
+  ],
+  "l2-u9/t6-named-vs-plain": [
+    590,
+    106
+  ],
+  "l2-u9/t6-pivot": [
+    561,
+    368
+  ],
+  "l2-u9/t6-protect": [
+    428,
+    318
+  ],
+  "l2-u9/t6-cross-tab": [
+    553,
+    199
+  ],
+  "l2-u9/t7-number-line": [
+    588,
+    155
+  ],
+  "l2-u9/t7-plan-numbers": [
+    588,
+    280
+  ],
+  "l2-u9/t7-test-log": [
+    808,
+    271
+  ],
+  "l2-u9/t7-show-menu": [
+    622,
+    347
+  ],
+  "l2-u9/t7-view-results": [
+    299,
+    193
+  ],
+  "l2-u9/t7-view-formulas": [
+    412,
+    193
+  ],
+  "l2-u9/t7-versions": [
+    388,
+    299
+  ],
+  "l2-u9/t8-feedback-log": [
+    808,
+    235
+  ],
+  "l2-u9/t8-download": [
+    561,
+    406
   ]
 }

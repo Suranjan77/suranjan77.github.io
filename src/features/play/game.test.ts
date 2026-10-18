@@ -28,7 +28,7 @@ import {
   type GameState,
   type Round,
 } from "./game";
-import type { QuestionSet } from "./types";
+import { DEFAULT_QUESTION_SECONDS, PICTURE_EXTRA_SECONDS, questionSeconds, type Question, type QuestionSet } from "./types";
 
 const set: QuestionSet = {
   id: "test",
@@ -315,6 +315,22 @@ describe("lightning", () => {
   });
 });
 
+describe("time per question", () => {
+  const picture = { src: "/a.png", alt: "A", width: 1, height: 1 };
+  const text: Question = { id: "t", prompt: "?", choices: [{ text: "a" }, { text: "b" }], answer: 0, explanation: "Because." };
+
+  it("is the question's own time, else the set's, else the default", () => {
+    expect(questionSeconds({ ...text, seconds: 12 }, { ...set, seconds: 30 })).toBe(12);
+    expect(questionSeconds(text, { ...set, seconds: 30 })).toBe(30);
+    expect(questionSeconds(text, { ...set, seconds: undefined })).toBe(DEFAULT_QUESTION_SECONDS);
+  });
+
+  it("gives questions with a picture, beside them or as choices, extra time to look", () => {
+    expect(questionSeconds({ ...text, image: picture }, { ...set, seconds: 30 })).toBe(30 + PICTURE_EXTRA_SECONDS);
+    expect(questionSeconds({ ...text, choices: [{ image: picture }, { image: picture }] }, { ...set, seconds: undefined })).toBe(DEFAULT_QUESTION_SECONDS + PICTURE_EXTRA_SECONDS);
+  });
+});
+
 describe("what a phone is shown", () => {
   it("sends picture questions without the pictures, and the reveal without other students' results", () => {
     const pictureSet: QuestionSet = {
@@ -331,7 +347,8 @@ describe("what a phone is shown", () => {
     state = advance(state, pictureSet, 0);
     expect(viewFor(state, pictureSet, "p1", 2500)).toEqual({
       phase: "question", name: state.players.p1.name, index: 0, total: 2, prompt: "One?",
-      choices: [{ label: "A" }, { label: "B" }], pictures: true, secondsLeft: 8, answered: null,
+      // 10 seconds, and 15 more because the choices are pictures.
+      choices: [{ label: "A" }, { label: "B" }], pictures: true, secondsLeft: 23, answered: null,
     });
     state = revealAnswer(submitAnswer(state, pictureSet, "p1", 0, 0, 100), pictureSet);
     expect(viewFor(state, pictureSet, "p1", 0)).toMatchObject({ phase: "reveal", outcome: "wrong", correctLabel: "B" });

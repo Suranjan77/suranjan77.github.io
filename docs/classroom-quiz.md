@@ -62,7 +62,10 @@ the passcode; v1 does not.
   as the question, or pictures as the choices. Pictures appear on the
   projector only; phones show A–D.
 - Time per question: 20 seconds unless the set or the question says otherwise.
-  Level 1 sets give 30, for slower readers.
+  Level 1 and Level 2 sets give 30. A question with a picture, beside it or as
+  its choices, gets 15 seconds more, because the room has to look before it can
+  answer (`questionSeconds` in `types.ts`). The answer is still revealed as soon
+  as everyone has answered.
 - Scoring: 500–1000 points for a correct answer, more for a faster one.
 - Lightning: after a reveal, from round 4 on and never on the last round,
   there is a 1 in 5 chance that lightning strikes one of the top three, picked
@@ -154,14 +157,14 @@ to `courses`. `sets.test.ts` picks it up from there.
 | 2 | Level 2 IT, Unit 9 Spreadsheet development | 8 sets of 10–12, Tasks 1–5 | The Assignment 2 guide |
 | 3 | BTEC AAQ IT, Unit 3 Website development | 20 sets of 12 | The unit's lecture notes and decks |
 
-**Unit A4 (Level 1)** covers Task 2, the PowerPoint presentation that
-summarises research findings (B.P3, B.M3, B.D3): planning for the audience
-of new students and families, summarising, referencing sources, clear slide
-design and the PowerPoint tools. Its examples are from the brief's own topics
-(scam texts, passwords, phone security), so the quiz also revisits staying safe
-online. The questions are written for Level 1: short sentences, everyday
-words, two or three choices for most questions, and 30 seconds each.
-PowerPoint is named because the brief requires it; the College provides it.
+**Unit A4 (Level 1)** covers Task 2, the presentation that summarises
+research findings (B.P3, B.M3, B.D3): planning for the audience of new
+students and families, summarising, referencing sources, clear slide design
+and building it in Google Slides, ending with File › Download › Microsoft
+PowerPoint (.pptx) because the brief asks for a PowerPoint file. Its examples
+are from the brief's own topics (scam texts, passwords, phone security), so the
+quiz also revisits staying safe online. The questions are written for Level 1:
+short sentences, everyday words, and two or three choices for most questions.
 
 **Unit 9 (Level 2)** follows the guide's five tasks: the data model,
 formulas and formatting (2C.P4); validation, navigation, conditional formatting
@@ -176,14 +179,26 @@ that unit's lecture notes and decks in academic-materials
 
 ### Writing questions and pictures
 
+Show it, then ask. Level 1 and Level 2 questions assume the student may not
+have met the idea or the tool yet, so each one shows what it asks about: the
+brief, the research log, the slide, the Google Slides or Google Sheets menu or
+panel, the data a formula works on. The answer can be worked out from the
+picture, and the explanation teaches the rule. A question that names cells,
+ranges or data always shows that data on the projector. Numbered parts in a
+picture are offered as "Part 1", "Part 2", so a choice never reads "A: 3".
+
 Each question carries an explanation that gives the reason, not just the
 fact. Explanations never name a letter, because the letters change between a
-question's two rounds. Every set has some rendered pictures: page and slide
-mock-ups, spreadsheets, wireframes, planning documents, code to read and
-measured diagrams. The other questions are text.
+question's two rounds. Every set has rendered pictures: page and slide
+mock-ups, Google Slides and Google Sheets screens, spreadsheets, wireframes,
+planning documents, code to read and measured diagrams. At Level 1 and Level 2
+almost every question has one.
 
 Pictures are real rendered pages, authored in `scripts/play-figures/<course>.html`
-in the style of the course's own materials. Run `npm run play:figures`
+in the style of the course's own materials. They are drawn large (text at 15px
+or more, most at 17px) and mostly landscape, because the projector shows a
+question's picture in three fifths of the width, scaled to fit under the
+heading. Run `npm run play:figures`
 (`CHROMIUM_PATH=…` to choose a browser) to render each `<figure data-name>` to
 `public/play/<course>/<name>.png` and update `sets/figure-sizes.json`;
 `npm run play:figures -- l2-u9` renders only the courses named. No picture

@@ -299,10 +299,10 @@ test("sets are found by level, course and search, and the last set used opens ne
   const code = ((await teacher.getByTestId("room-code").textContent()) ?? "").replace(/\D/g, "");
   const student = await joinAsStudent(browser, code);
 
-  // A Level 1 set: 10 questions, each with 30 seconds.
+  // A Level 1 set: 10 questions, each with 30 seconds, and 15 more for a picture.
   await teacher.getByRole("button", { name: "Start the quiz" }).click();
   await expect(teacher.getByText("Question 1 of 20")).toBeVisible();
-  await expect(student.getByLabel(/^(2[5-9]|30) seconds left$/)).toBeVisible();
+  await expect(student.getByLabel(/^(4[0-5]) seconds left$/)).toBeVisible();
 
   await teacher.getByRole("button", { name: "End session" }).click();
   await teacher.getByRole("button", { name: "End and delete" }).click();

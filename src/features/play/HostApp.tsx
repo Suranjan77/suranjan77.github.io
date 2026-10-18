@@ -685,9 +685,9 @@ function QuestionHeading({ question }: { question: ShownQuestion }) {
 function QuestionBody({ question, game, reveal }: { question: ShownQuestion; game: GameState; reveal: boolean }) {
   if (!question.image) return <ChoiceTiles question={question} game={game} reveal={reveal} />;
   return (
-    <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+    <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <div className="border border-outline bg-white p-2">
-        <Picture image={question.image} className="mx-auto h-auto max-h-[46vh] w-auto" sizes="50vw" />
+        <Picture image={question.image} className="mx-auto h-auto max-h-[min(58vh,calc(100dvh-22rem))] w-full object-contain" sizes="60vw" />
       </div>
       <ChoiceTiles question={question} game={game} reveal={reveal} single />
     </div>

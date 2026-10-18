@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { courseName, setDetails } from "./SetPicker";
 import { courseOfSet } from "./sets";
-import { DEFAULT_QUESTION_SECONDS, type Question, type QuestionSet, type QuizImage } from "./types";
+import { questionSeconds, type Question, type QuestionSet, type QuizImage } from "./types";
 import { CHOICE_STYLES, ChoiceMark } from "./ui";
 
 /**
@@ -71,7 +71,7 @@ export function SetPreview({ set, chosen, onChoose, onClose }: {
           </p>
           <ol className="space-y-5">
             {set.questions.map((question, i) => (
-              <QuestionCard key={question.id} number={i + 1} question={question} seconds={question.seconds ?? set.seconds ?? DEFAULT_QUESTION_SECONDS} answers={answers} />
+              <QuestionCard key={question.id} number={i + 1} question={question} seconds={questionSeconds(question, set)} answers={answers} />
             ))}
           </ol>
         </div>

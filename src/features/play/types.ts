@@ -20,7 +20,7 @@ export type Question = {
   answer: number;
   /** Shown to the room after the answer is revealed: the reason, not just the fact. */
   explanation: string;
-  /** Time allowed, in seconds. Defaults to DEFAULT_QUESTION_SECONDS. */
+  /** Time allowed, in seconds, before any extra for pictures. Defaults to the set's time. */
   seconds?: number;
 };
 
@@ -61,4 +61,14 @@ export type Course = {
 };
 
 export const DEFAULT_QUESTION_SECONDS = 20;
+/** Extra time for a question with a picture, beside it or as its choices: the room has to look before it can answer. */
+export const PICTURE_EXTRA_SECONDS = 15;
+
+/** The time a question is given in the game. */
+export function questionSeconds(question: Question, set: QuestionSet): number {
+  const base = question.seconds ?? set.seconds ?? DEFAULT_QUESTION_SECONDS;
+  const pictures = !!question.image || question.choices.some((choice) => choice.image);
+  return base + (pictures ? PICTURE_EXTRA_SECONDS : 0);
+}
+
 export const CHOICE_LABELS = ["A", "B", "C", "D"] as const;

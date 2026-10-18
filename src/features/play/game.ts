@@ -1,6 +1,6 @@
 import { pickNickname } from "./nicknames";
 import type { PlayerView } from "./protocol";
-import { CHOICE_LABELS, DEFAULT_QUESTION_SECONDS, type Choice, type Question, type QuestionSet, type QuizImage } from "./types";
+import { CHOICE_LABELS, questionSeconds, type Choice, type Question, type QuestionSet, type QuizImage } from "./types";
 
 /**
  * The game, as run by the teacher's screen. Every function is pure and takes
@@ -179,7 +179,7 @@ export function shownQuestion(state: GameState, set: QuestionSet, round = state.
     choices: step.order.map((i) => question.choices[i]),
     answer: step.order.indexOf(question.answer),
     explanation: question.explanation,
-    seconds: question.seconds ?? set.seconds ?? DEFAULT_QUESTION_SECONDS,
+    seconds: questionSeconds(question, set),
   };
 }
 

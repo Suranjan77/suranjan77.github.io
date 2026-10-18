@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useState } from "react";
 import { courseOfSet, courses, findCourse, loadCourse, loadedSections } from "./sets";
-import { DEFAULT_QUESTION_SECONDS, type Course, type CourseSection, type QuestionSet } from "./types";
+import { questionSeconds, type Course, type CourseSection, type QuestionSet } from "./types";
 import { Loading } from "./ui";
 
 /**
@@ -14,7 +14,7 @@ const LEVELS = [...new Set(courses.map((course) => course.level))].sort();
 
 /** About how long a game takes: each question twice, with time for the reveal and the explanation. */
 export function aboutMinutes(set: QuestionSet): number {
-  const seconds = set.questions.reduce((sum, q) => sum + (q.seconds ?? set.seconds ?? DEFAULT_QUESTION_SECONDS) + 20, 0);
+  const seconds = set.questions.reduce((sum, q) => sum + questionSeconds(q, set) + 20, 0);
   return Math.round((2 * seconds) / 60);
 }
 
