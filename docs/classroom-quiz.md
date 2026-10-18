@@ -129,6 +129,12 @@ Sets are grouped three ways, so the list stays easy to use as it grows:
 The chosen set stays in a panel beside the list, with the passcode and the
 Start button, while the teacher looks around other courses.
 
+Every set can be previewed before choosing it: "Preview questions" opens all
+its questions with their pictures, choices and time. The answers and their
+explanations stay hidden until the teacher presses "Show answers", because
+the setup screen may already be on the projector. The preview lists choices
+in the order they were written; in the game they are shuffled.
+
 The courses are listed in `src/features/play/sets/index.ts` (`courses`), lowest
 level first. Each course's sets are a separate file, `sets/<course>.ts`,
 exporting `sections`. A course's file is downloaded only when a teacher opens

@@ -69,6 +69,7 @@ export function SetPicker(props: {
   onCourse: (id: string | null) => void;
   chosen: string | null;
   onChoose: (id: string) => void;
+  onPreview: (id: string) => void;
   lastUsed: string | null;
   sections: CourseSection[] | undefined;
   failed: boolean;
@@ -86,6 +87,7 @@ export function SetPicker(props: {
       onBack={() => props.onCourse(null)}
       chosen={props.chosen}
       onChoose={props.onChoose}
+      onPreview={props.onPreview}
       lastUsed={props.lastUsed}
     />
   );
@@ -156,6 +158,7 @@ function CourseSets(props: {
   onBack: () => void;
   chosen: string | null;
   onChoose: (id: string) => void;
+  onPreview: (id: string) => void;
   lastUsed: string | null;
 }) {
   const [query, setQuery] = useState("");
@@ -205,23 +208,33 @@ function CourseSets(props: {
               </legend>
               <div className="mt-3 grid gap-3 lg:grid-cols-2">
                 {sets.map((set) => (
-                  <label key={set.id} className={`${card} ${props.chosen === set.id ? cardChosen : cardIdle} flex cursor-pointer items-start gap-3 p-4`}>
-                    <input
-                      type="radio"
-                      name="set"
-                      value={set.id}
-                      checked={props.chosen === set.id}
-                      onChange={() => props.onChoose(set.id)}
-                      className="mt-1.5 h-4 w-4 shrink-0 accent-[#556B4A]"
-                    />
-                    <span>
-                      <span className="block font-medium">
-                        {set.title}
-                        {props.lastUsed === set.id && <Badge>Last used</Badge>}
+                  <div key={set.id} className={`${card} ${props.chosen === set.id ? cardChosen : cardIdle} flex flex-col`}>
+                    <label className="flex flex-1 cursor-pointer items-start gap-3 p-4 pb-2">
+                      <input
+                        type="radio"
+                        name="set"
+                        value={set.id}
+                        checked={props.chosen === set.id}
+                        onChange={() => props.onChoose(set.id)}
+                        className="mt-1.5 h-4 w-4 shrink-0 accent-[#556B4A]"
+                      />
+                      <span>
+                        <span className="block font-medium">
+                          {set.title}
+                          {props.lastUsed === set.id && <Badge>Last used</Badge>}
+                        </span>
+                        <span className="mt-1 block text-sm text-on-surface-variant">{setDetails(set)}</span>
                       </span>
-                      <span className="mt-1 block text-sm text-on-surface-variant">{setDetails(set)}</span>
-                    </span>
-                  </label>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => props.onPreview(set.id)}
+                      aria-label={`Preview the questions in ${set.title}`}
+                      className="mb-2 ml-11 mr-4 self-start py-1 text-sm text-primary underline underline-offset-4"
+                    >
+                      Preview questions
+                    </button>
+                  </div>
                 ))}
               </div>
             </fieldset>

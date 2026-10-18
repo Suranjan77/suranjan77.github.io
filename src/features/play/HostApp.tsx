@@ -29,6 +29,7 @@ import {
 import { RelayClose, parsePlayerMessage } from "./protocol";
 import { RelaySocket, relayBaseUrl, type SocketStatus } from "./relaySocket";
 import { SetPicker, courseName, setDetails, useCourseSections } from "./SetPicker";
+import { SetPreview } from "./SetPreview";
 import { courseOfSet, findCourse, findSet, loadSet } from "./sets";
 import { CHOICE_LABELS, type QuestionSet, type QuizImage } from "./types";
 import { CHOICE_STYLES, ChoiceMark, Loading, QrCode, formatCode } from "./ui";
@@ -460,6 +461,8 @@ function Setup(props: {
   const { sections, failed, retry } = useCourseSections(course);
   const chosen = props.chosen ? findSet(props.chosen) : undefined;
   const chosenCourse = props.chosen ? courseOfSet(props.chosen) : undefined;
+  const [previewId, setPreviewId] = useState<string | null>(null);
+  const preview = previewId ? findSet(previewId) : undefined;
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
@@ -480,6 +483,7 @@ function Setup(props: {
           onCourse={props.onCourse}
           chosen={props.chosen}
           onChoose={props.onChoose}
+          onPreview={setPreviewId}
           lastUsed={props.lastUsed}
           sections={sections}
           failed={failed}
@@ -500,9 +504,12 @@ function Setup(props: {
               <p className="font-medium">{chosen.title}</p>
               <p className="mt-1 text-sm text-on-surface-variant">{courseName(chosenCourse)}</p>
               <p className="mt-1 text-sm text-on-surface-variant">{setDetails(chosen)}</p>
-              {props.courseId !== chosenCourse.id && (
-                <button type="button" onClick={() => props.onCourse(chosenCourse.id)} className="mt-2 text-sm text-primary underline underline-offset-4">Show it in its course</button>
-              )}
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                <button type="button" onClick={() => setPreviewId(chosen.id)} className="text-sm text-primary underline underline-offset-4">Preview the questions</button>
+                {props.courseId !== chosenCourse.id && (
+                  <button type="button" onClick={() => props.onCourse(chosenCourse.id)} className="text-sm text-primary underline underline-offset-4">Show it in its course</button>
+                )}
+              </div>
             </div>
           ) : (
             <p className="text-sm text-on-surface-variant">None yet. Choose a course, then a set.</p>
@@ -530,6 +537,16 @@ function Setup(props: {
           {props.problem && <p role="alert" className="text-sm text-error">{props.problem}</p>}
         </form>
       </div>
+
+      {preview && (
+        <SetPreview
+          key={preview.id}
+          set={preview}
+          chosen={props.chosen === preview.id}
+          onChoose={() => props.onChoose(preview.id)}
+          onClose={() => setPreviewId(null)}
+        />
+      )}
     </div>
   );
 }

@@ -33,7 +33,7 @@ async function answerKey(teacher: Page) {
 /** Opens a course on the teacher's screen and picks one of its sets. */
 async function chooseSet(teacher: Page, course: RegExp, set: RegExp) {
   await teacher.getByRole("button", { name: course }).click();
-  await teacher.getByLabel(set).check();
+  await teacher.getByRole("radio", { name: set }).check();
 }
 
 const UNIT_3 = /Unit 3 · Website development/;
@@ -312,4 +312,35 @@ test("sets are found by level, course and search, and the last set used opens ne
   await later.goto("/play/host");
   await expect(later.getByRole("radio", { name: /Referencing your sources/ })).toBeChecked();
   await expect(later.getByRole("radio", { name: /Referencing your sources/ })).toHaveAccessibleName(/Last used/);
+});
+
+test("the teacher can read a set's questions before choosing it, with the answers hidden until asked", async ({ browser }) => {
+  const teacher = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
+  await teacher.goto("/play/host");
+  await teacher.getByRole("button", { name: /Unit 9 · Spreadsheet development/ }).click();
+  await teacher.getByRole("button", { name: /Preview the questions in Task 1 · Formulas and functions/ }).click();
+
+  const preview = teacher.getByRole("dialog", { name: "Task 1 · Formulas and functions" });
+  await expect(preview).toBeVisible();
+  await expect(preview.getByTestId("preview-question")).toHaveCount(12);
+  await expect(preview.getByText("What does =COUNTIF(B2:B7,\"North\") give?")).toBeVisible();
+  await expect(preview.getByText("✓ Answer")).toHaveCount(0);
+  await expect(preview.getByText(/COUNTIF counts the cells in B2:B7/)).toHaveCount(0);
+
+  await preview.getByRole("button", { name: "Show answers" }).click();
+  await expect(preview.getByText("✓ Answer")).toHaveCount(12);
+  await expect(preview.getByText(/COUNTIF counts the cells in B2:B7/)).toBeVisible();
+
+  await preview.getByRole("button", { name: "Choose this set" }).click();
+  await expect(preview.getByText("✓ Chosen")).toBeVisible();
+  await teacher.keyboard.press("Escape");
+  await expect(preview).toHaveCount(0);
+  await expect(teacher.getByRole("radio", { name: /Formulas and functions/ })).toBeChecked();
+  await expect(teacher.getByTestId("chosen-set")).toContainText("Formulas and functions");
+
+  // The side panel opens the chosen set's preview too, with the answers hidden again.
+  await teacher.getByRole("button", { name: "Preview the questions", exact: true }).click();
+  await expect(preview.getByText("✓ Answer")).toHaveCount(0);
+  await preview.getByRole("button", { name: "Close" }).click();
+  await expect(preview).toHaveCount(0);
 });
