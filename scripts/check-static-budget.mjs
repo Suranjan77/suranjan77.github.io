@@ -20,7 +20,7 @@ const routes = [
   { name: "gradient-descent", file: "out/visualisations/gradient-descent.html", budget: 470 },
   { name: "kernel-trick", file: "out/visualisations/kernel-trick.html", budget: 470 },
   { name: "quiz-join", file: "out/play.html", budget: 215 },
-  { name: "quiz-host", file: "out/play/host.html", budget: 512 },
+  { name: "quiz-host", file: "out/play/host.html", budget: 225 },
 ];
 
 let failed = false;

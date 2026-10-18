@@ -32,7 +32,32 @@ export type QuestionSet = {
   title: string;
   /** Specification reference the set checks, e.g. "A1". */
   spec: string;
+  /** Time allowed for questions that do not set their own. Defaults to DEFAULT_QUESTION_SECONDS. */
+  seconds?: number;
   questions: Question[];
+};
+
+/** Sets that are taught together, e.g. one learning aim or one assignment task, in teaching order. */
+export type CourseSection = {
+  title: string;
+  sets: QuestionSet[];
+};
+
+/**
+ * One course unit on the teacher's screen. Its sets are loaded only when the
+ * teacher opens it, so the teacher's page stays the same size as courses are added.
+ */
+export type Course = {
+  /** Every set id in the course starts with this and a hyphen. */
+  id: string;
+  level: 1 | 2 | 3;
+  /** e.g. "BTEC Level 1 Introductory Diploma in IT" */
+  qualification: string;
+  /** e.g. "Unit A4 · Researching a topic" */
+  unit: string;
+  /** What the sets cover, in a line, e.g. "Task 2: presenting research findings". */
+  scope: string;
+  load: () => Promise<CourseSection[]>;
 };
 
 export const DEFAULT_QUESTION_SECONDS = 20;

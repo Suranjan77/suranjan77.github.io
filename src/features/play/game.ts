@@ -179,7 +179,7 @@ export function shownQuestion(state: GameState, set: QuestionSet, round = state.
     choices: step.order.map((i) => question.choices[i]),
     answer: step.order.indexOf(question.answer),
     explanation: question.explanation,
-    seconds: question.seconds ?? DEFAULT_QUESTION_SECONDS,
+    seconds: question.seconds ?? set.seconds ?? DEFAULT_QUESTION_SECONDS,
   };
 }
 

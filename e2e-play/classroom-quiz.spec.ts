@@ -30,6 +30,15 @@ async function answerKey(teacher: Page) {
   return { question, right, wrong };
 }
 
+/** Opens a course on the teacher's screen and picks one of its sets. */
+async function chooseSet(teacher: Page, course: RegExp, set: RegExp) {
+  await teacher.getByRole("button", { name: course }).click();
+  await teacher.getByLabel(set).check();
+}
+
+const UNIT_3 = /Unit 3 · Website development/;
+const TOPIC_4 = /Topic 4 · User experience/;
+
 async function choose(phone: Page, letter: string) {
   await phone.getByRole("button", { name: new RegExp(`^${letter}(: |$)`) }).click();
 }
@@ -41,7 +50,7 @@ async function nickname(page: Page): Promise<string> {
 test("a teacher runs a session, students play on phones, and ending it deletes the room", async ({ browser }) => {
   const teacher = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
   await teacher.goto("/play/host");
-  await teacher.getByLabel(/Topic 4 · User experience/).check();
+  await chooseSet(teacher, UNIT_3, TOPIC_4);
   await teacher.getByLabel("Teacher passcode").fill(TEACHER_PASSCODE);
   await teacher.getByRole("button", { name: "Start session" }).click();
 
@@ -153,6 +162,7 @@ test("a teacher runs a session, students play on phones, and ending it deletes t
 test("the teacher can skip to the results", async ({ browser }) => {
   const teacher = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
   await teacher.goto("/play/host");
+  await chooseSet(teacher, UNIT_3, TOPIC_4);
   await teacher.getByLabel("Teacher passcode").fill(TEACHER_PASSCODE);
   await teacher.getByRole("button", { name: "Start session" }).click();
   const code = ((await teacher.getByTestId("room-code").textContent()) ?? "").replace(/\D/g, "");
@@ -172,7 +182,7 @@ test("the teacher can skip to the results", async ({ browser }) => {
 test("lightning strikes one of the top three, and only that phone is told", async ({ browser }) => {
   const teacher = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
   await teacher.goto("/play/host");
-  await teacher.getByLabel(/Topic 4 · User experience/).check();
+  await chooseSet(teacher, UNIT_3, TOPIC_4);
   await teacher.getByLabel("Teacher passcode").fill(TEACHER_PASSCODE);
   await teacher.getByRole("button", { name: "Start session" }).click();
   const code = ((await teacher.getByTestId("room-code").textContent()) ?? "").replace(/\D/g, "");
@@ -212,6 +222,7 @@ test("lightning strikes one of the top three, and only that phone is told", asyn
 test("the teacher can remove a student", async ({ browser }) => {
   const teacher = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
   await teacher.goto("/play/host");
+  await chooseSet(teacher, UNIT_3, TOPIC_4);
   await teacher.getByLabel("Teacher passcode").fill(TEACHER_PASSCODE);
   await teacher.getByRole("button", { name: "Start session" }).click();
   const code = ((await teacher.getByTestId("room-code").textContent()) ?? "").replace(/\D/g, "");
@@ -230,6 +241,7 @@ test("the teacher can remove a student", async ({ browser }) => {
 test("without the teacher passcode, nobody can open a room", async ({ browser }) => {
   const student = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
   await student.goto("/play/host");
+  await chooseSet(student, UNIT_3, TOPIC_4);
 
   await student.getByRole("button", { name: "Start session" }).click();
   await expect(student.getByText("Enter the teacher passcode.")).toBeVisible();
@@ -245,6 +257,7 @@ test("a remembered passcode is filled in next time and can be forgotten", async 
   const context = await browser.newContext({ viewport: { width: 1280, height: 720 } });
   const teacher = await context.newPage();
   await teacher.goto("/play/host");
+  await chooseSet(teacher, UNIT_3, TOPIC_4);
   await teacher.getByLabel("Teacher passcode").fill(TEACHER_PASSCODE);
   await teacher.getByLabel(/Remember on this device/).check();
   await teacher.getByRole("button", { name: "Start session" }).click();
@@ -258,4 +271,45 @@ test("a remembered passcode is filled in next time and can be forgotten", async 
   await later.getByRole("button", { name: "Forget the saved passcode" }).click();
   await expect(later.getByLabel("Teacher passcode")).toHaveValue("");
   expect(await later.evaluate(() => localStorage.getItem("classroom-quiz-teacher-passcode"))).toBeNull();
+});
+
+test("sets are found by level, course and search, and the last set used opens next time", async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+  const teacher = await context.newPage();
+  await teacher.goto("/play/host");
+  await expect(teacher.getByRole("button", { name: "Start session" })).toBeDisabled();
+
+  // Filtering by level hides the other levels' courses.
+  await teacher.getByRole("button", { name: "Level 1", exact: true }).click();
+  await expect(teacher.getByRole("button", { name: /Unit 9/ })).toHaveCount(0);
+  await chooseSet(teacher, /Unit A4 · Researching a topic/, /Referencing your sources/);
+  await expect(teacher.getByTestId("chosen-set")).toContainText("Referencing your sources");
+
+  // Searching in another course; the chosen set stays chosen meanwhile.
+  await teacher.getByRole("button", { name: "All courses" }).click();
+  await teacher.getByRole("button", { name: UNIT_3 }).click();
+  await teacher.getByLabel("Find a set in this course").fill("css layout");
+  await expect(teacher.getByRole("radio")).toHaveCount(1);
+  await expect(teacher.getByRole("radio", { name: /Topic 15 · CSS layout/ })).toBeVisible();
+  await expect(teacher.getByTestId("chosen-set")).toContainText("Referencing your sources");
+
+  await teacher.getByLabel("Teacher passcode").fill(TEACHER_PASSCODE);
+  await teacher.getByRole("button", { name: "Start session" }).click();
+  await expect(teacher.getByText("Task 2 · Referencing your sources")).toBeVisible();
+  const code = ((await teacher.getByTestId("room-code").textContent()) ?? "").replace(/\D/g, "");
+  const student = await joinAsStudent(browser, code);
+
+  // A Level 1 set: 10 questions, each with 30 seconds.
+  await teacher.getByRole("button", { name: "Start the quiz" }).click();
+  await expect(teacher.getByText("Question 1 of 20")).toBeVisible();
+  await expect(student.getByLabel(/^(2[5-9]|30) seconds left$/)).toBeVisible();
+
+  await teacher.getByRole("button", { name: "End session" }).click();
+  await teacher.getByRole("button", { name: "End and delete" }).click();
+
+  // Next time, this device opens on the same course with that set chosen.
+  const later = await context.newPage();
+  await later.goto("/play/host");
+  await expect(later.getByRole("radio", { name: /Referencing your sources/ })).toBeChecked();
+  await expect(later.getByRole("radio", { name: /Referencing your sources/ })).toHaveAccessibleName(/Last used/);
 });

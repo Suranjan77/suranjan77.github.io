@@ -382,5 +382,165 @@
   "aaq-u3/t19-validator": [
     520,
     289
+  ],
+  "l2-u9/t1-blank-row": [
+    411,
+    234
+  ],
+  "l2-u9/t1-header-sorted": [
+    411,
+    235
+  ],
+  "l2-u9/t1-tabs": [
+    548,
+    165
+  ],
+  "l2-u9/t2-orders": [
+    398,
+    235
+  ],
+  "l2-u9/t2-copied": [
+    323,
+    236
+  ],
+  "l2-u9/t3-numbers-left": [
+    183,
+    183
+  ],
+  "l2-u9/t3-numbers-mixed": [
+    183,
+    183
+  ],
+  "l2-u9/t3-numbers-right": [
+    183,
+    183
+  ],
+  "l2-u9/t3-style-messy": [
+    256,
+    138
+  ],
+  "l2-u9/t3-style-tidy": [
+    295,
+    133
+  ],
+  "l2-u9/t4-validation-panel": [
+    358,
+    447
+  ],
+  "l2-u9/t4-warning-cell": [
+    363,
+    132
+  ],
+  "l2-u9/t5-cf-column-a": [
+    652,
+    253
+  ],
+  "l2-u9/t5-chart-raw": [
+    548,
+    285
+  ],
+  "l2-u9/t5-chart-summary": [
+    448,
+    305
+  ],
+  "l2-u9/t5-chart-bare": [
+    448,
+    275
+  ],
+  "l2-u9/t6-script-clear": [
+    605,
+    138
+  ],
+  "l2-u9/t6-script-sort": [
+    597,
+    138
+  ],
+  "l2-u9/t6-pivot": [
+    328,
+    378
+  ],
+  "l2-u9/t7-number-line": [
+    588,
+    155
+  ],
+  "l2-u9/t7-test-log": [
+    788,
+    242
+  ],
+  "l2-u9/t8-feedback-log": [
+    788,
+    178
+  ],
+  "l1-a4/s1-title-slide": [
+    508,
+    298
+  ],
+  "l1-a4/s1-slide-order": [
+    846,
+    148
+  ],
+  "l1-a4/s2-research-log": [
+    668,
+    182
+  ],
+  "l1-a4/s3-references": [
+    588,
+    188
+  ],
+  "l1-a4/s3-source-line": [
+    508,
+    298
+  ],
+  "l1-a4/s4-read-wall": [
+    428,
+    253
+  ],
+  "l1-a4/s4-read-clear": [
+    428,
+    253
+  ],
+  "l1-a4/s4-read-sparse": [
+    428,
+    253
+  ],
+  "l1-a4/s4-contrast-pale": [
+    428,
+    253
+  ],
+  "l1-a4/s4-contrast-dark": [
+    428,
+    253
+  ],
+  "l1-a4/s4-contrast-clash": [
+    428,
+    253
+  ],
+  "l1-a4/s4-busy-photo": [
+    508,
+    298
+  ],
+  "l1-a4/s4-scam-picture": [
+    508,
+    298
+  ],
+  "l1-a4/s5-layout-title": [
+    268,
+    163
+  ],
+  "l1-a4/s5-layout-content": [
+    268,
+    163
+  ],
+  "l1-a4/s5-layout-two": [
+    268,
+    163
+  ],
+  "l1-a4/s5-layout-blank": [
+    268,
+    163
+  ],
+  "l1-a4/s5-spelling": [
+    508,
+    298
   ]
 }

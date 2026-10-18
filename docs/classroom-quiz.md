@@ -1,7 +1,7 @@
 # Classroom quiz
 
 Status: v1 built
-Updated: 2026-10-15
+Updated: 2026-10-18
 
 A live quiz for Level 3 and below. A teacher starts a session on the projector,
 students join on their phones with a code or QR code, and the room answers
@@ -14,7 +14,7 @@ the second.
 
 | Route | Who | What |
 | --- | --- | --- |
-| `/play/host` | Teacher, on the projector | Enter the teacher passcode, pick a question set, start a session, run the questions, end the session. |
+| `/play/host` | Teacher, on the projector | Choose a course and a question set, enter the teacher passcode, start a session, run the questions, end the session. |
 | `/play?c=123456` | Students, on phones | Join with the code, get a nickname, answer. |
 | `/play/privacy` | Students and staff | What is kept, where, and for how long, written for students. |
 
@@ -35,6 +35,11 @@ second session can start without retyping it. "Remember on this device" puts
 it in localStorage instead, and is meant for a teacher's own laptop, not a
 shared classroom computer. A wrong passcode is never saved.
 
+The teacher's screen also remembers, in localStorage, the id of the last set
+it started (`classroom-quiz-last-set`), so next lesson it opens on that course
+with that set chosen and marked "Last used". It is a set id, nothing about
+the students.
+
 Known limit: the question sets, answers included, are part of the site's
 public JavaScript. A determined student could find this week's answers in the
 page source. Keeping them secret would mean serving sets from the relay behind
@@ -45,17 +50,19 @@ the passcode; v1 does not.
 - Teacher-started sessions, behind a teacher passcode; join by six-digit code or QR code.
 - Nicknames are generated from a colour and an animal. Students cannot type a
   name; they can ask for a different one up to three times in the lobby.
-- One set per weekly lesson, of 8 to 12 questions. A game asks every question
+- One set per weekly lesson (or per assignment task), of 8 to 12 questions. A game asks every question
   twice, in a random order: the repeat comes at least three rounds after the
   first, and its choices are reshuffled so the answer is under a different
   letter. Retrieving the same idea again after a gap is what makes it stick;
   remembering "it was B" does not. Repeats are marked "Seen before" on the
   projector. With 8 questions a game is 16 rounds, about 10–12 minutes; the
-  Unit 3 sets have 12, so 24 rounds, about 15–18 minutes. The teacher can skip
-  to the results at any reveal.
+  Unit 3 sets have 12, so 24 rounds, about 15–18 minutes. The set list shows
+  each set's estimate. The teacher can skip to the results at any reveal.
 - Multiple-choice questions with two to four choices: text choices, a picture
   as the question, or pictures as the choices. Pictures appear on the
   projector only; phones show A–D.
+- Time per question: 20 seconds unless the set or the question says otherwise.
+  Level 1 sets give 30, for slower readers.
 - Scoring: 500–1000 points for a correct answer, more for a faster one.
 - Lightning: after a reveal, from round 4 on and never on the last round,
   there is a 1 in 5 chance that lightning strikes one of the top three, picked
@@ -108,37 +115,94 @@ appears.
 
 ## Question sets
 
-Sets live in `src/features/play/sets/`, one file per course unit, registered in
-`sets/index.ts` in teaching order. BTEC AAQ IT Unit 3 (Website Development) has
-a set for each of its 20 weekly topics, written from that unit's lecture notes
-and decks in academic-materials (`modules/l3-aaq-u3-website-development`).
-Every topic has 12 questions, and every topic has some rendered pictures:
-page mock-ups, wireframes, planning documents, code to read and measured
-diagrams. The other questions are text. Each question carries an
-explanation that gives the reason, not just the fact. Explanations never name
-a letter, because the letters change between a question's two rounds.
+### Courses and the teacher's set list
 
-Pictures are real rendered pages, authored in `scripts/play-figures/<set>.html`
-in the style of the unit's lecture figures. Run `npm run play:figures`
+Sets are grouped three ways, so the list stays easy to use as it grows:
+
+- **Level**: the teacher can filter the course list to one level.
+- **Course**: one course unit, e.g. "Level 2 · Unit 9 · Spreadsheet
+  development". Opening a course shows its sets.
+- **Section**: inside a course, sets are grouped by learning aim or assignment
+  task, in teaching order. A search box (for courses with more than six sets)
+  filters by set title, spec reference or section.
+
+The chosen set stays in a panel beside the list, with the passcode and the
+Start button, while the teacher looks around other courses.
+
+The courses are listed in `src/features/play/sets/index.ts` (`courses`), lowest
+level first. Each course's sets are a separate file, `sets/<course>.ts`,
+exporting `sections`. A course's file is downloaded only when a teacher opens
+that course, so the teacher's page does not grow as courses are added; its
+JavaScript budget is back to 225 KiB. Every set id starts with its course id and
+a hyphen: that is how a reloaded session finds, and loads, its course.
+
+To add a course: write `sets/<course>.ts` with its sets and `sections`, draw its
+figures in `scripts/play-figures/<course>.html`, render them, and add an entry
+to `courses`. `sets.test.ts` picks it up from there.
+
+### The courses
+
+| Level | Course | Sets | Source |
+| --- | --- | --- | --- |
+| 1 | BTEC Level 1 Introductory Diploma in IT, Unit A4 Researching a topic | 5 sets of 10, Task 2 only | The "Digital Life: Staying safe online" assignment brief |
+| 2 | Level 2 IT, Unit 9 Spreadsheet development | 8 sets of 10–12, Tasks 1–5 | The Assignment 2 guide |
+| 3 | BTEC AAQ IT, Unit 3 Website development | 20 sets of 12 | The unit's lecture notes and decks |
+
+**Unit A4 (Level 1)** covers Task 2, the PowerPoint presentation that
+summarises research findings (B.P3, B.M3, B.D3): planning for the audience
+of new students and families, summarising, referencing sources, clear slide
+design and the PowerPoint tools. Its examples are from the brief's own topics
+(scam texts, passwords, phone security), so the quiz also revisits staying safe
+online. The questions are written for Level 1: short sentences, everyday
+words, two or three choices for most questions, and 30 seconds each.
+PowerPoint is named because the brief requires it; the College provides it.
+
+**Unit 9 (Level 2)** follows the guide's five tasks: the data model,
+formulas and formatting (2C.P4); validation, navigation, conditional formatting
+and charts (2C.M3); Apps Script, named ranges, pivot tables and protection
+(2C.D3); testing (2C.P5); and feedback and the review (2C.M4, 2D.P6, 2D.M5,
+2D.D4). Menu paths are Google Sheets' as the guide gives them. Formula
+questions are worked on a small sheet on the projector.
+
+**Unit 3 (Level 3)** has a set for each of its 20 weekly topics, written from
+that unit's lecture notes and decks in academic-materials
+(`modules/l3-aaq-u3-website-development`).
+
+### Writing questions and pictures
+
+Each question carries an explanation that gives the reason, not just the
+fact. Explanations never name a letter, because the letters change between a
+question's two rounds. Every set has some rendered pictures: page and slide
+mock-ups, spreadsheets, wireframes, planning documents, code to read and
+measured diagrams. The other questions are text.
+
+Pictures are real rendered pages, authored in `scripts/play-figures/<course>.html`
+in the style of the course's own materials. Run `npm run play:figures`
 (`CHROMIUM_PATH=…` to choose a browser) to render each `<figure data-name>` to
-`public/play/<set>/<name>.png` and update `sets/figure-sizes.json`. No picture
+`public/play/<course>/<name>.png` and update `sets/figure-sizes.json`;
+`npm run play:figures -- l2-u9` renders only the courses named. No picture
 carries a caption or pass/fail label that gives the answer away. Figures are
 drawn for low vision as well as a projector: text greys are at least 4.5:1
 against their background (most 7:1 or more), and borders, lines and shapes
 that carry meaning at least 3:1. The only exceptions are the deliberately
-failing buttons in the contrast question. Tools named in questions must be free
-to use: no paid apps or trials.
+failing choices in the contrast questions (Unit 3's buttons, Unit A4's
+slides) and the deliberately hard-to-read slide over a busy picture. Tools
+named in questions must be free to use, no paid apps or trials, unless the
+qualification requires them.
 
-`sets/sets.test.ts` checks every set: 8 to 12 questions, two to four choices of one kind, a valid
-answer, an explanation, alt text on every picture, and that each picture file
-exists. It also measures the contrast question's button colours from the
-figure source, so the question cannot drift from the picture.
+`sets/sets.test.ts` checks every course and set: each course loads, its
+sections have sets, every set id names its course, 8 to 12 questions, two to
+four choices of one kind, a valid answer, an explanation, alt text on every
+picture, and that each picture file exists. It also measures the contrast
+questions' colours from the figure source, so a question cannot drift from
+its picture.
 
 ## Tests
 
 - `npm test`: game rules (`game.test.ts`) and question sets (`sets.test.ts`).
 - `npm run e2e:play`: a teacher and two phones play a full session through the
-  relay in Cloudflare's local runtime, including reloads, removal and ending.
+  relay in Cloudflare's local runtime, including reloads, removal and ending,
+  and the teacher finds sets by level, course and search.
   Needs `npm --prefix relay ci` and `npm run build` first.
 - `npm --prefix relay test`: the relay on its own (rooms, reconnects, expiry,
   limits, origin checks).

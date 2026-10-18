@@ -1,5 +1,5 @@
-import type { QuestionSet, QuizImage } from "../types";
-import sizes from "./figure-sizes.json";
+import type { CourseSection, QuestionSet } from "../types";
+import { figuresFrom } from "./figures";
 
 /**
  * BTEC AAQ IT (Extended Certificate), Unit 3: Website Development.
@@ -11,12 +11,7 @@ import sizes from "./figure-sizes.json";
  * caption or a pass/fail label: the picture is the evidence, not the answer.
  */
 
-function figure(name: string, alt: string): QuizImage {
-  const key = `aaq-u3/${name}`;
-  const size = (sizes as Record<string, number[]>)[key];
-  if (!size) throw new Error(`No rendered figure "${key}". Run node scripts/render-play-figures.mjs.`);
-  return { src: `/play/${key}.png`, alt, width: size[0], height: size[1] };
-}
+const figure = figuresFrom("aaq-u3");
 
 const COURSE = "BTEC AAQ IT · Unit 3";
 
@@ -2720,3 +2715,19 @@ export const testingReview: QuestionSet = {
     },
   ],
 };
+
+/** In teaching order: one set per weekly session, grouped by learning aim. */
+export const sections: CourseSection[] = [
+  {
+    title: "Learning aim A · Design principles and planning",
+    sets: [purposesAudiences, pageLayout, navigationContent, userExperience, motionDynamicSeo, planningBrief, siteMaps],
+  },
+  {
+    title: "Learning aim B · Designing and preparing assets",
+    sets: [wireframing, visualStyle, creatingAssets, sourcingAssets],
+  },
+  {
+    title: "Learning aim C · Building, publishing and testing",
+    sets: [htmlStructure, htmlContentForms, cssStyling, cssLayout, jsComponents, jsImagesMotion, jsFilterSearchCart, standardsPublishing, testingReview],
+  },
+];

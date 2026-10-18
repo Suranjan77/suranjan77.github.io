@@ -5,9 +5,12 @@ import { NICKNAME_ANIMALS, NICKNAME_COLOURS, pickNickname } from "../nicknames";
 import { parsePlayerMessage } from "../protocol";
 import type { QuizImage } from "../types";
 import { userExperience } from "./aaq-u3";
-import { questionSets } from "./index";
+import { designingSlides } from "./l1-a4";
+import { courseOfSet, courses, findSet, loadCourse, loadSet } from "./index";
 
 const publicDir = join(process.cwd(), "public");
+const loadedCourses = await Promise.all(courses.map(async (course) => ({ course, sections: await loadCourse(course) })));
+const questionSets = loadedCourses.flatMap(({ sections }) => sections.flatMap((section) => section.sets));
 
 function checkImage(image: QuizImage) {
   expect(image.alt.trim().length).toBeGreaterThan(10);
@@ -15,6 +18,35 @@ function checkImage(image: QuizImage) {
   expect(image.width).toBeGreaterThan(0);
   expect(image.height).toBeGreaterThan(0);
 }
+
+describe("courses", () => {
+  it("have unique ids, none the start of another, and are listed lowest level first", () => {
+    const ids = courses.map((course) => course.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const a of ids) for (const b of ids) if (a !== b) expect(b.startsWith(`${a}-`)).toBe(false);
+    const levels = courses.map((course) => course.level);
+    expect(levels).toEqual([...levels].sort());
+  });
+
+  for (const { course, sections } of loadedCourses) {
+    it(`${course.id}: every section has sets, and every set id names its course`, () => {
+      expect(sections.length).toBeGreaterThan(0);
+      for (const section of sections) {
+        expect(section.title.trim()).not.toBe("");
+        expect(section.sets.length).toBeGreaterThan(0);
+        for (const set of section.sets) {
+          expect(courseOfSet(set.id)).toBe(course);
+          expect(findSet(set.id)).toBe(set);
+        }
+      }
+    });
+  }
+
+  it("load a set by id, and nothing for an unknown id", async () => {
+    expect(await loadSet(questionSets[0].id)).toBe(questionSets[0]);
+    expect(await loadSet("no-such-course-t01")).toBeUndefined();
+  });
+});
 
 describe("question sets", () => {
   it("have unique ids", () => {
@@ -38,6 +70,7 @@ describe("question sets", () => {
           expect(Number.isInteger(question.answer)).toBe(true);
           expect(question.answer).toBeGreaterThanOrEqual(0);
           expect(question.answer).toBeLessThan(question.choices.length);
+          if (question.seconds !== undefined) expect(question.seconds).toBeGreaterThanOrEqual(10);
 
           const kinds = new Set(question.choices.map((c) => (c.image ? "image" : "text")));
           expect(kinds.size).toBe(1);
@@ -66,20 +99,27 @@ function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-describe("the contrast question", () => {
-  it("has exactly one button that passes 4.5:1, it is the answer, and the explanation's figures are the measured ones", () => {
-    const html = readFileSync(join(process.cwd(), "scripts/play-figures/aaq-u3.html"), "utf8");
-    const measured = new Map(
-      [...html.matchAll(/data-name="(t04-button-[a-z]+)"[\s\S]*?data-contrast style="background:(#[0-9a-f]{6});color:(#[0-9a-f]{6})"/g)]
-        .map(([, name, bg, fg]) => [name, contrast(bg, fg)]),
-    );
-    const question = userExperience.questions.find((q) => q.id === "contrast-button")!;
-    const ratios = question.choices.map((choice) => measured.get(choice.image!.src.match(/(t04-button-[a-z]+)/)![1])!);
+/** Questions whose answer is the only choice with 4.5:1 contrast, measured from the figure source. */
+const contrastQuestions = [
+  { figures: "aaq-u3", name: /t04-button-[a-z]+/, set: userExperience, id: "contrast-button", quotesRatios: true },
+  { figures: "l1-a4", name: /s4-contrast-[a-z]+/, set: designingSlides, id: "contrast", quotesRatios: false },
+];
 
-    expect(ratios.filter((r) => r >= 4.5)).toHaveLength(1);
-    expect(ratios[question.answer]).toBeGreaterThanOrEqual(4.5);
-    for (const ratio of ratios) expect(question.explanation).toContain(`${ratio.toFixed(1)}:1`);
-  });
+describe("the contrast questions", () => {
+  for (const { figures, name, set, id, quotesRatios } of contrastQuestions) {
+    it(`${set.id} ${id}: exactly one choice passes 4.5:1, and it is the answer`, () => {
+      const html = readFileSync(join(process.cwd(), `scripts/play-figures/${figures}.html`), "utf8");
+      const pattern = new RegExp(`data-name="(${name.source})"[\\s\\S]*?data-contrast style="background:(#[0-9a-f]{6});color:(#[0-9a-f]{6})"`, "g");
+      const measured = new Map([...html.matchAll(pattern)].map(([, figure, bg, fg]) => [figure, contrast(bg, fg)]));
+      const question = set.questions.find((q) => q.id === id)!;
+      const ratios = question.choices.map((choice) => measured.get(choice.image!.src.match(name)![0])!);
+
+      expect(ratios.every((r) => r !== undefined)).toBe(true);
+      expect(ratios.filter((r) => r >= 4.5)).toHaveLength(1);
+      expect(ratios[question.answer]).toBeGreaterThanOrEqual(4.5);
+      if (quotesRatios) for (const ratio of ratios) expect(question.explanation).toContain(`${ratio.toFixed(1)}:1`);
+    });
+  }
 });
 
 describe("nicknames", () => {

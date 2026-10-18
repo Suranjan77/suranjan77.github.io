@@ -1,0 +1,244 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Classroom quiz figures: BTEC Level 1 Unit A4, Task 2</title>
+<!--
+  Every <figure data-name> on this page is rendered to public/play/l1-a4/<name>.png
+  by scripts/render-play-figures.mjs. Each is a slide, a log or a PowerPoint screen
+  from a student's "Staying safe online" presentation, with nothing on it that
+  gives an answer away: no captions, no pass/fail labels. Sam is invented.
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; background: #e9ecef; color: #1b1f24;
+         font: 16px/1.45 "Segoe UI", Inter, system-ui, sans-serif;
+         display: flex; flex-direction: column; align-items: flex-start; gap: 24px; }
+  figure { margin: 0; background: #fff; padding: 14px; }
+  .num { display: inline-block; background: #a35200; color: #fff; font: 700 13px/22px "Segoe UI", Inter, system-ui, sans-serif;
+         min-width: 22px; text-align: center; border-radius: 4px; padding: 0 5px; }
+
+  /* A 16:9 slide in a plain theme: a navy band at the top, dark text on white. */
+  .slide { width: 400px; height: 225px; border: 2px solid #7b8794; border-radius: 4px; background: #fff;
+           position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  .slide.big { width: 480px; height: 270px; }
+  .slide .band { height: 10px; background: #24476b; flex: none; }
+  .slide .inner { padding: 14px 20px; flex: 1; display: flex; flex-direction: column; }
+  .slide h3 { margin: 0 0 10px; font-size: 22px; line-height: 1.15; color: #14202b; }
+  .slide ul { margin: 0; padding-left: 20px; font-size: 16px; line-height: 1.4; color: #1b1f24; }
+  .slide li { margin-bottom: 4px; }
+  .slide .foot { font-size: 11px; color: #46525e; border-top: 1px solid #9aa5b1; padding-top: 5px; margin-top: auto; }
+  .pic { background: #a9c4dc; border: 1.5px solid #5d7a94; border-radius: 4px; }
+
+  /* Title slide. */
+  .title-slide .inner { justify-content: center; align-items: center; text-align: center; }
+  .title-slide h2 { margin: 0; font-size: 30px; color: #14202b; }
+  .title-slide p { margin: 8px 0 0; font-size: 16px; color: #46525e; }
+
+  /* Phone with a scam text, used as a slide picture. */
+  .phone { width: 92px; height: 150px; border: 5px solid #2a3139; border-radius: 14px; background: #f4f6f8; padding: 8px 6px; flex: none; }
+  .phone .msg { background: #dfe5ec; border-radius: 8px; padding: 5px 6px; font-size: 8.5px; line-height: 1.3; color: #1b1f24; }
+  .phone .msg u { color: #1f4f80; }
+
+  /* Slide sorter: thumbnails in a row with their numbers. */
+  .sorter { display: flex; gap: 14px; padding: 6px; background: #eef1f4; }
+  .thumb { text-align: center; font-size: 13px; color: #1b1f24; }
+  .thumb .slide { width: 150px; height: 84px; border-width: 1.5px; }
+  .thumb .slide .band { height: 5px; }
+  .thumb .slide .inner { padding: 6px 8px; }
+  .thumb .slide b { font-size: 11.5px; line-height: 1.2; color: #14202b; }
+  .thumb .slide .l { height: 4px; background: #a3aeb9; border-radius: 2px; margin-top: 5px; }
+  .thumb .slide .l.s { width: 65%; }
+  .thumb .n { margin-top: 5px; }
+
+  /* Research log. */
+  .log { width: 640px; border-collapse: collapse; font-size: 13px; }
+  .log th, .log td { border: 1px solid #7b8794; padding: 7px 9px; text-align: left; vertical-align: top; }
+  .log th { background: #eef1f4; font-size: 12px; color: #1b1f24; }
+  .log caption { text-align: left; font-weight: 600; font-size: 15px; padding-bottom: 8px; color: #14202b; }
+
+  /* A list of references. */
+  .refs { width: 560px; font-size: 15px; }
+  .refs h3 { margin: 0 0 12px; font-size: 17px; color: #14202b; }
+  .refs p { margin: 0 0 12px; display: flex; gap: 10px; align-items: baseline; }
+
+  /* Slides that are hard or easy to read. */
+  .wall p { margin: 0; font-size: 11px; line-height: 1.35; color: #1b1f24; }
+  .clear .row { display: flex; gap: 14px; }
+  .clear ul { flex: 1; }
+  .sparse .inner { align-items: center; justify-content: center; }
+  .sparse .art { width: 300px; height: 150px; border-radius: 6px;
+                 background: repeating-linear-gradient(45deg, #c9a2d8 0 14px, #f2c27b 14px 28px, #9ecbff 28px 42px); }
+
+  /* The same slide in three colourings. Colours are measured by src/features/play/sets/sets.test.ts. */
+  .contrast .inner { justify-content: center; }
+  .contrast h3 { color: inherit; font-size: 24px; }
+  .contrast ul { color: inherit; font-size: 18px; }
+
+  /* Text laid over a busy photo. */
+  .busy { background:
+            radial-gradient(circle at 20% 30%, #f4d35e 0 18px, transparent 19px),
+            radial-gradient(circle at 70% 60%, #ee964b 0 30px, transparent 31px),
+            radial-gradient(circle at 45% 80%, #7ec4cf 0 24px, transparent 25px),
+            repeating-linear-gradient(115deg, #3d5a80 0 12px, #98c1d9 12px 22px, #e0fbfc 22px 30px, #293241 30px 40px); }
+  .busy .inner { justify-content: center; }
+  .busy h3, .busy ul { color: #ffffff; }
+
+  /* PowerPoint layout thumbnails: placeholders only, no names. */
+  .layout { width: 240px; height: 135px; border: 2px solid #7b8794; border-radius: 4px; background: #fff; position: relative; }
+  .layout .ph { position: absolute; border: 1.5px dashed #5d6975; border-radius: 3px; display: flex; align-items: center; justify-content: center; }
+  .layout .ph i { display: block; width: 40%; height: 5px; background: #8a96a3; border-radius: 2px; }
+  .layout .ph .dots { width: 70%; }
+  .layout .ph .dots span { display: block; height: 5px; background: #8a96a3; border-radius: 2px; margin: 6px 0; }
+  .layout .ph .dots.b span { position: relative; margin-left: 12px; }
+  .layout .ph .dots.b span::before { content: ""; position: absolute; left: -12px; top: -1px; width: 7px; height: 7px; border-radius: 50%; background: #3c4753; }
+
+  /* A word underlined as a spelling mistake. */
+  .wavy { text-decoration: underline wavy #c4211d; text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
+</style>
+
+<!-- ── Set 1: planning ───────────────────────────────────────────────── -->
+<figure data-name="s1-title-slide"><div class="slide big title-slide">
+  <div class="band"></div>
+  <div class="inner">
+    <h2>My PowerPoint</h2>
+    <p>Sam</p>
+  </div>
+</div></figure>
+
+<figure data-name="s1-slide-order"><div class="sorter">
+  <div class="thumb"><div class="slide"><div class="band"></div><div class="inner" style="align-items:center;justify-content:center"><b>Spotting fake delivery texts</b></div></div><div class="n">1</div></div>
+  <div class="thumb"><div class="slide"><div class="band"></div><div class="inner"><b>Where I found my facts</b><div class="l"></div><div class="l s"></div><div class="l"></div></div></div><div class="n">2</div></div>
+  <div class="thumb"><div class="slide"><div class="band"></div><div class="inner"><b>What is a fake delivery text?</b><div class="l"></div><div class="l s"></div></div></div><div class="n">3</div></div>
+  <div class="thumb"><div class="slide"><div class="band"></div><div class="inner"><b>How to spot one</b><div class="l"></div><div class="l s"></div><div class="l"></div></div></div><div class="n">4</div></div>
+  <div class="thumb"><div class="slide"><div class="band"></div><div class="inner"><b>What to do</b><div class="l s"></div><div class="l"></div></div></div><div class="n">5</div></div>
+</div></figure>
+
+<!-- ── Set 2: summarising ────────────────────────────────────────────── -->
+<figure data-name="s2-research-log"><table class="log">
+  <caption>Sam's research log</caption>
+  <tr><th style="width:22%">What I researched</th><th style="width:20%">Source</th><th>Useful information</th></tr>
+  <tr>
+    <td>Fake delivery texts</td>
+    <td>Action Fraud website</td>
+    <td>Scam texts often say a parcel could not be delivered. They ask you to click a link and pay a small fee to book a new delivery. The link goes to a fake website that steals your card details.</td>
+  </tr>
+</table></figure>
+
+<!-- ── Set 3: referencing ────────────────────────────────────────────── -->
+<figure data-name="s3-references"><div class="refs">
+  <h3>Sources</h3>
+  <p><span class="num">1</span><span>google.com</span></p>
+  <p><span class="num">2</span><span>National Cyber Security Centre, "Phishing: spot and report scam emails, texts, websites and calls", www.ncsc.gov.uk, accessed 12 October 2026</span></p>
+  <p><span class="num">3</span><span>A website about scams</span></p>
+</div></figure>
+
+<figure data-name="s3-source-line"><div class="slide big">
+  <div class="band"></div>
+  <div class="inner">
+    <h3>What to do with a scam text</h3>
+    <ul>
+      <li>Do not click the link</li>
+      <li>Forward the text to 7726, for free</li>
+      <li>Delete it</li>
+    </ul>
+    <div class="foot">Source: National Cyber Security Centre, www.ncsc.gov.uk</div>
+  </div>
+</div></figure>
+
+<!-- ── Set 4: slide design ───────────────────────────────────────────── -->
+<figure data-name="s4-read-wall"><div class="slide wall">
+  <div class="band"></div>
+  <div class="inner">
+    <h3>Passwords</h3>
+    <p>A password is a secret word or phrase that you use to get into your accounts, and if somebody guesses it or finds it out they can get into your email, your social media and sometimes your bank, so it is very important to make it hard to guess. Many people use the same password on lots of websites, which means that if one website is hacked, criminals can try the same password everywhere else. Experts say you should use three random words, and you should turn on two-step verification wherever you can, because then a criminal also needs a code from your phone.</p>
+  </div>
+</div></figure>
+
+<figure data-name="s4-read-clear"><div class="slide clear">
+  <div class="band"></div>
+  <div class="inner">
+    <h3>Strong passwords</h3>
+    <div class="row">
+      <ul>
+        <li>Use three random words</li>
+        <li>A different password for each account</li>
+        <li>Turn on two-step verification</li>
+      </ul>
+      <div class="pic" style="width:90px;height:90px"></div>
+    </div>
+  </div>
+</div></figure>
+
+<figure data-name="s4-read-sparse"><div class="slide sparse">
+  <div class="inner"><div class="art"></div></div>
+</div></figure>
+
+<figure data-name="s4-contrast-pale"><div class="slide contrast" data-contrast style="background:#ffffff;color:#f2d95c">
+  <div class="inner"><h3>Lock your phone</h3><ul><li>Use a PIN, a fingerprint or your face</li><li>Never share your PIN</li></ul></div>
+</div></figure>
+
+<figure data-name="s4-contrast-dark"><div class="slide contrast" data-contrast style="background:#ffffff;color:#14202b">
+  <div class="inner"><h3>Lock your phone</h3><ul><li>Use a PIN, a fingerprint or your face</li><li>Never share your PIN</li></ul></div>
+</div></figure>
+
+<figure data-name="s4-contrast-clash"><div class="slide contrast" data-contrast style="background:#2e8b3a;color:#e0262b">
+  <div class="inner"><h3>Lock your phone</h3><ul><li>Use a PIN, a fingerprint or your face</li><li>Never share your PIN</li></ul></div>
+</div></figure>
+
+<figure data-name="s4-busy-photo"><div class="slide big busy">
+  <div class="inner">
+    <h3>Gaming safely</h3>
+    <ul>
+      <li>Keep chat to friends you know</li>
+      <li>Never share your password</li>
+      <li>Ask before you buy anything</li>
+    </ul>
+  </div>
+</div></figure>
+
+<figure data-name="s4-scam-picture"><div class="slide big">
+  <div class="band"></div>
+  <div class="inner">
+    <h3>Spotting a fake delivery text</h3>
+    <div style="display:flex;gap:18px;align-items:flex-start">
+      <ul style="flex:1">
+        <li>It asks you to pay a small fee</li>
+        <li>The link looks strange</li>
+        <li>It says you must act now</li>
+      </ul>
+      <div class="phone"><div class="msg">Your parcel could not be delivered. Pay £1.45 to book a new time: <u>parcel-redeliver.co</u></div></div>
+    </div>
+  </div>
+</div></figure>
+
+<!-- ── Set 5: PowerPoint ─────────────────────────────────────────────── -->
+<figure data-name="s5-layout-title"><div class="layout">
+  <div class="ph" style="left:24px;right:24px;top:36px;height:34px"><i style="width:60%"></i></div>
+  <div class="ph" style="left:50px;right:50px;top:78px;height:20px"><i></i></div>
+</div></figure>
+
+<figure data-name="s5-layout-content"><div class="layout">
+  <div class="ph" style="left:14px;right:14px;top:10px;height:26px"><i></i></div>
+  <div class="ph" style="left:14px;right:14px;top:42px;bottom:10px;justify-content:flex-start;padding-left:14px">
+    <div class="dots b"><span></span><span style="width:80%"></span><span style="width:90%"></span></div>
+  </div>
+</div></figure>
+
+<figure data-name="s5-layout-two"><div class="layout">
+  <div class="ph" style="left:14px;right:14px;top:10px;height:26px"><i></i></div>
+  <div class="ph" style="left:14px;width:100px;top:42px;bottom:10px"><div class="dots b"><span></span><span></span></div></div>
+  <div class="ph" style="right:14px;width:100px;top:42px;bottom:10px"><div class="dots b"><span></span><span></span></div></div>
+</div></figure>
+
+<figure data-name="s5-layout-blank"><div class="layout"></div></figure>
+
+<figure data-name="s5-spelling"><div class="slide big">
+  <div class="band"></div>
+  <div class="inner">
+    <h3>Strong passwords</h3>
+    <ul>
+      <li>Use three random words</li>
+      <li>Never share your <span class="wavy">pasword</span></li>
+      <li>Turn on two-step verification</li>
+    </ul>
+  </div>
+</div></figure>

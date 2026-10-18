@@ -28,7 +28,8 @@ import {
 } from "./game";
 import { RelayClose, parsePlayerMessage } from "./protocol";
 import { RelaySocket, relayBaseUrl, type SocketStatus } from "./relaySocket";
-import { findSet, questionSets } from "./sets";
+import { SetPicker, courseName, setDetails, useCourseSections } from "./SetPicker";
+import { courseOfSet, findCourse, findSet, loadSet } from "./sets";
 import { CHOICE_LABELS, type QuestionSet, type QuizImage } from "./types";
 import { CHOICE_STYLES, ChoiceMark, Loading, QrCode, formatCode } from "./ui";
 
@@ -67,6 +68,29 @@ function savePasscode(passcode: string | null, remember: boolean) {
   }
 }
 
+/**
+ * The set this device last started, so next lesson opens on its course. A set
+ * id is not personal data; nothing about the students is kept with it.
+ */
+const LAST_SET_KEY = "classroom-quiz-last-set";
+
+function loadLastSet(): string | null {
+  try {
+    const id = localStorage.getItem(LAST_SET_KEY);
+    return id && courseOfSet(id) ? id : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveLastSet(id: string) {
+  try {
+    localStorage.setItem(LAST_SET_KEY, id);
+  } catch {
+    // Storage unavailable: the teacher picks the course each time.
+  }
+}
+
 type Room = { code: string; token: string };
 type Saved = Room & { game: GameState };
 
@@ -98,7 +122,9 @@ const BATCH_SIZE = 20;
 
 export default function HostApp() {
   const [base, setBase] = useState<string | null | undefined>(undefined);
-  const [chosenSetId, setChosenSetId] = useState(questionSets[0].id);
+  const [chosenSetId, setChosenSetId] = useState<string | null>(null);
+  const [courseId, setCourseId] = useState<string | null>(null);
+  const [lastUsed, setLastUsed] = useState<string | null>(null);
   const [room, setRoom] = useState<Room | null>(null);
   const [game, setGame] = useState<GameState | null>(null);
   const [status, setStatus] = useState<SocketStatus>("closed");
@@ -113,7 +139,7 @@ export default function HostApp() {
   const live = useRef<{ room: Room | null; game: GameState | null; pendingSetId: string }>({
     room: null,
     game: null,
-    pendingSetId: questionSets[0].id,
+    pendingSetId: "",
   });
 
   /** Apply a new game state, keep it for a reload, and update the phones that need it. */
@@ -203,23 +229,46 @@ export default function HostApp() {
     s.start();
   }, [forget, onMessage]);
 
-  // Find the relay and pick up a session this tab was already running.
+  // Find the relay and pick up a session this tab was already running, loading its course first.
   useEffect(() => {
+    let current = true;
     const relay = relayBaseUrl();
-    setBase(relay);
     setNow(Date.now());
     const saved = loadPasscode();
     setPasscode(saved.passcode);
     setRemember(saved.remembered);
+    const last = loadLastSet();
+    setLastUsed(last);
+    setChosenSetId(last);
+    setCourseId(last ? courseOfSet(last)!.id : null);
+
     const session = loadSaved();
-    if (relay && session && findSet(session.game.setId) && Array.isArray(session.game.plan)) {
-      live.current.room = { code: session.code, token: session.token };
-      live.current.game = session.game;
-      setRoom(live.current.room);
-      setGame(session.game);
-      connect(relay);
+    if (relay && session && courseOfSet(session.game.setId) && Array.isArray(session.game.plan)) {
+      loadSet(session.game.setId).then(
+        (set) => {
+          if (!current) return;
+          if (set) {
+            live.current.room = { code: session.code, token: session.token };
+            live.current.game = session.game;
+            setRoom(live.current.room);
+            setGame(session.game);
+            connect(relay);
+          }
+          setBase(relay);
+        },
+        () => {
+          if (!current) return;
+          setNotice("The session in progress could not be picked up, because its questions did not load. Check the internet connection and reload this page.");
+          setBase(relay);
+        },
+      );
+    } else {
+      setBase(relay);
     }
-    return () => socket.current?.stop();
+    return () => {
+      current = false;
+      socket.current?.stop();
+    };
   }, [connect]);
 
   // The question clock: reveal at the deadline, or as soon as everyone has answered.
@@ -241,6 +290,11 @@ export default function HostApp() {
     if (!base || opening) return;
     const key = passcode.trim();
     setNotice(null);
+    const chosen = chosenSetId ? findSet(chosenSetId) : undefined;
+    if (!chosen) {
+      setProblem("Choose a question set first.");
+      return;
+    }
     if (!key) {
       setProblem("Enter the teacher passcode.");
       return;
@@ -264,7 +318,9 @@ export default function HostApp() {
       }
       const { code, token } = (await response.json()) as Room;
       savePasscode(key, remember);
-      live.current.pendingSetId = chosenSetId;
+      saveLastSet(chosen.id);
+      setLastUsed(chosen.id);
+      live.current.pendingSetId = chosen.id;
       live.current.game = null;
       live.current.room = { code, token };
       connect(base);
@@ -335,8 +391,11 @@ export default function HostApp() {
     return (
       <Frame>
         <Setup
+          courseId={courseId}
+          onCourse={setCourseId}
           chosen={chosenSetId}
           onChoose={setChosenSetId}
+          lastUsed={lastUsed}
           onStart={startSession}
           busy={opening || connecting}
           problem={problem ?? (status === "reconnecting" ? "Cannot reach the relay. Check the connection; this screen keeps trying." : null)}
@@ -381,8 +440,11 @@ const quietButton =
   "inline-flex min-h-11 items-center justify-center border border-outline-dark bg-surface px-4 text-sm font-medium text-on-surface transition-colors hover:bg-surface-container-high";
 
 function Setup(props: {
-  chosen: string;
+  courseId: string | null;
+  onCourse: (id: string | null) => void;
+  chosen: string | null;
   onChoose: (id: string) => void;
+  lastUsed: string | null;
   onStart: () => void;
   busy: boolean;
   problem: string | null;
@@ -393,8 +455,14 @@ function Setup(props: {
   onRemember: (value: boolean) => void;
   onForget: () => void;
 }) {
+  const course = props.courseId ? findCourse(props.courseId) : undefined;
+  // Re-renders when the open course has loaded, so the chosen set below can be shown.
+  const { sections, failed, retry } = useCourseSections(course);
+  const chosen = props.chosen ? findSet(props.chosen) : undefined;
+  const chosenCourse = props.chosen ? courseOfSet(props.chosen) : undefined;
+
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-10 sm:py-14">
+    <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
       <p className="font-mono text-[10px] uppercase tracking-label text-primary">Classroom quiz · teacher</p>
       <h1 className="mt-3 font-headline text-4xl font-medium leading-tight">Start a quiz session</h1>
       <p className="mt-4 max-w-2xl leading-7 text-on-surface-variant">
@@ -406,61 +474,62 @@ function Setup(props: {
         <p role="status" className="mt-6 border-l-2 border-primary bg-primary-container px-4 py-3 text-sm text-on-primary-container">{props.notice}</p>
       )}
 
-      <fieldset className="mt-8">
-        <legend className="font-mono text-[10px] uppercase tracking-label text-on-surface-variant">Question set</legend>
-        <div className="mt-3 grid gap-3 lg:grid-cols-2">
-          {questionSets.map((set) => (
-            <label
-              key={set.id}
-              className={`flex cursor-pointer items-start gap-3 border p-4 transition-colors ${props.chosen === set.id ? "border-primary bg-primary-container" : "border-outline-dark bg-surface hover:bg-surface-container-high"}`}
-            >
-              <input
-                type="radio"
-                name="set"
-                value={set.id}
-                checked={props.chosen === set.id}
-                onChange={() => props.onChoose(set.id)}
-                className="mt-1.5 h-4 w-4 accent-[#556B4A]"
-              />
-              <span>
-                <span className="block font-medium">{set.title}</span>
-                <span className="mt-1 block text-sm text-on-surface-variant">
-                  {set.course} · Spec {set.spec} · {set.questions.length} questions, each asked twice
-                </span>
-              </span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
-
-      <form
-        className="mt-8 flex flex-col gap-3"
-        onSubmit={(event) => {
-          event.preventDefault();
-          props.onStart();
-        }}
-      >
-        <label htmlFor="passcode" className="font-mono text-[10px] uppercase tracking-label text-on-surface-variant">Teacher passcode</label>
-        <input
-          id="passcode"
-          type="password"
-          autoComplete="off"
-          value={props.passcode}
-          onChange={(e) => props.onPasscode(e.target.value)}
-          className="min-h-12 max-w-md border-2 border-outline-dark bg-surface px-3 text-lg focus:border-primary focus:outline-none"
+      <div className="mt-8 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <SetPicker
+          courseId={props.courseId}
+          onCourse={props.onCourse}
+          chosen={props.chosen}
+          onChoose={props.onChoose}
+          lastUsed={props.lastUsed}
+          sections={sections}
+          failed={failed}
+          onRetry={retry}
         />
-        <label className="flex items-center gap-2 text-sm text-on-surface-variant">
-          <input type="checkbox" checked={props.remember} onChange={(e) => props.onRemember(e.target.checked)} className="h-4 w-4 accent-[#556B4A]" />
-          Remember on this device (not on a shared classroom computer)
-        </label>
-        {props.remember && props.passcode && (
-          <button type="button" onClick={props.onForget} className="self-start text-sm text-primary underline underline-offset-4">Forget the saved passcode</button>
-        )}
-        <button type="submit" className={`${primaryButton} mt-3 self-start`} disabled={props.busy}>
-          {props.busy ? "Opening a room…" : "Start session"}
-        </button>
-      </form>
-      {props.problem && <p role="alert" className="mt-4 text-sm text-error">{props.problem}</p>}
+
+        <form
+          aria-label="Session"
+          className="flex flex-col gap-3 border border-outline-dark bg-surface p-5 lg:sticky lg:top-6"
+          onSubmit={(event) => {
+            event.preventDefault();
+            props.onStart();
+          }}
+        >
+          <p className="font-mono text-[10px] uppercase tracking-label text-on-surface-variant">Chosen set</p>
+          {chosen && chosenCourse ? (
+            <div data-testid="chosen-set">
+              <p className="font-medium">{chosen.title}</p>
+              <p className="mt-1 text-sm text-on-surface-variant">{courseName(chosenCourse)}</p>
+              <p className="mt-1 text-sm text-on-surface-variant">{setDetails(chosen)}</p>
+              {props.courseId !== chosenCourse.id && (
+                <button type="button" onClick={() => props.onCourse(chosenCourse.id)} className="mt-2 text-sm text-primary underline underline-offset-4">Show it in its course</button>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-on-surface-variant">None yet. Choose a course, then a set.</p>
+          )}
+
+          <label htmlFor="passcode" className="mt-3 font-mono text-[10px] uppercase tracking-label text-on-surface-variant">Teacher passcode</label>
+          <input
+            id="passcode"
+            type="password"
+            autoComplete="off"
+            value={props.passcode}
+            onChange={(e) => props.onPasscode(e.target.value)}
+            className="min-h-12 border-2 border-outline-dark bg-surface px-3 text-lg focus:border-primary focus:outline-none"
+          />
+          <label className="flex items-center gap-2 text-sm text-on-surface-variant">
+            <input type="checkbox" checked={props.remember} onChange={(e) => props.onRemember(e.target.checked)} className="h-4 w-4 shrink-0 accent-[#556B4A]" />
+            Remember on this device (not on a shared classroom computer)
+          </label>
+          {props.remember && props.passcode && (
+            <button type="button" onClick={props.onForget} className="self-start text-sm text-primary underline underline-offset-4">Forget the saved passcode</button>
+          )}
+          <button type="submit" className={`${primaryButton} mt-3`} disabled={props.busy || !chosen}>
+            {props.busy ? "Opening a room…" : "Start session"}
+          </button>
+          {props.problem && <p role="alert" className="text-sm text-error">{props.problem}</p>}
+        </form>
+      </div>
     </div>
   );
 }
