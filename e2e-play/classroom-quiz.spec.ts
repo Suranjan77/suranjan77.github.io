@@ -179,7 +179,7 @@ test("the teacher can skip to the results", async ({ browser }) => {
   await expect(student.getByText("Session ended")).toBeVisible();
 });
 
-test("lightning strikes one of the top three, and only that phone is told", async ({ browser }) => {
+test("the answer is shown as soon as everyone has answered, and a silent phone does not hold the room", async ({ browser }) => {
   const teacher = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
   await teacher.goto("/play/host");
   await chooseSet(teacher, UNIT_3, TOPIC_4);
@@ -188,35 +188,44 @@ test("lightning strikes one of the top three, and only that phone is told", asyn
   const code = ((await teacher.getByTestId("room-code").textContent()) ?? "").replace(/\D/g, "");
   const ana = await joinAsStudent(browser, code);
   const ben = await joinAsStudent(browser, code);
-  const names = [await nickname(ana), await nickname(ben)];
+  const cat = await joinAsStudent(browser, code);
+  const catName = await nickname(cat);
+  await expect(teacher.getByRole("heading", { name: "3 students joined" })).toBeVisible();
 
-  await teacher.getByRole("button", { name: "Start the quiz" }).click();
-  // From here every roll comes up lightning, on the leader.
-  await teacher.evaluate(() => {
-    Math.random = () => 0.01;
+  // Cat's phone goes quiet without its connection closing, like a locked phone the relay has not noticed.
+  await cat.evaluate(() => {
+    WebSocket.prototype.send = () => {};
   });
-  const rounds = 4;
-  for (let round = 1; round <= rounds; round += 1) {
-    if (round > 1) await teacher.getByRole("button", { name: "Next question" }).click();
-    await expect(teacher.getByText(`Question ${round} of 24`)).toBeVisible();
-    const key = await answerKey(teacher);
-    await choose(ana, key.right);
-    await ben.waitForTimeout(300);
-    await choose(ben, key.right);
-    await expect(teacher.getByText("✓ Correct")).toBeVisible();
-  }
+  await teacher.getByRole("button", { name: "Start the quiz" }).click();
+  await expect(teacher.getByText("Question 1 of 24")).toBeVisible();
 
-  // Ana answered first every time, so she leads, and lightning strikes her.
-  const banner = teacher.getByText(`Lightning struck ${names[0]}: −`);
-  await expect(banner).toBeVisible();
-  await expect(ana.getByText(/Lightning struck you: −\d+ points/)).toBeVisible();
+  // Round 1: Ana and Ben answer. The room waits a few seconds for Cat's phone, then shows the answer,
+  // long before the clock runs out.
+  const first = await answerKey(teacher);
+  const started = Date.now();
+  await choose(ana, first.right);
+  await choose(ben, first.wrong);
+  await expect(teacher.getByText("✓ Correct")).toBeVisible({ timeout: 10_000 });
+  // Long before the question's time is up: the room waited only the few seconds a slow phone is given.
+  expect(Date.now() - started).toBeLessThan(10_000);
+  expect(Number(await ana.getByText(/^\+[\d,]+$/).textContent().then((t) => t!.replace(/\D/g, "")))).toBeGreaterThan(0);
+  await expect(ana.getByText(/^Speed [\d,]+$/)).toBeVisible();
+  await expect(teacher.getByRole("complementary").getByText(catName)).toHaveCount(0);
+
+  // Round 2, after Cat closes the page: the moment the last answer is in, the answer is shown.
+  await cat.close();
+  await teacher.getByRole("button", { name: "Next question" }).click();
+  await expect(teacher.getByText("Question 2 of 24")).toBeVisible();
+  const second = await answerKey(teacher);
+  await choose(ana, second.right);
+  // Ben's phone has shown the question, so the room keeps waiting for him.
+  await ben.waitForTimeout(6000);
+  await expect(teacher.getByText("✓ Correct")).toHaveCount(0);
+  const before = Date.now();
+  await choose(ben, second.right);
+  await expect(teacher.getByText("✓ Correct")).toBeVisible();
+  expect(Date.now() - before).toBeLessThan(3000);
   await expect(ben.getByRole("heading", { name: "Correct" })).toBeVisible();
-  await expect(ben.getByText(/Lightning struck/)).toHaveCount(0);
-
-  const lost = Number(/−(\d+)/.exec((await banner.textContent()) ?? "")![1]);
-  const score = Number(await ana.locator("p", { hasText: "Your score:" }).locator("span").textContent());
-  expect(lost).toBeGreaterThan(0);
-  await expect(teacher.getByRole("complementary").locator("li", { hasText: names[0] })).toContainText(String(score));
 });
 
 test("the teacher can remove a student", async ({ browser }) => {

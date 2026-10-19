@@ -55,13 +55,14 @@ export function useCourseSections(course: Course | undefined) {
   };
 }
 
-const card = "border transition-colors";
-const cardIdle = "border-outline-dark bg-surface hover:bg-surface-container-high";
-const cardChosen = "border-primary bg-primary-container";
-const label = "font-mono text-[10px] uppercase tracking-label text-on-surface-variant";
+const card = "rounded-[16px] border-2 transition-colors";
+const cardIdle = "border-[color:var(--quiz-line)] bg-[color:var(--quiz-card)] hover:border-[#CFC5B2] hover:bg-[#FBF8F1]";
+const cardChosen = "border-[color:var(--quiz-green)] bg-[color:var(--quiz-green-soft)]";
+const label = "font-mono text-[11px] uppercase tracking-label text-[color:var(--quiz-muted)]";
+const link = "text-[color:var(--quiz-green)] underline decoration-2 underline-offset-4";
 
 function Badge({ children }: { children: React.ReactNode }) {
-  return <span className="ml-2 whitespace-nowrap bg-accent-container px-1.5 py-0.5 align-middle font-mono text-[10px] uppercase tracking-label text-on-accent-container">{children}</span>;
+  return <span className="ml-2 whitespace-nowrap rounded-[999px] bg-[color:var(--quiz-star-soft)] px-2 py-0.5 align-middle font-mono text-[10px] uppercase tracking-label text-[#4A3305]">{children}</span>;
 }
 
 export function SetPicker(props: {
@@ -110,7 +111,7 @@ function CourseList({ onCourse, chosen, lastUsed }: { onCourse: (id: string) => 
               type="button"
               aria-pressed={level === l}
               onClick={() => setLevel(l)}
-              className={`min-h-9 border px-3 text-sm ${level === l ? "border-primary bg-primary text-on-primary" : "border-outline-dark bg-surface text-on-surface hover:bg-surface-container-high"}`}
+              className={`min-h-9 rounded-[999px] border-2 px-3.5 text-sm font-medium ${level === l ? "border-[color:var(--quiz-ink)] bg-[color:var(--quiz-ink)] text-[#FFFDF8]" : "border-[color:var(--quiz-line)] bg-[color:var(--quiz-card)] hover:border-[#CFC5B2]"}`}
             >
               {l === "all" ? "All levels" : `Level ${l}`}
             </button>
@@ -129,11 +130,11 @@ function CourseList({ onCourse, chosen, lastUsed }: { onCourse: (id: string) => 
                   onClick={() => onCourse(course.id)}
                   className={`${card} ${chosenCourse === course.id ? cardChosen : cardIdle} flex h-full w-full flex-col items-start p-4 text-left`}
                 >
-                  <span className="font-medium">
+                  <span className="font-semibold">
                     {course.unit}
                     {lastCourse === course.id && <Badge>Last used</Badge>}
                   </span>
-                  <span className="mt-1 text-sm text-on-surface-variant">{course.qualification}</span>
+                  <span className="mt-1 text-sm text-[color:var(--quiz-muted)]">{course.qualification}</span>
                   <span className="mt-2 text-sm">{course.scope}</span>
                 </button>
               </li>
@@ -171,16 +172,16 @@ function CourseSets(props: {
 
   return (
     <section aria-labelledby="course-heading">
-      <button type="button" onClick={props.onBack} className="inline-flex min-h-9 items-center gap-1 text-sm text-primary underline underline-offset-4">
+      <button type="button" onClick={props.onBack} className={`inline-flex min-h-9 items-center gap-1 text-sm ${link}`}>
         <span aria-hidden="true">←</span> All courses
       </button>
       <h2 id="course-heading" className="mt-3 font-headline text-2xl font-medium">{courseName(props.course)}</h2>
-      <p className="mt-1 text-sm text-on-surface-variant">{props.course.qualification} · {props.course.scope}</p>
+      <p className="mt-1 text-sm text-[color:var(--quiz-muted)]">{props.course.qualification} · {props.course.scope}</p>
 
       {props.failed && (
-        <p role="alert" className="mt-6 text-sm text-error">
+        <p role="alert" className="mt-6 text-sm text-[color:var(--quiz-hot)]">
           The sets for this course could not be loaded. Check the internet connection.{" "}
-          <button type="button" onClick={props.onRetry} className="text-primary underline underline-offset-4">Try again</button>
+          <button type="button" onClick={props.onRetry} className={link}>Try again</button>
         </p>
       )}
       {!props.sections && !props.failed && <div className="mt-6"><Loading /></div>}
@@ -196,15 +197,15 @@ function CourseSets(props: {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="e.g. CSS, testing, A2"
-                className="min-h-11 border-2 border-outline-dark bg-surface px-3 focus:border-primary focus:outline-none"
+                className="quiz-input min-h-11"
               />
             </div>
           )}
-          {shown.length === 0 && <p className="mt-6 text-on-surface-variant" role="status">No sets match “{query}”.</p>}
+          {shown.length === 0 && <p className="mt-6 text-[color:var(--quiz-muted)]" role="status">No sets match “{query}”.</p>}
           {shown.map(({ section, sets }) => (
             <fieldset key={section.title} className="mt-6">
               <legend className="font-headline text-lg font-medium">
-                {section.title} <span className="text-sm font-normal text-on-surface-variant">· {sets.length} {sets.length === 1 ? "set" : "sets"}</span>
+                {section.title} <span className="text-sm font-normal text-[color:var(--quiz-muted)]">· {sets.length} {sets.length === 1 ? "set" : "sets"}</span>
               </legend>
               <div className="mt-3 grid gap-3 lg:grid-cols-2">
                 {sets.map((set) => (
@@ -216,21 +217,21 @@ function CourseSets(props: {
                         value={set.id}
                         checked={props.chosen === set.id}
                         onChange={() => props.onChoose(set.id)}
-                        className="mt-1.5 h-4 w-4 shrink-0 accent-[#556B4A]"
+                        className="mt-1.5 h-4 w-4 shrink-0 accent-[#2F6B4A]"
                       />
                       <span>
-                        <span className="block font-medium">
+                        <span className="block font-semibold">
                           {set.title}
                           {props.lastUsed === set.id && <Badge>Last used</Badge>}
                         </span>
-                        <span className="mt-1 block text-sm text-on-surface-variant">{setDetails(set)}</span>
+                        <span className="mt-1 block text-sm text-[color:var(--quiz-muted)]">{setDetails(set)}</span>
                       </span>
                     </label>
                     <button
                       type="button"
                       onClick={() => props.onPreview(set.id)}
                       aria-label={`Preview the questions in ${set.title}`}
-                      className="mb-2 ml-11 mr-4 self-start py-1 text-sm text-primary underline underline-offset-4"
+                      className={`mb-2 ml-11 mr-4 self-start py-1 text-sm ${link}`}
                     >
                       Preview questions
                     </button>

@@ -1,14 +1,13 @@
 # Classroom quiz
 
 Status: v1 built
-Updated: 2026-10-18
+Updated: 2026-10-19
 
 A live quiz for Level 3 and below. A teacher starts a session on the projector,
 students join on their phones with a code or QR code, and the room answers
 together. The answer screen is where teaching starts: it shows how the room
-split, the correct answer and its reason. The results screen lists the
-questions the room found hardest, with how the room did the first time and
-the second.
+split, the correct answer and its reason. The results screen shows the top five on a podium and lists the questions the
+room found hardest, with how the room did the first time and the second.
 
 ## Routes
 
@@ -49,7 +48,11 @@ the passcode; v1 does not.
 
 - Teacher-started sessions, behind a teacher passcode; join by six-digit code or QR code.
 - Nicknames are generated from a colour and an animal. Students cannot type a
-  name; they can ask for a different one up to three times in the lobby.
+  name; they can ask for a different one up to three times in the lobby. Every
+  nickname has a drawn avatar: the animal on a background of the colour
+  ("Coral Otter" is an otter on coral). The 24 animals are drawn in
+  `avatars.tsx`, in one style, as flat shapes; every animal in
+  `nicknames.ts` must have a drawing.
 - One set per weekly lesson (or per assignment task), of 8 to 12 questions. A game asks every question
   twice, in a random order: the repeat comes at least three rounds after the
   first, and its choices are reshuffled so the answer is under a different
@@ -64,17 +67,48 @@ the passcode; v1 does not.
 - Time per question: 20 seconds unless the set or the question says otherwise.
   Level 1 and Level 2 sets give 30. A question with a picture, beside it or as
   its choices, gets 15 seconds more, because the room has to look before it can
-  answer (`questionSeconds` in `types.ts`). The answer is still revealed as soon
-  as everyone has answered.
-- Scoring: 500–1000 points for a correct answer, more for a faster one.
-- Lightning: after a reveal, from round 4 on and never on the last round,
-  there is a 1 in 5 chance that lightning strikes one of the top three, picked
-  at random, who loses a quarter to a half of their points. It strikes at most
-  once in three rounds, and only when at least two students have points, so the
-  rest of the room keeps a chance at the top. The projector shows the bolt hit,
-  the score drain and the standings re-order; only the struck student's phone
-  says so. `maybeStrike` in `game.ts` holds the rule.
-- The room sees only the top three. Each student sees only their own score.
+  answer (`questionSeconds` in `types.ts`).
+- The answer is revealed the moment the last student answers. "Every student"
+  means every phone that has shown the question: each phone tells the
+  teacher's screen when it shows one (`seen`). A phone that locked or lost its
+  connection without the relay noticing never does, so after the first five
+  seconds of a round the room stops waiting for it
+  (`awaited` and `SEEN_GRACE_MS` in `game.ts`). If no phone has said so at
+  all, the room waits for every connected phone, as before. The projector
+  shows the avatars of those who have answered as they come in.
+- Scoring. A right answer earns 500–1000 points, more for a faster one. On
+  top of that, no rule ever takes points away from anyone, so leading is never
+  punished, but everyone has a way back to the top (`awardFor`, `awardStars`
+  in `game.ts`; the constants are at the top of the file):
+  - Catch-up: a right answer is worth up to 80% more, in proportion to how far
+    behind the leader the student is. The leader gets the plain points.
+  - Streak: each right answer in a row after the first adds 50, up to 200.
+  - Learned it: a question answered right on its repeat, after being missed
+    the first time, earns 300 more.
+  - Stars: after every other reveal from round 3, about one in four students
+    outside the top five (at most four) gets a star that doubles their next
+    right answer. Lower places are likelier to get one, but every place outside
+    the top five can. Only the students who get one are told who they are; the
+    projector says how many went out.
+  - Final stretch: the last three rounds count double (fewer in a very short
+    game). A star in the final stretch makes a right answer count four times.
+  The phone shows what an answer earned, part by part.
+
+  Lightning (taking points from one of the top three at random) was removed:
+  it helped second and third catch the leader, not the students at the
+  bottom, and it took away from the students who were doing well. A test in
+  `game.test.ts` plays 300 whole games between simulated students who get 45%
+  to 85% right, and checks that the weakest two fifths of the room reach the
+  top five in a fair share of games while the strongest still win most of
+  them. In a longer run of a simulation like it, in a room of 25, a student in
+  the weakest fifth reached the top five in almost no game on speed points
+  alone; with these rules, about 1 game in 50 (1 in 8 in a room of 12), and
+  the strongest fifth still won over two games in three.
+- The room sees the top five, with how many places each moved, and "On the
+  rise": up to three students outside the top five who climbed two or more
+  places that round, with how far they climbed but not where they are. Each
+  student sees only their own score, and, outside the top five, about how many
+  points they are from it.
 - Ending the session deletes everything (see Privacy).
 
 Not in v1: solo practice, more game modes, drag-and-drop or tap-the-spot
@@ -87,7 +121,8 @@ session:
 
 - No names: nicknames come from fixed word lists, chosen by the teacher's
   screen. A modified phone cannot send a name, because the teacher's screen
-  accepts only two kinds of message from a phone (`reroll`, `answer`).
+  accepts only three kinds of message from a phone (`reroll`, `seen`,
+  `answer`), none of which carries text.
 - The game state (nicknames, answers, scores) lives only in the teacher's
   browser tab (sessionStorage, so a reload does not lose it). The browser
   discards it when the tab closes, and **End session** deletes it immediately.
@@ -112,9 +147,23 @@ seconds and starts a fresh connection when no answer comes within 8 seconds, or
 within 4 seconds of a phone waking up: browsers can keep a dead connection
 looking open for minutes. A connection that has not opened in 10 seconds is
 tried again, and coming back online retries at once. A phone that is connected
-but has had nothing from the teacher's screen for 6 seconds joins again. If the
+but has had nothing from the teacher's screen for 6 seconds joins again. A
+phone that has gone quiet in the middle of a round does not hold the room up:
+see `seen` above. If the
 page's JavaScript has not started after 8 seconds, a "Reload the page" link
 appears.
+
+## The look
+
+The quiz screens have their own look, softer than the rest of the site: a
+dotted paper background, rounded cards, bold answer colours and the animal
+avatars. The styles are in `globals.css` under "Classroom quiz" (`quiz-root`,
+`quiz-card`, `quiz-button` and the `quiz-*` animations); the site's own radius
+tokens are 2px, so the quiz uses explicit radii. The four answer colours are
+dark enough for white text at 4.5:1, and each answer also has its letter and
+shape. The small marks (the star, the streak flame, the answer shapes, the
+countdown ring) are drawn in `ui.tsx`, not taken from an icon set. Animations
+are switched off for anyone who asks for reduced motion.
 
 ## Question sets
 
@@ -223,7 +272,9 @@ its picture.
 - `npm test`: game rules (`game.test.ts`) and question sets (`sets.test.ts`).
 - `npm run e2e:play`: a teacher and two phones play a full session through the
   relay in Cloudflare's local runtime, including reloads, removal and ending,
-  and the teacher finds sets by level, course and search.
+  and the teacher finds sets by level, course and search. Another test checks
+  that the answer is shown the moment the last student answers, and that a
+  phone that has gone quiet does not hold the room until the clock runs out.
   Needs `npm --prefix relay ci` and `npm run build` first.
 - `npm --prefix relay test`: the relay on its own (rooms, reconnects, expiry,
   limits, origin checks).

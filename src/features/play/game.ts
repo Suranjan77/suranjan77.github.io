@@ -19,18 +19,60 @@ import { CHOICE_LABELS, questionSeconds, type Choice, type Question, type Questi
 export const MAX_REROLLS = 3;
 /** Answers that arrive just after the deadline still count: phones lag. */
 export const ANSWER_GRACE_MS = 1000;
+/**
+ * For this long after a question starts, the room waits for every connected
+ * phone. After it, only for phones that have shown the question: a phone that
+ * locked or lost its connection without the relay noticing never says it has,
+ * and must not hold the room until the clock runs out.
+ */
+export const SEEN_GRACE_MS = 5000;
 /** A question's repeat comes at least this many rounds after its first appearance. */
 export const MIN_REPEAT_GAP = 3;
-/** After a reveal, the chance that lightning strikes one of the top three. */
-export const STRIKE_CHANCE = 0.2;
-/** Lightning never strikes before this round (counted from 0), so the scores mean something first. */
-export const STRIKE_FIRST_ROUND = 3;
-/** Lightning strikes at most once in this many rounds. */
-export const STRIKE_MIN_GAP = 3;
-/** A struck player loses between these shares of their score. */
-export const STRIKE_SHARE = [0.25, 0.5] as const;
+/** How many places the room sees. Nobody below them is ever shown a position. */
+export const TOP_PLACES = 5;
+
+/*
+ * Scoring. Speed points reward knowing it; the bonuses below give everyone a
+ * way back to the top without taking points from anyone, so a leader is never
+ * punished for leading:
+ * - catch-up: a right answer is worth more the further behind the leader you are;
+ * - streak: right answers in a row add a little more each time;
+ * - learned it: getting a question right on its repeat after missing it the first time;
+ * - stars: every few rounds, students outside the top places, more often those
+ *   lower down, get a star that doubles their next right answer;
+ * - the final stretch: the last rounds count double, so the top is open to the end.
+ */
+/** A right answer earns up to this share more, in proportion to the gap to the leader. */
+export const CATCH_UP_MAX = 0.8;
+/** Each right answer in a row after the first adds this… */
+export const STREAK_STEP = 50;
+/** …up to this. */
+export const STREAK_MAX = 200;
+/** Points for a repeat answered right after the first time was missed. */
+export const LEARNED_BONUS = 300;
+/** The last this many rounds count double (fewer in a very short game: never more than a quarter of it). */
+export const FINAL_STRETCH_ROUNDS = 3;
+/** Stars are first handed out at this round's reveal (counted from 0)… */
+export const STAR_FIRST_ROUND = 2;
+/** …and then every this many rounds. */
+export const STAR_EVERY = 2;
+/** About one in this many students outside the top places gets a star… */
+export const STAR_PER = 4;
+/** …but never more than this many at once. */
+export const STAR_MAX = 4;
 
 export type Outcome = "correct" | "wrong" | "none";
+
+/** What a right answer earned, part by part. `total` is (base + catchUp + streak + learned) × multiplier. */
+export type Award = {
+  base: number;
+  catchUp: number;
+  streak: number;
+  learned: number;
+  /** 1, 2 for a star or the final stretch, 4 for both. */
+  multiplier: number;
+  total: number;
+};
 
 export type Player = {
   pid: string;
@@ -41,6 +83,18 @@ export type Player = {
   rerolls: number;
   lastGained: number;
   lastOutcome: Outcome;
+  lastAward: Award | null;
+  /** Right answers in a row, up to now. */
+  streak: number;
+  bestStreak: number;
+  /** Holds a star: the next right answer counts double. */
+  star: boolean;
+  /** Questions (by index in the set) this student missed the first time they were asked. */
+  missed: number[];
+  /** Place in the whole room after the last reveal (1 is the leader); 0 before any. */
+  rank: number;
+  /** Place after the reveal before that. */
+  previousRank: number;
 };
 
 /** One round of the game: which question, and the order its choices are shown in. */
@@ -64,15 +118,8 @@ export type RoundResult = {
 
 export type GamePhase = "lobby" | "question" | "reveal" | "final";
 
-/** Lightning struck one of the top three at a round's reveal. */
-export type Strike = {
-  round: number;
-  pid: string;
-  name: string;
-  /** Their score before the strike. */
-  before: number;
-  lost: number;
-};
+/** Stars handed out at a round's reveal. */
+export type StarDrop = { round: number; pids: string[] };
 
 export type GameState = {
   setId: string;
@@ -85,8 +132,10 @@ export type GameState = {
   players: Record<string, Player>;
   /** Answers to the current round, by shown position. */
   answers: Record<string, { choice: number; at: number }>;
+  /** Players whose phone has shown the current round. */
+  seen: string[];
   results: RoundResult[];
-  strikes: Strike[];
+  stars: StarDrop[];
   nextJoinOrder: number;
 };
 
@@ -144,10 +193,26 @@ export function newGame(set: QuestionSet, random: () => number = Math.random): G
     deadline: 0,
     players: {},
     answers: {},
+    seen: [],
     results: [],
-    strikes: [],
+    stars: [],
     nextJoinOrder: 0,
   };
+}
+
+/** A game kept by an older version of the teacher's screen, brought up to date after a reload. */
+export function restoreGame(saved: GameState): GameState {
+  const players = Object.fromEntries(Object.entries(saved.players ?? {}).map(([pid, p]) => [pid, {
+    lastAward: null,
+    streak: 0,
+    bestStreak: 0,
+    star: false,
+    missed: [],
+    rank: 0,
+    previousRank: 0,
+    ...(p as Partial<Player>),
+  } as Player]));
+  return { ...saved, players, seen: saved.seen ?? [], stars: saved.stars ?? [], answers: saved.answers ?? {} };
 }
 
 /** A round as the room sees it: the question with its choices in shown order. */
@@ -163,6 +228,8 @@ export type ShownQuestion = {
   answer: number;
   explanation: string;
   seconds: number;
+  /** In the final stretch: right answers count double. */
+  double: boolean;
 };
 
 export function shownQuestion(state: GameState, set: QuestionSet, round = state.index): ShownQuestion | null {
@@ -180,6 +247,7 @@ export function shownQuestion(state: GameState, set: QuestionSet, round = state.
     answer: step.order.indexOf(question.answer),
     explanation: question.explanation,
     seconds: questionSeconds(question, set),
+    double: isFinalStretch(state, round),
   };
 }
 
@@ -202,6 +270,13 @@ export function joinPlayer(state: GameState, pid: string, random: () => number =
     rerolls: 0,
     lastGained: 0,
     lastOutcome: "none",
+    lastAward: null,
+    streak: 0,
+    bestStreak: 0,
+    star: false,
+    missed: [],
+    rank: 0,
+    previousRank: 0,
   };
   return { ...state, players: { ...state.players, [pid]: player }, nextJoinOrder: state.nextJoinOrder + 1 };
 }
@@ -231,7 +306,7 @@ export function removePlayer(state: GameState, pid: string): GameState {
   const answers = { ...state.answers };
   delete players[pid];
   delete answers[pid];
-  return { ...state, players, answers };
+  return { ...state, players, answers, seen: state.seen.filter((p) => p !== pid) };
 }
 
 export function rerollName(state: GameState, pid: string, random: () => number = Math.random): GameState {
@@ -244,7 +319,13 @@ export function rerollName(state: GameState, pid: string, random: () => number =
 export function startRound(state: GameState, set: QuestionSet, round: number, now: number): GameState {
   const shown = shownQuestion(state, set, round);
   if (!shown) return state;
-  return { ...state, phase: "question", index: round, startedAt: now, deadline: now + shown.seconds * 1000, answers: {} };
+  return { ...state, phase: "question", index: round, startedAt: now, deadline: now + shown.seconds * 1000, answers: {}, seen: [] };
+}
+
+/** A phone says it is showing this round's question. */
+export function markSeen(state: GameState, pid: string, round: number): GameState {
+  if (state.phase !== "question" || round !== state.index || !state.players[pid] || state.seen.includes(pid)) return state;
+  return { ...state, seen: [...state.seen, pid] };
 }
 
 /** `choice` is the shown position the student tapped. */
@@ -273,9 +354,22 @@ export function submitAnswer(
   return { ...state, answers: { ...state.answers, [pid]: { choice, at: now } } };
 }
 
-export function everyoneAnswered(state: GameState): boolean {
+/**
+ * The students the room is waiting for this round: connected, and their phone
+ * has shown the question, or answered it. In the first seconds of a round,
+ * every connected student, so a slow phone is not passed over.
+ */
+export function awaited(state: GameState, now: number): Player[] {
   const connected = Object.values(state.players).filter((p) => p.connected);
-  return connected.length > 0 && connected.every((p) => state.answers[p.pid]);
+  // No phone has said it is showing the question (an older page, say): wait for everyone, as before.
+  if (now - state.startedAt < SEEN_GRACE_MS || state.seen.length === 0) return connected;
+  return connected.filter((p) => state.answers[p.pid] || state.seen.includes(p.pid));
+}
+
+export function everyoneAnswered(state: GameState, now: number): boolean {
+  if (state.phase !== "question") return false;
+  const waiting = awaited(state, now);
+  return waiting.length > 0 && waiting.every((p) => state.answers[p.pid]);
 }
 
 /** 500 points for a correct answer at the deadline, rising to 1000 for an instant one. */
@@ -284,23 +378,74 @@ export function pointsFor(elapsedMs: number, limitMs: number): number {
   return Math.round(1000 - 500 * fraction);
 }
 
+export function isFinalStretch(state: GameState, round = state.index): boolean {
+  const rounds = Math.min(FINAL_STRETCH_ROUNDS, Math.floor(state.plan.length / 4));
+  return round >= state.plan.length - rounds && round < state.plan.length;
+}
+
+const tens = (n: number) => Math.round(n / 10) * 10;
+
+/**
+ * What a right answer earns. `leader` is the top score before this round, so
+ * everyone's catch-up is measured from the same place.
+ */
+export function awardFor(
+  player: Pick<Player, "score" | "streak" | "star" | "missed">,
+  { elapsedMs, limitMs, leader, question, repeat, double }: {
+    elapsedMs: number;
+    limitMs: number;
+    leader: number;
+    question: number;
+    repeat: boolean;
+    double: boolean;
+  },
+): Award {
+  const base = pointsFor(elapsedMs, limitMs);
+  const behind = leader > 0 ? Math.max(0, leader - player.score) / leader : 0;
+  const catchUp = tens(base * CATCH_UP_MAX * behind);
+  const streak = Math.min(STREAK_MAX, player.streak * STREAK_STEP);
+  const learned = repeat && player.missed.includes(question) ? LEARNED_BONUS : 0;
+  const multiplier = (player.star ? 2 : 1) * (double ? 2 : 1);
+  return { base, catchUp, streak, learned, multiplier, total: (base + catchUp + streak + learned) * multiplier };
+}
+
+/** Everyone in order: highest score first, then whoever joined first. */
+function ranked(players: Iterable<Player>): Player[] {
+  return [...players].sort((a, b) => b.score - a.score || a.joinOrder - b.joinOrder);
+}
+
 export function revealAnswer(state: GameState, set: QuestionSet): GameState {
   const shown = shownQuestion(state, set);
   if (state.phase !== "question" || !shown) return state;
-  const limit = shown.seconds * 1000;
+  const limitMs = shown.seconds * 1000;
+  const leader = Math.max(0, ...Object.values(state.players).map((p) => p.score));
   const counts = shown.choices.map(() => 0);
   let correct = 0;
 
+  const scored = Object.values(state.players).map((player): Player => {
+    const answer = state.answers[player.pid];
+    const right = answer?.choice === shown.answer;
+    if (answer) counts[answer.choice] += 1;
+    const missed = !right && !shown.repeat ? [...player.missed, shown.question] : player.missed;
+    if (!right) {
+      return { ...player, lastGained: 0, lastOutcome: answer ? "wrong" : "none", lastAward: null, streak: 0, missed };
+    }
+    correct += 1;
+    const award = awardFor(player, { elapsedMs: answer.at - state.startedAt, limitMs, leader, question: shown.question, repeat: shown.repeat, double: shown.double });
+    const streak = player.streak + 1;
+    return {
+      ...player,
+      score: player.score + award.total,
+      lastGained: award.total,
+      lastOutcome: "correct",
+      lastAward: award,
+      streak,
+      bestStreak: Math.max(player.bestStreak, streak),
+      star: false,
+    };
+  });
   const players = Object.fromEntries(
-    Object.entries(state.players).map(([pid, player]) => {
-      const answer = state.answers[pid];
-      if (!answer) return [pid, { ...player, lastGained: 0, lastOutcome: "none" as Outcome }];
-      counts[answer.choice] += 1;
-      if (answer.choice !== shown.answer) return [pid, { ...player, lastGained: 0, lastOutcome: "wrong" as Outcome }];
-      correct += 1;
-      const gained = pointsFor(answer.at - state.startedAt, limit);
-      return [pid, { ...player, score: player.score + gained, lastGained: gained, lastOutcome: "correct" as Outcome }];
-    }),
+    ranked(scored).map((player, i) => [player.pid, { ...player, previousRank: player.rank || i + 1, rank: i + 1 }]),
   );
 
   const result: RoundResult = {
@@ -319,40 +464,45 @@ export function revealAnswer(state: GameState, set: QuestionSet): GameState {
   };
 }
 
-/**
- * Lightning: after some reveals, one of the top three, picked at random, loses
- * a quarter to a half of their points, so the rest of the room keeps a chance
- * at the top. Never in the first rounds or on the last one, never twice close
- * together, and only when someone else has points to overtake with.
- */
-export function maybeStrike(state: GameState, random: () => number = Math.random): GameState {
-  const strikes = state.strikes ?? [];
-  const last = strikes.at(-1);
-  if (
-    state.phase !== "reveal" ||
-    state.index < STRIKE_FIRST_ROUND ||
-    state.index + 1 >= state.plan.length ||
-    (last && state.index - last.round < STRIKE_MIN_GAP) ||
-    Object.values(state.players).filter((p) => p.score > 0).length < 2 ||
-    random() >= STRIKE_CHANCE
-  ) {
-    return state;
-  }
-  const top = topThree(state);
-  const player = state.players[top[Math.floor(random() * top.length)].pid];
-  const share = STRIKE_SHARE[0] + (STRIKE_SHARE[1] - STRIKE_SHARE[0]) * random();
-  const lost = Math.min(player.score, Math.max(10, Math.round((player.score * share) / 10) * 10));
-  const strike: Strike = { round: state.index, pid: player.pid, name: player.name, before: player.score, lost };
-  return {
-    ...state,
-    players: { ...state.players, [player.pid]: { ...player, score: player.score - lost } },
-    strikes: [...strikes, strike],
-  };
+/** True after the reveals where stars are handed out. */
+export function isStarRound(state: GameState, round = state.index): boolean {
+  return round >= STAR_FIRST_ROUND && (round - STAR_FIRST_ROUND) % STAR_EVERY === 0 && round + 1 < state.plan.length;
 }
 
-/** The strike at the current round's reveal, if lightning struck. */
-export function currentStrike(state: GameState): Strike | null {
-  return state.phase === "reveal" ? (state.strikes ?? []).find((s) => s.round === state.index) ?? null : null;
+/**
+ * Stars: at some reveals, a few connected students outside the top places get
+ * a star that doubles their next right answer. Lower places are likelier to
+ * get one (a student's chance grows with how far down they are), but every
+ * place outside the top has a chance. Nobody holds two.
+ */
+export function awardStars(state: GameState, random: () => number = Math.random): GameState {
+  if (state.phase !== "reveal" || !isStarRound(state) || state.stars.some((d) => d.round === state.index)) return state;
+  const pool = ranked(Object.values(state.players))
+    .map((player, i) => ({ player, place: i + 1 }))
+    .filter(({ player, place }) => place > TOP_PLACES && player.connected && !player.star);
+  const count = Math.min(STAR_MAX, Math.max(1, Math.round(pool.length / STAR_PER)), pool.length);
+  const picked: string[] = [];
+  for (let n = 0; n < count; n += 1) {
+    const total = pool.reduce((sum, { place }) => sum + (place - TOP_PLACES), 0);
+    let roll = random() * total;
+    const i = Math.max(0, pool.findIndex(({ place }) => (roll -= place - TOP_PLACES) < 0));
+    picked.push(pool[i].player.pid);
+    pool.splice(i, 1);
+  }
+  if (picked.length === 0) return state;
+  const players = { ...state.players };
+  for (const pid of picked) players[pid] = { ...players[pid], star: true };
+  return { ...state, players, stars: [...state.stars, { round: state.index, pids: picked }] };
+}
+
+/** The stars handed out at the current round's reveal. */
+export function currentStars(state: GameState): string[] {
+  return state.phase === "reveal" ? state.stars.find((d) => d.round === state.index)?.pids ?? [] : [];
+}
+
+/** Reveal the answer and score it, then hand out any stars. */
+export function closeRound(state: GameState, set: QuestionSet, random: () => number = Math.random): GameState {
+  return awardStars(revealAnswer(state, set), random);
 }
 
 /** After a reveal: the next round, or the final standings after the last one. */
@@ -366,18 +516,45 @@ export function advance(state: GameState, set: QuestionSet, now: number): GameSt
 /** Go to the final standings now, skipping any rounds left. */
 export function finish(state: GameState): GameState {
   if (state.phase === "lobby" || state.phase === "final") return state;
-  return { ...state, phase: "final", answers: {} };
+  return { ...state, phase: "final", answers: {}, seen: [] };
 }
 
-export type Standing = { pid: string; name: string; score: number; place: 1 | 2 | 3 };
+export type Standing = {
+  pid: string;
+  name: string;
+  score: number;
+  place: number;
+  /** Places gained since the reveal before; negative if lost. */
+  moved: number;
+  streak: number;
+};
 
-/** The top three, and only them: nobody else's position is ever shown. */
-export function topThree(state: GameState): Standing[] {
+/** The top places, and only them: nobody else's position is ever shown. */
+export function topPlaces(state: GameState, limit = TOP_PLACES): Standing[] {
+  return ranked(Object.values(state.players).filter((p) => p.score > 0))
+    .slice(0, limit)
+    .map((p, i) => ({
+      pid: p.pid,
+      name: p.name,
+      score: p.score,
+      place: i + 1,
+      moved: p.previousRank && p.rank ? p.previousRank - p.rank : 0,
+      streak: p.streak,
+    }));
+}
+
+/**
+ * Students outside the top places who climbed the most at this reveal, so the
+ * room sees someone coming up. Only how far they climbed is shown, not where
+ * they are.
+ */
+export function risers(state: GameState, limit = 3): { pid: string; name: string; climbed: number }[] {
+  const top = new Set(topPlaces(state).map((s) => s.pid));
   return Object.values(state.players)
-    .filter((p) => p.score > 0)
-    .sort((a, b) => b.score - a.score || a.joinOrder - b.joinOrder)
-    .slice(0, 3)
-    .map((p, i) => ({ pid: p.pid, name: p.name, score: p.score, place: (i + 1) as 1 | 2 | 3 }));
+    .filter((p) => !top.has(p.pid) && p.lastOutcome === "correct" && p.previousRank - p.rank >= 2)
+    .map((p) => ({ pid: p.pid, name: p.name, climbed: p.previousRank - p.rank }))
+    .sort((a, b) => b.climbed - a.climbed || a.name.localeCompare(b.name))
+    .slice(0, limit);
 }
 
 /** How the room did on one question, the first time it was asked and the second. Rates are 0–1, or null if not played. */
@@ -401,6 +578,17 @@ export function hardestQuestions(state: GameState, limit = 3): QuestionSummary[]
       return score(a) - score(b) || a.question - b.question;
     })
     .slice(0, limit);
+}
+
+/**
+ * About how many points the student needs to pass the last of the top places:
+ * null if they are in them, 0 if there is a free place any right answer takes.
+ */
+function behindTop(state: GameState, pid: string): number | null {
+  const top = topPlaces(state);
+  if (top.some((s) => s.pid === pid)) return null;
+  if (top.length < TOP_PLACES) return 0;
+  return Math.max(0, top[TOP_PLACES - 1].score - state.players[pid].score) + 10;
 }
 
 export function viewFor(state: GameState, set: QuestionSet, pid: string, now: number): PlayerView | null {
@@ -428,25 +616,34 @@ export function viewFor(state: GameState, set: QuestionSet, pid: string, now: nu
         pictures: shown.choices.some((c) => c.image),
         secondsLeft: Math.max(0, Math.ceil((state.deadline - now) / 1000)),
         answered: state.answers[pid]?.choice ?? null,
+        double: shown.double,
+        star: player.star,
+        streak: player.streak,
       };
     case "reveal": {
       if (!shown) return null;
-      const strike = currentStrike(state);
+      const place = topPlaces(state).find((s) => s.pid === pid)?.place ?? null;
       return {
         phase: "reveal",
         name,
         index: state.index,
         total,
         outcome: player.lastOutcome,
-        gained: player.lastGained,
+        award: player.lastAward,
         score: player.score,
         correctLabel: CHOICE_LABELS[shown.answer],
-        struck: strike?.pid === pid ? strike.lost : 0,
+        streak: player.streak,
+        place,
+        climbed: player.previousRank && player.rank ? player.previousRank - player.rank : 0,
+        behind: behindTop(state, pid),
+        newStar: currentStars(state).includes(pid),
+        star: player.star,
+        nextDouble: isFinalStretch(state, state.index + 1),
       };
     }
     case "final": {
-      const standing = topThree(state).find((s) => s.pid === pid);
-      return { phase: "final", name, score: player.score, place: standing?.place ?? null };
+      const place = topPlaces(state).find((s) => s.pid === pid)?.place ?? null;
+      return { phase: "final", name, score: player.score, place, bestStreak: player.bestStreak };
     }
   }
 }

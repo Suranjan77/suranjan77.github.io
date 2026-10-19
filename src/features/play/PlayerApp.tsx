@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { RelayClose, parseHostMessage, type PlayerView } from "./protocol";
+import { Avatar, AvatarParade } from "./avatars";
+import { RelayClose, parseHostMessage, type AwardSummary, type PlayerView } from "./protocol";
 import { RelaySocket, relayBaseUrl, type SocketStatus } from "./relaySocket";
-import { CHOICE_STYLES, ChoiceMark, Loading, formatCode } from "./ui";
+import { CHOICE_STYLES, ChoiceMark, CountUp, FlameMark, Loading, StarMark, WaitingDots, formatCode, formatPoints } from "./ui";
 
 /**
  * A student's phone. It holds no game state of its own: the teacher's screen
@@ -94,6 +95,8 @@ export default function PlayerApp() {
         else if (message.t === "view") {
           setHostAway(false);
           setView(message.view);
+          // Tell the teacher's screen this phone is showing the question, so the room waits for it.
+          if (message.view.phase === "question" && message.view.answered === null) s.send({ t: "seen", index: message.view.index });
           if (message.view.phase === "question") {
             setDeadline(Date.now() + message.view.secondsLeft * 1000);
             setNow(Date.now());
@@ -160,29 +163,32 @@ export default function PlayerApp() {
     return (
       <Shell>
         {ending && (
-          <div role="status" className="mb-8 border-l-2 border-primary bg-primary-container px-4 py-3 text-on-primary-container">
+          <div role="status" className="quiz-card mb-6 bg-[color:var(--quiz-green-soft)] px-5 py-4 text-[#1D3B29]">
             <p className="font-semibold">{ENDINGS[ending].title}</p>
             <p className="mt-1 text-sm">{ENDINGS[ending].body}</p>
           </div>
         )}
-        <h1 className="font-headline text-4xl font-medium">Join the quiz</h1>
-        <form onSubmit={submitCode} className="mt-6 flex flex-col gap-4">
-          <label htmlFor="code" className="text-lg">Code on your teacher&apos;s screen</label>
-          <input
-            id="code"
-            inputMode="numeric"
-            autoComplete="off"
-            maxLength={7}
-            value={codeInput}
-            onChange={(e) => setCodeInput(e.target.value.replace(/[^\d ]/g, ""))}
-            className="min-h-14 border-2 border-outline-dark bg-surface px-4 font-mono text-3xl tracking-[0.3em] focus:border-primary focus:outline-none"
-            placeholder="000000"
-          />
-          <button type="submit" disabled={!codeOk} className="min-h-14 bg-primary text-lg font-medium text-on-primary disabled:opacity-50">Join</button>
-        </form>
-        <p className="mt-8 text-sm leading-6 text-on-surface-variant">
-          You will get a random nickname. No real names, no accounts. Everything from the game is deleted when your teacher ends the session.{" "}
-          <Link href="/play/privacy" className="text-primary underline underline-offset-4">Privacy</Link>
+        <div className="flex justify-center py-4"><AvatarParade size={48} /></div>
+        <div className="quiz-card mt-2 p-6">
+          <h1 className="font-headline text-4xl font-medium">Join the quiz</h1>
+          <form onSubmit={submitCode} className="mt-5 flex flex-col gap-4">
+            <label htmlFor="code" className="text-lg">Code on your teacher&apos;s screen</label>
+            <input
+              id="code"
+              inputMode="numeric"
+              autoComplete="off"
+              maxLength={7}
+              value={codeInput}
+              onChange={(e) => setCodeInput(e.target.value.replace(/[^\d ]/g, ""))}
+              className="quiz-input min-h-16 text-center font-mono text-3xl tracking-[0.3em]"
+              placeholder="000000"
+            />
+            <button type="submit" disabled={!codeOk} className="quiz-button min-h-14 text-lg">Join</button>
+          </form>
+        </div>
+        <p className="mt-6 px-1 text-sm leading-6 text-[color:var(--quiz-muted)]">
+          You will get a random animal nickname. No real names, no accounts. Everything from the game is deleted when your teacher ends the session.{" "}
+          <Link href="/play/privacy" className="text-[color:var(--quiz-green)] underline decoration-2 underline-offset-4">Privacy</Link>
         </p>
       </Shell>
     );
@@ -193,21 +199,69 @@ export default function PlayerApp() {
 
   return (
     <Shell>
-      <div className="mb-6 flex items-center justify-between gap-3 text-sm text-on-surface-variant">
-        <span>{view ? <>You are <span className="font-semibold text-on-surface" data-testid="nickname">{view.name}</span></> : "Joining…"}</span>
-        <span className="font-mono">{formatCode(code)}</span>
+      <div className="mb-5 flex items-center justify-between gap-3 text-sm text-[color:var(--quiz-muted)]">
+        {view ? (
+          <span className="flex min-w-0 items-center gap-2">
+            <Avatar name={view.name} size={36} />
+            <span className="truncate">You are <span className="font-semibold text-[color:var(--quiz-ink)]" data-testid="nickname">{view.name}</span></span>
+          </span>
+        ) : (
+          <span>Joining…</span>
+        )}
+        <span className="quiz-pill shrink-0 bg-[color:var(--quiz-card)] font-mono ring-1 ring-[color:var(--quiz-line)]">{formatCode(code)}</span>
       </div>
-      {banner && <p role="status" className="mb-6 border-l-2 border-accent bg-accent-container px-4 py-3 text-sm text-on-accent-container">{banner}</p>}
-      {view ? <PhoneView view={view} pending={pending} secondsLeft={Math.max(0, Math.ceil((deadline - now) / 1000))} onAnswer={answer} onReroll={() => socket.current?.send({ t: "reroll" })} /> : <p className="text-lg">Connecting to the room…</p>}
+      {banner && <p role="status" className="mb-5 rounded-[16px] bg-[color:var(--quiz-star-soft)] px-4 py-3 text-sm text-[#4A3305]">{banner}</p>}
+      {view ? (
+        <PhoneView view={view} pending={pending} secondsLeft={Math.max(0, Math.ceil((deadline - now) / 1000))} onAnswer={answer} onReroll={() => socket.current?.send({ t: "reroll" })} />
+      ) : (
+        <p className="flex items-center gap-2 text-lg">Connecting to the room <WaitingDots /></p>
+      )}
     </Shell>
   );
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-4 py-8 text-on-surface">
-      {children}
+    <div className="quiz-root min-h-dvh">
+      <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-4 py-6">{children}</div>
     </div>
+  );
+}
+
+const PLACES = ["", "first", "second", "third", "fourth", "fifth"];
+const ORDINALS = ["", "1st", "2nd", "3rd", "4th", "5th"];
+
+function Note({ tone, children }: { tone: "star" | "hot" | "green" | "plain"; children: React.ReactNode }) {
+  const tones = {
+    star: "bg-[color:var(--quiz-star-soft)] text-[#4A3305]",
+    hot: "bg-[color:var(--quiz-hot-soft)] text-[#7A2A18]",
+    green: "bg-[color:var(--quiz-green-soft)] text-[#1D3B29]",
+    plain: "bg-[color:var(--quiz-card)] ring-1 ring-[color:var(--quiz-line)]",
+  };
+  return <p className={`quiz-rise flex items-center gap-3 rounded-[18px] px-4 py-3 text-base leading-snug ${tones[tone]}`}>{children}</p>;
+}
+
+/** What a right answer earned, part by part. */
+function Breakdown({ award }: { award: AwardSummary }) {
+  const parts = [
+    { label: "Speed", value: award.base },
+    { label: "Catch-up", value: award.catchUp },
+    { label: "Streak", value: award.streak },
+    { label: "Learned it", value: award.learned },
+  ].filter((part) => part.value > 0);
+  return (
+    <ul className="mt-4 flex flex-wrap gap-2 text-sm">
+      {parts.map((part, i) => (
+        <li key={part.label} className="quiz-pop quiz-pill bg-white/20" style={{ animationDelay: `${150 + i * 120}ms` }}>
+          {part.label} {i > 0 ? "+" : ""}{formatPoints(part.value)}
+        </li>
+      ))}
+      {award.multiplier > 1 && (
+        <li className="quiz-pop quiz-pill bg-[color:var(--quiz-star)] text-[#4A3305]" style={{ animationDelay: `${150 + parts.length * 120}ms` }}>
+          × {award.multiplier}
+        </li>
+      )}
+    </ul>
   );
 }
 
@@ -221,15 +275,20 @@ function PhoneView({ view, pending, secondsLeft, onAnswer, onReroll }: {
   switch (view.phase) {
     case "lobby":
       return (
-        <div aria-live="polite">
-          <h1 className="font-headline text-4xl font-medium">You&apos;re in</h1>
-          <p className="mt-4 text-lg">Your nickname is <span className="font-semibold">{view.name}</span>.</p>
+        <div aria-live="polite" className="flex flex-col items-center text-center">
+          <span key={view.name} className="quiz-pop mt-4"><span className="quiz-bob inline-block"><Avatar name={view.name} size={150} /></span></span>
+          <h1 className="mt-5 font-headline text-4xl font-medium">You&apos;re in</h1>
+          <p className="mt-3 text-lg">Your nickname is <span className="font-semibold">{view.name}</span>.</p>
           {view.rerollsLeft > 0 && (
-            <button type="button" onClick={onReroll} className="mt-4 min-h-11 border border-outline-dark bg-surface px-4 text-sm">
+            <button type="button" onClick={onReroll} className="quiz-button-quiet mt-4">
               Give me a different name ({view.rerollsLeft} left)
             </button>
           )}
-          <p className="mt-8 text-on-surface-variant">Waiting for your teacher to start <span className="font-medium text-on-surface">{view.setTitle}</span>.</p>
+          <div className="quiz-card mt-8 flex w-full flex-col items-center gap-2 px-5 py-5 text-[color:var(--quiz-muted)]">
+            <p>Waiting for your teacher to start</p>
+            <p className="font-semibold text-[color:var(--quiz-ink)]">{view.setTitle}</p>
+            <WaitingDots />
+          </div>
         </div>
       );
 
@@ -237,17 +296,27 @@ function PhoneView({ view, pending, secondsLeft, onAnswer, onReroll }: {
       const chosen = view.answered ?? pending;
       return (
         <div>
-          <div className="flex items-baseline justify-between text-sm text-on-surface-variant">
-            <span>Question {view.index + 1} of {view.total}</span>
-            <span className="font-mono text-lg tabular-nums" aria-label={`${secondsLeft} seconds left`}>{secondsLeft}</span>
+          <div className="flex items-center justify-between text-sm text-[color:var(--quiz-muted)]">
+            <span className="font-medium">Question {view.index + 1} of {view.total}</span>
+            <span className={`font-mono text-2xl font-medium tabular-nums ${secondsLeft <= 5 ? "text-[color:var(--quiz-hot)]" : "text-[color:var(--quiz-ink)]"}`} aria-label={`${secondsLeft} seconds left`}>{secondsLeft}</span>
           </div>
-          <p className="mt-3 text-xl leading-snug">{view.prompt}</p>
-          {view.pictures && <p className="mt-2 text-sm text-on-surface-variant">The pictures are on your teacher&apos;s screen.</p>}
+          {(view.star || view.double || view.streak >= 2) && (
+            <div className="mt-3 flex flex-wrap gap-2 text-sm">
+              {view.star && <span className="quiz-pill bg-[color:var(--quiz-star-soft)] text-[#4A3305]"><StarMark size={18} /> Your star: a right answer counts double</span>}
+              {view.double && <span className="quiz-pill bg-[color:var(--quiz-hot-soft)] text-[#7A2A18]">Final stretch · double points</span>}
+              {view.streak >= 2 && <span className="quiz-pill bg-white text-[#9A3B1A] ring-1 ring-[color:var(--quiz-line)]"><FlameMark size={16} /> {view.streak} in a row</span>}
+            </div>
+          )}
+          <p className="mt-4 text-xl font-medium leading-snug">{view.prompt}</p>
+          {view.pictures && <p className="mt-2 text-sm text-[color:var(--quiz-muted)]">The pictures are on your teacher&apos;s screen.</p>}
           {chosen !== null ? (
-            <p className="mt-8 flex items-center gap-3 text-xl" aria-live="polite">
-              <ChoiceMark index={chosen} size={44} />
-              Answer {view.choices[chosen].label} sent. Wait for the others.
-            </p>
+            <div className="quiz-card quiz-pop mt-8 flex flex-col items-center gap-4 px-5 py-8 text-center" aria-live="polite">
+              <span className="inline-flex rounded-[20px] p-3" style={{ background: CHOICE_STYLES[chosen].colour }}>
+                <ChoiceMark index={chosen} size={64} inverse />
+              </span>
+              <p className="text-xl">Answer {view.choices[chosen].label} sent. Wait for the others.</p>
+              <span className="text-[color:var(--quiz-muted)]"><WaitingDots /></span>
+            </div>
           ) : (
             <div className={`mt-6 grid gap-3 ${view.choices.every((c) => !c.text) ? "grid-cols-2" : "grid-cols-1"}`}>
               {view.choices.map((choice, i) => (
@@ -255,11 +324,11 @@ function PhoneView({ view, pending, secondsLeft, onAnswer, onReroll }: {
                   key={choice.label}
                   type="button"
                   onClick={() => onAnswer(i)}
-                  className="flex min-h-20 items-center gap-3 border-2 p-3 text-left text-lg"
-                  style={{ borderColor: CHOICE_STYLES[i].colour, background: CHOICE_STYLES[i].tint }}
+                  className={`flex min-h-20 items-center gap-3 rounded-[20px] p-3 text-left text-lg font-semibold text-white shadow-[0_6px_0_-1px_rgb(30_27_22/0.25)] transition-transform active:translate-y-0.5 ${choice.text ? "" : "justify-center min-h-28"}`}
+                  style={{ background: CHOICE_STYLES[i].colour }}
                   aria-label={choice.text ? `${choice.label}: ${choice.text}` : choice.label}
                 >
-                  <ChoiceMark index={i} size={44} />
+                  <ChoiceMark index={i} size={choice.text ? 44 : 60} inverse />
                   {choice.text && <span className="leading-snug">{choice.text}</span>}
                 </button>
               ))}
@@ -269,35 +338,67 @@ function PhoneView({ view, pending, secondsLeft, onAnswer, onReroll }: {
       );
     }
 
-    case "reveal":
+    case "reveal": {
+      const right = view.outcome === "correct";
       return (
-        <div aria-live="polite">
-          <p className="text-sm text-on-surface-variant">Question {view.index + 1} of {view.total}</p>
-          <h1 className="mt-3 font-headline text-4xl font-medium">
-            {view.outcome === "correct" ? "Correct" : view.outcome === "wrong" ? "Not this time" : "No answer"}
-          </h1>
-          <p className="mt-3 text-lg">
-            {view.outcome === "correct" ? `+${view.gained} points. ` : ""}The answer was {view.correctLabel}.
+        <div aria-live="polite" className="flex flex-col gap-3">
+          <p className="text-sm font-medium text-[color:var(--quiz-muted)]">Question {view.index + 1} of {view.total}</p>
+          <div className={`quiz-pop rounded-[24px] px-5 py-6 ${right ? "bg-[color:var(--quiz-green)] text-white" : "quiz-card"}`}>
+            <h1 className="font-headline text-4xl font-medium">
+              {right ? "Correct" : view.outcome === "wrong" ? "Not this time" : "No answer"}
+            </h1>
+            {view.award && (
+              <p className="mt-2 font-mono text-4xl font-medium tabular-nums">+<CountUp value={view.award.total} from={0} /></p>
+            )}
+            {view.award && <Breakdown award={view.award} />}
+            <p className={`mt-4 text-lg ${right ? "text-white/90" : ""}`}>The answer was {view.correctLabel}.</p>
+          </div>
+          <p className="quiz-card flex items-center justify-between px-5 py-4 text-lg">
+            Your score: <span className="font-mono text-2xl font-medium tabular-nums">{formatPoints(view.score)}</span>
           </p>
-          {view.struck > 0 && (
-            <p className="mt-6 flex items-center gap-2 border-l-2 border-error bg-error-container px-4 py-3 text-lg text-on-error-container">
-              <span aria-hidden="true">⚡</span>
-              Lightning struck you: −{view.struck} points. Everyone else gets a chance to catch up.
-            </p>
+          {view.place !== null ? (
+            <Note tone="green">You&apos;re {ORDINALS[view.place]} on the screen{view.climbed > 0 ? `, up ${view.climbed}` : ""}.</Note>
+          ) : (
+            <>
+              {view.climbed > 0 && <Note tone="green">▲ You climbed {view.climbed} {view.climbed === 1 ? "place" : "places"}.</Note>}
+              {view.behind === 0 ? (
+                <Note tone="plain">Any right answer puts you in the top 5.</Note>
+              ) : view.behind !== null && view.behind <= 2500 ? (
+                <Note tone="plain">About {formatPoints(view.behind)} points from the top 5.</Note>
+              ) : (
+                <Note tone="plain">Right answers are worth more the further behind you are. Keep going.</Note>
+              )}
+            </>
           )}
-          <p className="mt-6 text-lg">Your score: <span className="font-mono font-semibold">{view.score}</span></p>
-          <p className="mt-6 text-on-surface-variant">Look at the screen for why.</p>
+          {view.newStar && (
+            <Note tone="star"><StarMark size={30} className="quiz-shine shrink-0" /> You got a star! Your next right answer counts double.</Note>
+          )}
+          {!view.newStar && view.star && (
+            <Note tone="star"><StarMark size={24} className="shrink-0" /> Your star is still on: your next right answer counts double.</Note>
+          )}
+          {view.streak >= 2 && <Note tone="plain"><FlameMark size={22} /> {view.streak} right in a row.</Note>}
+          {view.nextDouble && <Note tone="hot">Final stretch next: double points.</Note>}
+          <p className="mt-2 text-[color:var(--quiz-muted)]">Look at the screen for why.</p>
         </div>
       );
+    }
 
     case "final":
       return (
-        <div aria-live="polite">
-          <h1 className="font-headline text-4xl font-medium">
-            {view.place ? `You came ${["", "first", "second", "third"][view.place]}` : "Quiz finished"}
+        <div aria-live="polite" className="flex flex-col items-center text-center">
+          <span className="quiz-pop mt-4"><span className={view.place ? "quiz-bob inline-block" : "inline-block"}><Avatar name={view.name} size={150} /></span></span>
+          <h1 className="mt-5 font-headline text-4xl font-medium">
+            {view.place ? `You came ${PLACES[view.place]}` : "Quiz finished"}
           </h1>
-          <p className="mt-4 text-lg">Your score: <span className="font-mono font-semibold">{view.score}</span></p>
-          <p className="mt-6 text-on-surface-variant">Leave this page open until your teacher ends the session.</p>
+          <p className="quiz-card mt-6 flex w-full items-center justify-between px-5 py-4 text-lg">
+            Your score: <span className="font-mono text-2xl font-medium tabular-nums">{formatPoints(view.score)}</span>
+          </p>
+          {view.bestStreak >= 2 && (
+            <p className="quiz-card mt-3 flex w-full items-center justify-between px-5 py-4 text-lg">
+              Best streak <span className="flex items-center gap-1 font-mono text-2xl font-medium"><FlameMark size={22} />{view.bestStreak}</span>
+            </p>
+          )}
+          <p className="mt-6 text-[color:var(--quiz-muted)]">Leave this page open until your teacher ends the session.</p>
         </div>
       );
   }

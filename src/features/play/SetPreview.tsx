@@ -33,43 +33,43 @@ export function SetPreview({ set, chosen, onChoose, onClose }: {
       ref={dialog}
       onClose={onClose}
       aria-labelledby="preview-heading"
-      className="m-auto h-[92dvh] w-[min(64rem,96vw)] max-w-none overflow-hidden border border-outline-dark bg-background p-0 text-on-surface backdrop:bg-black/55"
+      className="m-auto h-[92dvh] w-[min(64rem,96vw)] max-w-none overflow-hidden rounded-[26px] bg-[color:var(--quiz-paper)] p-0 text-[color:var(--quiz-ink)] shadow-2xl backdrop:bg-[#1E1B16]/60"
     >
       <div className="flex h-full flex-col">
-        <header className="flex flex-wrap items-start gap-x-6 gap-y-3 border-b border-outline-dark bg-surface px-5 py-4">
+        <header className="flex flex-wrap items-start gap-x-6 gap-y-3 border-b border-[color:var(--quiz-line)] bg-[color:var(--quiz-card)] px-6 py-5">
           <div className="min-w-0 flex-1">
-            <p className="font-mono text-[10px] uppercase tracking-label text-on-surface-variant">Preview{course ? ` · ${courseName(course)}` : ""}</p>
+            <p className="font-mono text-[11px] uppercase tracking-label text-[color:var(--quiz-muted)]">Preview{course ? ` · ${courseName(course)}` : ""}</p>
             <h2 id="preview-heading" className="mt-1 font-headline text-2xl font-medium">{set.title}</h2>
-            <p className="mt-1 text-sm text-on-surface-variant">{setDetails(set)}</p>
+            <p className="mt-1 text-sm text-[color:var(--quiz-muted)]">{setDetails(set)}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               aria-pressed={answers}
               onClick={() => setAnswers((shown) => !shown)}
-              className={`inline-flex min-h-11 items-center border px-4 text-sm font-medium ${answers ? "border-primary bg-primary text-on-primary" : "border-outline-dark bg-surface hover:bg-surface-container-high"}`}
+              className={`quiz-button-quiet ${answers ? "border-[color:var(--quiz-ink)] bg-[color:var(--quiz-ink)] text-[#FFFDF8] hover:bg-[#3A342C]" : ""}`}
             >
               {answers ? "Hide answers" : "Show answers"}
             </button>
             {chosen ? (
-              <span className="inline-flex min-h-11 items-center px-2 text-sm text-on-surface-variant">✓ Chosen</span>
+              <span className="inline-flex min-h-11 items-center px-2 text-sm font-semibold text-[color:var(--quiz-green)]">✓ Chosen</span>
             ) : (
-              <button type="button" onClick={onChoose} className="inline-flex min-h-11 items-center bg-primary px-4 text-sm font-medium text-on-primary hover:bg-on-primary-container">
+              <button type="button" onClick={onChoose} className="quiz-button min-h-11 px-5 text-sm">
                 Choose this set
               </button>
             )}
-            <button type="button" autoFocus onClick={() => dialog.current?.close()} className="inline-flex min-h-11 items-center border border-outline-dark bg-surface px-4 text-sm font-medium hover:bg-surface-container-high">
+            <button type="button" autoFocus onClick={() => dialog.current?.close()} className="quiz-button-quiet">
               Close
             </button>
           </div>
         </header>
 
         <div className="flex-1 overflow-y-auto px-5 py-5">
-          <p className="mb-5 text-sm text-on-surface-variant">
+          <p className="mb-5 text-sm text-[color:var(--quiz-muted)]">
             In the game, every question is asked twice and its choices are shuffled each time, so the letters here are not the ones the room will see.
             {!answers && " Answers are hidden in case this screen is on the projector."}
           </p>
-          <ol className="space-y-5">
+          <ol className="space-y-4">
             {set.questions.map((question, i) => (
               <QuestionCard key={question.id} number={i + 1} question={question} seconds={questionSeconds(question, set)} answers={answers} />
             ))}
@@ -87,11 +87,11 @@ function Picture({ image, className }: { image: QuizImage; className: string }) 
 function QuestionCard({ number, question, seconds, answers }: { number: number; question: Question; seconds: number; answers: boolean }) {
   const pictures = question.choices.some((choice) => choice.image);
   return (
-    <li className="border border-outline-dark bg-surface p-4" data-testid="preview-question">
-      <p className="font-mono text-[10px] uppercase tracking-label text-on-surface-variant">Question {number} · {seconds} seconds</p>
+    <li className="quiz-card p-5" data-testid="preview-question">
+      <p className="font-mono text-[11px] uppercase tracking-label text-[color:var(--quiz-muted)]">Question {number} · {seconds} seconds</p>
       <h3 className="mt-1 text-lg font-medium leading-snug">{question.prompt}</h3>
       {question.image && (
-        <div className="mt-3 inline-block border border-outline bg-white p-2">
+        <div className="mt-3 inline-block rounded-[14px] bg-white p-2 ring-1 ring-[color:var(--quiz-line)]">
           <Picture image={question.image} className="h-auto max-h-72 w-auto" />
         </div>
       )}
@@ -101,21 +101,21 @@ function QuestionCard({ number, question, seconds, answers }: { number: number; 
           return (
             <li
               key={i}
-              className={`flex flex-col gap-2 border p-2.5 ${answers && !right ? "opacity-60" : ""}`}
-              style={{ borderColor: CHOICE_STYLES[i].colour, background: CHOICE_STYLES[i].tint, borderWidth: right ? 4 : 1.5 }}
+              className={`flex flex-col gap-2 rounded-[14px] p-2.5 ${answers && !right ? "opacity-55" : ""}`}
+              style={{ background: CHOICE_STYLES[i].tint, boxShadow: right ? `0 0 0 3px ${CHOICE_STYLES[i].colour}` : undefined }}
             >
               <div className="flex items-center gap-2">
                 <ChoiceMark index={i} size={28} />
                 <span className="sr-only">{CHOICE_STYLES[i].label}:</span>
                 {choice.text !== undefined && <span className="leading-snug">{choice.text}</span>}
-                {right && <span className="ml-auto shrink-0 whitespace-nowrap bg-on-surface px-2 py-0.5 text-xs font-semibold text-background">✓ Answer</span>}
+                {right && <span className="quiz-pill ml-auto shrink-0 whitespace-nowrap bg-[color:var(--quiz-green)] text-xs text-white">✓ Answer</span>}
               </div>
               {choice.image && <Picture image={choice.image} className="h-auto max-h-40 w-full object-contain" />}
             </li>
           );
         })}
       </ol>
-      {answers && <p className="mt-3 border-l-2 border-primary pl-3 leading-relaxed text-on-surface-variant">{question.explanation}</p>}
+      {answers && <p className="mt-3 rounded-[14px] bg-[color:var(--quiz-green-soft)] px-3 py-2 leading-relaxed text-[#1D3B29]">{question.explanation}</p>}
     </li>
   );
 }
