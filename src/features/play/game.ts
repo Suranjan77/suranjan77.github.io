@@ -9,11 +9,12 @@ import { CHOICE_LABELS, questionSeconds, type Choice, type Question, type Questi
  * it can be kept in the teacher's tab across a reload and is discarded when the
  * session ends.
  *
- * A game plays every question in the set twice. Retrieving an answer a second
- * time, after other questions in between, is what makes it stick; so the
- * repeat comes at least MIN_REPEAT_GAP rounds after the first, at a random
- * point, and its choices are reshuffled so the answer is under a different
- * letter.
+ * A game asks every question once, and asks again the ones that take working
+ * out (`askTwice` on the question): retrieving an answer a second time, after
+ * other questions in between, is what makes it stick, but asking the easy ones
+ * again only makes the game repetitive. A repeat comes at least
+ * MIN_REPEAT_GAP rounds after the first, at a random point, and its choices
+ * are reshuffled so the answer is under a different letter.
  */
 
 export const MAX_REROLLS = 3;
@@ -150,17 +151,20 @@ function shuffled<T>(items: readonly T[], random: () => number): T[] {
 
 const range = (n: number) => Array.from({ length: n }, (_, i) => i);
 
-/** The order questions are asked in: each twice, repeats at least MIN_REPEAT_GAP rounds after the first. */
-export function questionOrder(count: number, random: () => number = Math.random): number[] {
+/**
+ * The order questions are asked in: each once, and the ones in `twice` a
+ * second time, at least MIN_REPEAT_GAP rounds after the first.
+ */
+export function questionOrder(count: number, twice: readonly number[], random: () => number = Math.random): number[] {
   const spaced = (sequence: number[]) =>
-    range(count).every((q) => sequence.lastIndexOf(q) - sequence.indexOf(q) >= MIN_REPEAT_GAP);
+    twice.every((q) => sequence.lastIndexOf(q) - sequence.indexOf(q) >= MIN_REPEAT_GAP);
   for (let attempt = 0; attempt < 500; attempt += 1) {
-    const sequence = shuffled([...range(count), ...range(count)], random);
+    const sequence = shuffled([...range(count), ...twice], random);
     if (spaced(sequence)) return sequence;
   }
-  // Too few questions to space at random: ask them all, then all again in the same order.
-  const once = shuffled(range(count), random);
-  return [...once, ...once];
+  // Too few questions to space at random: the repeated ones first, then the rest, then the repeats in the same order.
+  const once = [...shuffled(twice, random), ...shuffled(range(count).filter((q) => !twice.includes(q)), random)];
+  return [...once, ...once.slice(0, twice.length)];
 }
 
 /** Choice orders for a question's two rounds; the answer moves to a different letter on the repeat. */
@@ -176,7 +180,8 @@ function choiceOrders(question: Question, random: () => number): [number[], numb
 export function buildPlan(set: QuestionSet, random: () => number = Math.random): Round[] {
   const orders = set.questions.map((q) => choiceOrders(q, random));
   const seen = new Set<number>();
-  return questionOrder(set.questions.length, random).map((question) => {
+  const twice = set.questions.flatMap((q, i) => (q.askTwice ? [i] : []));
+  return questionOrder(set.questions.length, twice, random).map((question) => {
     const repeat = seen.has(question);
     seen.add(question);
     return { question, order: orders[question][repeat ? 1 : 0], repeat };

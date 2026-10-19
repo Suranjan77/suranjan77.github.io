@@ -49,6 +49,7 @@ export const dataModel: QuestionSet = {
     },
     {
       id: "one-record",
+      askTwice: true,
       prompt: "Which layout stores one order in each row?",
       choices: [
         { image: figure("t1-layout-records", "A table with headings Order ID, Region, Product, Total (£), and one order on each row: 1001 North Compost £48.00; 1002 South Hose £18.50; 1003 North Seeds £25.00; 1004 East Compost £24.00.") },
@@ -59,6 +60,7 @@ export const dataModel: QuestionSet = {
     },
     {
       id: "row-count",
+      askTwice: true,
       prompt: "The headings are in row 1 and the last order is in row 51. How many orders are there?",
       image: figure("t1-row-count", "A sheet with headings in row 1: Order ID, Date, Region, Product, Total (£). Rows 2 and 3 hold orders 1001 and 1002, then rows are skipped, then rows 50 and 51 hold orders 1049 and 1050."),
       choices: [{ text: "50" }, { text: "51" }, { text: "49" }, { text: "52" }],
@@ -75,6 +77,7 @@ export const dataModel: QuestionSet = {
     },
     {
       id: "sort-dialog",
+      askTwice: true,
       prompt: "Sam is about to click Sort. What will go wrong?",
       image: figure("t1-sort-dialog", "The sort window: Sort range from A1 to E51. The 'Data has header row' box is not ticked. Sort by Column C, A to Z. Buttons: Cancel and Sort."),
       choices: [
@@ -88,6 +91,7 @@ export const dataModel: QuestionSet = {
     },
     {
       id: "header-sorted",
+      askTwice: true,
       prompt: "This happened after sorting by Region. Which tick was missed?",
       image: figure("t1-header-sorted", "A sheet sorted by region. Rows 1 and 2 are East orders, rows 3 and 4 are North orders, row 5 holds the headings Order ID, Date, Region, Product, Total (£), and rows 6 and 7 are South orders."),
       choices: [{ text: "Data has header row" }, { text: "Show help text" }, { text: "Except certain cells" }, { text: "Show gridlines" }],
@@ -149,6 +153,39 @@ export const dataModel: QuestionSet = {
       answer: 0,
       explanation: "Each value is the price of one item, in pounds. A clear heading says what the column holds and its unit, so nobody has to guess.",
     },
+    {
+      id: "one-type",
+      askTwice: true,
+      prompt: "Column E should hold numbers only. Which cell breaks that rule?",
+      image: figure("t1-mixed-types", "A Quantity column. E2 holds 4, E3 holds 1, E4 holds the word 'ten', and E5 holds 2. E6, the total, shows 7."),
+      choices: [{ text: "E4" }, { text: "E2" }, { text: "E5" }, { text: "E6" }],
+      answer: 0,
+      explanation: "'ten' is text, so the total skips it and shows 7, not 17. One kind of data per column, and validation to keep it that way.",
+    },
+    {
+      id: "dates",
+      prompt: "Which entries will NOT sort as dates?",
+      image: figure("t1-dates", "A Date column. B2: 01/09/2026. B3: 2nd Sept. B4: 03/09/2026. B5: Thursday."),
+      choices: [
+        { text: "'2nd Sept' and 'Thursday'" },
+        { text: "Only 01/09/2026" },
+        { text: "All four will sort correctly" },
+      ],
+      answer: 0,
+      explanation: "Typed as DD/MM/YYYY, a date is stored as a date and sorts in time order. Words are stored as text and sort like words.",
+    },
+    {
+      id: "split-column",
+      prompt: "Column B holds the product and its price together. What should you change?",
+      image: figure("t1-combined", "A sheet with headings Order ID, Item and Quantity. Item holds 'Compost – £12.00 each', 'Hose – £18.50 each' and 'Seeds – £2.50 each'."),
+      choices: [
+        { text: "Split it into a Product column and a Unit price (£) column" },
+        { text: "Make the column wider" },
+        { text: "Nothing: it is easy to read" },
+      ],
+      answer: 0,
+      explanation: "A price inside text cannot be multiplied or added. One fact per column lets a formula work out Quantity × Unit price.",
+    },
   ],
 };
 
@@ -169,6 +206,7 @@ export const formulasFunctions: QuestionSet = {
     },
     {
       id: "sumif",
+      askTwice: true,
       prompt: "What does =SUMIF(B2:B7,\"South\",E2:E7) give?",
       image: ordersSheet(),
       choices: [{ text: "£18.50" }, { text: "£33.50" }, { text: "£15.00" }, { text: "2" }],
@@ -177,6 +215,7 @@ export const formulasFunctions: QuestionSet = {
     },
     {
       id: "vlookup",
+      askTwice: true,
       prompt: "What does =VLOOKUP(1003,A2:E7,5,FALSE) give?",
       image: ordersSheet(),
       choices: [{ text: "North" }, { text: "Seeds" }, { text: "10" }, { text: "£25.00" }],
@@ -243,6 +282,7 @@ export const formulasFunctions: QuestionSet = {
     },
     {
       id: "absolute",
+      askTwice: true,
       prompt: "B4 was copied down to B5 and B6, and they went wrong. What should B4's formula have been?",
       image: figure("t2-copied", "A sheet. A1 says VAT rate and B1 holds 20%. Row 3 has the headings Price (£) and VAT (£). A4 to A6 hold £10.00, £25.00 and £40.00. B4 shows £2.00, B5 shows £0.00 and B6 shows #VALUE!. B5 is selected and its formula is =A5*B2."),
       choices: [{ text: "=A4*$B$1" }, { text: "=A4*B1" }, { text: "=$A$4*B1" }, { text: "=A4*20" }],
@@ -251,6 +291,7 @@ export const formulasFunctions: QuestionSet = {
     },
     {
       id: "copied-formula",
+      askTwice: true,
       prompt: "B4 holds =A4*$B$1. It was copied down to B6. What formula is in B6?",
       image: figure("t2-fixed", "A sheet. A1 says VAT rate and B1 holds 20%. A4 to A6 hold £10.00, £25.00 and £40.00, and B4 to B6 show £2.00, £5.00 and £8.00. B4 is selected and its formula is =A4*$B$1."),
       choices: [{ text: "=A6*$B$1" }, { text: "=A6*$B$3" }, { text: "=A4*$B$1" }, { text: "=A6*B3" }],
@@ -270,6 +311,31 @@ export const formulasFunctions: QuestionSet = {
       answer: 0,
       explanation: "A typed total goes out of date with the first new order. =SUM(E2:E7) recalculates every time the data changes.",
     },
+    {
+      id: "if-reorder",
+      askTwice: true,
+      prompt: "What does D2 show?",
+      image: figure("t2-stock-if", "A stock sheet: Product Compost, In stock 3, Reorder level 5. D2, headed Action, holds =IF(B2<C2,\"Reorder\",\"OK\"); its value is hidden."),
+      choices: [{ text: "Reorder" }, { text: "OK" }, { text: "TRUE" }, { text: "3" }],
+      answer: 0,
+      explanation: "B2 < C2 asks 'is 3 less than 5?'. Yes, so IF gives its first answer, \"Reorder\".",
+    },
+    {
+      id: "countif-more",
+      prompt: "What does =COUNTIF(B2:B7,\">5\") give?",
+      image: figure("t2-countif-greater", "Hoses sold in weeks 1 to 6, in B2 to B7: 4, 7, 5, 9, 2, 6. B9, 'Weeks over 5', holds =COUNTIF(B2:B7,\">5\"); its value is hidden."),
+      choices: [{ text: "3" }, { text: "4" }, { text: "2" }, { text: "6" }],
+      answer: 0,
+      explanation: "\">5\" counts values more than 5: 7, 9 and 6. The 5 is not more than 5, so it is not counted; \">=5\" would give 4.",
+    },
+    {
+      id: "sum-skips-text",
+      prompt: "Week 3 was typed as the word 'ten'. What does =SUM(B2:B5) give?",
+      image: figure("t2-sum-text", "Bags sold in weeks 1 to 4, in B2 to B5: 10, 12, the word 'ten', 8. B6 holds =SUM(B2:B5)."),
+      choices: [{ text: "30" }, { text: "40" }, { text: "#VALUE!" }, { text: "0" }],
+      answer: 0,
+      explanation: "SUM skips text without warning: 10 + 12 + 8 = 30. That silent mistake is why number cells need validation.",
+    },
   ],
 };
 
@@ -282,6 +348,7 @@ export const formatting: QuestionSet = {
   questions: [
     {
       id: "locale",
+      askTwice: true,
       prompt: "The prices show $ instead of £. What do you change in this window?",
       image: figure("t3-locale", "Beside a column of totals shown as $48.00, $18.50 and $25.00 is the 'Settings for this spreadsheet' window. General tab: Locale, United States; Time zone, London; Display language, English (UK). A Save settings button."),
       choices: [{ text: "Locale: United Kingdom" }, { text: "Time zone" }, { text: "Display language" }, { text: "Nothing: retype each price" }],
@@ -298,6 +365,7 @@ export const formatting: QuestionSet = {
     },
     {
       id: "number-alignment",
+      askTwice: true,
       prompt: "Which column of totals is easiest to compare?",
       choices: [
         { image: figure("t3-numbers-left", "A Total (£) column with £48.00, £1,250.00, £5.00 and £118.50, aligned to the left.") },
@@ -309,6 +377,7 @@ export const formatting: QuestionSet = {
     },
     {
       id: "professional",
+      askTwice: true,
       prompt: "Which version is formatted professionally?",
       choices: [
         { image: figure("t3-style-messy", "A table with no borders and three different fonts and colours. The headings are 'order', 'REGION', 'Product' and 'total', and the totals read $48, $18.5 and $25.00.") },
@@ -327,6 +396,7 @@ export const formatting: QuestionSet = {
     },
     {
       id: "borders",
+      askTwice: true,
       prompt: "Which toolbar button adds borders?",
       image: figure("t3-toolbar", "Five numbered toolbar buttons. 1: a bold B. 2: an italic I. 3: a paint bucket with a red line under it. 4: a square divided into four by lines. 5: a box with two arrows pointing at each other."),
       choices: [{ text: "Button 3" }, { text: "Button 4" }, { text: "Button 5" }, { text: "Button 1" }],
@@ -361,6 +431,67 @@ export const formatting: QuestionSet = {
       answer: 0,
       explanation: "Write about purpose, not appearance: name the feature, the user problem it solves and the result.",
     },
+    {
+      id: "merge",
+      prompt: "A1 to D1 are selected. Which option makes the title one cell across the table?",
+      image: figure("t3-merge", "A1 to D1 are selected; A1 holds the title 'Greenleaf sales' and row 2 holds the headings Order ID, Region, Product, Total (£). Beside it, the Merge cells options: Merge all, Merge vertically, Merge horizontally, Unmerge."),
+      choices: [{ text: "Merge all" }, { text: "Merge vertically" }, { text: "Unmerge" }],
+      answer: 0,
+      explanation: "Merge all joins the selected cells into one, so the title can be centred over the table. Merge vertically joins cells in a column.",
+    },
+    {
+      id: "percent",
+      prompt: "B1 shows 0.2. Which button shows it as 20%?",
+      image: figure("t3-number-buttons", "B1, the VAT rate, shows 0.2. Below, four numbered toolbar buttons. 1: £. 2: %. 3: .0 with a left arrow. 4: .00 with a right arrow."),
+      choices: [{ text: "Button 2" }, { text: "Button 1" }, { text: "Button 3" }, { text: "Button 4" }],
+      answer: 0,
+      explanation: "Format as percent shows 0.2 as 20%. The value is still 0.2, so formulas like =A4*$B$1 keep working.",
+    },
+    {
+      id: "decimals",
+      prompt: "What should you change in column B?",
+      image: figure("t3-decimals", "An Average order (£) column: North 36.6666666667, South 16.75, East 24."),
+      choices: [
+        { text: "Format it as currency, with two decimal places" },
+        { text: "Retype each average by hand" },
+        { text: "Make the column narrower" },
+      ],
+      answer: 0,
+      explanation: "Currency format shows £36.67, £16.75 and £24.00: the same shape, easy to compare. Retyping would replace the formulas with numbers that never update.",
+    },
+    {
+      id: "hashes",
+      prompt: "Why does E3 show ####?",
+      image: figure("t3-hashes", "A narrow Total column. E2 shows £48.00; E3, for a mower, shows ####."),
+      choices: [
+        { text: "The column is too narrow to show the number" },
+        { text: "The formula is broken" },
+        { text: "The number is negative" },
+      ],
+      answer: 0,
+      explanation: "#### means the number does not fit. Widen the column (double-click the line between the column letters) and it appears.",
+    },
+    {
+      id: "by-hand",
+      askTwice: true,
+      prompt: "Sam coloured orders over £1,000 by hand. Which order was missed?",
+      image: figure("t3-by-hand", "Four orders. 1001 North £1,250.00 and 1003 North £1,400.00 are shaded red. 1002 South £18.50 and 1004 East £2,100.00 are not shaded."),
+      choices: [{ text: "1004" }, { text: "1002" }, { text: "1001" }, { text: "1003" }],
+      answer: 0,
+      explanation: "£2,100 is over £1,000 but was missed. Conditional formatting checks every row, every time the data changes, so it never misses one.",
+    },
+    {
+      id: "number-as-text",
+      prompt: "Why is E3 on the left, unlike the other totals?",
+      image: figure("t3-text-number", "A Total (£) column: E2 48.00 and E4 25.00 sit on the right; E3, 18.50, sits on the left. The formula bar for E3 shows '18.50, starting with an apostrophe."),
+      choices: [
+        { text: "It is stored as text, so SUM will skip it" },
+        { text: "It is the smallest total" },
+        { text: "It is a formula" },
+      ],
+      answer: 0,
+      explanation: "Numbers sit on the right and text on the left. The apostrophe makes 18.50 text. Delete it, and format the column as currency.",
+    },
   ],
 };
 
@@ -381,6 +512,7 @@ export const guidingUser: QuestionSet = {
     },
     {
       id: "one-rule",
+      askTwice: true,
       prompt: "This one rule gives three M3 features. Which three?",
       image: validationPanel(),
       choices: [
@@ -394,22 +526,28 @@ export const guidingUser: QuestionSet = {
     },
     {
       id: "help-part",
-      prompt: "Which numbered part sets the message users see when they click the cell?",
-      image: validationPanel(),
-      choices: [{ text: "Part 1" }, { text: "Part 2" }, { text: "Part 3" }, { text: "Part 4" }],
-      answer: 2,
-      explanation: "Help text, under Advanced options, appears as soon as the user selects the cell, before they type.",
+      prompt: "This is part of a validation rule. What does the ticked option do?",
+      image: figure("t4-help-close", "The Advanced options of a Data validation rule: 'Show help text for a selected cell' is ticked, with the text 'Choose a region from the list.'"),
+      choices: [
+        { text: "Shows 'Choose a region from the list.' when the cell is selected" },
+        { text: "Blocks wrong entries" },
+        { text: "Adds a dropdown" },
+        { text: "Sorts the regions" },
+      ],
+      answer: 0,
+      explanation: "Help text appears as soon as the user selects the cell, before they type, so they know what is wanted.",
     },
     {
       id: "reject",
-      prompt: "In part 4, which option stops a wrong entry being saved?",
-      image: validationPanel(),
+      prompt: "Which option stops a wrong entry being saved?",
+      image: figure("t4-invalid-close", "The 'If the data is invalid' part of a Data validation rule, with two options: Show a warning, Reject the input."),
       choices: [{ text: "Reject the input" }, { text: "Show a warning" }],
       answer: 0,
       explanation: "Reject the input blocks the entry and shows an error. Show a warning lets the wrong value in and only marks the cell.",
     },
     {
       id: "warning-cell",
+      askTwice: true,
       prompt: "A user typed 'Nort'. It was kept, and the cell has a red corner. Which option was the rule using?",
       image: figure("t4-warning-cell", "An Input tab. B6 Order date, C6 05/09/2026. B7 Region, C7 'Nort', with a small red triangle in the cell's top-right corner. B8 Quantity, C8 3."),
       choices: [{ text: "Show a warning" }, { text: "Reject the input" }, { text: "No validation at all" }],
@@ -418,6 +556,7 @@ export const guidingUser: QuestionSet = {
     },
     {
       id: "why-dropdown",
+      askTwice: true,
       prompt: "Order 1003 was typed as 'Nort'. What will B2, the North total, show?",
       image: figure("t4-nort-total", "On the Data tab: orders 1001 North £48.00, 1002 South £18.50, 1003 'Nort' £25.00 (highlighted), 1004 East £24.00, 1006 North £37.00. On the Summary tab, B2 is the North total, with the formula =SUMIF(Data!C2:C6,\"North\",Data!E2:E6), and its value is hidden."),
       choices: [
@@ -431,6 +570,7 @@ export const guidingUser: QuestionSet = {
     },
     {
       id: "number-rule",
+      askTwice: true,
       prompt: "Quantity must be a whole number from 1 to 100. Which criteria fits?",
       image: figure("t4-criteria", "The Data validation rules panel with the Criteria list open: Dropdown, Dropdown (from a range), Is empty, Text contains, Is valid date, Greater than, Less than, Is between, Checkbox, Custom formula is."),
       choices: [{ text: "Is between" }, { text: "Greater than" }, { text: "Dropdown" }, { text: "Text contains" }],
@@ -494,6 +634,35 @@ export const guidingUser: QuestionSet = {
       answer: 0,
       explanation: "A data entry form, like the Apps Script form from class, shows what each field needs and stops users typing into the wrong cells.",
     },
+    {
+      id: "date-rule",
+      askTwice: true,
+      prompt: "A user typed 31/02/2026, a day that does not exist. Which criteria would reject it?",
+      image: figure("t4-bad-date", "The Input tab: C6, Order date, holds 31/02/2026. C7, Region, holds North."),
+      choices: [{ text: "Is valid date" }, { text: "Text contains" }, { text: "Checkbox" }, { text: "Dropdown" }],
+      answer: 0,
+      explanation: "Is valid date only accepts real dates, so 31 February is rejected. Set it to Reject the input, with help text showing DD/MM/YYYY.",
+    },
+    {
+      id: "list-from-range",
+      prompt: "New products are added to the Lists tab. Which criteria keeps the Product dropdown up to date?",
+      image: figure("t4-list-tab", "A Lists tab with a Products column: Compost, Hose, Seeds and a new row, Plant pots. Beside it, a Data validation rule for Input!C9 with its criteria not yet chosen."),
+      choices: [{ text: "Dropdown (from a range)" }, { text: "Dropdown" }, { text: "Is empty" }],
+      answer: 0,
+      explanation: "Dropdown (from a range) reads its options from Lists!A2:A, so a product added there appears in the dropdown. A typed Dropdown would need editing by hand.",
+    },
+    {
+      id: "error-message",
+      prompt: "When does this message appear?",
+      image: figure("t4-reject-popup", "C8, Quantity, holds 250. Beside it, a message box: 'There was a problem. Please enter a whole number from 1 to 100.' with an OK button."),
+      choices: [
+        { text: "When a typed value breaks a rule set to Reject the input" },
+        { text: "When the user selects the cell" },
+        { text: "When the file is saved" },
+      ],
+      answer: 0,
+      explanation: "Reject the input blocks 250 and shows the message. Write it to say what is allowed, not just that something is wrong.",
+    },
   ],
 };
 
@@ -522,6 +691,7 @@ export const chartsCommentary: QuestionSet = {
     },
     {
       id: "cf-whole-row",
+      askTwice: true,
       prompt: "This rule should light up whole rows over £1,000, but only column A changes. Which formula fixes it?",
       image: figure("t5-cf-column-a", "A sheet with headings Order ID, Region, Product, Quantity, Total (£) and five orders. Orders 1001, 1003 and 1005 have totals over £1,000, and only their Order ID cells in column A are highlighted. Beside it, the rule: apply to range A2:E6, custom formula is =E2>1000."),
       choices: [{ text: "=$E2>1000" }, { text: "=E$2>1000" }, { text: "=$E$2>1000" }, { text: "=E2>=1000" }],
@@ -530,6 +700,7 @@ export const chartsCommentary: QuestionSet = {
     },
     {
       id: "cf-dollar",
+      askTwice: true,
       prompt: "Now the rule is =$E2>1000 and whole rows light up. What does the $ do?",
       image: figure("t5-cf-fixed", "The same sheet, now with the whole of rows 2, 4 and 6 highlighted. The rule: apply to range A2:E6, custom formula is =$E2>1000."),
       choices: [
@@ -553,6 +724,7 @@ export const chartsCommentary: QuestionSet = {
     },
     {
       id: "pie",
+      askTwice: true,
       prompt: "Which chart shows each region's share of all sales?",
       choices: [
         { image: figure("t5-pie", "A pie chart in three slices: North about half, South about a quarter, East about a fifth, with a key.") },
@@ -563,6 +735,7 @@ export const chartsCommentary: QuestionSet = {
     },
     {
       id: "line",
+      askTwice: true,
       prompt: "Which chart shows sales rising and falling month by month?",
       choices: [
         { image: figure("t5-pie-months", "A pie chart with six slices, one for each month from April to September, with a key.") },
@@ -603,7 +776,7 @@ export const chartsCommentary: QuestionSet = {
     {
       id: "commentary-sentence",
       prompt: "Which sentence is best for the commentary on this chart?",
-      image: summaryChart(),
+      image: figure("t5-chart-bars", "A bar chart titled 'Sales by region, September 2026', with three horizontal bars: North £3,000, South £1,550 and East £1,050. The axis is titled Total sales (£)."),
       choices: [
         { text: "North sold £3,000, almost twice South, so stock should go there first." },
         { text: "The bars are blue." },
@@ -625,6 +798,35 @@ export const chartsCommentary: QuestionSet = {
       answer: 0,
       explanation: "Part 1 says what it shows and part 2 what to notice. Add why: columns make it easy to compare a few separate groups.",
     },
+    {
+      id: "colour-scale",
+      prompt: "Which kind of conditional formatting coloured these cells?",
+      image: figure("t5-colour-scale", "Monthly sales from April to September. Each cell is shaded green: the higher the sales, the darker the green. April £800 is white and September £3,100 is the darkest."),
+      choices: [{ text: "Colour scale" }, { text: "Single colour" }, { text: "Alternating colours" }],
+      answer: 0,
+      explanation: "A colour scale shades every cell by its value, so the busiest months stand out without reading every number.",
+    },
+    {
+      id: "legend",
+      prompt: "Blue is 2025 and orange is 2026. What does this chart need so readers know that?",
+      image: figure("t5-two-series", "A column chart titled 'Sales by region' with two bars for each of North, South and East, one blue and one orange. There is no key."),
+      choices: [{ text: "A legend" }, { text: "Gridlines" }, { text: "A 3D effect" }],
+      answer: 0,
+      explanation: "With two series, a legend (the key) says which colour is which. Customise › Legend sets where it goes.",
+    },
+    {
+      id: "misleading-axis",
+      askTwice: true,
+      prompt: "North's bar looks six times taller than East's. Why is that misleading?",
+      image: figure("t5-axis-cut", "A column chart of sales by region. The vertical axis starts at £2,900 and goes to £3,000. North £3,000 is a tall bar, South £2,930 a short one and East £2,915 a very short one."),
+      choices: [
+        { text: "The axis starts at £2,900, not £0" },
+        { text: "The bars are blue" },
+        { text: "It has a title" },
+      ],
+      answer: 0,
+      explanation: "North sold only £85 more than East. Starting the axis at £2,900 blows up the gap. Start column charts at £0.",
+    },
   ],
 };
 
@@ -645,6 +847,7 @@ export const automation: QuestionSet = {
     },
     {
       id: "script-clear",
+      askTwice: true,
       prompt: "A button runs this script. What happens on the Input tab?",
       image: figure("t6-script-clear", "Apps Script code. Line 1: function clearInputs(). Line 2: const sheet = SpreadsheetApp.getActive().getSheetByName(\"Input\"). Line 3: sheet.getRange(\"C4:C6\").clearContent(). Below, the Input tab: C4 holds 05/09/2026, C5 holds North, C6 holds 3."),
       choices: [
@@ -666,6 +869,7 @@ export const automation: QuestionSet = {
     },
     {
       id: "script-sort",
+      askTwice: true,
       prompt: "Why does this script sort A2:G51 and not A1:G51?",
       image: figure("t6-script-sort", "Apps Script code. Line 1: function sortByDate(). Line 2: const sheet = SpreadsheetApp.getActive().getSheetByName(\"Data\"). Line 3: sheet.getRange(\"A2:G51\").sort({ column: 2, ascending: true }). Below, the Data tab: row 1 holds the headings Order ID, Date, Region; rows 2 and 3 hold orders."),
       choices: [
@@ -718,6 +922,7 @@ export const automation: QuestionSet = {
     },
     {
       id: "protect",
+      askTwice: true,
       prompt: "The Input tab is protected like this. What can users still do?",
       image: figure("t6-protect", "The Protected sheets and ranges panel, Sheet tab: the sheet Input is chosen, and 'Except certain cells' is ticked with the range C4:C6. A Set permissions button."),
       choices: [
@@ -761,6 +966,52 @@ export const automation: QuestionSet = {
       answer: 0,
       explanation: "One tool that saves real time or stops real mistakes beats five that do nothing useful. Record in your test log why you added each one.",
     },
+    {
+      id: "macro",
+      prompt: "Which option records your steps so they can be repeated with one click?",
+      image: figure("t6-macros", "The Extensions menu open in Google Sheets with Macros chosen. Its list says: Record macro, Import macro, Manage macros."),
+      choices: [{ text: "Record macro" }, { text: "Import macro" }, { text: "Manage macros" }],
+      answer: 0,
+      explanation: "Record macro watches what you do, such as formatting a new row, and saves it as Apps Script you can run again or give a button.",
+    },
+    {
+      id: "script-error",
+      askTwice: true,
+      prompt: "The script stopped with this error. Why?",
+      image: figure("t6-script-error", "Apps Script code: line 2 gets the sheet named \"input\", line 3 clears C4:C6. Below it, an error: TypeError: Cannot read properties of null (reading 'getRange'), line 3. The tabs are Home, Input, Data and Summary."),
+      choices: [
+        { text: "The tab is called 'Input', but the script asks for 'input'" },
+        { text: "C4:C6 is the wrong range" },
+        { text: "Scripts cannot clear cells" },
+      ],
+      answer: 0,
+      explanation: "Tab names must match exactly, capital letters too. No tab called 'input' was found (null), so line 3 had nothing to clear.",
+    },
+    {
+      id: "pivot-count",
+      askTwice: true,
+      prompt: "This pivot table counts Order ID. What will it show?",
+      image: figure("t6-pivot-count", "The Pivot table editor: range Data!A1:G51; Rows: Region; Values: Order ID, summarised by COUNTA."),
+      choices: [
+        { text: "How many orders each region had" },
+        { text: "The total sales for each region" },
+        { text: "The biggest order ID" },
+      ],
+      answer: 0,
+      explanation: "COUNTA counts filled cells. One Order ID per order, grouped by Region, gives the number of orders in each region.",
+    },
+    {
+      id: "authorise",
+      prompt: "The first time your button runs your own script, this appears. What do you do?",
+      image: figure("t6-authorise", "A box titled 'Authorisation required': 'A script attached to this document needs your permission to run.' Buttons: Cancel, Review permissions."),
+      choices: [
+        { text: "Review permissions and allow it" },
+        { text: "Cancel: the script is broken" },
+        { text: "Delete the script" },
+      ],
+      answer: 0,
+      explanation: "A script that changes the sheet needs your permission once. Only allow scripts you wrote or trust.",
+    },
   ],
 };
 
@@ -781,19 +1032,21 @@ export const testing: QuestionSet = {
     },
     {
       id: "boundary",
-      prompt: "Boundary data is the lowest or highest value allowed. Which is a boundary test?",
-      image: numberLine(),
-      choices: [{ text: "100" }, { text: "50" }, { text: "101" }, { text: "0" }],
+      askTwice: true,
+      prompt: "Boundary data is the lowest or highest value allowed. Which is a boundary test for this cell?",
+      image: figure("t7-boundary-line", "A number line for a Discount (%) cell that accepts whole numbers from 0 to 50. The allowed range from 0 to 50 is shaded. The marks are -1, 0, 25, 50 and 51."),
+      choices: [{ text: "50" }, { text: "25" }, { text: "51" }, { text: "-1" }],
       answer: 0,
-      explanation: "1 and 100 are the edges of the allowed range, and should be accepted. Faults hide at the edges, such as a rule set to 'less than 100'.",
+      explanation: "0 and 50 are the edges of the allowed range, and should be accepted. Faults hide at the edges, such as a rule set to 'less than 50'.",
     },
     {
       id: "erroneous",
+      askTwice: true,
       prompt: "Erroneous data should be rejected. Which value is erroneous for this cell?",
-      image: numberLine(),
-      choices: [{ text: "101" }, { text: "1" }, { text: "50" }, { text: "100" }],
+      image: figure("t7-erroneous-line", "A number line for a Price (£) cell that accepts whole pounds from 1 to 500. The allowed range from 1 to 500 is shaded. The marks are 0, 1, 250, 500 and 501."),
+      choices: [{ text: "501" }, { text: "1" }, { text: "250" }, { text: "500" }],
       answer: 0,
-      explanation: "0 and 101 are just outside the range. If either is accepted, the rule has a fault to fix and log.",
+      explanation: "0 and 501 are just outside the range. If either is accepted, the rule has a fault to fix and log.",
     },
     {
       id: "wrong-type",
@@ -810,6 +1063,7 @@ export const testing: QuestionSet = {
     },
     {
       id: "log-gap",
+      askTwice: true,
       prompt: "What is missing from test 3?",
       image: testLog(),
       choices: [{ text: "The expected result" }, { text: "The test data" }, { text: "The actual result" }, { text: "The test number" }],
@@ -818,10 +1072,10 @@ export const testing: QuestionSet = {
     },
     {
       id: "after-fail",
-      prompt: "Test 2 failed and was fixed in v3. What else must the log show?",
-      image: testLog(),
+      prompt: "Test 4 failed and was fixed in v3. What else must the log show?",
+      image: figure("t7-test-log-fix", "A test log. Test 4: Region rejects a typo, test data Nort, expected Rejected with an error shown, actual Accepted with a red corner, Fail, fix: rule changed to Reject the input, v3. Test 5: Quantity accepts the highest value, 100, expected Accepted, actual Accepted, Pass."),
       choices: [
-        { text: "A retest of 101 after the fix, and its result" },
+        { text: "A retest of 'Nort' after the fix, and its result" },
         { text: "Nothing: the fix is enough" },
         { text: "That test 2 was deleted" },
         { text: "A new chart" },
@@ -862,6 +1116,7 @@ export const testing: QuestionSet = {
     },
     {
       id: "check-by-hand",
+      askTwice: true,
       prompt: "Check the North total by hand. What should it be?",
       image: ordersSheet(),
       choices: [{ text: "£110.00" }, { text: "£85.00" }, { text: "£73.00" }, { text: "3" }],
@@ -881,6 +1136,39 @@ export const testing: QuestionSet = {
       choices: [{ text: "Assignment 1" }, { text: "The chart commentary" }, { text: "The feedback log" }, { text: "You write it after testing" }],
       answer: 0,
       explanation: "You planned the tests with your design in Assignment 1. Run that plan, and add tests for anything new.",
+    },
+    {
+      id: "pass-or-fail",
+      askTwice: true,
+      prompt: "What goes in the Pass / Fail column for test 6?",
+      image: figure("t7-expected-actual", "A test log row. Test 6: Date rejects a day that does not exist; test data 31/02/2026; expected Rejected, error shown; actual Accepted; Pass / Fail not filled in."),
+      choices: [{ text: "Fail" }, { text: "Pass" }],
+      answer: 0,
+      explanation: "A test passes only when the actual result matches the expected one. The date was accepted, so the rule has a fault to fix and retest.",
+    },
+    {
+      id: "blank-quantity",
+      prompt: "Quantity was left empty, and clicking Add order added an order of 0. What should the log say?",
+      image: figure("t7-blank", "The Input tab: Date 06/09/2026, Region South, Quantity empty. Beside it, a green 'Add order' button and the note: after clicking, a new order, South, quantity 0, is added to the Data tab."),
+      choices: [
+        { text: "Fail: an empty quantity should be stopped" },
+        { text: "Pass: an order was added" },
+        { text: "Nothing: blanks are not tested" },
+      ],
+      answer: 0,
+      explanation: "An order of nothing is a mistake the spreadsheet let through. Log the fail, fix it (for example, the script checks the cell first) and retest.",
+    },
+    {
+      id: "retest-all",
+      prompt: "You fixed one validation rule. Why run the tests that passed before again?",
+      choices: [
+        { text: "A fix can break something that worked before" },
+        { text: "Tests must always be run twice" },
+        { text: "To make the log longer" },
+        { text: "There is no reason to" },
+      ],
+      answer: 0,
+      explanation: "Changing one rule or range can affect another. A quick retest of the earlier tests shows the fix did not break anything.",
     },
   ],
 };
@@ -906,6 +1194,7 @@ export const feedbackReview: QuestionSet = {
     },
     {
       id: "m4-chain",
+      askTwice: true,
       prompt: "For M4, what must the feedback log show?",
       image: figure("t8-feedback-log", "A feedback log with columns Who, What they tried, What they said, What I changed, Retested?. Row 1: Jordan, a classmate, entered a new order, said 'I didn't know which date format to use', change: help text on the date cell, DD/MM/YYYY; retested: yes, test 14, pass. Row 2: Teacher, found the North total, said 'It took a while to find', change: link from Home to the Summary tab; retested is empty."),
       choices: [
@@ -919,8 +1208,9 @@ export const feedbackReview: QuestionSet = {
     },
     {
       id: "feedback-gap",
+      askTwice: true,
       prompt: "What is missing from the teacher's row?",
-      image: figure("t8-feedback-log", "A feedback log with columns Who, What they tried, What they said, What I changed, Retested?. Row 1: Jordan, a classmate, entered a new order, said 'I didn't know which date format to use', change: help text on the date cell, DD/MM/YYYY; retested: yes, test 14, pass. Row 2: Teacher, found the North total, said 'It took a while to find', change: link from Home to the Summary tab; retested is empty."),
+      image: figure("t8-teacher-row", "Row 2 of a feedback log, with columns Who, What they tried, What they said, What I changed, Retested?. Teacher, found the North total, said 'It took a while to find', change: link from Home to the Summary tab; Retested is empty."),
       choices: [{ text: "A retest of the new link" }, { text: "What they tried" }, { text: "What they said" }, { text: "What was changed" }],
       answer: 0,
       explanation: "The new link is a new feature, so test it too: does it go to the Summary tab? Log the result.",
@@ -939,6 +1229,7 @@ export const feedbackReview: QuestionSet = {
     },
     {
       id: "purpose-sentence",
+      askTwice: true,
       prompt: "Which sentence is written about purpose, not appearance?",
       choices: [
         { text: "The Region dropdown means users cannot type a region that does not exist, so the SUMIF totals stay accurate." },
@@ -975,6 +1266,7 @@ export const feedbackReview: QuestionSet = {
     },
     {
       id: "d4-changes",
+      askTwice: true,
       prompt: "Your final version differs from your Assignment 1 design. What does D4 ask?",
       choices: [
         { text: "Why you made each change, and whether it was the right choice" },
@@ -1028,6 +1320,43 @@ export const feedbackReview: QuestionSet = {
       ],
       answer: 0,
       explanation: "Your scripts and buttons only work in Google Sheets. Share the sheet the way your teacher asks, so the D3 work can be seen.",
+    },
+    {
+      id: "specific-improvement",
+      askTwice: true,
+      prompt: "Which further improvement is specific enough for D4?",
+      choices: [
+        { text: "A Product dropdown, so names are always spelt the same and the totals stay right" },
+        { text: "Make it better" },
+        { text: "Add more colours" },
+        { text: "Use a different program" },
+      ],
+      answer: 0,
+      explanation: "It says what the improvement is and how it helps the user, and it could be built. 'Make it better' says none of that.",
+    },
+    {
+      id: "act-on-feedback",
+      prompt: "What should go in 'What I changed'?",
+      image: figure("t8-button-feedback", "A feedback log row. Priya, a classmate, added an order and said: 'I couldn't find the Add order button. It's below row 40.' 'What I changed' is not filled in."),
+      choices: [
+        { text: "Moved the Add order button to the top of the Input tab" },
+        { text: "Told Priya to scroll down" },
+        { text: "Deleted the button" },
+      ],
+      answer: 0,
+      explanation: "Fix the cause of the problem the user had, then retest and log it. Telling users to try harder changes nothing.",
+    },
+    {
+      id: "who-tests",
+      prompt: "Who gives you the most useful feedback?",
+      choices: [
+        { text: "Someone like the real users, who has not seen it before" },
+        { text: "Only you, because you built it" },
+        { text: "Nobody: feedback is optional" },
+        { text: "Someone who only looks at a screenshot" },
+      ],
+      answer: 0,
+      explanation: "You know where everything is, so you will not get stuck. A new user doing real tasks finds what is unclear.",
     },
   ],
 };

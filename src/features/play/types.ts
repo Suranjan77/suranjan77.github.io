@@ -22,6 +22,12 @@ export type Question = {
   explanation: string;
   /** Time allowed, in seconds, before any extra for pictures. Defaults to the set's time. */
   seconds?: number;
+  /**
+   * Ask it a second time later in the game, with the choices reshuffled. For
+   * questions that take working out (comparing pictures, applying a rule,
+   * reading a formula), not for ones that are only remembered.
+   */
+  askTwice?: true;
 };
 
 export type QuestionSet = {
@@ -72,3 +78,8 @@ export function questionSeconds(question: Question, set: QuestionSet): number {
 }
 
 export const CHOICE_LABELS = ["A", "B", "C", "D"] as const;
+
+/** How many rounds a set makes: every question once, and the ones asked twice again. */
+export function roundCount(set: QuestionSet): number {
+  return set.questions.reduce((n, q) => n + (q.askTwice ? 2 : 1), 0);
+}

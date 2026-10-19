@@ -25,8 +25,6 @@ const SECONDS = 30;
 
 const brief = () =>
   figure("s1-brief", "An extract from the assignment brief: 'The College is putting together a Digital Life Guide to help new students, and their families who are visiting the campus, stay safe online. How would you explain one way of staying safe online to the visitors? Agree your final title with your tutor before you start your research.'");
-const planVsSlides = () =>
-  figure("s1-plan-vs-slides", "A table comparing a plan with Sam's slides. Slide 1: plan Title, Sam's 'Spotting fake delivery texts'. Slide 2: plan 'What is it?', Sam's 'Where I found my facts'. Slide 3: plan 'How to spot it', Sam's 'What is a fake delivery text?'. Slide 4: plan 'What to do', Sam's 'How to spot one'. Slide 5: plan 'Key tips', Sam's 'What to do'. Slide 6: plan 'Sources', Sam's 'Key tips'.");
 const referenceParts = () =>
   figure("s3-reference-parts", "One of Sam's references, in four numbered parts. 1: National Cyber Security Centre. 2: 'Phishing: spot and report scam emails, texts, websites and calls'. 3: www.ncsc.gov.uk/collection/phishing-scams. 4: accessed 12 October 2026.");
 const editor = () =>
@@ -50,7 +48,7 @@ export const planningPresentation: QuestionSet = {
     {
       id: "purpose",
       prompt: "Read the brief. What must your presentation do?",
-      image: brief(),
+      image: figure("s1-brief-task", "From the brief, Task 2: what you need to do. 'Create a short presentation that explains ONE way of staying safe online. Use the findings in your research log from Task 1.'"),
       choices: [
         { text: "Explain one way of staying safe online" },
         { text: "Explain everything about the internet" },
@@ -62,7 +60,7 @@ export const planningPresentation: QuestionSet = {
     {
       id: "agree-title",
       prompt: "Read the brief. Who must agree your title?",
-      image: brief(),
+      image: figure("s1-brief-checklist", "From the brief, a checklist headed 'Before you start your research': choose one topic from the list; agree your final title with your tutor; set up your research log."),
       choices: [{ text: "Your tutor" }, { text: "Your friends" }, { text: "Nobody" }],
       answer: 0,
       explanation: "Agree the final title with your tutor before you start. Then your research and your slides stay on one topic.",
@@ -77,6 +75,7 @@ export const planningPresentation: QuestionSet = {
     },
     {
       id: "title-slide",
+      askTwice: true,
       prompt: "Which title slide tells the visitors most clearly what the talk is about?",
       choices: [
         { image: figure("s1-title-vague", "A title slide that says 'My presentation', with the name Sam under it.") },
@@ -89,15 +88,16 @@ export const planningPresentation: QuestionSet = {
     {
       id: "last-slide",
       prompt: "Look at the plan. What goes on the last slide?",
-      image: planVsSlides(),
+      image: figure("s1-plan", "The plan for six slides. Slide 1: Title. Slide 2: What is it? Slide 3: How to spot it. Slide 4: What to do. Slide 5: Key tips. Slide 6: Sources."),
       choices: [{ text: "Sources" }, { text: "Title" }, { text: "What is it?" }],
       answer: 0,
       explanation: "A presentation ends with the sources, so anyone can check where the facts came from. The key tips come just before.",
     },
     {
       id: "slide-order",
+      askTwice: true,
       prompt: "Compare Sam's slides with the plan. Which of Sam's slides is in the wrong place?",
-      image: planVsSlides(),
+      image: figure("s1-plan-vs-slides", "A table comparing a plan with Sam's slides. Slide 1: plan Title, Sam's 'Spotting fake delivery texts'. Slide 2: plan 'What is it?', Sam's 'Where I found my facts'. Slide 3: plan 'How to spot it', Sam's 'What is a fake delivery text?'. Slide 4: plan 'What to do', Sam's 'How to spot one'. Slide 5: plan 'Key tips', Sam's 'What to do'. Slide 6: plan 'Sources', Sam's 'Key tips'."),
       choices: [{ text: "Slide 1" }, { text: "Slide 2" }, { text: "Slide 6" }],
       answer: 1,
       explanation: "'Where I found my facts' is the sources slide, so it belongs at the end. Moving it there puts every other slide back in line with the plan.",
@@ -114,6 +114,7 @@ export const planningPresentation: QuestionSet = {
     },
     {
       id: "plain-words",
+      askTwice: true,
       prompt: "Some visitors are parents who are not IT experts. Which sentence should replace this one?",
       image: figure("s1-jargon", "A slide headed 'What is smishing?' with one bullet: 'Smishing uses SMS vectors for credential harvesting via spoofed sender IDs.'"),
       choices: [
@@ -131,6 +132,44 @@ export const planningPresentation: QuestionSet = {
       choices: [{ text: "The research log" }, { text: "Sam's memory" }, { text: "A friend's slides" }],
       answer: 0,
       explanation: "The research log already holds the facts and where they came from. Task 2 is a summary of it.",
+    },
+    {
+      id: "sketch-first",
+      prompt: "Sam sketched each slide on paper before opening Google Slides. Why is that a good idea?",
+      image: figure("s1-storyboard", "Sam's paper sketches of three slides. Slide 2, What is it?: one sentence and a picture of a scam text. Slide 3, How to spot it: three bullets, fee, strange link, 'act now'. Slide 4, What to do: don't click, forward to 7726, delete."),
+      choices: [
+        { text: "Sam knows what goes on each slide before building it" },
+        { text: "Sketches make the slides longer" },
+        { text: "The tutor only marks drawings" },
+      ],
+      answer: 0,
+      explanation: "A quick plan of each slide saves time: you build it once, with one idea per slide, instead of changing it again and again.",
+    },
+    {
+      id: "slide-order-cards",
+      askTwice: true,
+      prompt: "Sam's slides are mixed up. Which order makes sense to the visitors?",
+      image: figure("s1-order-cards", "Four of Sam's slides, not in order, labelled A to D. A: What to do. B: Spotting fake delivery texts. C: How to spot one. D: What is a fake delivery text?"),
+      choices: [{ text: "B, D, C, A" }, { text: "A, B, C, D" }, { text: "D, A, B, C" }],
+      answer: 0,
+      explanation: "Start with the title, say what it is, then how to spot it, and end with what to do. Each slide builds on the one before.",
+    },
+    {
+      id: "fact-to-slide",
+      askTwice: true,
+      prompt: "Which slide in the plan should this fact go on?",
+      image: figure("s1-fact-to-slide", "A fact from Sam's research log. Source: NCSC website. Useful information: if you get a scam text, do not click the link; forward it to 7726 for free, then delete it. Below are three planned slides: slide 2 What is it?, slide 3 How to spot it, slide 4 What to do."),
+      choices: [{ text: "Slide 2: What is it?" }, { text: "Slide 3: How to spot it" }, { text: "Slide 4: What to do" }],
+      answer: 2,
+      explanation: "The fact tells people what to do when a scam text arrives, so it goes on 'What to do'. Sorting facts into the plan keeps each slide on one idea.",
+    },
+    {
+      id: "right-tone",
+      prompt: "Which bullet is NOT right for families visiting the College?",
+      image: figure("s1-tone", "A slide headed 'What to do' with three numbered bullets. 1: Do not click links in texts you were not expecting. 2: if u click it ur dumb lol. 3: Forward scam texts to 7726."),
+      choices: [{ text: "Bullet 1" }, { text: "Bullet 2" }, { text: "Bullet 3" }],
+      answer: 1,
+      explanation: "The visitors are new students and their families. Bullet 2 uses text-speak and calls people names; the others are polite, clear advice.",
     },
   ],
 };
@@ -180,6 +219,7 @@ export const summarisingFindings: QuestionSet = {
     },
     {
       id: "relevant",
+      askTwice: true,
       prompt: "Sam's topic is strong passwords. Which row does NOT belong on the slides?",
       image: figure("s2-log-topic", "Sam's research log, topic: strong passwords. Row 1, NCSC website: use three random words to make a strong password. Row 2, a history of computers website: the first computers filled a whole room. Row 3, Action Fraud website: use a different password for your email account."),
       choices: [{ text: "Row 1" }, { text: "Row 2" }, { text: "Row 3" }],
@@ -188,6 +228,7 @@ export const summarisingFindings: QuestionSet = {
     },
     {
       id: "opinion",
+      askTwice: true,
       prompt: "Which bullet is an opinion, not a fact?",
       image: figure("s2-fact-opinion", "A slide headed 'Scam texts' with three numbered bullets. 1: You can forward a scam text to 7726 for free. 2: Scam texts are really annoying. 3: Fake delivery texts often ask for a small fee."),
       choices: [{ text: "Bullet 1" }, { text: "Bullet 2" }, { text: "Bullet 3" }],
@@ -196,6 +237,7 @@ export const summarisingFindings: QuestionSet = {
     },
     {
       id: "focused",
+      askTwice: true,
       prompt: "Which slide is the most focused summary, with its source?",
       choices: [
         { image: figure("s2-focus-outline", "A slide headed 'Phishing': phishing is when people trick you; scams are bad.") },
@@ -247,6 +289,52 @@ export const summarisingFindings: QuestionSet = {
       answer: 1,
       explanation: "People cannot read a paragraph and listen at the same time. Short bullets give the points; you say the detail.",
     },
+    {
+      id: "shorter",
+      askTwice: true,
+      prompt: "This bullet is too long. Which is the best short version?",
+      image: figure("s2-long-bullet", "A slide headed 'Fake delivery texts' with one long bullet: 'Fake delivery texts are messages that you get on your phone that say that your parcel could not be delivered to your house'."),
+      choices: [
+        { text: "They say a parcel could not be delivered" },
+        { text: "You get messages on your phone" },
+        { text: "Parcels go to houses" },
+      ],
+      answer: 0,
+      explanation: "Keep the part that matters, the claim the scam makes, and cut the words around it. The other two lose the point.",
+    },
+    {
+      id: "main-point",
+      prompt: "Sam is summarising this page. What is its main point?",
+      image: figure("s2-2sv-page", "A page from the National Cyber Security Centre, www.ncsc.gov.uk, headed 'Turn on 2-step verification'. It says 2-step verification asks for a second check, such as a code sent to your phone, when you log in, so even if a criminal knows your password, they cannot get into your account without that code."),
+      choices: [
+        { text: "2-step verification stops criminals even if they know your password" },
+        { text: "Criminals are everywhere" },
+        { text: "The NCSC has a website" },
+      ],
+      answer: 0,
+      explanation: "The main point is what the page wants you to know and do. The other two are true but are not what the page is about.",
+    },
+    {
+      id: "heading",
+      prompt: "This slide has no heading yet. Which heading sums it up?",
+      image: figure("s2-no-heading", "A slide whose heading box still says 'Click to add title'. Its bullets: use a PIN, a fingerprint or your face; set it to lock after 1 minute; never tell anyone your PIN."),
+      choices: [{ text: "Lock your phone" }, { text: "Slide 4" }, { text: "Phones are popular" }],
+      answer: 0,
+      explanation: "A heading says in a few words what every bullet is about. All three bullets are about locking your phone.",
+    },
+    {
+      id: "check-log",
+      askTwice: true,
+      prompt: "Sam's slide does not match the research log. What is wrong?",
+      image: figure("s2-log-vs-slide", "On the left, Sam's research log: 'NCSC: forward scam texts to 7726, for free.' On the right, Sam's slide 'What to do': do not click the link; forward the text to 999; delete it."),
+      choices: [
+        { text: "The number should be 7726, not 999" },
+        { text: "The heading is wrong" },
+        { text: "Nothing is wrong" },
+      ],
+      answer: 0,
+      explanation: "999 is for emergencies; scam texts go to 7726. Check every fact on a slide against the log, so the summary says what the source said.",
+    },
   ],
 };
 
@@ -276,13 +364,14 @@ export const referencingSources: QuestionSet = {
     {
       id: "reference-who",
       prompt: "Which part of the reference says WHO wrote the page?",
-      image: referenceParts(),
+      image: figure("s3-reference-parts-gso", "Another of Sam's references, in four numbered parts. 1: Get Safe Online. 2: 'Smishing'. 3: www.getsafeonline.org. 4: accessed 15 October 2026."),
       choices: [{ text: "Part 1" }, { text: "Part 2" }, { text: "Part 4" }],
       answer: 0,
       explanation: "A reference gives who wrote it (1), the page title (2), the web address (3) and the date you looked (4).",
     },
     {
       id: "complete-reference",
+      askTwice: true,
       prompt: "Which reference is complete?",
       image: figure("s3-references", "A list headed Sources. 1: google.com. 2: National Cyber Security Centre, 'Phishing: spot and report scam emails, texts, websites and calls', www.ncsc.gov.uk, accessed 12 October 2026. 3: A website about scams."),
       choices: [{ text: "Reference 1" }, { text: "Reference 2" }, { text: "Reference 3" }],
@@ -291,6 +380,7 @@ export const referencingSources: QuestionSet = {
     },
     {
       id: "missing-source",
+      askTwice: true,
       prompt: "Compare the research log with the Sources slide. Which source is missing?",
       image: figure("s3-log-vs-sources", "On the left, Sam's research log lists three sources: NCSC website, Action Fraud website, Which? website. On the right, Sam's Sources slide lists two: National Cyber Security Centre, www.ncsc.gov.uk; Which?, www.which.co.uk."),
       choices: [{ text: "NCSC" }, { text: "Action Fraud" }, { text: "Which?" }],
@@ -311,6 +401,7 @@ export const referencingSources: QuestionSet = {
     },
     {
       id: "reliable",
+      askTwice: true,
       prompt: "Which source can you trust for advice about scams?",
       choices: [
         { image: figure("s3-trust-comment", "A comment under a video by gamerboy_2009: 'scams only happen to old people lol, just dont be stupid'.") },
@@ -350,6 +441,50 @@ export const referencingSources: QuestionSet = {
       answer: 0,
       explanation: "Quotation marks show the words are not yours, and the source shows whose they are.",
     },
+    {
+      id: "web-address",
+      prompt: "Which part of this page goes in the reference as the web address?",
+      image: figure("s3-address-bar", "A browser showing https://www.actionfraud.police.uk/scam-texts. The page is by Action Fraud, headed 'Scam texts': what to do if you get a text you think is a scam."),
+      choices: [
+        { text: "www.actionfraud.police.uk/scam-texts" },
+        { text: "Action Fraud" },
+        { text: "Scam texts" },
+      ],
+      answer: 0,
+      explanation: "The web address is in the bar at the top of the browser. 'Action Fraud' is who made the page and 'Scam texts' is its title: both go in the reference too.",
+    },
+    {
+      id: "own-words-source",
+      askTwice: true,
+      prompt: "Sam wrote this slide in their own words. Does it still need a source?",
+      image: figure("s3-own-words", "On the left, the NCSC website: 'You can report a suspicious text message for free by forwarding it to 7726.' On the right, Sam's slide 'Got a scam text?' with two bullets in different words: send it on to 7726; it costs nothing."),
+      choices: [
+        { text: "Yes: the fact still came from the NCSC" },
+        { text: "No: own words never need a source" },
+        { text: "Only if the slide has a picture" },
+      ],
+      answer: 0,
+      explanation: "Own words show you understood it, but the fact is still the NCSC's. Name the source whenever a fact came from somewhere.",
+    },
+    {
+      id: "real-site",
+      askTwice: true,
+      prompt: "Sam searched for the NCSC. Which result is the real one?",
+      image: figure("s3-results", "Two search results. 1: https://www.ncsc.gov.uk, National Cyber Security Centre, advice on spotting and reporting scams. 2: https://ncsc-prize-winners.biz, 'NCSC OFFICIAL!!! Claim your prize', enter your bank details to get your £1000 reward."),
+      choices: [{ text: "Result 1" }, { text: "Result 2" }],
+      answer: 0,
+      explanation: "UK government sites end in .gov.uk. Result 2 uses the name to look official, shouts, and asks for bank details: it is a scam.",
+    },
+    {
+      id: "picture-allowed",
+      prompt: "Which picture can Sam put on a slide?",
+      choices: [
+        { image: figure("s3-image-copyright", "A photo labelled 'Daily News photo' with the note: © Daily News. All rights reserved.") },
+        { image: figure("s3-image-free", "A photo from Pexels with the note: free to use, no permission needed.") },
+      ],
+      answer: 1,
+      explanation: "'All rights reserved' means you need permission. Free-to-use pictures can go on slides, with a line saying where they came from.",
+    },
   ],
 };
 
@@ -373,6 +508,7 @@ export const designingSlides: QuestionSet = {
     },
     {
       id: "contrast",
+      askTwice: true,
       prompt: "Which slide can people at the back of the room read?",
       choices: [
         { image: figure("s4-contrast-pale", "A slide headed 'Lock your phone' with two bullets, in pale yellow text on a white background.") },
@@ -384,6 +520,7 @@ export const designingSlides: QuestionSet = {
     },
     {
       id: "text-size",
+      askTwice: true,
       prompt: "Which text size can be read from the back and still fits the slide?",
       choices: [
         { image: figure("s4-size-tiny", "A slide headed 'Strong passwords' with two bullets in very small text.") },
@@ -451,6 +588,7 @@ export const designingSlides: QuestionSet = {
     },
     {
       id: "not-colour-alone",
+      askTwice: true,
       prompt: "Which slide still works for a visitor who is colour-blind?",
       choices: [
         { image: figure("s4-colour-only", "A slide headed 'Safe or not?' with four lines. Safe things are in green text and unsafe things in red text, with nothing else to tell them apart.") },
@@ -469,6 +607,47 @@ export const designingSlides: QuestionSet = {
       answer: 1,
       explanation: "Short bullets are quick to read. Say the longer explanation out loud, or put it in your speaker notes.",
     },
+    {
+      id: "tidy",
+      askTwice: true,
+      prompt: "Which slide looks tidier?",
+      choices: [
+        { image: figure("s4-align-messy", "A slide headed 'Lock your phone' where the heading and each of the three bullets start at a different place across the slide.") },
+        { image: figure("s4-align-neat", "A slide headed 'Lock your phone' with three bullets, all lined up down the left side.") },
+      ],
+      answer: 1,
+      explanation: "Lining text up down one edge looks neat and is quicker to read. Text dotted about the slide looks careless.",
+    },
+    {
+      id: "stretched",
+      prompt: "Which slide uses its picture better?",
+      choices: [
+        { image: figure("s4-pic-stretched", "A slide headed 'Scam texts' with two bullets and a picture of a phone that has been stretched wide and squashed flat.") },
+        { image: figure("s4-pic-good", "A slide headed 'Scam texts' with two bullets and a picture of a phone showing a scam text, the right shape.") },
+      ],
+      answer: 1,
+      explanation: "A stretched picture looks wrong. Resize pictures from a corner, so they keep their shape.",
+    },
+    {
+      id: "has-heading",
+      prompt: "Which slide tells the visitors straight away what it is about?",
+      choices: [
+        { image: figure("s4-heading-none", "A slide with three bullets and no heading: use three random words; one password per account; turn on two-step verification.") },
+        { image: figure("s4-heading-yes", "A slide headed 'Strong passwords' with three bullets: use three random words; one password per account; turn on two-step verification.") },
+      ],
+      answer: 1,
+      explanation: "A heading on every slide tells people the topic before they read the bullets.",
+    },
+    {
+      id: "capitals",
+      prompt: "Which slide is easier to read?",
+      choices: [
+        { image: figure("s4-caps", "A slide headed 'GAMING SAFELY' with three bullets, all in capital letters.") },
+        { image: figure("s4-case", "A slide headed 'Gaming safely' with three bullets in normal sentence case.") },
+      ],
+      answer: 1,
+      explanation: "Words in capitals all look like the same block shape, so they are slower to read, and they look like shouting.",
+    },
   ],
 };
 
@@ -481,14 +660,15 @@ export const usingGoogleSlides: QuestionSet = {
   questions: [
     {
       id: "new-slide",
-      prompt: "This is Google Slides. Which part adds a new slide?",
-      image: editor(),
+      prompt: "This is the Google Slides toolbar. Which part adds a new slide?",
+      image: figure("s5-toolbar", "The Google Slides toolbar with four numbered parts. 1: the plus button with a small arrow. 2: the undo and redo arrows. 3: Background. 4: Theme."),
       choices: [{ text: "Part 1" }, { text: "Part 2" }, { text: "Part 3" }, { text: "Part 4" }],
       answer: 0,
       explanation: "The + button adds a new slide; its little arrow lets you pick a layout. Ctrl + M does the same.",
     },
     {
       id: "move-slide",
+      askTwice: true,
       prompt: "Where do you drag a slide to move it to a new place?",
       image: editor(),
       choices: [{ text: "Part 1" }, { text: "Part 2" }, { text: "Part 3" }, { text: "Part 4" }],
@@ -497,22 +677,24 @@ export const usingGoogleSlides: QuestionSet = {
     },
     {
       id: "notes",
+      askTwice: true,
       prompt: "Where do you type what you will say, so the visitors do not see it?",
-      image: editor(),
-      choices: [{ text: "Part 1" }, { text: "Part 2" }, { text: "Part 3" }, { text: "Part 4" }],
+      image: figure("s5-notes", "A slide being edited in Google Slides, with three numbered parts. 1: the slide's heading, 'How to spot one'. 2: the slide's bullet points. 3: the box under the slide that says 'Click to add speaker notes'."),
+      choices: [{ text: "Part 1" }, { text: "Part 2" }, { text: "Part 3" }],
       answer: 2,
       explanation: "Speaker notes go in the box under the slide. They help you remember the detail and are not shown in the slideshow.",
     },
     {
       id: "slideshow",
       prompt: "Which part starts the presentation full screen?",
-      image: editor(),
-      choices: [{ text: "Part 1" }, { text: "Part 2" }, { text: "Part 3" }, { text: "Part 4" }],
-      answer: 3,
+      image: figure("s5-topbar", "The top of the Google Slides screen with three numbered parts. 1: the comments button. 2: the Slideshow button. 3: the Share button."),
+      choices: [{ text: "Part 1" }, { text: "Part 2" }, { text: "Part 3" }],
+      answer: 1,
       explanation: "Slideshow, at the top right, shows the slides full screen. Press Esc to stop.",
     },
     {
       id: "layout",
+      askTwice: true,
       prompt: "These are the slide layouts. Which one gives a heading and one box for bullet points?",
       image: figure("s5-layouts", "The Google Slides layouts, each with its name: Title slide, Section header, Title and body, Title and two columns, Title only, Main point, Big number, Blank."),
       choices: [{ text: "Title slide" }, { text: "Title and body" }, { text: "Big number" }, { text: "Blank" }],
@@ -562,6 +744,47 @@ export const usingGoogleSlides: QuestionSet = {
       choices: [{ text: "Microsoft PowerPoint (.pptx)" }, { text: "PDF Document (.pdf)" }, { text: "Plain Text (.txt)" }],
       answer: 0,
       explanation: "File › Download › Microsoft PowerPoint (.pptx) saves a copy that opens in PowerPoint, as the brief asks.",
+    },
+    {
+      id: "undo",
+      prompt: "Sam deleted a slide by mistake. Which option brings it back?",
+      image: figure("s5-edit-menu", "The Edit menu open in Google Slides, listing: Undo (Ctrl+Z), Redo (Ctrl+Y), Cut, Copy, Paste, Delete."),
+      choices: [{ text: "Undo" }, { text: "Redo" }, { text: "Delete" }],
+      answer: 0,
+      explanation: "Undo, or Ctrl + Z, takes back the last thing you did. Redo puts it back again if you undo too much.",
+    },
+    {
+      id: "share-tutor",
+      askTwice: true,
+      prompt: "Sam wants the tutor to see the slides. What should Sam do here?",
+      image: figure("s5-share", "The Share box for 'Spotting fake delivery texts'. At the top, a box that says 'Add people, groups and calendar events'. Under 'People with access': Sam (you), Owner. Under 'General access': Restricted, only people with access can open."),
+      choices: [
+        { text: "Type the tutor's email in 'Add people'" },
+        { text: "Leave it as it is" },
+        { text: "Close the box and click Slideshow" },
+      ],
+      answer: 0,
+      explanation: "Restricted means only the people listed can open it, and only Sam is listed. Adding the tutor's email gives them access.",
+    },
+    {
+      id: "duplicate",
+      prompt: "Sam wants a new slide that looks just like slide 3. Which option?",
+      image: figure("s5-duplicate", "The column of slides in Google Slides, with slide 3, 'How to spot one', chosen and a right-click menu open: New slide (Ctrl+M), Duplicate slide, Delete, Skip slide, Change background."),
+      choices: [{ text: "Duplicate slide" }, { text: "New slide" }, { text: "Skip slide" }],
+      answer: 0,
+      explanation: "Duplicate slide makes a copy with the same layout and design, ready to change the words. New slide starts an empty one.",
+    },
+    {
+      id: "saved",
+      prompt: "What does 'Saved to Drive' at the top mean?",
+      image: figure("s5-saved", "The top of the Google Slides screen. Next to the file name 'Spotting fake delivery texts' it says 'Saved to Drive', with a cloud symbol."),
+      choices: [
+        { text: "Google saved the slides for you, online" },
+        { text: "Sam must press Save before closing" },
+        { text: "The slides have been deleted" },
+      ],
+      answer: 0,
+      explanation: "Google Slides saves as you work, to your Google Drive. You can open it again from any computer when you sign in.",
     },
   ],
 };

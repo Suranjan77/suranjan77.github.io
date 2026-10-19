@@ -53,14 +53,19 @@ the passcode; v1 does not.
   ("Coral Otter" is an otter on coral). The 24 animals are drawn in
   `avatars.tsx`, in one style, as flat shapes; every animal in
   `nicknames.ts` must have a drawing.
-- One set per weekly lesson (or per assignment task), of 8 to 12 questions. A game asks every question
-  twice, in a random order: the repeat comes at least three rounds after the
-  first, and its choices are reshuffled so the answer is under a different
-  letter. Retrieving the same idea again after a gap is what makes it stick;
-  remembering "it was B" does not. Repeats are marked "Seen before" on the
-  projector. With 8 questions a game is 16 rounds, about 10–12 minutes; the
-  Unit 3 sets have 12, so 24 rounds, about 15–18 minutes. The set list shows
-  each set's estimate. The teacher can skip to the results at any reveal.
+- One set per weekly lesson (or per assignment task), of 12 to 16 questions.
+  A game asks every question once, in a random order, and asks again only the
+  questions that take working out (`askTwice` on the question: comparing
+  pictures, applying a rule, reading a formula or a script), never more than
+  twice. Each set marks 3 to 6 of them, usually 4 or 5. The repeat comes at
+  least three rounds after the first, and its choices are reshuffled so the
+  answer is under a different letter: retrieving a hard idea again after a gap
+  is what makes it stick, while asking the easy ones again only made the game
+  repetitive. Repeats are marked "Seen before" on the projector. A game is 18
+  to 21 rounds, about 15–20 minutes; the set list shows each set's question
+  count, how many are asked twice and its estimate, and the question preview
+  marks the ones asked twice. The teacher can skip to the results at any
+  reveal.
 - Multiple-choice questions with two to four choices: text choices, a picture
   as the question, or pictures as the choices. Pictures appear on the
   projector only; phones show A–D.
@@ -202,9 +207,9 @@ to `courses`. `sets.test.ts` picks it up from there.
 
 | Level | Course | Sets | Source |
 | --- | --- | --- | --- |
-| 1 | BTEC Level 1 Introductory Diploma in IT, Unit A4 Researching a topic | 5 sets of 10, Task 2 only | The "Digital Life: Staying safe online" assignment brief |
-| 2 | Level 2 IT, Unit 9 Spreadsheet development | 8 sets of 10–12, Tasks 1–5 | The Assignment 2 guide |
-| 3 | BTEC AAQ IT, Unit 3 Website development | 20 sets of 12 | The unit's lecture notes and decks |
+| 1 | BTEC Level 1 Introductory Diploma in IT, Unit A4 Researching a topic | 5 sets of 14, Task 2 only | The "Digital Life: Staying safe online" assignment brief |
+| 2 | Level 2 IT, Unit 9 Spreadsheet development | 8 sets of 15, Tasks 1–5 | The Assignment 2 guide |
+| 3 | BTEC AAQ IT, Unit 3 Website development | 20 sets of 16 | The unit's lecture notes and decks |
 
 **Unit A4 (Level 1)** covers Task 2, the presentation that summarises
 research findings (B.P3, B.M3, B.D3): planning for the audience of new
@@ -237,11 +242,17 @@ ranges or data always shows that data on the projector. Numbered parts in a
 picture are offered as "Part 1", "Part 2", so a choice never reads "A: 3".
 
 Each question carries an explanation that gives the reason, not just the
-fact. Explanations never name a letter, because the letters change between a
-question's two rounds. Every set has rendered pictures: page and slide
+fact. Explanations never name a letter, because the letters are shuffled and
+change between a repeated question's two rounds. Every set has rendered pictures: page and slide
 mock-ups, Google Slides and Google Sheets screens, spreadsheets, wireframes,
 planning documents, code to read and measured diagrams. At Level 1 and Level 2
 almost every question has one.
+
+A picture is shown in one question of a set only: seeing the same picture
+again, for a different question, reads as a repeat. The one exception is a
+worked example on purpose, the orders sheet that the Level 2 formulas set
+works every formula on (`WORKED_EXAMPLES` in `sets.test.ts`). To ask two
+things about one document, draw a second extract or a close-up.
 
 Pictures are real rendered pages, authored in `scripts/play-figures/<course>.html`
 in the style of the course's own materials. They are drawn large (text at 15px
@@ -261,8 +272,9 @@ named in questions must be free to use, no paid apps or trials, unless the
 qualification requires them.
 
 `sets/sets.test.ts` checks every course and set: each course loads, its
-sections have sets, every set id names its course, 8 to 12 questions, two to
-four choices of one kind, a valid answer, an explanation, alt text on every
+sections have sets, every set id names its course, 12 to 16 questions with 3
+to 6 asked twice and no more than 22 rounds, no picture in two questions of a
+set, two to four choices of one kind, a valid answer, an explanation, alt text on every
 picture, and that each picture file exists. It also measures the contrast
 questions' colours from the figure source, so a question cannot drift from
 its picture.

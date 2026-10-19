@@ -1,5 +1,10 @@
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import { userExperience } from "../src/features/play/sets/aaq-u3";
+import { referencingSources } from "../src/features/play/sets/l1-a4";
+import { formulasFunctions } from "../src/features/play/sets/l2-u9";
+import { roundCount } from "../src/features/play/types";
+
+const ROUNDS = roundCount(userExperience);
 
 const phone = { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true };
 /** The passcode `npm --prefix relay run dev` is started with. */
@@ -72,9 +77,9 @@ test("a teacher runs a session, students play on phones, and ending it deletes t
   await expect(teacher.getByText(anaName, { exact: true })).toBeVisible();
   await expect(teacher.getByText(benName, { exact: true })).toBeVisible();
 
-  // The game asks each of the 12 questions twice, in a random order.
+  // The game asks every question once, and the ones that take working out twice, in a random order.
   await teacher.getByRole("button", { name: "Start the quiz" }).click();
-  await expect(teacher.getByText("Question 1 of 24")).toBeVisible();
+  await expect(teacher.getByText(`Question 1 of ${ROUNDS}`)).toBeVisible();
 
   // Round 1: Ana answers correctly and Ben wrongly. Everyone has answered, so the answer is revealed.
   const first = await answerKey(teacher);
@@ -103,9 +108,9 @@ test("a teacher runs a session, students play on phones, and ending it deletes t
   // Rounds 2–24: Ana answers each one; Ben does not, so the teacher reveals.
   const letters = new Map<string, string[]>([[first.question.id, [first.right]]]);
   let sawPictures = false;
-  for (let round = 2; round <= 24; round += 1) {
+  for (let round = 2; round <= ROUNDS; round += 1) {
     await teacher.getByRole("button", { name: "Next question" }).click();
-    await expect(teacher.getByText(`Question ${round} of 24`)).toBeVisible();
+    await expect(teacher.getByText(`Question ${round} of ${ROUNDS}`)).toBeVisible();
     const key = await answerKey(teacher);
     const seen = letters.get(key.question.id) ?? [];
     await expect(teacher.getByText("Seen before")).toHaveCount(seen.length);
@@ -131,16 +136,17 @@ test("a teacher runs a session, students play on phones, and ending it deletes t
     await expect(ben.getByRole("heading", { name: "No answer" })).toBeVisible();
   }
   expect(sawPictures).toBe(true);
-  // Every question came up twice, and the answer moved to a different letter the second time.
-  expect(letters.size).toBe(12);
+  // Every question came up, the ones marked askTwice twice, with the answer under a different letter the second time.
+  expect(letters.size).toBe(userExperience.questions.length);
   for (const [id, shown] of letters) {
-    expect(shown, id).toHaveLength(2);
-    expect(shown[0], id).not.toBe(shown[1]);
+    const twice = userExperience.questions.find((q) => q.id === id)!.askTwice;
+    expect(shown, id).toHaveLength(twice ? 2 : 1);
+    if (twice) expect(shown[0], id).not.toBe(shown[1]);
   }
 
   await teacher.getByRole("button", { name: "See the results" }).click();
   await expect(teacher.getByRole("heading", { name: "What the room found hardest" })).toBeVisible();
-  await expect(teacher.getByText(/^First time \d+% correct · second time \d+% correct$/).first()).toBeVisible();
+  await expect(teacher.getByText(/^(First time \d+% correct · second time \d+% correct|\d+% correct)$/).first()).toBeVisible();
   await expect(ana.getByRole("heading", { name: "You came first" })).toBeVisible();
   await expect(ben.getByRole("heading", { name: "Quiz finished" })).toBeVisible();
 
@@ -172,7 +178,8 @@ test("the teacher can skip to the results", async ({ browser }) => {
   await teacher.getByRole("button", { name: "Show the answer" }).click();
   await teacher.getByRole("button", { name: "Skip to the results" }).click();
   await expect(teacher.getByRole("heading", { name: "What the room found hardest" })).toBeVisible();
-  await expect(teacher.getByText("First time 0% correct · second time not asked")).toBeVisible();
+  // The first question may be one that is asked twice; either way, its second time was never reached.
+  await expect(teacher.getByText(/^(First time 0% correct · second time not asked|0% correct)$/)).toBeVisible();
   await expect(student.getByRole("heading", { name: "Quiz finished" })).toBeVisible();
 
   await teacher.getByRole("button", { name: "End session and delete everything" }).click();
@@ -197,7 +204,7 @@ test("the answer is shown as soon as everyone has answered, and a silent phone d
     WebSocket.prototype.send = () => {};
   });
   await teacher.getByRole("button", { name: "Start the quiz" }).click();
-  await expect(teacher.getByText("Question 1 of 24")).toBeVisible();
+  await expect(teacher.getByText(`Question 1 of ${ROUNDS}`)).toBeVisible();
 
   // Round 1: Ana and Ben answer. The room waits a few seconds for Cat's phone, then shows the answer,
   // long before the clock runs out.
@@ -215,7 +222,7 @@ test("the answer is shown as soon as everyone has answered, and a silent phone d
   // Round 2, after Cat closes the page: the moment the last answer is in, the answer is shown.
   await cat.close();
   await teacher.getByRole("button", { name: "Next question" }).click();
-  await expect(teacher.getByText("Question 2 of 24")).toBeVisible();
+  await expect(teacher.getByText(`Question 2 of ${ROUNDS}`)).toBeVisible();
   const second = await answerKey(teacher);
   await choose(ana, second.right);
   // Ben's phone has shown the question, so the room keeps waiting for him.
@@ -308,9 +315,9 @@ test("sets are found by level, course and search, and the last set used opens ne
   const code = ((await teacher.getByTestId("room-code").textContent()) ?? "").replace(/\D/g, "");
   const student = await joinAsStudent(browser, code);
 
-  // A Level 1 set: 10 questions, each with 30 seconds, and 15 more for a picture.
+  // A Level 1 set: every question has 30 seconds, and 15 more for a picture.
   await teacher.getByRole("button", { name: "Start the quiz" }).click();
-  await expect(teacher.getByText("Question 1 of 20")).toBeVisible();
+  await expect(teacher.getByText(`Question 1 of ${roundCount(referencingSources)}`)).toBeVisible();
   await expect(student.getByLabel(/^(4[0-5]) seconds left$/)).toBeVisible();
 
   await teacher.getByRole("button", { name: "End session" }).click();
@@ -331,13 +338,13 @@ test("the teacher can read a set's questions before choosing it, with the answer
 
   const preview = teacher.getByRole("dialog", { name: "Task 1 · Formulas and functions" });
   await expect(preview).toBeVisible();
-  await expect(preview.getByTestId("preview-question")).toHaveCount(12);
+  await expect(preview.getByTestId("preview-question")).toHaveCount(formulasFunctions.questions.length);
   await expect(preview.getByText("What does =COUNTIF(B2:B7,\"North\") give?")).toBeVisible();
   await expect(preview.getByText("✓ Answer")).toHaveCount(0);
   await expect(preview.getByText(/COUNTIF counts the cells in B2:B7/)).toHaveCount(0);
 
   await preview.getByRole("button", { name: "Show answers" }).click();
-  await expect(preview.getByText("✓ Answer")).toHaveCount(12);
+  await expect(preview.getByText("✓ Answer")).toHaveCount(formulasFunctions.questions.length);
   await expect(preview.getByText(/COUNTIF counts the cells in B2:B7/)).toBeVisible();
 
   await preview.getByRole("button", { name: "Choose this set" }).click();

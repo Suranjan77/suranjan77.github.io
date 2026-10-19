@@ -66,7 +66,7 @@ export function SetPreview({ set, chosen, onChoose, onClose }: {
 
         <div className="flex-1 overflow-y-auto px-5 py-5">
           <p className="mb-5 text-sm text-[color:var(--quiz-muted)]">
-            In the game, every question is asked twice and its choices are shuffled each time, so the letters here are not the ones the room will see.
+            In the game, the choices are shuffled, so the letters here are not the ones the room will see. Questions marked “asked twice” come back later in the game, reshuffled.
             {!answers && " Answers are hidden in case this screen is on the projector."}
           </p>
           <ol className="space-y-4">
@@ -88,7 +88,7 @@ function QuestionCard({ number, question, seconds, answers }: { number: number; 
   const pictures = question.choices.some((choice) => choice.image);
   return (
     <li className="quiz-card p-5" data-testid="preview-question">
-      <p className="font-mono text-[11px] uppercase tracking-label text-[color:var(--quiz-muted)]">Question {number} · {seconds} seconds</p>
+      <p className="font-mono text-[11px] uppercase tracking-label text-[color:var(--quiz-muted)]">Question {number} · {seconds} seconds{question.askTwice ? " · asked twice" : ""}</p>
       <h3 className="mt-1 text-lg font-medium leading-snug">{question.prompt}</h3>
       {question.image && (
         <div className="mt-3 inline-block rounded-[14px] bg-white p-2 ring-1 ring-[color:var(--quiz-line)]">

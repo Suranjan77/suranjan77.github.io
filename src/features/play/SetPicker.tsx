@@ -12,14 +12,15 @@ import { Loading } from "./ui";
 
 const LEVELS = [...new Set(courses.map((course) => course.level))].sort();
 
-/** About how long a game takes: each question twice, with time for the reveal and the explanation. */
+/** About how long a game takes: every round, with time for the reveal and the explanation. */
 export function aboutMinutes(set: QuestionSet): number {
-  const seconds = set.questions.reduce((sum, q) => sum + questionSeconds(q, set) + 20, 0);
-  return Math.round((2 * seconds) / 60);
+  const seconds = set.questions.reduce((sum, q) => sum + (questionSeconds(q, set) + 20) * (q.askTwice ? 2 : 1), 0);
+  return Math.round(seconds / 60);
 }
 
 export function setDetails(set: QuestionSet): string {
-  return `Spec ${set.spec} · ${set.questions.length} questions, each asked twice · about ${aboutMinutes(set)} min`;
+  const twice = set.questions.filter((q) => q.askTwice).length;
+  return `Spec ${set.spec} · ${set.questions.length} questions, ${twice} asked twice · about ${aboutMinutes(set)} min`;
 }
 
 export function courseName(course: Course): string {

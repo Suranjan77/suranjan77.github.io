@@ -76,48 +76,58 @@ function lobbyWith(...pids: string[]): GameState {
 }
 
 describe("the order questions come in", () => {
-  it("asks every question exactly twice, with at least MIN_REPEAT_GAP rounds before the repeat", () => {
-    for (const count of [8, 10, 12]) {
+  it("asks every question once, and the ones asked twice again at least MIN_REPEAT_GAP rounds later", () => {
+    for (const count of [8, 12, 16]) {
+      const twice = [0, 3, count - 2, count - 1];
       for (let seed = 1; seed <= 200; seed += 1) {
-        const order = questionOrder(count, seeded(seed));
-        expect(order).toHaveLength(count * 2);
+        const order = questionOrder(count, twice, seeded(seed));
+        expect(order).toHaveLength(count + twice.length);
         for (let q = 0; q < count; q += 1) {
-          expect(order.filter((x) => x === q)).toHaveLength(2);
-          expect(order.lastIndexOf(q) - order.indexOf(q)).toBeGreaterThanOrEqual(MIN_REPEAT_GAP);
+          expect(order.filter((x) => x === q)).toHaveLength(twice.includes(q) ? 2 : 1);
+          if (twice.includes(q)) expect(order.lastIndexOf(q) - order.indexOf(q)).toBeGreaterThanOrEqual(MIN_REPEAT_GAP);
         }
       }
     }
   });
 
+  it("asks nothing twice when no question says so", () => {
+    expect([...questionOrder(10, [], seeded())].sort((a, b) => a - b)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+
   it("varies from game to game", () => {
-    const orders = new Set(Array.from({ length: 20 }, (_, seed) => questionOrder(8, seeded(seed + 1)).join(",")));
+    const orders = new Set(Array.from({ length: 20 }, (_, seed) => questionOrder(8, [1, 5], seeded(seed + 1)).join(",")));
     expect(orders.size).toBeGreaterThan(15);
   });
 
   it("still spaces repeats when there are too few questions to shuffle", () => {
-    const order = questionOrder(3, seeded());
+    const order = questionOrder(3, [0, 1, 2], seeded());
     expect(order.slice(0, 3)).toEqual(order.slice(3));
   });
 
   it("reshuffles the choices on the repeat so the answer is under a different letter", () => {
     const bigger: QuestionSet = {
       ...set,
-      questions: Array.from({ length: 8 }, (_, i) => ({
+      questions: Array.from({ length: 10 }, (_, i) => ({
         id: `q${i}`,
         prompt: `Q${i}?`,
         choices: [{ text: "a" }, { text: "b" }, { text: "c" }, { text: "d" }].slice(0, 2 + (i % 3)),
         answer: i % 2,
         explanation: "Because.",
+        ...(i < 8 ? { askTwice: true as const } : {}),
       })),
     };
     for (let seed = 1; seed <= 50; seed += 1) {
       const plan = buildPlan(bigger, seeded(seed));
+      expect(plan).toHaveLength(18);
       const state: GameState = { ...newGame(bigger), plan };
       bigger.questions.forEach((question, q) => {
-        const [first, second] = plan.map((round, i) => ({ round, i })).filter(({ round }) => round.question === q);
+        const rounds = plan.map((round, i) => ({ round, i })).filter(({ round }) => round.question === q);
+        expect(rounds).toHaveLength(question.askTwice ? 2 : 1);
+        const [first, second] = rounds;
         expect(first.round.repeat).toBe(false);
-        expect(second.round.repeat).toBe(true);
         expect([...first.round.order].sort()).toEqual(question.choices.map((_, i) => i));
+        if (!second) return;
+        expect(second.round.repeat).toBe(true);
         const a = shownQuestion(state, bigger, first.i)!;
         const b = shownQuestion(state, bigger, second.i)!;
         expect(a.choices[a.answer]).toBe(question.choices[question.answer]);
@@ -479,7 +489,15 @@ describe("everyone has a chance", () => {
   const bigSet: QuestionSet = {
     ...set,
     seconds: 20,
-    questions: Array.from({ length: 12 }, (_, i) => ({ id: `q${i}`, prompt: "?", choices: [{ text: "a" }, { text: "b" }, { text: "c" }, { text: "d" }], answer: 0, explanation: "Because." })),
+    // 16 questions, a third of them asked twice, like the sets.
+    questions: Array.from({ length: 16 }, (_, i) => ({
+      id: `q${i}`,
+      prompt: "?",
+      choices: [{ text: "a" }, { text: "b" }, { text: "c" }, { text: "d" }],
+      answer: 0,
+      explanation: "Because.",
+      ...(i % 3 === 0 ? { askTwice: true as const } : {}),
+    })),
   };
 
   /** Plays a game; returns the top places' skill fifths (0 weakest, 4 strongest). */

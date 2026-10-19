@@ -1000,7 +1000,7 @@ function FinalScreen({ set, game, onEnd }: { set: QuestionSet; game: GameState; 
             return (
               <li key={summary.question} className="quiz-card p-5">
                 <p className="font-mono text-xs uppercase tracking-label text-[color:var(--quiz-muted)]">
-                  First time {percent(summary.first)} · second time {percent(summary.second)}
+                  {question.askTwice ? `First time ${percent(summary.first)} · second time ${percent(summary.second)}` : percent(summary.first)}
                 </p>
                 <p className="mt-1 text-lg font-medium">{question.prompt}</p>
                 {answer.image && <Picture image={answer.image} className="mt-3 h-auto max-h-28 w-auto rounded-[10px] ring-1 ring-[color:var(--quiz-line)]" sizes="200px" />}

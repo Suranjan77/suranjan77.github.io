@@ -3,12 +3,21 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { NICKNAME_ANIMALS, NICKNAME_COLOURS, pickNickname } from "../nicknames";
 import { parsePlayerMessage } from "../protocol";
-import type { QuizImage } from "../types";
+import { roundCount, type QuizImage } from "../types";
 import { userExperience } from "./aaq-u3";
 import { designingSlides } from "./l1-a4";
 import { courseOfSet, courses, findSet, loadCourse, loadSet } from "./index";
 
 const publicDir = join(process.cwd(), "public");
+
+/**
+ * A set may show one worked example to several questions on purpose: the
+ * formulas set works every formula on the same small sheet of orders. No
+ * other picture may appear in two questions of a set.
+ */
+const WORKED_EXAMPLES: Record<string, string[]> = {
+  "l2-u9-t1-formulas": ["/play/l2-u9/t2-orders.png"],
+};
 const loadedCourses = await Promise.all(courses.map(async (course) => ({ course, sections: await loadCourse(course) })));
 const questionSets = loadedCourses.flatMap(({ sections }) => sections.flatMap((section) => section.sets));
 
@@ -55,10 +64,20 @@ describe("question sets", () => {
 
   for (const set of questionSets) {
     describe(set.title, () => {
-      it("has 8 to 12 questions with unique ids: few enough to ask each twice in one lesson", () => {
-        expect(set.questions.length).toBeGreaterThanOrEqual(8);
-        expect(set.questions.length).toBeLessThanOrEqual(12);
+      it("has 12 to 16 questions with unique ids, and asks 3 to 6 of them twice", () => {
+        expect(set.questions.length).toBeGreaterThanOrEqual(12);
+        expect(set.questions.length).toBeLessThanOrEqual(16);
         expect(new Set(set.questions.map((q) => q.id)).size).toBe(set.questions.length);
+        const twice = set.questions.filter((q) => q.askTwice).length;
+        expect(twice).toBeGreaterThanOrEqual(3);
+        expect(twice).toBeLessThanOrEqual(6);
+        expect(roundCount(set)).toBeLessThanOrEqual(22);
+      });
+
+      it("shows each picture in one question only", () => {
+        const pictures = set.questions.flatMap((q) => [q.image, ...q.choices.map((c) => c.image)].flatMap((image) => (image ? [image.src] : [])));
+        const repeated = [...new Set(pictures.filter((src, i) => pictures.indexOf(src) !== i))];
+        expect(repeated).toEqual(WORKED_EXAMPLES[set.id] ?? []);
       });
 
       for (const question of set.questions) {
@@ -136,8 +155,9 @@ describe("nicknames", () => {
 });
 
 describe("messages from phones", () => {
-  it("accept only the two things a student can do", () => {
+  it("accept only the three things a phone can say", () => {
     expect(parsePlayerMessage({ t: "answer", index: 2, choice: 1 })).toEqual({ t: "answer", index: 2, choice: 1 });
+    expect(parsePlayerMessage({ t: "seen", index: 2 })).toEqual({ t: "seen", index: 2 });
     expect(parsePlayerMessage({ t: "reroll", name: "Something rude" })).toEqual({ t: "reroll" });
     expect(parsePlayerMessage({ t: "answer", index: "2", choice: 1 })).toBeNull();
     expect(parsePlayerMessage({ t: "rename", name: "x" })).toBeNull();

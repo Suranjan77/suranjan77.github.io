@@ -922,5 +922,269 @@
   "l2-u9/t8-download": [
     561,
     406
+  ],
+  "l1-a4/s1-brief-task": [
+    628,
+    190
+  ],
+  "l1-a4/s1-brief-checklist": [
+    628,
+    180
+  ],
+  "l1-a4/s1-plan": [
+    570,
+    293
+  ],
+  "l1-a4/s1-storyboard": [
+    630,
+    188
+  ],
+  "l1-a4/s1-order-cards": [
+    756,
+    183
+  ],
+  "l1-a4/s1-fact-to-slide": [
+    668,
+    280
+  ],
+  "l1-a4/s1-tone": [
+    508,
+    298
+  ],
+  "l1-a4/s2-long-bullet": [
+    508,
+    298
+  ],
+  "l1-a4/s2-2sv-page": [
+    628,
+    289
+  ],
+  "l1-a4/s2-no-heading": [
+    508,
+    298
+  ],
+  "l1-a4/s2-log-vs-slide": [
+    724,
+    242
+  ],
+  "l1-a4/s3-reference-parts-gso": [
+    648,
+    236
+  ],
+  "l1-a4/s3-address-bar": [
+    628,
+    207
+  ],
+  "l1-a4/s3-own-words": [
+    724,
+    228
+  ],
+  "l1-a4/s3-results": [
+    628,
+    253
+  ],
+  "l1-a4/s3-image-free": [
+    358,
+    272
+  ],
+  "l1-a4/s3-image-copyright": [
+    358,
+    272
+  ],
+  "l1-a4/s4-align-neat": [
+    428,
+    253
+  ],
+  "l1-a4/s4-align-messy": [
+    428,
+    253
+  ],
+  "l1-a4/s4-pic-stretched": [
+    428,
+    253
+  ],
+  "l1-a4/s4-pic-good": [
+    428,
+    253
+  ],
+  "l1-a4/s4-heading-none": [
+    428,
+    253
+  ],
+  "l1-a4/s4-heading-yes": [
+    428,
+    253
+  ],
+  "l1-a4/s4-caps": [
+    428,
+    253
+  ],
+  "l1-a4/s4-case": [
+    428,
+    253
+  ],
+  "l1-a4/s5-toolbar": [
+    648,
+    86
+  ],
+  "l1-a4/s5-notes": [
+    548,
+    362
+  ],
+  "l1-a4/s5-topbar": [
+    628,
+    109
+  ],
+  "l1-a4/s5-edit-menu": [
+    448,
+    298
+  ],
+  "l1-a4/s5-share": [
+    488,
+    271
+  ],
+  "l1-a4/s5-duplicate": [
+    438,
+    297
+  ],
+  "l1-a4/s5-saved": [
+    648,
+    115
+  ],
+  "l2-u9/t1-mixed-types": [
+    308,
+    260
+  ],
+  "l2-u9/t1-dates": [
+    348,
+    226
+  ],
+  "l2-u9/t1-combined": [
+    488,
+    193
+  ],
+  "l2-u9/t2-stock-if": [
+    599,
+    157
+  ],
+  "l2-u9/t2-countif-greater": [
+    348,
+    356
+  ],
+  "l2-u9/t2-sum-text": [
+    339,
+    290
+  ],
+  "l2-u9/t3-merge": [
+    784,
+    186
+  ],
+  "l2-u9/t3-number-buttons": [
+    309,
+    170
+  ],
+  "l2-u9/t3-decimals": [
+    409,
+    193
+  ],
+  "l2-u9/t3-hashes": [
+    262,
+    160
+  ],
+  "l2-u9/t3-by-hand": [
+    357,
+    226
+  ],
+  "l2-u9/t3-text-number": [
+    319,
+    223
+  ],
+  "l2-u9/t4-help-close": [
+    388,
+    179
+  ],
+  "l2-u9/t4-invalid-close": [
+    388,
+    149
+  ],
+  "l2-u9/t4-bad-date": [
+    389,
+    166
+  ],
+  "l2-u9/t4-list-tab": [
+    537,
+    265
+  ],
+  "l2-u9/t4-reject-popup": [
+    727,
+    198
+  ],
+  "l2-u9/t5-chart-bars": [
+    468,
+    265
+  ],
+  "l2-u9/t5-colour-scale": [
+    339,
+    293
+  ],
+  "l2-u9/t5-two-series": [
+    448,
+    285
+  ],
+  "l2-u9/t5-axis-cut": [
+    448,
+    305
+  ],
+  "l2-u9/t6-macros": [
+    872,
+    220
+  ],
+  "l2-u9/t6-script-error": [
+    726,
+    263
+  ],
+  "l2-u9/t6-pivot-count": [
+    358,
+    368
+  ],
+  "l2-u9/t6-authorise": [
+    448,
+    198
+  ],
+  "l2-u9/t7-boundary-line": [
+    588,
+    155
+  ],
+  "l2-u9/t7-erroneous-line": [
+    588,
+    155
+  ],
+  "l2-u9/t7-test-log-fix": [
+    808,
+    235
+  ],
+  "l2-u9/t7-expected-actual": [
+    728,
+    176
+  ],
+  "l2-u9/t7-blank": [
+    627,
+    160
+  ],
+  "l2-u9/t8-teacher-row": [
+    808,
+    155
+  ],
+  "l2-u9/t8-button-feedback": [
+    728,
+    176
+  ],
+  "aaq-u3/t06-brief-messages": [
+    520,
+    177
+  ],
+  "aaq-u3/t15-box-border": [
+    244,
+    176
   ]
 }

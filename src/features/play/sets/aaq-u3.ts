@@ -74,6 +74,7 @@ export const purposesAudiences: QuestionSet = {
     },
     {
       id: "same-age",
+      askTwice: true,
       prompt: "Two visitors to the studio's site. How many personas do they need?",
       image: figure("t01-two-visitors", "Two visitor cards. Both are aged 34, live in Plymouth and use a phone. Visitor A wants a weekly evening class to unwind after work; visitor B wants a gift voucher for her sister's birthday next week."),
       choices: [{ text: "One: they share the same demographics" }, { text: "Two: they have different goals" }],
@@ -82,6 +83,7 @@ export const purposesAudiences: QuestionSet = {
     },
     {
       id: "persona-field",
+      askTwice: true,
       prompt: "Which numbered field does NOT belong in this user persona?",
       image: figure("t01-persona", "A persona card for Priya, 34, a nurse who lives three miles from the studio, quoting 'If I can't see the price, I'm gone.' Field 1, goals: a relaxing weekly hobby. Field 2, frustrations: sites that hide prices. Field 3, devices: books on her phone. Field 4, colour scheme: sage green and terracotta on cream."),
       choices: [
@@ -107,6 +109,7 @@ export const purposesAudiences: QuestionSet = {
     },
     {
       id: "analysis-level",
+      askTwice: true,
       prompt: "Which sentence is written at the analysis level?",
       choices: [
         { text: "The studio site has a big orange button." },
@@ -118,6 +121,7 @@ export const purposesAudiences: QuestionSet = {
     },
     {
       id: "two-purposes",
+      askTwice: true,
       prompt: "This studio also sells pottery kits online. Which purpose does its home page put first?",
       image: figure("t01-two-purposes", "Riverside Studio's home page. The heading 'Pottery classes in Plymouth' sits above a large blue 'Book a taster class' button. Below a dividing line, a small line of text offers pottery kits from £25 with a 'Shop kits' link."),
       choices: [{ text: "eCommerce" }, { text: "To provide information" }, { text: "To promote products or services" }, { text: "To provide entertainment" }],
@@ -138,6 +142,7 @@ export const purposesAudiences: QuestionSet = {
     },
     {
       id: "test-decision",
+      askTwice: true,
       prompt: "Priya came to book a class. The home page opens with a long 'About our studio' story. Tested against her, what should happen to the story?",
       choices: [
         { text: "Keep it at the top: it builds trust" },
@@ -147,6 +152,54 @@ export const purposesAudiences: QuestionSet = {
       ],
       answer: 1,
       explanation: "Ask of each design idea: does it help Priya do what she came for? The story delays her booking, so it moves lower down. A persona that never changes a decision is decoration.",
+    },
+    {
+      id: "purpose-games",
+      prompt: "A site of free browser puzzle games with a daily high-score table. What is its main purpose?",
+      choices: [
+        { text: "To provide entertainment" },
+        { text: "eCommerce" },
+        { text: "To provide information" },
+        { text: "To promote products or services" },
+      ],
+      answer: 0,
+      explanation: "Visitors come to play and to beat the high score. Nothing is sold, and the site is not advertising something delivered elsewhere.",
+    },
+    {
+      id: "persona-goal",
+      prompt: "'Priya wants to book a class on her phone, in her lunch break, in under two minutes.' Which part of her persona is this?",
+      choices: [
+        { text: "Goals and motivations" },
+        { text: "Demographics" },
+        { text: "Location" },
+        { text: "Income" },
+      ],
+      answer: 0,
+      explanation: "What she is trying to do, and why, is her goal. It tells you to put booking first and keep it short on a phone.",
+    },
+    {
+      id: "secondary",
+      prompt: "The studio's main visitors are working adults. Grandparents also visit to buy gift vouchers. What are the grandparents?",
+      choices: [
+        { text: "A secondary audience" },
+        { text: "The primary audience" },
+        { text: "Competitors" },
+        { text: "Stakeholders who run the site" },
+      ],
+      answer: 0,
+      explanation: "A secondary audience uses the site less, or for a different job. The site should serve them too, without getting in the way of the main audience.",
+    },
+    {
+      id: "persona-matters",
+      prompt: "Which persona detail should change how you build the site?",
+      choices: [
+        { text: "Uses a screen magnifier at 200 per cent" },
+        { text: "Has a cat called Biscuit" },
+        { text: "Favourite colour is blue" },
+        { text: "Was born in March" },
+      ],
+      answer: 0,
+      explanation: "A detail earns its place in a persona if it changes a design decision. Magnified text needs a layout that reflows; the other details change nothing.",
     },
   ],
 };
@@ -166,6 +219,7 @@ export const pageLayout: QuestionSet = {
     },
     {
       id: "least-seen",
+      askTwice: true,
       prompt: "On this text-heavy page, which part will most visitors look at least?",
       image: figure("t02-text-page", "A law firm's page: a heading, three paragraphs of text, and a 'Get in touch' box floated on the right."),
       choices: [
@@ -190,6 +244,7 @@ export const pageLayout: QuestionSet = {
     },
     {
       id: "z-action",
+      askTwice: true,
       prompt: "This landing page follows a Z pattern. Where should the 'Book a place' button go?",
       choices: [
         { image: figure("t02-z-top-left", "Landing page with the 'Book a place' button just under the logo, top left.") },
@@ -215,6 +270,7 @@ export const pageLayout: QuestionSet = {
     },
     {
       id: "hierarchy",
+      askTwice: true,
       prompt: "Which version has the clearest visual hierarchy?",
       choices: [
         { image: figure("t02-hierarchy-flat", "Heading, description, price and an underlined link all in the same small grey text.") },
@@ -250,6 +306,7 @@ export const pageLayout: QuestionSet = {
     },
     {
       id: "video-home",
+      askTwice: true,
       prompt: "The studio's home page on a phone, one screen at a time. Priya books in her break. What should change?",
       image: figure("t02-video-home", "Four phone screens of one home page. Screen 1 is a full-screen video of clay being thrown. Screens 2 and 3 are animated panels, 'Our story' and 'Made by hand'. Screen 4 finally shows class cards with times, prices and Book buttons."),
       choices: [
@@ -287,6 +344,7 @@ export const pageLayout: QuestionSet = {
     },
     {
       id: "f-not-law",
+      askTwice: true,
       prompt: "A page has one large orange button in the middle and little else. Will visitors still follow an F pattern?",
       choices: [
         { text: "Yes: every page is scanned in an F" },
@@ -296,6 +354,54 @@ export const pageLayout: QuestionSet = {
       ],
       answer: 1,
       explanation: "The F pattern is the default for pages with weak structure, not a law. Saying that a strong hierarchy can override it shows better understanding than naming the pattern.",
+    },
+    {
+      id: "f-where",
+      prompt: "On a text-heavy page read in an F pattern, where do visitors look most?",
+      choices: [
+        { text: "Across the top, then down the left side" },
+        { text: "Down the right side" },
+        { text: "Only at the footer" },
+        { text: "Evenly over the whole page" },
+      ],
+      answer: 0,
+      explanation: "F-pattern readers read the first lines, then scan down the left edge for words that catch their eye. Put key words at the start of headings and lines.",
+    },
+    {
+      id: "one-column",
+      prompt: "Why do most pages become a single column on a phone?",
+      choices: [
+        { text: "A phone is too narrow for readable columns side by side" },
+        { text: "Phones cannot display columns" },
+        { text: "Search engines require it" },
+        { text: "It makes the page load faster" },
+      ],
+      answer: 0,
+      explanation: "At about 390 px wide, two columns of text would each be too narrow to read. One column, in order of importance, reads top to bottom.",
+    },
+    {
+      id: "proximity",
+      prompt: "Each form label sits right above its own field, with a gap before the next label. Which principle helps users pair them?",
+      choices: [
+        { text: "Proximity: related things sit close together" },
+        { text: "Contrast" },
+        { text: "Repetition" },
+        { text: "Parallax" },
+      ],
+      answer: 0,
+      explanation: "People read things that are close together as belonging together. A label nearer the wrong field gets filled in wrongly.",
+    },
+    {
+      id: "first-screen",
+      prompt: "What should a visitor see on the studio's home page before scrolling?",
+      choices: [
+        { text: "What the studio offers, and the button to book" },
+        { text: "The full history of the studio" },
+        { text: "The privacy policy" },
+        { text: "Every class in detail" },
+      ],
+      answer: 0,
+      explanation: "The first screen should answer 'what is this?' and 'what can I do here?'. Detail can follow further down for those who want it.",
     },
   ],
 };
@@ -308,6 +414,7 @@ export const navigationContent: QuestionSet = {
   questions: [
     {
       id: "breadcrumbs",
+      askTwice: true,
       prompt: "Which navigation pattern runs across this page, just under the header?",
       image: figure("t03-breadcrumbs", "A class page. Under the site header a single line reads 'Home › Classes › Beginners › Wheel throwing'; every step but the last is a link. Below it, the heading 'Wheel throwing for beginners'."),
       choices: [{ text: "Sticky bar" }, { text: "Vertical navigation" }, { text: "Hamburger menu" }, { text: "Breadcrumbs" }],
@@ -354,6 +461,7 @@ export const navigationContent: QuestionSet = {
     },
     {
       id: "cta-newsletter",
+      askTwice: true,
       prompt: "Which newsletter sign-up has the strongest button text?",
       choices: [
         { image: figure("t03-cta-submit", "'Class news' sign-up box: an email field and a button reading 'Submit'.") },
@@ -378,6 +486,7 @@ export const navigationContent: QuestionSet = {
     },
     {
       id: "line-length",
+      askTwice: true,
       prompt: "The same paragraph at three widths. Which is easiest to read?",
       choices: [
         { image: figure("t03-measure-narrow", "The paragraph in a very narrow column, about 25 characters to a line, broken over eight short lines.") },
@@ -403,6 +512,7 @@ export const navigationContent: QuestionSet = {
     },
     {
       id: "same-labels",
+      askTwice: true,
       prompt: "The menu says 'Classes' on the home page and 'Courses' on the gallery page. Which rule of logical navigation is broken?",
       choices: [
         { text: "Use the visitors' words" },
@@ -415,6 +525,7 @@ export const navigationContent: QuestionSet = {
     },
     {
       id: "five-buttons",
+      askTwice: true,
       prompt: "What is wrong with the calls-to-action on this home page?",
       image: figure("t03-five-buttons", "The studio's home page: a heading, one line of text, then five buttons of the same size and colour: Book a class, Gift vouchers, Shop, Newsletter and Contact us."),
       choices: [
@@ -425,6 +536,54 @@ export const navigationContent: QuestionSet = {
       ],
       answer: 1,
       explanation: "Keep one primary action per page so the visitor is never choosing between equal buttons. Booking matters most here, so it gets the strongest style; the rest become quieter links.",
+    },
+    {
+      id: "current-page",
+      prompt: "How should the menu show which page the visitor is on?",
+      choices: [
+        { text: "Highlight that item and mark it with aria-current=\"page\"" },
+        { text: "Hide that item" },
+        { text: "Make every item bold" },
+        { text: "Nothing: visitors can read the URL" },
+      ],
+      answer: 0,
+      explanation: "A visible highlight shows sighted visitors where they are, and aria-current tells screen-reader users the same thing.",
+    },
+    {
+      id: "footer-links",
+      prompt: "What usually goes in a site's footer navigation?",
+      choices: [
+        { text: "Secondary links such as Privacy, Accessibility and Contact" },
+        { text: "The main call to action only" },
+        { text: "Every page on the site, in full" },
+        { text: "Nothing: footers are decoration" },
+      ],
+      answer: 0,
+      explanation: "The footer is where visitors look for the things every site has: contact details, the privacy notice and the accessibility statement.",
+    },
+    {
+      id: "chunking",
+      prompt: "Why break a long class description into short sections with subheadings?",
+      choices: [
+        { text: "Visitors scan for the part they need, such as price or dates" },
+        { text: "It makes the page longer for search engines" },
+        { text: "Subheadings are required by law" },
+        { text: "It hides the detail from visitors" },
+      ],
+      answer: 0,
+      explanation: "Most visitors scan rather than read. Clear subheadings let them jump straight to the part that answers their question.",
+    },
+    {
+      id: "sixty",
+      prompt: "In a 60/30/10 colour scheme, what is the 60 per cent usually?",
+      choices: [
+        { text: "The main background colour" },
+        { text: "The call-to-action buttons" },
+        { text: "Error messages" },
+        { text: "The logo only" },
+      ],
+      answer: 0,
+      explanation: "The dominant colour covers most of the page, usually the background. The 30 per cent supports it, and the 10 per cent accent draws the eye to actions.",
     },
   ],
 };
@@ -437,6 +596,7 @@ export const userExperience: QuestionSet = {
   questions: [
     {
       id: "contrast-button",
+      askTwice: true,
       prompt: "Which button's label meets the WCAG 2.2 AA contrast ratio for normal text?",
       choices: [
         { image: figure("t04-button-pale", "White label on a pale blue button.") },
@@ -456,6 +616,7 @@ export const userExperience: QuestionSet = {
     },
     {
       id: "focus",
+      askTwice: true,
       prompt: "Both visitors pressed Tab three times. On which page can a keyboard user see where they are?",
       choices: [
         { image: figure("t04-focus-none", "Site menu after three Tab presses. No link looks any different.") },
@@ -497,6 +658,7 @@ export const userExperience: QuestionSet = {
     },
     {
       id: "branding",
+      askTwice: true,
       prompt: "The home page and contact page of one site. Which kind of consistency is broken?",
       image: figure("t04-two-pages", "Two pages of one site. The home page header is blue and reads 'Riverside Studio'; the contact page header is purple and reads 'The Riverside Pottery Studio'. Menus, layout and buttons match."),
       choices: [{ text: "Branding" }, { text: "Page layout" }, { text: "UI elements" }, { text: "Design" }],
@@ -519,6 +681,7 @@ export const userExperience: QuestionSet = {
     },
     {
       id: "ui-elements",
+      askTwice: true,
       prompt: "The main button on two pages of one site. Which kind of consistency is broken?",
       image: figure("t04-ui-buttons", "Two pages with the same header, name and menu. The classes page has a filled, rounded blue 'Book a place' button; the vouchers page has a square, grey-outlined button in small capitals reading 'Ask about a voucher'."),
       choices: [{ text: "Branding" }, { text: "Page layout" }, { text: "Design" }, { text: "UI elements" }],
@@ -534,6 +697,7 @@ export const userExperience: QuestionSet = {
     },
     {
       id: "customisable",
+      askTwice: true,
       prompt: "Which build choice breaks visitors' customisable features, such as enlarging text to 200 per cent?",
       choices: [
         { text: "Building with relative units and standard HTML" },
@@ -543,6 +707,54 @@ export const userExperience: QuestionSet = {
       ],
       answer: 1,
       explanation: "Text in a picture cannot be resized, recoloured or reflowed; it just blurs. Many customisable features come free with relative units and real text.",
+    },
+    {
+      id: "error-message",
+      prompt: "Which form error message is most helpful?",
+      choices: [
+        { text: "Enter an email address in the format name@example.com" },
+        { text: "Error" },
+        { text: "Invalid input" },
+        { text: "Something went wrong" },
+      ],
+      answer: 0,
+      explanation: "A good error says what went wrong and how to fix it, next to the field. A bare 'Error' leaves the visitor guessing.",
+    },
+    {
+      id: "understandable",
+      prompt: "The instructions say 'Press the green button', but there are two green buttons. Which WCAG principle is at risk?",
+      choices: [
+        { text: "Understandable" },
+        { text: "Perceivable" },
+        { text: "Operable" },
+        { text: "Robust" },
+      ],
+      answer: 0,
+      explanation: "Instructions must be clear and must not depend on colour alone. Name the button: 'Press Book a place'.",
+    },
+    {
+      id: "target-size",
+      prompt: "What is the minimum size WCAG 2.2 AA asks for most tap targets, such as small icon buttons?",
+      choices: [
+        { text: "24 by 24 CSS pixels" },
+        { text: "10 by 10 CSS pixels" },
+        { text: "100 by 100 CSS pixels" },
+        { text: "There is no minimum" },
+      ],
+      answer: 0,
+      explanation: "WCAG 2.2 added Target Size (Minimum): at least 24 × 24 CSS pixels, or enough space around a smaller target. Bigger, around 44 px, is better for fingers.",
+    },
+    {
+      id: "robust",
+      prompt: "Valid HTML with the right elements works with today's browsers and assistive technology, and tomorrow's. Which WCAG principle is that?",
+      choices: [
+        { text: "Robust" },
+        { text: "Perceivable" },
+        { text: "Operable" },
+        { text: "Understandable" },
+      ],
+      answer: 0,
+      explanation: "Robust content can be read reliably by many kinds of user agent, including screen readers. Valid, semantic HTML is how you get there.",
     },
   ],
 };
@@ -563,6 +775,7 @@ export const motionDynamicSeo: QuestionSet = {
     },
     {
       id: "parallax-risk",
+      askTwice: true,
       prompt: "The background moves more slowly than the foreground as you scroll. What is a risk of this effect?",
       choices: [
         { text: "It stops search engines reading the page" },
@@ -599,6 +812,7 @@ export const motionDynamicSeo: QuestionSet = {
     },
     {
       id: "static-describe",
+      askTwice: true,
       prompt: "Your site is HTML, CSS and JavaScript with no server of its own. Its menu opens when tapped. How should you describe it?",
       choices: [
         { text: "A dynamic site" },
@@ -618,6 +832,7 @@ export const motionDynamicSeo: QuestionSet = {
     },
     {
       id: "hover-touch",
+      askTwice: true,
       prompt: "This class card shows its price only while the pointer hovers over it. Why is that a problem?",
       image: figure("t05-hover-price", "A 'Glaze night, Wednesday 18:30' class card reading 'Price: hover to see'. A mouse pointer rests on the card and a dark tooltip beside it shows '£40 · one evening'."),
       choices: [
@@ -638,6 +853,7 @@ export const motionDynamicSeo: QuestionSet = {
     },
     {
       id: "search-result",
+      askTwice: true,
       prompt: "The studio's entry in search results. Where do parts 2 and 3 come from?",
       image: figure("t05-search-result", "A search for 'pottery classes plymouth beginners'. The result has three numbered parts: 1, the address 'riversidestudio.co.uk › classes › beginners'; 2, the blue link 'Beginners pottery classes in Plymouth | Riverside Studio'; 3, the summary 'Six-week evening classes for complete beginners. Small groups, all materials included, from £95. Book online in a minute.'"),
       choices: [
@@ -675,11 +891,60 @@ export const motionDynamicSeo: QuestionSet = {
     },
     {
       id: "no-viewport",
+      askTwice: true,
       prompt: "On a real phone, the studio's page looks like this: the desktop layout, shrunk. What is missing from the page's <head>?",
       image: figure("t05-no-viewport", "A phone showing the studio's full desktop page shrunk to fit: a header with the menu spread across it, three columns of class cards and a footer, all in tiny text."),
       choices: [{ text: "The viewport meta tag" }, { text: "The meta description" }, { text: "The page title" }, { text: "A CSS reset" }],
       answer: 0,
       explanation: "Without the viewport meta tag a phone pretends to be a desktop, lays the page out about 980 px wide and zooms out. With it, the page uses the phone's real width.",
+    },
+    {
+      id: "title-element",
+      prompt: "Which element usually becomes the clickable headline of a page in search results?",
+      choices: [
+        { text: "<title>" },
+        { text: "<h6>" },
+        { text: "<footer>" },
+        { text: "<nav>" },
+      ],
+      answer: 0,
+      explanation: "The <title> in the head is the usual headline in search results and the name on the browser tab. Give every page its own, starting with what the page is about.",
+    },
+    {
+      id: "dynamic",
+      prompt: "A site builds each page on a server from a database, so the class list updates itself when staff add a class. What kind of site is it?",
+      choices: [
+        { text: "A dynamic website" },
+        { text: "A static website" },
+        { text: "A wireframe" },
+        { text: "A style tile" },
+      ],
+      answer: 0,
+      explanation: "A dynamic site creates pages when they are asked for, from stored data. A static site sends the same files to everyone until someone edits them.",
+    },
+    {
+      id: "page-speed",
+      prompt: "Why does page speed matter for a site's search ranking?",
+      choices: [
+        { text: "Search engines favour fast pages, and visitors leave slow ones" },
+        { text: "Slow pages are hidden from search results completely" },
+        { text: "Speed only matters for games" },
+        { text: "It does not matter at all" },
+      ],
+      answer: 0,
+      explanation: "Page experience, including speed, is one of the signals search engines use, and a slow page loses visitors before it loads. Smaller images help most.",
+    },
+    {
+      id: "keywords",
+      prompt: "The studio wants to be found for 'pottery classes in Riverside'. Where should that phrase appear?",
+      choices: [
+        { text: "In the title, the main heading and naturally in the text" },
+        { text: "Repeated fifty times in white text" },
+        { text: "Only in the file names" },
+        { text: "In a hidden <div>" },
+      ],
+      answer: 0,
+      explanation: "Use the words people search for where they belong: title, heading and copy. Hidden or repeated keywords are spam and can get a page pushed down.",
     },
   ],
 };
@@ -692,6 +957,7 @@ export const planningBrief: QuestionSet = {
   questions: [
     {
       id: "problem",
+      askTwice: true,
       prompt: "Which numbered sentence in this client brief states the problem to be solved?",
       image: figure("t06-brief", "An extract from the studio's client brief with three highlighted sentences. 1: 'Most of our students are working adults who book in the evening on their phones.' 2: 'Enquiries arrive as social-media messages and we lose track of them.' 3: 'We want people to know we are friendly, welcome beginners, keep classes small, and that booking takes a minute.'"),
       choices: [
@@ -704,14 +970,16 @@ export const planningBrief: QuestionSet = {
     },
     {
       id: "key-messages",
-      prompt: "In the same brief, which part of the purpose is sentence 3?",
-      image: figure("t06-brief", "An extract from the studio's client brief with three highlighted sentences. 1: 'Most of our students are working adults who book in the evening on their phones.' 2: 'Enquiries arrive as social-media messages and we lose track of them.' 3: 'We want people to know we are friendly, welcome beginners, keep classes small, and that booking takes a minute.'"),
+      askTwice: true,
+      prompt: "Another part of the studio's brief. Which part of the purpose is the highlighted sentence?",
+      image: figure("t06-brief-messages", "Another extract from the studio's client brief: 'We have one part-time administrator, who can update the class list once a month.' Highlighted: 'We want visitors to come away knowing we are friendly, welcome beginners, keep classes small, and that booking takes a minute.' Then: 'The site must be ready before the September term starts.'"),
       choices: [{ text: "Problem to be solved" }, { text: "Key messages" }, { text: "User motivations and goals" }, { text: "Available resources" }],
       answer: 1,
       explanation: "Key messages are what visitors should come away believing. They steer the copy, the photos and the tone of the whole site.",
     },
     {
       id: "testable",
+      askTwice: true,
       prompt: "Which requirement can be tested?",
       choices: [
         { text: "The site should look modern" },
@@ -748,6 +1016,7 @@ export const planningBrief: QuestionSet = {
     },
     {
       id: "data-protection",
+      askTwice: true,
       prompt: "Which constraint does this class enquiry form break?",
       image: figure("t06-enquiry", "An 'Ask about a class' form with four fields: name, email, date of birth (DD / MM / YYYY) and a message box, then a 'Send my question' button."),
       choices: [{ text: "Copyright" }, { text: "Data protection" }, { text: "Digital accessibility" }, { text: "Inclusive representation" }],
@@ -787,6 +1056,7 @@ export const planningBrief: QuestionSet = {
     },
     {
       id: "technical",
+      askTwice: true,
       prompt: "'Works on phones from 320 px; about six pages; a contact form; no payment system.' Which part of the requirements is this?",
       choices: [{ text: "Key messages" }, { text: "Intended audience" }, { text: "Technical requirements" }, { text: "The problem to be solved" }],
       answer: 2,
@@ -810,6 +1080,54 @@ export const planningBrief: QuestionSet = {
       choices: [{ text: "Copyright" }, { text: "Data protection" }, { text: "Digital accessibility" }, { text: "Inclusive representation" }],
       answer: 0,
       explanation: "Copyright covers fonts as well as images, video and text. A business website is not personal use, so the font needs a licence that allows it.",
+    },
+    {
+      id: "budget",
+      prompt: "'We have no money for paid tools or hosting.' Which part of the brief is this?",
+      choices: [
+        { text: "A constraint" },
+        { text: "A key message" },
+        { text: "A user persona" },
+        { text: "The problem to be solved" },
+      ],
+      answer: 0,
+      explanation: "A constraint limits how you can meet the requirements. No budget points you to free tools and free hosting, such as GitHub Pages.",
+    },
+    {
+      id: "functional",
+      prompt: "'The enquiry form emails the studio.' Which kind of requirement is this?",
+      choices: [
+        { text: "Functional: something the site does" },
+        { text: "Non-functional: a quality of the whole site" },
+        { text: "A constraint" },
+        { text: "A key message" },
+      ],
+      answer: 0,
+      explanation: "Functional requirements say what the site does. Non-functional ones say how well, such as 'meets WCAG 2.2 AA' or 'works on phones from 320 px'.",
+    },
+    {
+      id: "success",
+      prompt: "How could the studio tell the new site has solved its problem?",
+      choices: [
+        { text: "No enquiry is lost: each one arrives as an email" },
+        { text: "The site has a lot of pages" },
+        { text: "The site uses three colours" },
+        { text: "The developer likes it" },
+      ],
+      answer: 0,
+      explanation: "Success is measured against the problem in the brief. Lost social-media enquiries were the problem, so every enquiry arriving by email is the test.",
+    },
+    {
+      id: "timescale",
+      prompt: "'The site must be live before the September term starts.' What kind of constraint is this?",
+      choices: [
+        { text: "A time constraint" },
+        { text: "A legal constraint" },
+        { text: "A technical requirement" },
+        { text: "A user goal" },
+      ],
+      answer: 0,
+      explanation: "A deadline shapes the plan: which pages and features fit in the time. Plan the must-haves first.",
     },
   ],
 };
@@ -841,6 +1159,7 @@ export const siteMaps: QuestionSet = {
     },
     {
       id: "card-sort",
+      askTwice: true,
       prompt: "People sorted cards, each naming one piece of content, into these groups. What does a card sort decide?",
       image: figure("t07-card-sort", "Three piles of cards. Pile one: beginners course, class prices, improvers course, glaze night. Pile two: opening hours, parking, map and directions. Pile three: student work, studio photos, tutor's pieces."),
       choices: [
@@ -854,6 +1173,7 @@ export const siteMaps: QuestionSet = {
     },
     {
       id: "clicks",
+      askTwice: true,
       prompt: "Visitors most often want class prices; on this map they are four clicks from home. Common content should be within how many?",
       image: figure("t07-deep-map", "A site map. Home links to About, Gallery, The studio and Contact. The studio leads to Learning, Learning to Courses, and Courses to Prices, which is outlined, four levels below Home."),
       choices: [{ text: "Two or three" }, { text: "Five or six" }, { text: "Eight to ten" }, { text: "Any number, if the menu is clear" }],
@@ -886,6 +1206,7 @@ export const siteMaps: QuestionSet = {
     },
     {
       id: "missing-requirement",
+      askTwice: true,
       prompt: "Which requirement has no page on this annotated site map?",
       image: figure("t07-annotated-map", "A site map: Home (R1) links to Classes (R2, R5), Gallery (R3), Visit us (R6) and Contact (R2). Beneath, the requirements: R1 say what the studio offers; R2 let visitors send an enquiry; R3 show finished student work; R4 sell gift vouchers; R5 list class times and prices; R6 give opening hours and directions."),
       choices: [
@@ -911,6 +1232,7 @@ export const siteMaps: QuestionSet = {
     },
     {
       id: "met-differently",
+      askTwice: true,
       prompt: "The brief asks to sell gift vouchers, but the site has no payment system. What does the map do?",
       choices: [
         { text: "Quietly drop the requirement" },
@@ -923,6 +1245,7 @@ export const siteMaps: QuestionSet = {
     },
     {
       id: "extra-page",
+      askTwice: true,
       prompt: "Which page fails the two-way check on this annotated site map?",
       image: figure("t07-extra-page", "A site map: Home (R1) links to Classes (R2, R5), Gallery (R3), Team blog (no requirement), Vouchers (R4) and Visit us (R6). Below, six requirements R1 to R6 are listed."),
       choices: [{ text: "Classes" }, { text: "Gallery" }, { text: "Team blog" }, { text: "Visit us" }],
@@ -952,6 +1275,54 @@ export const siteMaps: QuestionSet = {
       ],
       answer: 0,
       explanation: "Pages should follow what visitors look for, which a card sort reveals, and use their words. Organising the site like the business's departments makes visitors guess.",
+    },
+    {
+      id: "below",
+      prompt: "On a site map, 'Beginners' is drawn below 'Classes' and joined to it. What does that show?",
+      choices: [
+        { text: "Beginners is reached from the Classes page" },
+        { text: "Beginners is the home page" },
+        { text: "Beginners is deleted" },
+        { text: "The two pages are the same" },
+      ],
+      answer: 0,
+      explanation: "Lines show links, and the levels show depth. Beginners is one level below Classes, so visitors reach it through Classes.",
+    },
+    {
+      id: "global",
+      prompt: "Which pages are usually linked from every page?",
+      choices: [
+        { text: "The top-level pages in the main menu" },
+        { text: "Every page on the site" },
+        { text: "Only the home page" },
+        { text: "None: each page links to one other" },
+      ],
+      answer: 0,
+      explanation: "The main menu is global: it appears everywhere, so visitors can reach the top-level pages from anywhere.",
+    },
+    {
+      id: "open-sort",
+      prompt: "In an open card sort, who names the groups?",
+      choices: [
+        { text: "The people sorting the cards" },
+        { text: "The developer, before the sort" },
+        { text: "The client's IT team" },
+        { text: "Nobody: groups have no names" },
+      ],
+      answer: 0,
+      explanation: "In an open sort, participants make and name their own groups, so you learn the words visitors use. In a closed sort, you give them the group names.",
+    },
+    {
+      id: "annotation-codes",
+      prompt: "A page on the map is annotated 'R3, R5'. What does that mean?",
+      choices: [
+        { text: "This page meets requirements 3 and 5" },
+        { text: "This page has 3 or 5 sections" },
+        { text: "This page is on row 3, column 5" },
+        { text: "This page will be built in week 3 or 5" },
+      ],
+      answer: 0,
+      explanation: "Numbering requirements lets the map show where each one is met, which is what the two-way check reads.",
     },
   ],
 };
@@ -1025,6 +1396,7 @@ export const wireframing: QuestionSet = {
     },
     {
       id: "balance",
+      askTwice: true,
       prompt: "Which wireframe has the best balance of content?",
       choices: [
         { image: figure("t08-balance-even", "Greybox wireframe: a tall photo fills the left half; a heading, a block of text and a button sit in the right half.") },
@@ -1036,6 +1408,7 @@ export const wireframing: QuestionSet = {
     },
     {
       id: "align",
+      askTwice: true,
       prompt: "Which wireframe has its elements aligned?",
       choices: [
         { image: figure("t08-align-yes", "Greybox wireframe: the heading and three equal cards all start on the same left edge, and the cards share one top edge.") },
@@ -1047,6 +1420,7 @@ export const wireframing: QuestionSet = {
     },
     {
       id: "wire-to-build",
+      askTwice: true,
       prompt: "The page on the right was built from the wireframe on the left. Which labelled box was not built?",
       image: figure("t08-wire-to-build", "Left, a wireframe with labelled boxes: A logo and site name, B primary navigation with 4 items, C hero image of the studio in use, D three class cards. Right, the built page: a header reading Riverside Studio, a studio photograph and three class cards."),
       choices: [
@@ -1060,6 +1434,7 @@ export const wireframing: QuestionSet = {
     },
     {
       id: "dimensions",
+      askTwice: true,
       prompt: "This wireframe gives a 390 px phone frame, 16 px margins and a 48 px button. Why draw it at accurate dimensions?",
       image: figure("t08-measured", "A phone wireframe with measurements: the frame is 390 px wide, the margin between edge and content is 16 px, and the Book button is 48 px tall. Inside: logo and menu button, hero image, heading, text and the button."),
       choices: [
@@ -1073,6 +1448,7 @@ export const wireframing: QuestionSet = {
     },
     {
       id: "spacing-8",
+      askTwice: true,
       prompt: "Spacing on the wireframe uses only multiples of 8 px. Why choose one unit and stick to it?",
       choices: [
         { text: "Browsers draw multiples of 8 faster" },
@@ -1102,6 +1478,54 @@ export const wireframing: QuestionSet = {
       answer: 0,
       explanation: "Paper costs nothing and is the quickest way to try ideas. Figma's free plan runs in a browser and adds real sizes, grids and sharing. A trial runs out before the project does.",
     },
+    {
+      id: "low-fi",
+      prompt: "Which is a low-fidelity wireframe?",
+      choices: [
+        { text: "Grey boxes and lines sketched quickly" },
+        { text: "A full-colour mock-up with real photos" },
+        { text: "The finished, published page" },
+        { text: "The site's CSS file" },
+      ],
+      answer: 0,
+      explanation: "Low fidelity is quick and rough, for trying ideas. High fidelity adds accurate sizes and detail once the layout is settled.",
+    },
+    {
+      id: "annotate-wire",
+      prompt: "Why annotate a wireframe?",
+      choices: [
+        { text: "To explain behaviour and content the boxes cannot show" },
+        { text: "To make it look finished" },
+        { text: "Annotations replace the wireframe" },
+        { text: "To add colour" },
+      ],
+      answer: 0,
+      explanation: "A box cannot say 'opens a dialog' or 'shows the next three classes'. Notes make the wireframe a plan someone else could build from.",
+    },
+    {
+      id: "phone-first",
+      prompt: "Which frame should you wireframe first?",
+      choices: [
+        { text: "The phone, then widen it for larger screens" },
+        { text: "The largest desktop, then squeeze it" },
+        { text: "Only the desktop" },
+        { text: "Only the tablet" },
+      ],
+      answer: 0,
+      explanation: "Mobile first makes you decide what matters most, since there is room for little. Adding space later is easier than taking it away.",
+    },
+    {
+      id: "real-text",
+      prompt: "Why use real headings and button text in a wireframe where you can?",
+      choices: [
+        { text: "Real content shows whether it fits and makes sense" },
+        { text: "Lorem ipsum is not allowed" },
+        { text: "It makes the file smaller" },
+        { text: "So no annotations are needed" },
+      ],
+      answer: 0,
+      explanation: "'Book a taster class' may not fit where 'Lorem' did. Real words test the layout and the message at the same time.",
+    },
   ],
 };
 
@@ -1125,6 +1549,7 @@ export const visualStyle: QuestionSet = {
     },
     {
       id: "sage",
+      askTwice: true,
       prompt: "Sage, the one colour on this style tile with no role yet, measures 2.13:1 on the cream. What can it still be used for?",
       image: figure("t09-style-tile", "A style tile on cream: swatches for cream (page background), charcoal (body text), green (headings), terracotta (buttons) and sage (role: a question mark). Below, a green heading, a terracotta 'Book a place' button and a thin sage rule."),
       choices: [
@@ -1145,6 +1570,7 @@ export const visualStyle: QuestionSet = {
     },
     {
       id: "terracotta",
+      askTwice: true,
       prompt: "White text on the terracotta buttons measures 4.92:1. What should happen if someone wants a lighter terracotta?",
       choices: [
         { text: "Lighten it freely: it passes" },
@@ -1157,6 +1583,7 @@ export const visualStyle: QuestionSet = {
     },
     {
       id: "type-scale",
+      askTwice: true,
       prompt: "Body text is 16 px and the type scale ratio is 1.25. What size is step 2?",
       image: figure("t09-type-scale", "A type scale: body text at 16 px, step 1 at 20 px, step 2 with its size shown as a question mark, and the note 'times 1.25 at every step'."),
       choices: [{ text: "20 px" }, { text: "24 px" }, { text: "25 px" }, { text: "32 px" }],
@@ -1197,6 +1624,7 @@ export const visualStyle: QuestionSet = {
     },
     {
       id: "reject",
+      askTwice: true,
       prompt: "You decide not to act on a piece of feedback. What goes in the review log?",
       choices: [
         { text: "Nothing: leave it out" },
@@ -1216,6 +1644,7 @@ export const visualStyle: QuestionSet = {
     },
     {
       id: "review-log",
+      askTwice: true,
       prompt: "One entry in a design review log. What belongs in the outlined 'How checked' cell?",
       image: figure("t09-review-log", "A review log row. Feedback: grey class times are hard to read on the cream background. Review area: user experience, accessibility. Requirement: R6. Change made: class times changed to charcoal #2b2b2b. The 'How checked' cell is outlined and empty."),
       choices: [
@@ -1238,6 +1667,54 @@ export const visualStyle: QuestionSet = {
       ],
       answer: 0,
       explanation: "That is branding. Fitting the brand is part of meeting the client's requirements, and consistency across pages is how it shows.",
+    },
+    {
+      id: "body-43",
+      prompt: "Body text measures 4.3:1 against its background. Does it pass WCAG 2.2 AA?",
+      choices: [
+        { text: "No: body text needs at least 4.5:1" },
+        { text: "Yes: anything over 3:1 passes" },
+        { text: "Yes: 4.3 rounds up to 4.5" },
+        { text: "There is no rule for body text" },
+      ],
+      answer: 0,
+      explanation: "4.5:1 is the minimum for normal-size text, and ratios are not rounded up. Darken the text or lighten the background, then measure again.",
+    },
+    {
+      id: "font-count",
+      prompt: "How many font families is a sensible limit for a small site?",
+      choices: [
+        { text: "Two: one for headings, one for body text" },
+        { text: "One for every page" },
+        { text: "As many as the designer likes" },
+        { text: "Five or more" },
+      ],
+      answer: 0,
+      explanation: "Two families give contrast between headings and text while keeping the site consistent and quick to load.",
+    },
+    {
+      id: "tile",
+      prompt: "What does a style tile show that a wireframe does not?",
+      choices: [
+        { text: "Colours, type and the look of UI elements" },
+        { text: "Where every box goes on each page" },
+        { text: "How pages link" },
+        { text: "The test plan" },
+      ],
+      answer: 0,
+      explanation: "A style tile sets the visual language (palette, type, buttons) without a page layout. The wireframe sets the layout without the look.",
+    },
+    {
+      id: "three-greens",
+      prompt: "Buttons use three slightly different greens across the site. What fixes it for good?",
+      choices: [
+        { text: "Define one button colour on the style tile and use it everywhere" },
+        { text: "Pick a new green on each page" },
+        { text: "Remove all buttons" },
+        { text: "Use images instead of buttons" },
+      ],
+      answer: 0,
+      explanation: "One defined colour, ideally stored once as a CSS custom property, keeps every button the same and easy to change.",
     },
   ],
 };
@@ -1287,6 +1764,7 @@ export const creatingAssets: QuestionSet = {
     },
     {
       id: "editing",
+      askTwice: true,
       prompt: "The class photo, before and after. Which technique is this?",
       image: figure("t10-edit", "Left, a dim, wide photo of a pot on a studio table, with a window, a jar and a bucket around it. Right, the same photo cropped to 4:3 around the pot and brightened."),
       choices: [{ text: "Image editing" }, { text: "Image manipulation" }, { text: "Vector drawing" }],
@@ -1295,6 +1773,7 @@ export const creatingAssets: QuestionSet = {
     },
     {
       id: "manipulation",
+      askTwice: true,
       prompt: "The pot photo, before and after. Which technique is this?",
       image: figure("t10-cut-out", "Left, a photo of a pot on a studio table with a window and a bucket behind. Right, the pot alone, cut out of the photo and placed on a plain cream background."),
       choices: [{ text: "Image editing" }, { text: "Image manipulation" }, { text: "Vector drawing" }],
@@ -1316,6 +1795,7 @@ export const creatingAssets: QuestionSet = {
     },
     {
       id: "non-destructive",
+      askTwice: true,
       prompt: "What does it mean to edit an image non-destructively?",
       choices: [
         { text: "Keep the original and use layers, so changes can be undone" },
@@ -1340,6 +1820,7 @@ export const creatingAssets: QuestionSet = {
     },
     {
       id: "svg-path",
+      askTwice: true,
       prompt: "The studio's logo as an SVG. In the path, what does the highlighted h40 tell the browser to do?",
       image: figure("t10-svg-path", "SVG code for the logo, beside the logo it draws: a cream pot with a terracotta rim on a green circle. The path reads M40 38 h40 l-6 50, then two arcs and a line for the base; 'h40' is highlighted."),
       choices: [
@@ -1354,6 +1835,7 @@ export const creatingAssets: QuestionSet = {
     },
     {
       id: "copy-fix",
+      askTwice: true,
       prompt: "A paragraph is one 46-word sentence about 'practitioners' and 'participants'. Which two techniques would fix it most?",
       choices: [
         { text: "Short sentences and avoiding jargon" },
@@ -1371,6 +1853,54 @@ export const creatingAssets: QuestionSet = {
       answer: 0,
       explanation: "Short paragraphs leave white space the eye can use to keep its place while scanning. A long block of text on a phone looks like hard work and gets skipped.",
     },
+    {
+      id: "active",
+      prompt: "Which sentence uses the active voice?",
+      choices: [
+        { text: "We fire your pots in our kiln." },
+        { text: "Your pots are fired in our kiln by us." },
+        { text: "Pots are being fired." },
+        { text: "The firing of pots is done." },
+      ],
+      answer: 0,
+      explanation: "Active voice says who does what. It is shorter and clearer, and it sounds like a friendly person talking.",
+    },
+    {
+      id: "crop",
+      prompt: "A class photo is mostly empty wall, with the student and her pot small in one corner. What improves it most?",
+      choices: [
+        { text: "Crop it to the student and the pot" },
+        { text: "Add a filter" },
+        { text: "Make it black and white" },
+        { text: "Stretch it wider" },
+      ],
+      answer: 0,
+      explanation: "Cropping removes what does not help and makes the subject fill the frame. Crop to the shape the page needs, without stretching.",
+    },
+    {
+      id: "vector",
+      prompt: "Which kind of image stays sharp at any size?",
+      choices: [
+        { text: "Vector, such as SVG" },
+        { text: "Raster, such as JPEG" },
+        { text: "A screenshot" },
+        { text: "A photo" },
+      ],
+      answer: 0,
+      explanation: "Vector images are stored as shapes and are redrawn at any size. Raster images are pixels, which blur when enlarged.",
+    },
+    {
+      id: "infographic",
+      prompt: "You made an image showing the class prices. What should the page also give?",
+      choices: [
+        { text: "The prices as real text" },
+        { text: "Nothing more: the image is enough" },
+        { text: "A bigger image" },
+        { text: "A link to the image file" },
+      ],
+      answer: 0,
+      explanation: "Text inside an image cannot be read by screen readers, searched, translated or enlarged cleanly. Give the information as text too.",
+    },
   ],
 };
 
@@ -1382,6 +1912,7 @@ export const sourcingAssets: QuestionSet = {
   questions: [
     {
       id: "by-nc",
+      askTwice: true,
       prompt: "This is the licence under a photo you like. Can you use it on the studio's business website?",
       image: figure("t11-licence", "A photo library page: 'Hands shaping clay on a wheel', photo by A. Okafor. Licence: CC BY-NC 4.0, Attribution-NonCommercial 4.0 International."),
       choices: [
@@ -1413,6 +1944,7 @@ export const sourcingAssets: QuestionSet = {
     },
     {
       id: "resize",
+      askTwice: true,
       prompt: "A 4000 × 3000 photo is shown in an 800 × 600 card. How many times more pixels does the browser download than it can show?",
       image: figure("t11-resize", "Two rectangles drawn to scale: a small orange 800 × 600 rectangle, the card on the page, sits in the corner of a large 4000 × 3000 rectangle, the photo downloaded."),
       choices: [{ text: "5 times" }, { text: "10 times" }, { text: "25 times" }, { text: "100 times" }],
@@ -1429,6 +1961,7 @@ export const sourcingAssets: QuestionSet = {
     },
     {
       id: "video-size",
+      askTwice: true,
       prompt: "A 30-second clip is exported at 2 megabits per second. Roughly how big is the file?",
       choices: [{ text: "3.75 MB" }, { text: "7.5 MB" }, { text: "15 MB" }, { text: "60 MB" }],
       answer: 1,
@@ -1444,6 +1977,7 @@ export const sourcingAssets: QuestionSet = {
     },
     {
       id: "lower-case",
+      askTwice: true,
       prompt: "The image shows on your laptop but breaks once the site is published. Why?",
       image: figure("t11-case", "Left, index.html with the tag img src=\"images/Hero.jpg\". Right, the site's files: a folder riverside containing index.html and an images folder holding hero.jpg and bowl.jpg."),
       choices: [
@@ -1488,6 +2022,7 @@ export const sourcingAssets: QuestionSet = {
     },
     {
       id: "register-credit",
+      askTwice: true,
       prompt: "What goes in the outlined 'Credit needed?' cell of this asset register?",
       image: figure("t11-register", "An asset register with columns file, source, creator, licence, credit needed and page. The row for glaze-close-up.jpg, by A. Okafor from Flickr under CC BY 4.0, has its 'Credit needed?' cell outlined and empty."),
       choices: [
@@ -1498,6 +2033,54 @@ export const sourcingAssets: QuestionSet = {
       ],
       answer: 0,
       explanation: "BY means attribution: the photo can be used for anything, including a business site, as long as A. Okafor is credited. Recording it now means the credit is not forgotten.",
+    },
+    {
+      id: "cc0",
+      prompt: "A photo is released as CC0. What may you do with it?",
+      choices: [
+        { text: "Use it, even on a business site, without asking" },
+        { text: "Use it only on personal projects" },
+        { text: "Nothing: it is copyrighted" },
+        { text: "Use it only if you pay" },
+      ],
+      answer: 0,
+      explanation: "CC0 gives up the creator's rights as far as the law allows. A credit is still courteous, and record it in the asset register.",
+    },
+    {
+      id: "cc-by",
+      prompt: "A photo is licensed CC BY. What must you do to use it?",
+      choices: [
+        { text: "Credit the creator and the licence" },
+        { text: "Pay the creator" },
+        { text: "Use it only on personal sites" },
+        { text: "Nothing at all" },
+      ],
+      answer: 0,
+      explanation: "BY means attribution: name the creator, link the licence and say if you changed the image. Commercial use is allowed.",
+    },
+    {
+      id: "images-folder",
+      prompt: "Where should the site's images go?",
+      choices: [
+        { text: "In an images folder, with short lower-case names" },
+        { text: "Anywhere on the desktop" },
+        { text: "In the same file as the HTML" },
+        { text: "In the browser's downloads" },
+      ],
+      answer: 0,
+      explanation: "One folder with clear, lower-case, hyphenated names keeps paths simple and stops case-sensitive servers breaking them.",
+    },
+    {
+      id: "icon-format",
+      prompt: "Which format suits a simple icon, such as a phone symbol?",
+      choices: [
+        { text: "SVG" },
+        { text: "JPEG" },
+        { text: "A 4000 px PNG" },
+        { text: "MP4" },
+      ],
+      answer: 0,
+      explanation: "A simple icon is a few shapes, so SVG is tiny and sharp at every size. It can even take its colour from CSS.",
     },
   ],
 };
@@ -1517,6 +2100,7 @@ export const htmlStructure: QuestionSet = {
     },
     {
       id: "main-region",
+      askTwice: true,
       prompt: "Which numbered region belongs inside <main>?",
       image: figure("t12-regions", "A page with three outlined regions: 1 is the header with the site name and menu, 2 is the page's heading and text, 3 is the footer with address and phone."),
       choices: [{ text: "Region 1" }, { text: "Region 2" }, { text: "Region 3" }, { text: "None of them" }],
@@ -1525,6 +2109,7 @@ export const htmlStructure: QuestionSet = {
     },
     {
       id: "semantic",
+      askTwice: true,
       prompt: "Two pages look identical in the browser. Which markup lets a screen reader announce 'Banner. Navigation, 3 links'?",
       choices: [
         { text: '<div class="bar"> … <div class="menu"> … <div class="title">' },
@@ -1542,6 +2127,7 @@ export const htmlStructure: QuestionSet = {
     },
     {
       id: "up-a-folder",
+      askTwice: true,
       prompt: "You are editing the highlighted file. Which link reaches index.html?",
       image: figure("t12-folders", "A folder tree: riverside contains index.html, contact.html, a classes folder and a css folder. In classes, wheel-throwing.html is highlighted as the file being edited, beside hand-building.html. css holds style.css."),
       choices: [{ text: "index.html" }, { text: "../index.html" }, { text: "classes/index.html" }, { text: "./index.html" }],
@@ -1569,6 +2155,7 @@ export const htmlStructure: QuestionSet = {
     },
     {
       id: "skip-link",
+      askTwice: true,
       prompt: "This link appears on the first press of Tab. Where does it take a keyboard user?",
       image: figure("t12-skip-link", "A page with six menu links. Above the header, at the very top, a link with an orange focus outline reads 'Skip to main content'."),
       choices: [
@@ -1602,6 +2189,7 @@ export const htmlStructure: QuestionSet = {
     },
     {
       id: "other-page-anchor",
+      askTwice: true,
       prompt: "From any page, which href jumps to the element with id=\"opening-times\" on the contact page?",
       choices: [
         { text: "#opening-times" },
@@ -1618,6 +2206,54 @@ export const htmlStructure: QuestionSet = {
       choices: [{ text: "Click here" }, { text: "Here" }, { text: "See all classes" }, { text: "riversidestudio.co.uk/classes.html" }],
       answer: 2,
       explanation: "Link text should say where the link goes. Screen-reader users often jump from link to link, and a list of 'click here' tells them nothing; search engines read it too.",
+    },
+    {
+      id: "one-h1",
+      prompt: "How many <h1> elements should a page usually have?",
+      choices: [
+        { text: "One, for the page's main heading" },
+        { text: "One for every section" },
+        { text: "None: use bold text" },
+        { text: "As many as there are images" },
+      ],
+      answer: 0,
+      explanation: "One <h1> says what the page is about. Sections below it use <h2>, then <h3>, so the heading outline makes sense.",
+    },
+    {
+      id: "h3",
+      prompt: "Inside a section headed by an <h2>, which element starts a sub-section?",
+      choices: [
+        { text: "<h3>" },
+        { text: "<h1>" },
+        { text: "<h5>" },
+        { text: "<p>" },
+      ],
+      answer: 0,
+      explanation: "Headings go down one level at a time. Screen-reader users navigate by headings, and skipped levels make the outline confusing.",
+    },
+    {
+      id: "footer",
+      prompt: "Which element holds the copyright line and the privacy link at the bottom of every page?",
+      choices: [
+        { text: "<footer>" },
+        { text: "<header>" },
+        { text: "<aside>" },
+        { text: "<section>" },
+      ],
+      answer: 0,
+      explanation: "<footer> marks the page's footer, which assistive technology announces as the content information region.",
+    },
+    {
+      id: "relative",
+      prompt: "Which href is a relative link to classes.html in the same folder?",
+      choices: [
+        { text: "classes.html" },
+        { text: "C:/Users/sam/site/classes.html" },
+        { text: "https://www.google.com/classes.html" },
+        { text: "file:classes" },
+      ],
+      answer: 0,
+      explanation: "A relative link works wherever the folder is published. A C: path only works on your own computer.",
     },
   ],
 };
@@ -1637,6 +2273,7 @@ export const htmlContentForms: QuestionSet = {
     },
     {
       id: "alt-text",
+      askTwice: true,
       prompt: "Which is the best alt text for the photo at the top of the beginners' class page?",
       choices: [
         { text: "photo" },
@@ -1649,6 +2286,7 @@ export const htmlContentForms: QuestionSet = {
     },
     {
       id: "width-height",
+      askTwice: true,
       prompt: "Why give an <img> its width and height in the HTML?",
       choices: [
         { text: "So the browser reserves the space and the page does not jump when the image arrives" },
@@ -1680,6 +2318,7 @@ export const htmlContentForms: QuestionSet = {
     },
     {
       id: "scope",
+      askTwice: true,
       prompt: "A screen-reader user reaches the outlined cell. What does scope=\"col\" on the header cells let the screen reader do?",
       image: figure("t13-timetable", "A timetable with the column headings Class, Day, Time and Price, and rows for Beginners, Glaze night and Improvers. The cell £28, in the Price column of the Glaze night row, is outlined."),
       choices: [
@@ -1700,6 +2339,7 @@ export const htmlContentForms: QuestionSet = {
     },
     {
       id: "placeholder",
+      askTwice: true,
       prompt: "One form, before typing and halfway through. Why is a placeholder not a replacement for a label?",
       image: figure("t13-placeholders", "Before typing, four boxes show grey placeholder text: your name, name on the voucher, your email, email to send the voucher to. Halfway through, the first three hold Sam Okafor, Ana Okafor and sam.okafor@example.com, with nothing to say which question each answered."),
       choices: [
@@ -1713,6 +2353,7 @@ export const htmlContentForms: QuestionSet = {
     },
     {
       id: "radio",
+      askTwice: true,
       prompt: "These two radio buttons answer one question. What should wrap them in the HTML?",
       image: figure("t13-radios", "A 'Book a taster class' form: a name field, then the question 'Have you done pottery before?' with two radio buttons, Yes and No."),
       choices: [
@@ -1745,6 +2386,54 @@ export const htmlContentForms: QuestionSet = {
       answer: 1,
       explanation: "controls adds the browser's own buttons, which work with the keyboard. poster shows an image before playing, and autoplay and muted are for background video.",
     },
+    {
+      id: "textarea",
+      prompt: "Which element suits a 'Your message' box where visitors type several lines?",
+      choices: [
+        { text: "<textarea>" },
+        { text: "<input type=\"text\">" },
+        { text: "<select>" },
+        { text: "<p>" },
+      ],
+      answer: 0,
+      explanation: "<textarea> takes several lines and can be resized. A text input is one line only. Give it a <label> like any other field.",
+    },
+    {
+      id: "required",
+      prompt: "Which attribute stops the form being sent while a field is empty?",
+      choices: [
+        { text: "required" },
+        { text: "placeholder" },
+        { text: "readonly" },
+        { text: "hidden" },
+      ],
+      answer: 0,
+      explanation: "required makes the browser check the field before sending. Say in the label that it is required, too.",
+    },
+    {
+      id: "email-type",
+      prompt: "Which input type checks for an @ and shows an email keyboard on phones?",
+      choices: [
+        { text: "type=\"email\"" },
+        { text: "type=\"text\"" },
+        { text: "type=\"tel\"" },
+        { text: "type=\"search\"" },
+      ],
+      answer: 0,
+      explanation: "type=\"email\" gives a keyboard with @ and a basic format check. The server must still check it.",
+    },
+    {
+      id: "th",
+      prompt: "Which element marks a header cell in a table?",
+      choices: [
+        { text: "<th>" },
+        { text: "<td>" },
+        { text: "<thead> on its own" },
+        { text: "<caption>" },
+      ],
+      answer: 0,
+      explanation: "<th> marks a header cell; with scope it tells a screen reader which cells it labels. <td> is an ordinary data cell.",
+    },
   ],
 };
 
@@ -1756,6 +2445,7 @@ export const cssStyling: QuestionSet = {
   questions: [
     {
       id: "class-selector",
+      askTwice: true,
       prompt: "Which numbered elements does the .button rule match?",
       image: figure("t14-match", "Four lines of HTML. 1: a button element reading Send, with no class. 2: a link with class=\"button\" reading Book. 3: a paragraph with id=\"button\". 4: a button element with class=\"button big\" reading Book now. Below, the CSS rule .button sets a blue background and white text."),
       choices: [
@@ -1769,6 +2459,7 @@ export const cssStyling: QuestionSet = {
     },
     {
       id: "descendant",
+      askTwice: true,
       prompt: "Which elements does nav a match?",
       choices: [
         { text: "Every <nav> and every <a>" },
@@ -1781,6 +2472,7 @@ export const cssStyling: QuestionSet = {
     },
     {
       id: "specificity",
+      askTwice: true,
       prompt: "What colour is this heading?",
       image: figure("t14-specificity", "CSS and HTML. At the top of style.css, #title sets color white. 200 lines later, at the bottom, h1.title sets color navy. The page has an h1 with id=\"title\" and class=\"title\" reading Riverside Studio."),
       choices: [{ text: "White" }, { text: "Navy" }],
@@ -1838,6 +2530,7 @@ export const cssStyling: QuestionSet = {
     },
     {
       id: "button-height",
+      askTwice: true,
       prompt: "How tall is this button?",
       image: figure("t14-button-box", "A 'Book a place' button cut into three bands: padding-top 0.75rem, a line of 16 px text with line-height 1.5, and padding-bottom 0.75rem. The root font size is 16 px; the total height is a question mark."),
       choices: [{ text: "36 px" }, { text: "40 px" }, { text: "48 px" }, { text: "56 px" }],
@@ -1871,6 +2564,7 @@ export const cssStyling: QuestionSet = {
     },
     {
       id: "zebra",
+      askTwice: true,
       prompt: "Which rows does this rule colour?",
       image: figure("t14-zebra", "A table with a header row and four body rows: Beginners, Glaze night, Improvers and Open studio. Below it, the CSS rule: tbody tr:nth-child(even) { background: #f1ebdf; }"),
       choices: [
@@ -1890,6 +2584,54 @@ export const cssStyling: QuestionSet = {
       answer: 1,
       explanation: "Borders of inputs, focus rings and icons the visitor needs are non-text parts, which need 3:1. A pale border leaves visitors guessing where to type.",
     },
+    {
+      id: "later-wins",
+      prompt: "Two rules with the same specificity set the same property on one element. Which wins?",
+      choices: [
+        { text: "The one that comes later in the CSS" },
+        { text: "The one that comes first" },
+        { text: "Neither: the browser picks at random" },
+        { text: "The shorter rule" },
+      ],
+      answer: 0,
+      explanation: "When specificity is equal, the later rule wins. That is the cascade, and why the order of your stylesheet matters.",
+    },
+    {
+      id: "id-class",
+      prompt: "Which selector has the higher specificity?",
+      choices: [
+        { text: "#site-nav" },
+        { text: ".site-nav" },
+        { text: "nav" },
+        { text: "*" },
+      ],
+      answer: 0,
+      explanation: "An id beats any number of classes, which beat elements. Using classes keeps specificity low and rules easy to override.",
+    },
+    {
+      id: "hover",
+      prompt: "Which pseudo-class styles a link while the pointer is over it?",
+      choices: [
+        { text: ":hover" },
+        { text: ":focus-visible" },
+        { text: ":visited" },
+        { text: ":first-child" },
+      ],
+      answer: 0,
+      explanation: ":hover is for the mouse. Style :focus-visible too, so keyboard users get the same clear signal.",
+    },
+    {
+      id: "one-sheet",
+      prompt: "Why link every page to one external stylesheet?",
+      choices: [
+        { text: "One change updates the look of every page" },
+        { text: "Browsers ignore styles inside HTML" },
+        { text: "It is required for HTML to validate" },
+        { text: "It hides the CSS from visitors" },
+      ],
+      answer: 0,
+      explanation: "One stylesheet keeps pages consistent and is downloaded once, then cached as visitors move around the site.",
+    },
   ],
 };
 
@@ -1908,6 +2650,7 @@ export const cssLayout: QuestionSet = {
     },
     {
       id: "content-box",
+      askTwice: true,
       prompt: "This .card has box-sizing: content-box. How wide is it on screen?",
       image: figure("t15-box", "A box-model diagram for .card: content width 200px, padding 15px, a 5px solid border, and margin outside. Beneath, the CSS: width 200px, padding 15px, border 5px solid."),
       choices: [{ text: "200 px" }, { text: "220 px" }, { text: "240 px" }, { text: "250 px" }],
@@ -1917,14 +2660,16 @@ export const cssLayout: QuestionSet = {
     },
     {
       id: "border-box",
+      askTwice: true,
       prompt: "The same .card with box-sizing: border-box. How wide is it on screen?",
-      image: figure("t15-box", "A box-model diagram for .card: content width 200px, padding 15px, a 5px solid border, and margin outside. Beneath, the CSS: width 200px, padding 15px, border 5px solid."),
+      image: figure("t15-box-border", "The CSS for .card: box-sizing border-box, width 200px, padding 15px, border 5px solid."),
       choices: [{ text: "160 px" }, { text: "200 px" }, { text: "240 px" }],
       answer: 1,
       explanation: "With border-box, width sets the whole box and the content shrinks to fit. Widths mean what they say, which is why most sites apply it to every element.",
     },
     {
       id: "flex-or-grid",
+      askTwice: true,
       prompt: "Which tool suits the row of footer links (1), and which the photo gallery (2)?",
       image: figure("t15-footer-gallery", "A gallery page. Marked 2: a gallery of eight photos in two rows of four. Marked 1: a footer with one row of links: Privacy, Accessibility, Instagram, Contact."),
       choices: [
@@ -1950,6 +2695,7 @@ export const cssLayout: QuestionSet = {
     },
     {
       id: "both-match",
+      askTwice: true,
       prompt: "In a 1100 px window, both media queries match. How many columns do the classes get?",
       image: figure("t15-ruler", "A width ruler marking 40rem (640 px) and 64rem (1024 px), with the window at 1100 px, past both. Below, the CSS: .classes has one column; a min-width 40rem query sets two; a later min-width 64rem query sets three."),
       choices: [
@@ -2017,6 +2763,7 @@ export const cssLayout: QuestionSet = {
     },
     {
       id: "real-phone",
+      askTwice: true,
       prompt: "The cards stack neatly in a narrowed laptop browser, but a real phone shows the three-column desktop layout, tiny. What do you check first?",
       choices: [
         { text: "The viewport meta tag in the <head>" },
@@ -2026,6 +2773,54 @@ export const cssLayout: QuestionSet = {
       ],
       answer: 0,
       explanation: "The CSS is right: the laptop proves it. Without the viewport meta tag the phone lays the page out about 980 px wide, so the desktop media query matches.",
+    },
+    {
+      id: "min-width",
+      prompt: "Which applies styles only when the window is 768 px wide or more?",
+      choices: [
+        { text: "@media (min-width: 768px)" },
+        { text: "@media (max-width: 768px)" },
+        { text: "@media (width < 768px)" },
+        { text: "@media print" },
+      ],
+      answer: 0,
+      explanation: "Mobile-first CSS writes the phone styles first, then adds min-width queries as the screen gets wider.",
+    },
+    {
+      id: "justify",
+      prompt: "Which property spaces flex items along the main axis, for example spread across a row?",
+      choices: [
+        { text: "justify-content" },
+        { text: "align-items" },
+        { text: "flex-wrap" },
+        { text: "z-index" },
+      ],
+      answer: 0,
+      explanation: "justify-content works along the main axis, such as across a row; align-items works across it, such as up and down.",
+    },
+    {
+      id: "auto-fit",
+      prompt: "What does grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) do?",
+      choices: [
+        { text: "Fits as many columns at least 240 px wide as there is room for" },
+        { text: "Always makes 240 columns" },
+        { text: "Makes one column 240 px wide" },
+        { text: "Hides items narrower than 240 px" },
+      ],
+      answer: 0,
+      explanation: "The grid adds or removes columns as the space changes, and shares the spare width between them, with no media query needed.",
+    },
+    {
+      id: "fixed-width",
+      prompt: "Why not give the page wrapper width: 1200px?",
+      choices: [
+        { text: "Narrower screens get sideways scrolling; use max-width instead" },
+        { text: "1200 px is too small for desktops" },
+        { text: "Widths must be in percent only" },
+        { text: "Browsers ignore width" },
+      ],
+      answer: 0,
+      explanation: "max-width: 1200px stops the page getting too wide but still lets it shrink. A fixed width overflows any screen narrower than it.",
     },
   ],
 };
@@ -2038,6 +2833,7 @@ export const jsComponents: QuestionSet = {
   questions: [
     {
       id: "null",
+      askTwice: true,
       prompt: "menu.js runs document.querySelector(\"#menu\") from the <head>, with no defer. What does it return?",
       image: figure("t16-head-script", "HTML: inside the head, a script tag loads menu.js, which runs document.querySelector(\"#menu\"). After the head, the body contains a header, and inside it a nav with id=\"menu\"."),
       choices: [
@@ -2075,6 +2871,7 @@ export const jsComponents: QuestionSet = {
     },
     {
       id: "button-not-div",
+      askTwice: true,
       prompt: "A ☰ icon is a <div> with a click listener. It works with a mouse. What happens for a keyboard user?",
       choices: [
         { text: "Tab skips it, and Enter could not press it anyway" },
@@ -2087,6 +2884,7 @@ export const jsComponents: QuestionSet = {
     },
     {
       id: "aria-expanded",
+      askTwice: true,
       prompt: "The menu button, closed and then open. What does aria-expanded tell assistive technology?",
       image: figure("t16-menu-states", "Two phone headers. Left, the button reads 'Menu' and no links show; its attribute is aria-expanded=\"false\". Right, the button reads 'Close' and links to Classes, Gallery and Contact show below; aria-expanded=\"true\"."),
       choices: [
@@ -2131,6 +2929,7 @@ export const jsComponents: QuestionSet = {
     },
     {
       id: "tabs-state",
+      askTwice: true,
       prompt: "The Prices tab's panel is showing. Which attribute marks that tab?",
       image: figure("t16-tabs", "A tabs component with three tabs: Classes, Prices and Visit us. Prices is bold and underlined, and its panel lists the class prices."),
       choices: [{ text: "aria-selected" }, { text: "aria-expanded" }, { text: "aria-hidden" }, { text: "aria-current" }],
@@ -2151,6 +2950,7 @@ export const jsComponents: QuestionSet = {
     },
     {
       id: "accordion-click",
+      askTwice: true,
       prompt: "The panel is closed. The visitor clicks the button. What happens?",
       image: figure("t16-accordion", "JavaScript for one accordion. A comment says the button has aria-expanded=\"false\" and panel.hidden is true. On click: const open = the button's aria-expanded equals \"true\"; set aria-expanded to String(!open); set panel.hidden = open."),
       choices: [
@@ -2170,6 +2970,54 @@ export const jsComponents: QuestionSet = {
       answer: 1,
       explanation: "let names a value that changes; const names one that does not, such as the element a listener is attached to. Using const by default makes accidental changes an error.",
     },
+    {
+      id: "toggle",
+      prompt: "What does menu.classList.toggle(\"open\") do?",
+      choices: [
+        { text: "Adds open if it is missing, removes it if it is there" },
+        { text: "Always adds open" },
+        { text: "Deletes the menu" },
+        { text: "Changes the menu's id" },
+      ],
+      answer: 0,
+      explanation: "toggle switches the class each time it runs, so one click handler can both open and close the menu. CSS decides what open looks like.",
+    },
+    {
+      id: "defer",
+      prompt: "What does defer on a <script> in the head do?",
+      choices: [
+        { text: "Runs the script after the HTML has been read" },
+        { text: "Stops the script running" },
+        { text: "Runs the script twice" },
+        { text: "Loads it only on phones" },
+      ],
+      answer: 0,
+      explanation: "With defer, the script downloads alongside the page and runs once the HTML is parsed, so querySelector finds the elements.",
+    },
+    {
+      id: "pass-function",
+      prompt: "Which line runs openMenu when the button is clicked?",
+      choices: [
+        { text: "button.addEventListener(\"click\", openMenu);" },
+        { text: "button.click = openMenu();" },
+        { text: "openMenu(button.click);" },
+        { text: "button.addEventListener(\"click\", openMenu());" },
+      ],
+      answer: 0,
+      explanation: "Pass the function itself. openMenu() with brackets runs it straight away and passes its result instead.",
+    },
+    {
+      id: "escape",
+      prompt: "A dropdown menu is open. Which key should close it?",
+      choices: [
+        { text: "Escape" },
+        { text: "Enter" },
+        { text: "Space" },
+        { text: "Delete" },
+      ],
+      answer: 0,
+      explanation: "Escape closing a menu or dialog is what keyboard users expect. Then put focus back on the button that opened it.",
+    },
   ],
 };
 
@@ -2181,6 +3029,7 @@ export const jsImagesMotion: QuestionSet = {
   questions: [
     {
       id: "wrap-back",
+      askTwice: true,
       prompt: "On slide 0 of 5, the visitor presses previous. What does (current − 1 + 5) % 5 give?",
       image: figure("t17-slides", "Five slides in a row numbered 0 to 4, with slide 0 outlined as current. Caption: current = 0, slides.length = 5, the visitor presses previous."),
       choices: [{ text: "−1" }, { text: "0" }, { text: "4" }, { text: "5" }],
@@ -2190,6 +3039,7 @@ export const jsImagesMotion: QuestionSet = {
     },
     {
       id: "why-add",
+      askTwice: true,
       prompt: "Why add slides.length before taking the remainder?",
       choices: [
         { text: "In JavaScript, (0 − 1) % 3 is −1, not 2" },
@@ -2214,6 +3064,7 @@ export const jsImagesMotion: QuestionSet = {
     },
     {
       id: "aria-label",
+      askTwice: true,
       prompt: "This slider's buttons show only ‹ and ›. Why do they also need aria-label?",
       image: figure("t17-slider", "A photo slider with a round button on each side, one showing ‹ and one showing ›, and the counter 'Photo 2 of 3' beneath."),
       choices: [
@@ -2278,6 +3129,7 @@ export const jsImagesMotion: QuestionSet = {
     },
     {
       id: "wrap-forward",
+      askTwice: true,
       prompt: "A slider has 5 slides and shows slide 4, the last. The visitor presses next. What does (current + 1) % 5 give?",
       choices: [{ text: "5" }, { text: "0" }, { text: "1" }, { text: "4" }],
       answer: 1,
@@ -2297,6 +3149,7 @@ export const jsImagesMotion: QuestionSet = {
     },
     {
       id: "reduce-important",
+      askTwice: true,
       prompt: "This is one of the few good uses of !important. Why?",
       image: figure("t17-reduce", "CSS: inside @media (prefers-reduced-motion: reduce), every element and its ::before and ::after get animation-duration and transition-duration of 0.01ms, each marked !important."),
       choices: [
@@ -2307,6 +3160,54 @@ export const jsImagesMotion: QuestionSet = {
       ],
       answer: 0,
       explanation: "The rule applies only to visitors who asked for less motion, and it must win over every animation elsewhere in the stylesheet. Anywhere else, !important makes the next change harder.",
+    },
+    {
+      id: "reduced-slider",
+      prompt: "A visitor has asked for reduced motion. What should the slider do?",
+      choices: [
+        { text: "Not advance by itself, and change slides without sliding" },
+        { text: "Slide faster" },
+        { text: "Hide all the photos" },
+        { text: "Play a video instead" },
+      ],
+      answer: 0,
+      explanation: "Respect the setting: no automatic movement, and an instant change instead of an animation. The content stays the same.",
+    },
+    {
+      id: "poster",
+      prompt: "Which attribute shows an image before a video starts?",
+      choices: [
+        { text: "poster" },
+        { text: "alt" },
+        { text: "src" },
+        { text: "preview" },
+      ],
+      answer: 0,
+      explanation: "poster gives a still frame to show until the video plays, so visitors see what the video is about.",
+    },
+    {
+      id: "cheap-animation",
+      prompt: "Which properties are smoothest and cheapest to animate?",
+      choices: [
+        { text: "transform and opacity" },
+        { text: "width and height" },
+        { text: "margin and padding" },
+        { text: "top and left" },
+      ],
+      answer: 0,
+      explanation: "transform and opacity can be animated without redoing the page layout, so they stay smooth even on slower phones.",
+    },
+    {
+      id: "clear-interval",
+      prompt: "An automatic slider runs with timer = setInterval(next, 5000). What stops it when the pause button is pressed?",
+      choices: [
+        { text: "clearInterval(timer)" },
+        { text: "setInterval(timer, 0)" },
+        { text: "timer = 5000" },
+        { text: "next = null" },
+      ],
+      answer: 0,
+      explanation: "clearInterval cancels the repeating timer. Start a new one with setInterval if the visitor presses play.",
     },
   ],
 };
@@ -2326,6 +3227,7 @@ export const jsFilterSearchCart: QuestionSet = {
     },
     {
       id: "lower-case",
+      askTwice: true,
       prompt: "A visitor searches 'WHEEL'. Why convert both the search term and each item's text to lower case?",
       choices: [
         { text: "So 'WHEEL' still matches 'Wheel throwing'" },
@@ -2350,6 +3252,7 @@ export const jsFilterSearchCart: QuestionSet = {
     },
     {
       id: "aria-pressed",
+      askTwice: true,
       prompt: "The Beginner filter is on. Which attribute tells a screen reader that?",
       image: figure("t18-filters", "Three filter buttons, All, Beginner and Improver, with Beginner filled in. Below, two classes: wheel throwing for beginners, £95, and a hand building taster, £40."),
       choices: [{ text: "aria-pressed" }, { text: "aria-expanded" }, { text: "aria-live" }, { text: "aria-describedby" }],
@@ -2370,6 +3273,7 @@ export const jsFilterSearchCart: QuestionSet = {
     },
     {
       id: "describedby",
+      askTwice: true,
       prompt: "The error message sits in <p id=\"email-error\">. What links it to the email field for a screen reader?",
       image: figure("t18-error", "A booking form. The email field holds sam.okafor.example.com and has a red border; under it in red: 'Enter an email address with an @, like name@example.com'."),
       choices: [
@@ -2395,6 +3299,7 @@ export const jsFilterSearchCart: QuestionSet = {
     },
     {
       id: "number",
+      askTwice: true,
       prompt: "The basket reads each price from data-price and adds it to 0. Why does it show this total?",
       image: figure("t18-basket", "A basket: taster class £30, glaze night £18, and the total shown as £03018."),
       choices: [
@@ -2433,6 +3338,7 @@ export const jsFilterSearchCart: QuestionSet = {
     },
     {
       id: "filter-and-search",
+      askTwice: true,
       prompt: "The Beginner filter and the search box each set hidden from their own test alone, so each undoes the other. What fixes it?",
       choices: [
         { text: "Store the current level and search term, and show an item only when it passes both" },
@@ -2455,6 +3361,54 @@ export const jsFilterSearchCart: QuestionSet = {
       answer: 0,
       explanation: "With novalidate, the browser leaves the checking to your submit handler, which can word the message, put it next to the field and link it with aria-describedby.",
     },
+    {
+      id: "includes",
+      prompt: "Which test is true when an item's name contains the search term?",
+      choices: [
+        { text: "name.includes(term)" },
+        { text: "name === term" },
+        { text: "name.length > term.length" },
+        { text: "term.startsWith(name)" },
+      ],
+      answer: 0,
+      explanation: "includes finds the term anywhere in the name, so 'wheel' matches 'Wheel throwing'. === would need the whole name typed exactly.",
+    },
+    {
+      id: "hidden",
+      prompt: "What does item.hidden = true do?",
+      choices: [
+        { text: "Hides the item from view and from screen readers" },
+        { text: "Deletes the item from the HTML" },
+        { text: "Makes it see-through but still clickable" },
+        { text: "Moves it to the end" },
+      ],
+      answer: 0,
+      explanation: "The hidden attribute removes the item from the page for everyone until it is set to false again, which is what a filter needs.",
+    },
+    {
+      id: "to-fixed",
+      prompt: "The basket total is 12.5. How do you show it as 12.50?",
+      choices: [
+        { text: "total.toFixed(2)" },
+        { text: "Math.round(total)" },
+        { text: "total + \"0\"" },
+        { text: "parseInt(total)" },
+      ],
+      answer: 0,
+      explanation: "toFixed(2) gives two decimal places as text, ready to show after a £ sign. Math.round would give 13.",
+    },
+    {
+      id: "dataset",
+      prompt: "A button has data-price=\"18.50\". How does the script read it?",
+      choices: [
+        { text: "button.dataset.price" },
+        { text: "button.price" },
+        { text: "button.data-price" },
+        { text: "button.getPrice()" },
+      ],
+      answer: 0,
+      explanation: "data-* attributes appear on dataset. The value is text, so convert it with Number() before adding it up.",
+    },
   ],
 };
 
@@ -2466,6 +3420,7 @@ export const standardsPublishing: QuestionSet = {
   questions: [
     {
       id: "validation-vs-wcag",
+      askTwice: true,
       prompt: "What is the difference between W3C validation and a WCAG check?",
       choices: [
         { text: "Validation checks code follows the rules; WCAG checks people can use the page" },
@@ -2504,6 +3459,7 @@ export const standardsPublishing: QuestionSet = {
     },
     {
       id: "automated-limit",
+      askTwice: true,
       prompt: "The automated audit scores 100 and passes the alt-text check. What can it NOT tell you?",
       image: figure("t19-audit", "An automated accessibility audit scoring 100, with three passed checks: image elements have alt attributes, the document has a title, buttons have an accessible name. Beside it, a class photo whose HTML reads alt=\"photo\"."),
       choices: [
@@ -2524,6 +3480,7 @@ export const standardsPublishing: QuestionSet = {
     },
     {
       id: "root-path",
+      askTwice: true,
       prompt: "Published at username.github.io/riverside/, this image breaks. Why?",
       image: figure("t19-root-path", "A browser at https://username.github.io/riverside/ showing an empty 'image not found' box. The HTML is img src=\"/images/hero.jpg\". The repository holds riverside/index.html and riverside/images/hero.jpg."),
       choices: [
@@ -2549,6 +3506,7 @@ export const standardsPublishing: QuestionSet = {
     },
     {
       id: "meta-length",
+      askTwice: true,
       prompt: "This page's description is cut off in search results. About how long should a meta description be?",
       image: figure("t19-cut-off", "A search result for Riverside Studio. The description begins 'Welcome to the Riverside Studio website. We are a small independent pottery studio on Quay Road in Plymouth, founded in 2014 by two friends who…' and stops mid-sentence."),
       choices: [{ text: "Under 20 characters" }, { text: "One sentence, under about 155 characters" }, { text: "A full paragraph" }, { text: "The whole page's text" }],
@@ -2557,6 +3515,7 @@ export const standardsPublishing: QuestionSet = {
     },
     {
       id: "duplicate-id",
+      askTwice: true,
       prompt: "The W3C validator reports this for classes.html. What fixes it?",
       image: figure("t19-validator", "Validator results for classes.html. Error: Duplicate ID prices, on line 42: <h2 id=\"prices\">Prices</h2>. Info: the first occurrence of ID prices was on line 18: <section id=\"prices\">."),
       choices: [
@@ -2592,6 +3551,54 @@ export const standardsPublishing: QuestionSet = {
       answer: 0,
       explanation: "Lighthouse scores all four and lists what lowered each. Run it before and after your fixes, and the two reports are your evidence.",
     },
+    {
+      id: "https",
+      prompt: "Why should the published site use HTTPS?",
+      choices: [
+        { text: "It encrypts what is sent, and browsers warn about plain HTTP" },
+        { text: "It makes the site rank first" },
+        { text: "It removes the need for testing" },
+        { text: "It makes images smaller" },
+      ],
+      answer: 0,
+      explanation: "HTTPS protects what visitors type, such as an enquiry. GitHub Pages serves sites over HTTPS.",
+    },
+    {
+      id: "unique-titles",
+      prompt: "Why should every page have its own <title>?",
+      choices: [
+        { text: "Tabs, bookmarks and search results show which page is which" },
+        { text: "Browsers refuse duplicate titles" },
+        { text: "It is only for the home page" },
+        { text: "It changes the page colour" },
+      ],
+      answer: 0,
+      explanation: "Ten tabs all called 'Riverside Studio' are no help. 'Classes | Riverside Studio' says what each page is.",
+    },
+    {
+      id: "broken-links",
+      prompt: "How do you catch broken links before publishing?",
+      choices: [
+        { text: "Click through every link and run a link checker" },
+        { text: "Wait for visitors to report them" },
+        { text: "Validate the CSS only" },
+        { text: "Links cannot break" },
+      ],
+      answer: 0,
+      explanation: "A broken link leads to a 404 page. Checking every link, by hand or with a tool, is part of the final test.",
+    },
+    {
+      id: "test-live",
+      prompt: "Why test the published site, not only the copy on your laptop?",
+      choices: [
+        { text: "Paths and file names can behave differently on the server" },
+        { text: "The laptop copy is always wrong" },
+        { text: "Publishing changes the HTML" },
+        { text: "There is no need to" },
+      ],
+      answer: 0,
+      explanation: "Root paths, case-sensitive file names and missing files often only break once the site is live. Test the real address.",
+    },
   ],
 };
 
@@ -2622,6 +3629,7 @@ export const testingReview: QuestionSet = {
     },
     {
       id: "erroneous",
+      askTwice: true,
       prompt: "Testing the booking form with this email address uses which kind of test data?",
       image: figure("t20-email-abc", "A booking form filled in for a test: name 'Test Student', email 'abc'."),
       choices: [{ text: "Normal" }, { text: "Boundary" }, { text: "Erroneous" }],
@@ -2630,6 +3638,7 @@ export const testingReview: QuestionSet = {
     },
     {
       id: "boundary",
+      askTwice: true,
       prompt: "Pressing next on this slide uses which kind of test data?",
       image: figure("t20-last-slide", "A photo slider showing 'Photo 5 of 5', with the next button outlined, about to be pressed."),
       choices: [{ text: "Normal" }, { text: "Boundary" }, { text: "Erroneous" }],
@@ -2638,6 +3647,7 @@ export const testingReview: QuestionSet = {
     },
     {
       id: "after-fail",
+      askTwice: true,
       prompt: "Test T5 has failed. What should the test plan show next?",
       image: figure("t20-test-plan", "A test plan. T4, valid email accepted: pass. T5, invalid email 'abc' rejected: expected the form not to send and an error under the email field; actual, the form sent with no error: fail. The next row is all question marks."),
       choices: [
@@ -2670,6 +3680,7 @@ export const testingReview: QuestionSet = {
     },
     {
       id: "severity",
+      askTwice: true,
       prompt: "A usability problem stops the user completing the task. How severe is it?",
       choices: [{ text: "Critical" }, { text: "Major" }, { text: "Minor" }],
       answer: 0,
@@ -2684,6 +3695,7 @@ export const testingReview: QuestionSet = {
     },
     {
       id: "self-review",
+      askTwice: true,
       prompt: "'My website meets all the requirements. It is easy to use. I am happy with it.' What is wrong with this self-review?",
       choices: [
         { text: "It cites no requirement, test or audit as evidence" },
@@ -2712,6 +3724,54 @@ export const testingReview: QuestionSet = {
       ],
       answer: 0,
       explanation: "Self-review judges quality against similar websites: where is yours better, and where worse? A screenshot beside a competitor's page makes the judgement evidence.",
+    },
+    {
+      id: "normal",
+      prompt: "Testing the booking form with priya@example.com uses which kind of test data?",
+      choices: [
+        { text: "Normal" },
+        { text: "Boundary" },
+        { text: "Erroneous" },
+        { text: "Extreme" },
+      ],
+      answer: 0,
+      explanation: "Normal data is a typical, valid entry that should be accepted. Erroneous data should be rejected; boundary data sits at the edge of what is allowed.",
+    },
+    {
+      id: "think-aloud",
+      prompt: "Why ask a usability tester to think aloud?",
+      choices: [
+        { text: "You hear what confuses them as it happens" },
+        { text: "It makes the test shorter" },
+        { text: "So they can tell you the answers" },
+        { text: "It is only for recording" },
+      ],
+      answer: 0,
+      explanation: "Hearing 'I expected Classes to be under About' tells you why they got stuck, not just that they did.",
+    },
+    {
+      id: "evidence",
+      prompt: "Which is the best evidence that a test passed?",
+      choices: [
+        { text: "A screenshot of the result, labelled with the test number" },
+        { text: "Writing 'it worked'" },
+        { text: "The date of the test" },
+        { text: "A photo of the developer" },
+      ],
+      answer: 0,
+      explanation: "A labelled screenshot shows the actual result and ties it to the test plan, so anyone can check the claim.",
+    },
+    {
+      id: "trace",
+      prompt: "In your self-review, how do you show the site meets requirement R5?",
+      choices: [
+        { text: "Point to the test that checks R5, and its result" },
+        { text: "Say that it meets R5" },
+        { text: "List every page" },
+        { text: "Ask a friend to agree" },
+      ],
+      answer: 0,
+      explanation: "A claim backed by a test and its result is evidence. 'It meets R5' on its own is an opinion.",
     },
   ],
 };
