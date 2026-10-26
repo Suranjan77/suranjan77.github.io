@@ -1,7 +1,7 @@
 # Classroom quiz
 
 Status: v1 built
-Updated: 2026-10-19
+Updated: 2026-10-26
 
 A live quiz for Level 3 and below. A teacher starts a session on the projector,
 students join on their phones with a code or QR code, and the room answers
@@ -65,7 +65,9 @@ the passcode; v1 does not.
   to 21 rounds, about 15–20 minutes; the set list shows each set's question
   count, how many are asked twice and its estimate, and the question preview
   marks the ones asked twice. The teacher can skip to the results at any
-  reveal.
+  reveal. The one exception is a taster day's opening quiz (`SET_SHAPES` in
+  `sets.test.ts`): it is also the icebreaker, so it has up to 24 quick
+  questions and asks none twice, because nothing has been taught yet.
 - Multiple-choice questions with two to four choices: text choices, a picture
   as the question, or pictures as the choices. Pictures appear on the
   projector only; phones show A–D.
@@ -209,6 +211,7 @@ to `courses`. `sets.test.ts` picks it up from there.
 | --- | --- | --- | --- |
 | 1 | BTEC Level 1 Introductory Diploma in IT, Unit A4 Researching a topic | 5 sets of 14, Task 2 only | The "Digital Life: Staying safe online" assignment brief |
 | 2 | Level 2 IT, Unit 9 Spreadsheet development | 8 sets of 15, Tasks 1–5 | The Assignment 2 guide |
+| 2 | Year 11 taster day, Data analytics | 2 sets: 24 to open, 16 to close | Written for the taster day |
 | 3 | BTEC AAQ IT, Unit 3 Website development | 20 sets of 16 | The unit's lecture notes and decks |
 
 **Unit A4 (Level 1)** covers Task 2, the presentation that summarises
@@ -226,6 +229,18 @@ and charts (2C.M3); Apps Script, named ranges, pivot tables and protection
 (2C.D3); testing (2C.P5); and feedback and the review (2C.M4, 2D.P6, 2D.M5,
 2D.D4). Menu paths are Google Sheets' as the guide gives them. Formula
 questions are worked on a small sheet on the projector.
+
+**The data analytics taster (Year 11)** is for a one-off visit, to make data
+analytics look like something worth doing next. The opening quiz, "Data is
+everywhere", is the icebreaker: 24 quick questions about data in things Year
+11s already care about (music stats, games, football's xG, canteen pizza,
+streaming recommendations), a little history (Florence Nightingale, John
+Snow's cholera map, Moneyball) and a first look at the ideas of the day, each
+explanation teaching one. The closing quiz, "Think like a data analyst",
+asks about the same ideas with new examples (averages, choosing a chart,
+misleading axes, correlation, cleaning data, a spreadsheet formula, privacy)
+and ends on the routes into data jobs after Year 11. Its data is invented,
+apart from the retold cholera map. It is listed under Level 2, Year 11's level.
 
 **Unit 3 (Level 3)** has a set for each of its 20 weekly topics, written from
 that unit's lecture notes and decks in academic-materials

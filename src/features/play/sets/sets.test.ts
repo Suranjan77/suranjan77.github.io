@@ -18,7 +18,16 @@ const publicDir = join(process.cwd(), "public");
 const WORKED_EXAMPLES: Record<string, string[]> = {
   "l2-u9-t1-formulas": ["/play/l2-u9/t2-orders.png"],
 };
-const loadedCourses = await Promise.all(courses.map(async (course) => ({ course, sections: await loadCourse(course) })));
+/**
+ * A weekly set has 12 to 16 questions and asks 3 to 6 twice. A taster day's
+ * opening quiz is also its icebreaker: longer, and asking nothing twice,
+ * because nothing has been taught yet to come back to.
+ */
+const WEEKLY_SET = { questions: [12, 16], twice: [3, 6], rounds: 22 };
+const SET_SHAPES: Record<string, typeof WEEKLY_SET> = {
+  "y11-da-start": { questions: [20, 24], twice: [0, 0], rounds: 24 },
+};
+const loadedCourses =await Promise.all(courses.map(async (course) => ({ course, sections: await loadCourse(course) })));
 const questionSets = loadedCourses.flatMap(({ sections }) => sections.flatMap((section) => section.sets));
 
 function checkImage(image: QuizImage) {
@@ -64,14 +73,15 @@ describe("question sets", () => {
 
   for (const set of questionSets) {
     describe(set.title, () => {
-      it("has 12 to 16 questions with unique ids, and asks 3 to 6 of them twice", () => {
-        expect(set.questions.length).toBeGreaterThanOrEqual(12);
-        expect(set.questions.length).toBeLessThanOrEqual(16);
+      const shape = SET_SHAPES[set.id] ?? WEEKLY_SET;
+      it(`has ${shape.questions.join(" to ")} questions with unique ids, and asks ${shape.twice.join(" to ")} of them twice`, () => {
+        expect(set.questions.length).toBeGreaterThanOrEqual(shape.questions[0]);
+        expect(set.questions.length).toBeLessThanOrEqual(shape.questions[1]);
         expect(new Set(set.questions.map((q) => q.id)).size).toBe(set.questions.length);
         const twice = set.questions.filter((q) => q.askTwice).length;
-        expect(twice).toBeGreaterThanOrEqual(3);
-        expect(twice).toBeLessThanOrEqual(6);
-        expect(roundCount(set)).toBeLessThanOrEqual(22);
+        expect(twice).toBeGreaterThanOrEqual(shape.twice[0]);
+        expect(twice).toBeLessThanOrEqual(shape.twice[1]);
+        expect(roundCount(set)).toBeLessThanOrEqual(shape.rounds);
       });
 
       it("shows each picture in one question only", () => {

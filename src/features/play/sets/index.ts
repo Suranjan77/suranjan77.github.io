@@ -23,6 +23,14 @@ export const courses: readonly Course[] = [
     load: () => import("./l2-u9").then((m) => m.sections),
   },
   {
+    id: "y11-da",
+    level: 2,
+    qualification: "Year 11 taster day",
+    unit: "Taster day · Data analytics",
+    scope: "Year 11: a quiz to open the session and one to close it",
+    load: () => import("./y11-da").then((m) => m.sections),
+  },
+  {
     id: "aaq-u3",
     level: 3,
     qualification: "BTEC AAQ IT (Extended Certificate)",

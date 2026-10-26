@@ -1186,5 +1186,77 @@
   "aaq-u3/t15-box-border": [
     244,
     176
+  ],
+  "y11-da/s-wrapped": [
+    468,
+    378
+  ],
+  "y11-da/s-canteen": [
+    668,
+    428
+  ],
+  "y11-da/s-ice-cream-year": [
+    708,
+    428
+  ],
+  "y11-da/s-game-picks": [
+    668,
+    358
+  ],
+  "y11-da/s-prom-vote": [
+    548,
+    428
+  ],
+  "y11-da/s-steps": [
+    318,
+    367
+  ],
+  "y11-da/s-sport-survey": [
+    356,
+    329
+  ],
+  "y11-da/s-ice-cream-sunburn": [
+    708,
+    498
+  ],
+  "y11-da/s-snow-map": [
+    728,
+    498
+  ],
+  "y11-da/s-keepy-ups": [
+    668,
+    448
+  ],
+  "y11-da/e-choice-line": [
+    548,
+    348
+  ],
+  "y11-da/e-choice-pie": [
+    548,
+    378
+  ],
+  "y11-da/e-axis-drop": [
+    648,
+    428
+  ],
+  "y11-da/e-duplicates": [
+    429,
+    329
+  ],
+  "y11-da/e-average-sheet": [
+    331,
+    326
+  ],
+  "y11-da/e-pie-travel": [
+    588,
+    388
+  ],
+  "y11-da/e-battery": [
+    708,
+    428
+  ],
+  "y11-da/e-sleep": [
+    588,
+    428
   ]
 }
