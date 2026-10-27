@@ -27,6 +27,7 @@ import { RelayClose, parsePlayerMessage } from "./protocol";
 import { RelaySocket, relayBaseUrl, type SocketStatus } from "./relaySocket";
 import { findSet, questionSets } from "./sets";
 import { CHOICE_LABELS, type QuestionSet, type QuizImage } from "./types";
+import MountDeluluPoster from "./MountDeluluPoster";
 import { CHOICE_STYLES, ChoiceMark, QrCode, formatCode } from "./ui";
 
 /**
@@ -480,42 +481,61 @@ function Lobby({ code, game, onStart, onRemove }: { code: string; game: GameStat
   const connected = players.filter((p) => p.connected).length;
 
   return (
-    <div className="grid flex-1 gap-8 px-4 py-8 sm:px-8 lg:grid-cols-[auto_1fr] lg:gap-12">
-      <section aria-label="How to join" className="flex flex-col items-start gap-5">
-        <div>
-          <p className="text-lg text-on-surface-variant">Join at <span className="font-medium text-on-surface">{origin.replace(/^https?:\/\//, "")}/play</span> with code</p>
-          <p className="mt-1 font-mono text-6xl font-semibold tracking-wide sm:text-7xl" data-testid="room-code">{formatCode(code)}</p>
+    <div className="flex flex-1 flex-col">
+      <section aria-label="How to join" className="bg-inverse-surface px-4 py-6 text-inverse-on-surface sm:px-8">
+        <div className="flex flex-wrap items-center gap-x-12 gap-y-6">
+          <div className="flex w-full min-w-0 flex-wrap items-end gap-x-16 gap-y-5 xl:w-auto xl:flex-1">
+            <div className="min-w-0">
+              <p className="font-mono text-xs uppercase tracking-label text-inverse-primary sm:text-sm">1 · On your phone, go to</p>
+              <p className="mt-1 font-mono text-[clamp(1.375rem,4.6vw,4rem)] font-semibold leading-tight [overflow-wrap:anywhere]" data-testid="join-url">
+                {origin && `${origin.replace(/^https?:\/\//, "")}/play`}
+              </p>
+            </div>
+            <div>
+              <p className="font-mono text-xs uppercase tracking-label text-inverse-primary sm:text-sm">2 · Enter the code</p>
+              <p className="mt-1 font-mono text-6xl font-semibold tracking-wide sm:text-7xl" data-testid="room-code">{formatCode(code)}</p>
+            </div>
+          </div>
+          {origin && (
+            <div className="flex flex-col items-start gap-2">
+              <p className="font-mono text-xs uppercase tracking-label text-inverse-primary sm:text-sm">Or scan</p>
+              <div className="bg-white p-2"><QrCode text={joinUrl} size={200} label={`QR code to join with code ${code}`} /></div>
+            </div>
+          )}
         </div>
-        {origin && <div className="border border-outline-dark bg-white p-3"><QrCode text={joinUrl} size={240} label={`QR code to join with code ${code}`} /></div>}
       </section>
 
-      <section aria-label="Students" className="flex min-w-0 flex-col">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h2 className="font-headline text-3xl font-medium" aria-live="polite">
-            {connected} {connected === 1 ? "student" : "students"} joined
-          </h2>
-          <button type="button" className={primaryButton} onClick={onStart} disabled={connected === 0}>
-            Start the quiz
-          </button>
-        </div>
-        <ul className="mt-6 flex flex-wrap gap-2">
-          {players.map((player) => (
-            <li key={player.pid} className={`flex items-center gap-1 border border-outline-dark bg-surface py-1 pl-3 pr-1 text-lg ${player.connected ? "" : "opacity-60"}`}>
-              <span>{player.name}</span>
-              {!player.connected && <span className="text-sm text-on-surface-variant">(away)</span>}
-              <button
-                type="button"
-                onClick={() => onRemove(player.pid)}
-                className="ml-1 inline-flex h-9 w-9 items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-error"
-                aria-label={`Remove ${player.name}`}
-              >
-                <span aria-hidden="true">×</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-        {players.length === 0 && <p className="mt-6 text-on-surface-variant">Waiting for the first student…</p>}
-      </section>
+      <div className="flex flex-1 flex-col gap-10 px-4 py-8 sm:px-8">
+        <section aria-label="Students" className="flex min-w-0 flex-col">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <h2 className="font-headline text-3xl font-medium" aria-live="polite">
+              {connected} {connected === 1 ? "student" : "students"} joined
+            </h2>
+            <button type="button" className={primaryButton} onClick={onStart} disabled={connected === 0}>
+              Start the quiz
+            </button>
+          </div>
+          <ul className="mt-6 flex flex-wrap gap-2">
+            {players.map((player) => (
+              <li key={player.pid} className={`flex items-center gap-1 border border-outline-dark bg-surface py-1 pl-3 pr-1 text-lg ${player.connected ? "" : "opacity-60"}`}>
+                <span>{player.name}</span>
+                {!player.connected && <span className="text-sm text-on-surface-variant">(away)</span>}
+                <button
+                  type="button"
+                  onClick={() => onRemove(player.pid)}
+                  className="ml-1 inline-flex h-9 w-9 items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-error"
+                  aria-label={`Remove ${player.name}`}
+                >
+                  <span aria-hidden="true">×</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          {players.length === 0 && <p className="mt-6 text-on-surface-variant">Waiting for the first student…</p>}
+        </section>
+
+        <MountDeluluPoster />
+      </div>
     </div>
   );
 }
