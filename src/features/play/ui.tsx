@@ -36,7 +36,7 @@ export function ChoiceMark({ index, size = 40 }: { index: number; size?: number 
 }
 
 /** A QR code drawn as one SVG path. */
-export function QrCode({ text, size = 220, label }: { text: string; size?: number; label: string }) {
+export function QrCode({ text, size = 220, label, className }: { text: string; size?: number; label: string; className?: string }) {
   const { path, count } = useMemo(() => {
     const qr = qrcode(0, "M");
     qr.addData(text);
@@ -52,7 +52,7 @@ export function QrCode({ text, size = 220, label }: { text: string; size?: numbe
   }, [text]);
 
   return (
-    <svg viewBox={`0 0 ${count} ${count}`} width={size} height={size} role="img" aria-label={label} shapeRendering="crispEdges">
+    <svg viewBox={`0 0 ${count} ${count}`} width={size} height={size} role="img" aria-label={label} shapeRendering="crispEdges" className={className}>
       <rect width={count} height={count} fill="#FFFFFF" />
       <path d={path} fill="#1E1B16" />
     </svg>

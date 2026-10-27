@@ -483,23 +483,26 @@ function Lobby({ code, game, onStart, onRemove }: { code: string; game: GameStat
   return (
     <div className="flex flex-1 flex-col">
       <section aria-label="How to join" className="bg-inverse-surface px-4 py-6 text-inverse-on-surface sm:px-8">
-        <div className="flex flex-wrap items-center gap-x-12 gap-y-6">
-          <div className="flex w-full min-w-0 flex-wrap items-end gap-x-16 gap-y-5 xl:w-auto xl:flex-1">
-            <div className="min-w-0">
+        <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-12">
+          <div className="min-w-0 space-y-6 lg:space-y-10">
+            <div>
               <p className="font-mono text-xs uppercase tracking-label text-inverse-primary sm:text-sm">1 · On your phone, go to</p>
-              <p className="mt-1 font-mono text-[clamp(1.375rem,4.6vw,4rem)] font-semibold leading-tight [overflow-wrap:anywhere]" data-testid="join-url">
+              <p className="mt-1 font-mono text-[clamp(1.375rem,3.6vw,5rem)] font-semibold leading-tight [overflow-wrap:anywhere]" data-testid="join-url">
                 {origin && `${origin.replace(/^https?:\/\//, "")}/play`}
               </p>
             </div>
             <div>
               <p className="font-mono text-xs uppercase tracking-label text-inverse-primary sm:text-sm">2 · Enter the code</p>
-              <p className="mt-1 font-mono text-6xl font-semibold tracking-wide sm:text-7xl" data-testid="room-code">{formatCode(code)}</p>
+              <p className="mt-1 font-mono text-[clamp(3.75rem,7vw,8rem)] font-semibold leading-none tracking-wide" data-testid="room-code">{formatCode(code)}</p>
             </div>
           </div>
           {origin && (
             <div className="flex flex-col items-start gap-2">
               <p className="font-mono text-xs uppercase tracking-label text-inverse-primary sm:text-sm">Or scan</p>
-              <div className="bg-white p-2"><QrCode text={joinUrl} size={200} label={`QR code to join with code ${code}`} /></div>
+              {/* As large as the band allows: the full width on a phone, most of the band's height beside the address on a projector. */}
+              <div className="w-[min(100%,24rem)] bg-white lg:w-[min(42vh,32rem)]">
+                <QrCode text={joinUrl} label={`QR code to join with code ${code}`} className="block h-auto w-full" />
+              </div>
             </div>
           )}
         </div>
