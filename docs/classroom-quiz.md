@@ -47,11 +47,13 @@ the passcode; v1 does not.
 ## Scope of v1
 
 - Teacher-started sessions, behind a teacher passcode; join by six-digit code or QR code.
-- The lobby puts the join address, the code and the QR code together in one
-  dark band at the top, large enough to read from the back of the room. Below
-  the joined students it shows the "Mount Delulu" Dunning–Kruger poster
-  (`MountDeluluPoster.tsx`), built in HTML and SVG so it stays sharp on the
-  projector and can be read by a screen reader.
+- The lobby fits on one screen from 1024px wide, with no scrolling. The left
+  column holds the join panel (address, code and a QR code that takes the
+  height left over) and the joined students, whose list scrolls inside itself
+  for a large class. The right column shows the "Mount Delulu" Dunning–Kruger
+  poster (`MountDeluluPoster.tsx`), built in HTML and SVG so it stays sharp
+  and can be read by a screen reader; it is laid out at a fixed width and
+  scaled to fit. On a phone the lobby scrolls as one column.
 - Nicknames are generated from a colour and an animal. Students cannot type a
   name; they can ask for a different one up to three times in the lobby. Every
   nickname has a drawn avatar: the animal on a background of the colour

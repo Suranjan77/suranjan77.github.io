@@ -5,6 +5,8 @@
  * colours; the stages are told apart by number as well as colour.
  */
 
+import { useEffect, useRef, useState } from "react";
+
 const INK = "#141414";
 const CREAM = "#FFF5E6";
 const CURVE = "#5B3FF0";
@@ -143,21 +145,21 @@ export default function MountDeluluPoster() {
         <h2 id="mount-delulu-title" className="mt-3 text-4xl font-extrabold leading-[0.95] tracking-[-0.04em] @2xl:text-6xl">
           Mount Delulu is real.
         </h2>
-        <p className="mt-3 text-lg leading-snug @2xl:text-xl @6xl:text-2xl">
+        <p className="mt-3 text-lg leading-snug @2xl:text-xl @5xl:text-2xl">
           Why knowing a tiny bit feels like knowing everything, and how you actually level up.
         </p>
       </header>
 
       <div className="mt-6 grid gap-6 @4xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] @4xl:items-center">
         <Chart />
-        <ol className="m-0 grid list-none gap-4 p-0 @md:grid-cols-2 @6xl:gap-5">
+        <ol className="m-0 grid list-none gap-4 p-0 @md:grid-cols-2 @5xl:gap-5">
           {STAGES.map((stage) => (
-            <li key={stage.n} className={`${card} flex flex-col p-4 @6xl:p-5`} style={{ background: stage.colour, borderColor: INK }}>
-              <h3 className="text-base font-bold @6xl:text-xl">
+            <li key={stage.n} className={`${card} flex flex-col p-4 @5xl:p-5`} style={{ background: stage.colour, borderColor: INK }}>
+              <h3 className="text-base font-bold @5xl:text-xl">
                 {stage.n} · {stage.title}
               </h3>
-              <p className="mt-2 text-sm leading-snug @6xl:text-lg">{stage.body}</p>
-              <p className="mt-auto pt-3 text-sm font-semibold leading-snug @6xl:text-lg">You be like: “{stage.quote}”</p>
+              <p className="mt-2 text-sm leading-snug @5xl:text-lg">{stage.body}</p>
+              <p className="mt-auto pt-3 text-sm font-semibold leading-snug @5xl:text-lg">You be like: “{stage.quote}”</p>
             </li>
           ))}
         </ol>
@@ -165,18 +167,67 @@ export default function MountDeluluPoster() {
 
       <div className="mt-6 grid gap-4 @2xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <section className="rounded-[14px] p-5 text-white @2xl:p-7" style={{ background: INK }}>
-          <h3 className="text-2xl font-bold @6xl:text-3xl">Where are you on the curve?</h3>
-          <p className="mt-2 leading-snug @6xl:text-xl">
+          <h3 className="text-2xl font-bold @5xl:text-3xl">Where are you on the curve?</h3>
+          <p className="mt-2 leading-snug @5xl:text-xl">
             Pick one thing (coding, driving, your fave game, cooking) and place yourself honestly. No cap. Being in the flop era means you&apos;re learning.
           </p>
         </section>
         <section className="rounded-[14px] border-2 border-dashed p-5" style={{ borderColor: INK }}>
           <h3 className="font-bold">Real talk</h3>
-          <p className="mt-1 text-sm leading-snug @6xl:text-base">
+          <p className="mt-1 text-sm leading-snug @5xl:text-base">
             This curve is the internet&apos;s meme version. The original 1999 study by Dunning and Kruger found people who scored lowest on tests tended to overestimate their scores the most.
           </p>
         </section>
       </div>
     </article>
+  );
+}
+
+/** The width the poster is laid out at before it is scaled to fit. */
+const DESIGN_WIDTH = 1080;
+
+/**
+ * The poster sized for the lobby. On a phone it flows with the page. On a
+ * projector (1024px and wider) it is laid out at DESIGN_WIDTH and scaled to
+ * fill the space it is given, so the whole lobby fits on one screen.
+ */
+export function FittedPoster() {
+  const box = useRef<HTMLDivElement>(null);
+  const inner = useRef<HTMLDivElement>(null);
+  const [fit, setFit] = useState<{ scale: number; x: number } | null>(null);
+
+  useEffect(() => {
+    const wide = window.matchMedia("(min-width: 1024px)");
+    const measure = () => {
+      if (!wide.matches || !box.current || !inner.current) {
+        setFit(null);
+        return;
+      }
+      const { width, height } = box.current.getBoundingClientRect();
+      const natural = inner.current.offsetHeight;
+      const scale = Math.min(width / DESIGN_WIDTH, height / natural);
+      setFit({ scale, x: (width - DESIGN_WIDTH * scale) / 2 });
+    };
+    const observer = new ResizeObserver(measure);
+    if (box.current) observer.observe(box.current);
+    if (inner.current) observer.observe(inner.current);
+    wide.addEventListener("change", measure);
+    measure();
+    return () => {
+      observer.disconnect();
+      wide.removeEventListener("change", measure);
+    };
+  }, []);
+
+  return (
+    <div ref={box} className="relative lg:h-full lg:min-h-0 lg:overflow-hidden">
+      <div
+        ref={inner}
+        className={`lg:absolute lg:left-0 lg:top-0 lg:w-[1080px] lg:origin-top-left ${fit ? "" : "lg:invisible"}`}
+        style={fit ? { transform: `translate(${fit.x}px, 0) scale(${fit.scale})` } : undefined}
+      >
+        <MountDeluluPoster />
+      </div>
+    </div>
   );
 }

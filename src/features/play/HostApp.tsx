@@ -38,7 +38,7 @@ import { SetPicker, courseName, setDetails, useCourseSections } from "./SetPicke
 import { SetPreview } from "./SetPreview";
 import { courseOfSet, findCourse, findSet, loadSet } from "./sets";
 import { CHOICE_LABELS, type QuestionSet, type QuizImage } from "./types";
-import MountDeluluPoster from "./MountDeluluPoster";
+import { FittedPoster } from "./MountDeluluPoster";
 import { CHOICE_STYLES, ChoiceMark, CountUp, FlameMark, Loading, QrCode, StarMark, TimerRing, WaitingDots, formatCode, formatPoints } from "./ui";
 
 /**
@@ -426,7 +426,7 @@ export default function HostApp() {
   }
 
   return (
-    <Frame>
+    <Frame fit={game.phase === "lobby"}>
       <TopBar set={set} code={room.code} status={status} onEnd={endSession} />
       {game.phase === "lobby" && <Lobby code={room.code} game={game} onStart={next} onRemove={removeStudent} />}
       {game.phase === "question" && <QuestionScreen set={set} game={game} now={now} onReveal={revealNow} />}
@@ -436,8 +436,9 @@ export default function HostApp() {
   );
 }
 
-function Frame({ children }: { children: React.ReactNode }) {
-  return <div className="quiz-root flex min-h-dvh flex-col">{children}</div>;
+/** `fit` holds the page to one screen from 1024px up, for the lobby on a projector. */
+function Frame({ children, fit = false }: { children: React.ReactNode; fit?: boolean }) {
+  return <div className={`quiz-root flex min-h-dvh flex-col ${fit ? "lg:h-dvh lg:overflow-hidden" : ""}`}>{children}</div>;
 }
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
@@ -602,69 +603,69 @@ function Lobby({ code, game, onStart, onRemove }: { code: string; game: GameStat
   const connected = players.filter((p) => p.connected).length;
 
   return (
-    <div className="flex flex-1 flex-col gap-6 px-4 py-6 sm:px-6">
-      <section aria-label="How to join" className="rounded-[28px] bg-[color:var(--quiz-ink)] p-5 text-white sm:p-8">
-        <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-12">
-          <div className="min-w-0 space-y-6 lg:space-y-10">
-            <div>
-              <p className="font-mono text-xs uppercase tracking-label text-white/70 sm:text-sm">1 · On your phone, go to</p>
-              <p className="mt-1 font-mono text-[clamp(1.125rem,3.4vw,5rem)] font-semibold leading-tight [overflow-wrap:anywhere]" data-testid="join-url">
-                {origin && `${origin.replace(/^https?:\/\//, "")}/play`}
-              </p>
-            </div>
-            <div>
-              <p className="font-mono text-xs uppercase tracking-label text-white/70 sm:text-sm">2 · Enter the code</p>
-              <p className="mt-1 font-mono text-[clamp(3.75rem,7vw,8rem)] font-semibold leading-none tracking-wide" data-testid="room-code">{formatCode(code)}</p>
-            </div>
+    <div className="flex flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:grid lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.75fr)] lg:grid-rows-[minmax(0,1fr)] lg:gap-5 lg:pb-5 lg:pt-4">
+      <div className="flex min-h-0 flex-col gap-5">
+        <section aria-label="How to join" className="flex flex-col gap-4 rounded-[28px] bg-[color:var(--quiz-ink)] p-5 text-white sm:p-6 lg:min-h-0 lg:flex-1">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-label text-white/70">1 · On your phone, go to</p>
+            <p className="mt-1 font-mono text-[clamp(1.125rem,4.4vw,3rem)] font-semibold leading-tight [overflow-wrap:anywhere] lg:text-[1.8vw]" data-testid="join-url">
+              {origin && `${origin.replace(/^https?:\/\//, "")}/play`}
+            </p>
+          </div>
+          <div>
+            <p className="font-mono text-xs uppercase tracking-label text-white/70">2 · Enter the code</p>
+            <p className="mt-1 font-mono text-[clamp(3.5rem,9vw,6rem)] font-semibold leading-none tracking-wide lg:text-[4.2vw]" data-testid="room-code">{formatCode(code)}</p>
           </div>
           {origin && (
-            <div className="flex flex-col items-start gap-2">
-              <p className="font-mono text-xs uppercase tracking-label text-white/70 sm:text-sm">Or scan</p>
-              {/* As large as the band allows: the full width on a phone, most of the band's height beside the address on a projector. */}
-              <div className="w-[min(100%,24rem)] overflow-hidden rounded-[14px] bg-white lg:w-[min(42vh,32rem)]">
-                <QrCode text={joinUrl} label={`QR code to join with code ${code}`} className="block h-auto w-full" />
+            <div className="flex flex-col gap-2 lg:min-h-0 lg:flex-1">
+              <p className="font-mono text-xs uppercase tracking-label text-white/70">Or scan</p>
+              {/* As large as the space allows: the full width on a phone, whatever height is left in the panel on a projector. */}
+              <div className="lg:min-h-0 lg:flex-1 lg:[container-type:size]">
+                <div className="w-[min(100%,24rem)] overflow-hidden rounded-[14px] bg-white lg:size-[min(100cqw,100cqh)]">
+                  <QrCode text={joinUrl} label={`QR code to join with code ${code}`} className="block h-auto w-full" />
+                </div>
               </div>
             </div>
           )}
-        </div>
-      </section>
+        </section>
 
-      <section aria-label="Students" className="flex min-w-0 flex-col gap-5">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h2 className="font-headline text-4xl font-medium" aria-live="polite">
-            {connected} {connected === 1 ? "student" : "students"} joined
-          </h2>
-          <button type="button" className="quiz-button text-lg" onClick={onStart} disabled={connected === 0}>
-            Start the quiz
-          </button>
-        </div>
-        {players.length === 0 ? (
-          <div className="quiz-card flex flex-col items-center gap-4 px-6 py-12 text-center">
-            <span className="quiz-bob"><Avatar name="Golden Owl" size={88} /></span>
-            <p className="flex items-center gap-2 text-lg text-[color:var(--quiz-muted)]">Waiting for the first student <WaitingDots /></p>
+        <section aria-label="Students" className="flex min-h-0 shrink-0 flex-col gap-3 lg:max-h-[30%]">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="font-headline text-3xl font-medium" aria-live="polite">
+              {connected} {connected === 1 ? "student" : "students"} joined
+            </h2>
+            <button type="button" className="quiz-button text-lg" onClick={onStart} disabled={connected === 0}>
+              Start the quiz
+            </button>
           </div>
-        ) : (
-          <ul className="grid grid-cols-[repeat(auto-fill,minmax(9.5rem,1fr))] gap-3">
-            {players.map((player) => (
-              <li key={player.pid} className={`quiz-card quiz-pop relative flex flex-col items-center gap-2 px-3 pb-3 pt-4 text-center ${player.connected ? "" : "opacity-55"}`}>
-                <Avatar name={player.name} size={64} />
-                <span className="text-base font-semibold leading-tight">{player.name}</span>
-                {!player.connected && <span className="text-xs text-[color:var(--quiz-muted)]">(away)</span>}
-                <button
-                  type="button"
-                  onClick={() => onRemove(player.pid)}
-                  className="absolute right-1.5 top-1.5 inline-flex h-8 w-8 items-center justify-center rounded-[999px] text-lg text-[color:var(--quiz-muted)] hover:bg-[#F6E3DC] hover:text-[color:var(--quiz-hot)]"
-                  aria-label={`Remove ${player.name}`}
-                >
-                  <span aria-hidden="true">×</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+          {players.length === 0 ? (
+            <p className="flex items-center gap-3 text-lg text-[color:var(--quiz-muted)]">
+              <span className="quiz-bob"><Avatar name="Golden Owl" size={40} /></span>
+              Waiting for the first student <WaitingDots />
+            </p>
+          ) : (
+            <ul className="flex min-h-0 flex-wrap content-start gap-2 overflow-y-auto">
+              {players.map((player) => (
+                <li key={player.pid} className={`quiz-card quiz-pop flex items-center gap-2 rounded-[999px] py-1 pl-1 pr-1 ${player.connected ? "" : "opacity-55"}`}>
+                  <Avatar name={player.name} size={32} />
+                  <span className="text-base font-semibold leading-tight">{player.name}</span>
+                  {!player.connected && <span className="text-xs text-[color:var(--quiz-muted)]">(away)</span>}
+                  <button
+                    type="button"
+                    onClick={() => onRemove(player.pid)}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-[999px] text-lg text-[color:var(--quiz-muted)] hover:bg-[#F6E3DC] hover:text-[color:var(--quiz-hot)]"
+                    aria-label={`Remove ${player.name}`}
+                  >
+                    <span aria-hidden="true">×</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
 
-      <MountDeluluPoster />
+      <FittedPoster />
     </div>
   );
 }
