@@ -51,6 +51,9 @@ Then tell the site where the relay is:
    Actions → Variables** → **New repository variable**.
 2. Name: `QUIZ_RELAY_URL`. Value: the address from above with `wss://` in place
    of `https://`, e.g. `wss://classroom-quiz-relay.<your-subdomain>.workers.dev`.
+   Use a repository variable, not one on the `github-pages` environment: the
+   build job has no environment, so it cannot see environment variables, and
+   it stops with an error when the variable is missing.
 3. Push to `main` (or re-run the Pages workflow). The build reads the variable
    as `NEXT_PUBLIC_QUIZ_RELAY_URL`.
 
@@ -62,6 +65,25 @@ If the deploy is refused because of the EU jurisdiction setting, set
 `ROOM_JURISDICTION = "none"` in `wrangler.toml` and deploy again; rooms then
 run in the Cloudflare location nearest the teacher. Update `/play/privacy`
 if you do.
+
+## Redeploy after a change
+
+Changes to `relay/` reach Cloudflare only when you deploy them; pushing to
+`main` deploys the site, not the relay. From the repository root:
+
+```bash
+cd relay
+npm ci
+npm run typecheck && npm test && npm run stress
+npm run deploy         # uses the wrangler login from the first deploy
+```
+
+The passcode (`TEACHER_KEY`) and the relay's address stay the same, so
+nothing changes on GitHub. A deploy restarts the rooms' connections: phones
+and teachers' screens reconnect by themselves, but deploy outside lesson time.
+If `wrangler` says you are not logged in, run `npx wrangler login` first.
+Check the result with `curl https://classroom-quiz-relay.<your-subdomain>.workers.dev/health`,
+which answers `ok`.
 
 ## Cost at classroom scale
 
@@ -77,7 +99,19 @@ running time.
 npm run dev        # http://127.0.0.1:8787, accepts the site on localhost:3000; passcode local-teacher-passcode
 npm test           # starts the relay in Cloudflare's local runtime and runs test/relay.test.mjs
 npm run typecheck
+npm run stress     # load test: 4 rooms × 60 phones answering at once, in the local runtime
 ```
+
+`npm run stress` also runs against the deployed relay. Each run opens four
+rooms and ends them, which uses a few hundred of the day's free requests:
+
+```bash
+RELAY_URL=wss://classroom-quiz-relay.<your-subdomain>.workers.dev \
+ORIGIN=https://suranjan77.github.io TEACHER_KEY='<the passcode>' npm run stress
+```
+
+Locally, every room shares one process, so answers queue for a few seconds
+when four rooms answer at once; the deployed relay runs each room on its own.
 
 The site's browser tests for the quiz (`npm run e2e:play` in the repository
 root) start this relay themselves.

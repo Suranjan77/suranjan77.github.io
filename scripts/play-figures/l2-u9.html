@@ -1,0 +1,592 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Classroom quiz figures: Level 2 Unit 9, Assignment 2</title>
+<!--
+  Every <figure data-name> on this page is rendered to public/play/l2-u9/<name>.png
+  by scripts/render-play-figures.mjs. Each shows what its question asks about: the
+  data, the Google Sheets menu or panel, the script, the log, so a student who has
+  not met it yet can work the answer out. Nothing on them gives an answer away: no
+  captions, no pass/fail labels. Greenleaf Garden Supplies is invented.
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; background: #e9ecef; color: #1b1f24;
+         font: 16px/1.4 Arial, "Liberation Sans", sans-serif;
+         display: flex; flex-direction: column; align-items: flex-start; gap: 24px; }
+  figure { margin: 0; background: #fff; padding: 14px; }
+  .num { display: inline-block; background: #a35200; color: #fff; font: 700 15px/24px Arial, "Liberation Sans", sans-serif;
+         min-width: 24px; text-align: center; border-radius: 4px; padding: 0 5px; flex: none; }
+  .row { display: flex; gap: 18px; align-items: flex-start; }
+  .col { display: flex; flex-direction: column; gap: 12px; }
+  .cap { font: 700 13px/1.2 Arial, "Liberation Sans", sans-serif; letter-spacing: .04em; text-transform: uppercase; color: #3c4753; margin-bottom: 6px; }
+
+  /* A Google Sheets grid: column letters, row numbers. */
+  .sheet { border-collapse: collapse; font: 17px/1.3 Arial, "Liberation Sans", sans-serif; color: #1b1f24; background: #fff; }
+  .sheet th, .sheet td { border: 1px solid #8a96a3; padding: 5px 10px; height: 32px; white-space: nowrap; }
+  .sheet th { background: #eef1f4; color: #3c4753; font-weight: 400; font-size: 14px; text-align: center; }
+  .sheet th.r { width: 40px; }
+  .sheet td.n { text-align: right; }
+  .sheet td.h { font-weight: 700; }
+  .sheet td.sel { outline: 3px solid #1a62c9; outline-offset: -3px; }
+  .sheet td.hi { background: #fbe38e; }
+  .sheet td.in { background: #fff; box-shadow: inset 0 0 0 2px #5d6975; }
+  .sheet td.link { color: #1a4f9c; text-decoration: underline; }
+  .sheet td.out { background: #e3ecf6; }
+  .sheet tr.gap th, .sheet tr.gap td { height: 24px; text-align: center; color: #3c4753; font-size: 15px; padding: 0; }
+  .warn { position: relative; }
+  .warn::after { content: ""; position: absolute; right: 0; top: 0; border-style: solid; border-width: 0 11px 11px 0;
+                 border-color: transparent #c4211d transparent transparent; }
+
+  /* The formula bar. */
+  .fx { display: flex; align-items: stretch; border: 1px solid #8a96a3; border-bottom: 0; font: 17px Arial, "Liberation Sans", sans-serif; background: #fff; }
+  .fx .box { width: 70px; padding: 6px 10px; border-right: 1px solid #8a96a3; }
+  .fx .f { padding: 6px 10px; color: #3c4753; font-style: italic; border-right: 1px solid #8a96a3; }
+  .fx .v { padding: 6px 12px; font-family: "Liberation Mono", monospace; }
+
+  /* Sheet tabs. */
+  .tabs { display: flex; gap: 2px; background: #eef1f4; border: 1px solid #8a96a3; border-top: 0; padding: 0 6px 5px; font: 16px Arial, "Liberation Sans", sans-serif; }
+  .tabs span { padding: 7px 16px; color: #3c4753; }
+  .tabs span.on { background: #fff; color: #1a4f9c; font-weight: 700; border: 1px solid #8a96a3; border-top: 0; border-radius: 0 0 6px 6px; }
+
+  /* Menus, as Google Sheets draws them. */
+  .menubar { display: flex; gap: 16px; padding: 4px 4px 6px; font: 17px Arial, "Liberation Sans", sans-serif; }
+  .menubar .open { background: #dfe5ec; border-radius: 4px; padding: 0 6px; margin: 0 -6px; }
+  .menus { display: flex; align-items: flex-start; gap: 4px; }
+  .gmenu { background: #fff; border: 1.5px solid #8a96a3; border-radius: 6px; box-shadow: 0 3px 10px rgba(0,0,0,.18); padding: 6px 0; min-width: 250px;
+           font: 17px/1.3 Arial, "Liberation Sans", sans-serif; color: #1b1f24; }
+  .gmenu .mi { display: flex; justify-content: space-between; gap: 28px; padding: 7px 18px; white-space: nowrap; }
+  .gmenu .mi .k { color: #3c4753; }
+  .gmenu .mi.here { background: #dfe5ec; }
+  .gmenu hr { border: 0; border-top: 1.5px solid #c4cbd2; margin: 5px 0; }
+
+  /* Side panels and dialogs. */
+  .panel { width: 360px; border: 1.5px solid #8a96a3; border-radius: 8px; padding: 16px 18px; font: 17px/1.4 Arial, "Liberation Sans", sans-serif; color: #1b1f24; background: #fff; }
+  .panel h4 { margin: 0 0 12px; font-size: 19px; font-weight: 400; }
+  .panel .k { font-size: 15px; color: #3c4753; margin: 14px 0 6px; display: flex; gap: 8px; align-items: center; }
+  .panel .in { border: 1.5px solid #5d6975; border-radius: 4px; padding: 7px 10px; background: #fff; margin-bottom: 5px; }
+  .panel .chip { display: inline-block; border: 1.5px solid #5d6975; border-radius: 14px; padding: 3px 13px; margin: 0 5px 5px 0; }
+  .panel .box2 { border: 1.5px solid #8a96a3; border-radius: 6px; padding: 9px 11px; }
+  .panel .radio { display: flex; gap: 9px; align-items: center; margin: 6px 0; }
+  .panel .radio i { width: 15px; height: 15px; border: 2px solid #3c4753; border-radius: 50%; display: inline-block; flex: none; }
+  .panel .radio i.on { background: radial-gradient(#3c4753 0 4px, transparent 5px); }
+  .panel .tick { width: 15px; height: 15px; border: 2px solid #3c4753; border-radius: 2px; display: inline-block; flex: none; }
+  .panel .tick.on { background: #3c4753; }
+  .panel .tabsrow { display: flex; border-bottom: 1.5px solid #c4cbd2; margin: -4px 0 10px; }
+  .panel .tabsrow span { padding: 6px 14px; color: #3c4753; }
+  .panel .tabsrow span.on { color: #1a4f9c; border-bottom: 3px solid #1a4f9c; font-weight: 700; }
+  .panel .sec { display: flex; justify-content: space-between; padding: 9px 2px; border-bottom: 1px solid #c4cbd2; }
+  .btn { display: inline-block; border: 1.5px solid #5d6975; border-radius: 18px; padding: 6px 16px; }
+  .btn.blue { background: #1a62c9; border-color: #1a62c9; color: #fff; }
+  .drawn { display: inline-block; background: #2e7d32; color: #fff; font-weight: 700; border-radius: 8px; padding: 12px 22px; font-size: 18px; outline: 2px solid #1a62c9; outline-offset: 4px; }
+
+  /* Toolbar with drawn icons. */
+  .toolbar { display: flex; align-items: center; gap: 16px; padding: 8px 16px; background: #e3e9f2; border-radius: 22px; font: 17px Arial, "Liberation Sans", sans-serif; }
+  .toolbar .sep { width: 1.5px; height: 22px; background: #8a96a3; }
+  .toolbar .tb { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+  /* Charts and code. */
+  .chart { font-family: Arial, "Liberation Sans", sans-serif; }
+  .chart text { fill: #1b1f24; }
+  .chart .axis { stroke: #3c4753; stroke-width: 1.5; }
+  .chart .grid { stroke: #b8c0c8; stroke-width: 1; }
+  .code { background: #1e2530; color: #e6edf3; font: 15.5px/1.7 "Liberation Mono", monospace; padding: 14px 18px; border-radius: 6px; white-space: pre; margin: 0; }
+  .code .k { color: #ff9f8e; } .code .s { color: #9ecbff; } .code .f { color: #7ee0a1; } .code .ln { color: #9aa5b1; display: inline-block; width: 26px; }
+
+  /* Logs and documents. */
+  .log { border-collapse: collapse; font: 16px/1.35 Arial, "Liberation Sans", sans-serif; color: #1b1f24; }
+  .log th, .log td { border: 1.5px solid #7b8794; padding: 7px 9px; text-align: left; vertical-align: top; }
+  .log th { background: #e3ecf6; font-weight: 700; }
+  .log caption { text-align: left; font-weight: 700; font-size: 17px; padding-bottom: 8px; }
+  .doc { width: 600px; border: 2px solid #7b8794; border-radius: 6px; padding: 16px 20px; font-size: 18px; line-height: 1.45; background: #fff; }
+  .doc h3 { margin: 0 0 10px; font-size: 19px; }
+  .doc p { margin: 0 0 10px; display: flex; gap: 10px; align-items: baseline; }
+
+  /* Two formatting styles of one table. */
+  .messy td { border: 0; }
+  .messy { font-family: "Liberation Serif", serif; }
+  .messy .c1 { color: #8a1f9e; font-family: "Liberation Mono", monospace; }
+  .messy .c2 { color: #0a6b2a; font-size: 20px; font-style: italic; }
+  .tidy td.h { background: #24476b; color: #fff; }
+  .tidy tr:nth-child(odd) td:not(.h) { background: #eef3f8; }
+</style>
+
+<figure data-name="t1-blank-row"><table class="sheet "><tr><th class="r"></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr><tr><th>1</th><td class="h">Order ID</td><td class="h">Date</td><td class="h">Region</td><td class="h">Product</td><td class="h">Total (£)</td></tr><tr><th>2</th><td class="n">1001</td><td class="n">01/09/2026</td><td>North</td><td>Compost</td><td class="n">£48.00</td></tr><tr><th>3</th><td class="n">1002</td><td class="n">01/09/2026</td><td>South</td><td>Hose</td><td class="n">£18.50</td></tr><tr><th>4</th><td class="n">1003</td><td class="n">02/09/2026</td><td>North</td><td>Seeds</td><td class="n">£25.00</td></tr><tr><th>5</th><td></td><td></td><td></td><td></td><td></td></tr><tr><th>6</th><td class="n">1004</td><td class="n">03/09/2026</td><td>East</td><td>Compost</td><td class="n">£24.00</td></tr><tr><th>7</th><td class="n">1005</td><td class="n">03/09/2026</td><td>South</td><td>Seeds</td><td class="n">£15.00</td></tr></table></figure>
+
+<figure data-name="t1-layout-records"><table class="sheet "><tr><th class="r"></th><th>A</th><th>B</th><th>C</th><th>D</th></tr><tr><th>1</th><td class="h">Order ID</td><td class="h">Region</td><td class="h">Product</td><td class="h">Total (£)</td></tr><tr><th>2</th><td class="n">1001</td><td>North</td><td>Compost</td><td class="n">£48.00</td></tr><tr><th>3</th><td class="n">1002</td><td>South</td><td>Hose</td><td class="n">£18.50</td></tr><tr><th>4</th><td class="n">1003</td><td>North</td><td>Seeds</td><td class="n">£25.00</td></tr><tr><th>5</th><td class="n">1004</td><td>East</td><td>Compost</td><td class="n">£24.00</td></tr></table></figure>
+
+<figure data-name="t1-layout-wide"><table class="sheet "><tr><th class="r"></th><th>A</th><th>B</th><th>C</th><th>D</th></tr><tr><th>1</th><td class="h">Region</td><td class="h">Order 1</td><td class="h">Order 2</td><td class="h">Order 3</td></tr><tr><th>2</th><td>North</td><td class="l">Compost £48</td><td class="l">Seeds £25</td><td></td></tr><tr><th>3</th><td>South</td><td class="l">Hose £18.50</td><td></td><td></td></tr><tr><th>4</th><td>East</td><td class="l">Compost £24</td><td></td><td></td></tr></table></figure>
+
+<figure data-name="t1-row-count"><table class="sheet "><tr><th class="r"></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr><tr><th>1</th><td class="h">Order ID</td><td class="h">Date</td><td class="h">Region</td><td class="h">Product</td><td class="h">Total (£)</td></tr><tr><th>2</th><td class="n">1001</td><td class="n">01/09/2026</td><td>North</td><td>Compost</td><td class="n">£48.00</td></tr><tr><th>3</th><td class="n">1002</td><td class="n">01/09/2026</td><td>South</td><td>Hose</td><td class="n">£18.50</td></tr><tr class="gap"><th>⋮</th><td>⋮</td><td>⋮</td><td>⋮</td><td>⋮</td><td>⋮</td></tr><tr><th>50</th><td class="n">1049</td><td class="n">29/09/2026</td><td>East</td><td>Shed</td><td class="n">£480.00</td></tr><tr><th>51</th><td class="n">1050</td><td class="n">30/09/2026</td><td>North</td><td>Hose</td><td class="n">£37.00</td></tr></table></figure>
+
+<figure data-name="t1-sort-menu"><div style="display:inline-block"><div class="menubar"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span class="open">Data</span><span>Tools</span><span>Extensions</span><span>Help</span></div><div class="menus" style="padding-left:300px"><div class="gmenu"><div class="mi"><span>Sort sheet</span><span class="k">▸</span></div><div class="mi here"><span>Sort range</span><span class="k">▸</span></div><hr><div class="mi"><span>Create a filter</span></div><div class="mi"><span>Create filter view</span></div><hr><div class="mi"><span>Protect sheets and ranges</span></div><div class="mi"><span>Named ranges</span></div><hr><div class="mi"><span>Data validation</span></div><div class="mi"><span>Data clean-up</span><span class="k">▸</span></div></div><div class="gmenu" style="margin-top:40px"><div class="mi"><span>Sort range by column A (A to Z)</span></div><div class="mi"><span>Sort range by column A (Z to A)</span></div><hr><div class="mi"><span>Advanced range sorting options</span></div></div></div></div></figure>
+
+<figure data-name="t1-sort-dialog"><div class="panel" style="width:430px">
+  <h4>Sort range from A1 to E51</h4>
+  <div class="radio"><span class="tick"></span>Data has header row</div>
+  <div class="k">Sort by</div>
+  <div class="row" style="gap:12px;align-items:center"><span class="in" style="flex:1;margin:0">Column C</span><span class="radio" style="margin:0"><i class="on"></i>A → Z</span><span class="radio" style="margin:0"><i></i>Z → A</span></div>
+  <div class="row" style="justify-content:flex-end;margin-top:16px;gap:10px"><span class="btn">Cancel</span><span class="btn blue">Sort</span></div>
+</div></figure>
+
+<figure data-name="t1-header-sorted"><table class="sheet "><tr><th class="r"></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr><tr><th>1</th><td class="n">1004</td><td class="n">03/09/2026</td><td>East</td><td>Compost</td><td class="n">£24.00</td></tr><tr><th>2</th><td class="n">1007</td><td class="n">04/09/2026</td><td>East</td><td>Shed</td><td class="n">£480.00</td></tr><tr><th>3</th><td class="n">1001</td><td class="n">01/09/2026</td><td>North</td><td>Compost</td><td class="n">£48.00</td></tr><tr><th>4</th><td class="n">1003</td><td class="n">02/09/2026</td><td>North</td><td>Seeds</td><td class="n">£25.00</td></tr><tr><th>5</th><td class="h">Order ID</td><td class="h">Date</td><td class="h">Region</td><td class="h">Product</td><td class="h">Total (£)</td></tr><tr><th>6</th><td class="n">1002</td><td class="n">01/09/2026</td><td>South</td><td>Hose</td><td class="n">£18.50</td></tr><tr><th>7</th><td class="n">1005</td><td class="n">03/09/2026</td><td>South</td><td>Seeds</td><td class="n">£15.00</td></tr></table></figure>
+
+<figure data-name="t1-sorted-date"><table class="sheet "><tr><th class="r"></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr><tr><th>1</th><td class="h">Order ID</td><td class="h">Date</td><td class="h">Region</td><td class="h">Product</td><td class="h">Total (£)</td></tr><tr><th>2</th><td class="n">1001</td><td class="n">01/09/2026</td><td>North</td><td>Compost</td><td class="n">£48.00</td></tr><tr><th>3</th><td class="n">1002</td><td class="n">01/09/2026</td><td>South</td><td>Hose</td><td class="n">£18.50</td></tr><tr><th>4</th><td class="n">1003</td><td class="n">02/09/2026</td><td>North</td><td>Seeds</td><td class="n">£25.00</td></tr><tr><th>5</th><td class="n">1004</td><td class="n">03/09/2026</td><td>East</td><td>Compost</td><td class="n">£24.00</td></tr><tr><th>6</th><td class="n">1005</td><td class="n">03/09/2026</td><td>South</td><td>Seeds</td><td class="n">£15.00</td></tr></table></figure>
+
+<figure data-name="t1-input-clean"><div><table class="sheet "><tr><th class="r"></th><th style="width:30px">A</th><th style="width:140px">B</th><th style="width:150px">C</th></tr><tr><th>1</th><td></td><td class="h">Add an order</td><td></td></tr><tr><th>2</th><td></td><td>Date</td><td class="in"></td></tr><tr><th>3</th><td></td><td>Region</td><td class="in"></td></tr><tr><th>4</th><td></td><td>Quantity</td><td class="in"></td></tr></table><div class="tabs"><span>Home</span><span class="on">Input</span><span>Data</span><span>Summary</span><span>Chart</span></div></div></figure>
+
+<figure data-name="t1-input-mixed"><div><table class="sheet "><tr><th class="r"></th><th style="width:120px">A</th><th style="width:130px">B</th><th style="width:120px">C</th></tr><tr><th>1</th><td class="h">Product</td><td class="h">Quantity</td><td class="h">Total (£)</td></tr><tr><th>2</th><td>Compost</td><td class="n">4</td><td class="n">£48.00</td></tr><tr><th>3</th><td>Hose</td><td class="in">type here</td><td class="n">£0.00</td></tr><tr><th>4</th><td>Seeds</td><td class="n">10</td><td class="n">£25.00</td></tr></table><div class="tabs"><span>Home</span><span>Input</span><span class="on">Data</span><span>Summary</span><span>Chart</span></div></div></figure>
+
+<figure data-name="t1-tabs"><div style="width:560px"><table class="sheet" style="width:100%"><tr><th class="r"></th><th>A</th><th>B</th><th>C</th><th>D</th></tr><tr><th>1</th><td class="h">Greenleaf Garden Supplies: sales</td><td></td><td></td><td></td></tr><tr><th>2</th><td>Use the links below to move between tabs.</td><td></td><td></td><td></td></tr><tr><th>3</th><td></td><td></td><td></td><td></td></tr></table><div class="tabs"><span class="on">Home</span><span>Input</span><span>Data</span><span>Summary</span><span>Chart</span></div></div></figure>
+
+<figure data-name="t1-freeze-menu"><div style="display:inline-block"><div class="menubar"><span>File</span><span>Edit</span><span class="open">View</span><span>Insert</span><span>Format</span><span>Data</span><span>Tools</span><span>Extensions</span><span>Help</span></div><div class="menus" style="padding-left:90px"><div class="gmenu"><div class="mi"><span>Show</span><span class="k">▸</span></div><div class="mi here"><span>Freeze</span><span class="k">▸</span></div><div class="mi"><span>Group</span></div><hr><div class="mi"><span>Comments</span><span class="k">▸</span></div><div class="mi"><span>Hidden sheets</span><span class="k">▸</span></div><hr><div class="mi"><span>Zoom</span><span class="k">▸</span></div><div class="mi"><span>Full screen</span></div></div><div class="gmenu" style="margin-top:40px"><div class="mi"><span>No rows</span></div><div class="mi"><span>1 row</span></div><div class="mi"><span>2 rows</span></div><div class="mi"><span>Up to row 4</span></div><hr><div class="mi"><span>No columns</span></div><div class="mi"><span>1 column</span></div><div class="mi"><span>2 columns</span></div></div></div></div></figure>
+
+<figure data-name="t1-version-menu"><div style="display:inline-block"><div class="menubar"><span class="open">File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Data</span><span>Tools</span><span>Extensions</span><span>Help</span></div><div class="menus" style="padding-left:0px"><div class="gmenu"><div class="mi"><span>New</span><span class="k">▸</span></div><div class="mi"><span>Open</span><span class="k">Ctrl+O</span></div><div class="mi"><span>Make a copy</span></div><hr><div class="mi"><span>Share</span><span class="k">▸</span></div><div class="mi"><span>Download</span><span class="k">▸</span></div><hr><div class="mi"><span>Rename</span></div><div class="mi here"><span>Version history</span><span class="k">▸</span></div><hr><div class="mi"><span>Settings</span></div></div><div class="gmenu" style="margin-top:315px"><div class="mi"><span>Name current version</span></div><div class="mi"><span>See version history</span><span class="k">Ctrl+Alt+Shift+H</span></div></div></div></div></figure>
+
+<figure data-name="t1-heading"><table class="sheet "><tr><th class="r"></th><th>D</th><th>E</th><th>F</th></tr><tr><th>1</th><td class="h">Product</td><td class="h">Quantity</td><td class="h">Col F</td></tr><tr><th>2</th><td>Compost</td><td class="n">4</td><td class="n">£12.00</td></tr><tr><th>3</th><td>Hose</td><td class="n">1</td><td class="n">£18.50</td></tr><tr><th>4</th><td>Seeds</td><td class="n">10</td><td class="n">£2.50</td></tr></table></figure>
+
+<figure data-name="t2-orders"><table class="sheet "><tr><th class="r"></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr><tr><th>1</th><td class="h">Order ID</td><td class="h">Region</td><td class="h">Product</td><td class="h">Quantity</td><td class="h">Total (£)</td></tr><tr><th>2</th><td class="n">1001</td><td>North</td><td>Compost</td><td class="n">4</td><td class="n">£48.00</td></tr><tr><th>3</th><td class="n">1002</td><td>South</td><td>Hose</td><td class="n">1</td><td class="n">£18.50</td></tr><tr><th>4</th><td class="n">1003</td><td>North</td><td>Seeds</td><td class="n">10</td><td class="n">£25.00</td></tr><tr><th>5</th><td class="n">1004</td><td>East</td><td>Compost</td><td class="n">2</td><td class="n">£24.00</td></tr><tr><th>6</th><td class="n">1005</td><td>South</td><td>Seeds</td><td class="n">6</td><td class="n">£15.00</td></tr><tr><th>7</th><td class="n">1006</td><td>North</td><td>Hose</td><td class="n">2</td><td class="n">£37.00</td></tr></table></figure>
+
+<figure data-name="t2-copied"><div><div class="fx"><span class="box">B5</span><span class="f">fx</span><span class="v">=A5*B2</span></div><table class="sheet "><tr><th class="r"></th><th style="width:150px">A</th><th style="width:150px">B</th></tr><tr><th>1</th><td class="h">VAT rate</td><td class="n">20%</td></tr><tr><th>2</th><td></td><td></td></tr><tr><th>3</th><td class="h">Price (£)</td><td class="h">VAT (£)</td></tr><tr><th>4</th><td class="n">£10.00</td><td class="n">£2.00</td></tr><tr><th>5</th><td class="n">£25.00</td><td class="sel n">£0.00</td></tr><tr><th>6</th><td class="n">£40.00</td><td class="n">#VALUE!</td></tr></table></div></figure>
+
+<figure data-name="t2-fixed"><div><div class="fx"><span class="box">B4</span><span class="f">fx</span><span class="v">=A4*$B$1</span></div><table class="sheet "><tr><th class="r"></th><th style="width:150px">A</th><th style="width:150px">B</th></tr><tr><th>1</th><td class="h">VAT rate</td><td class="n">20%</td></tr><tr><th>2</th><td></td><td></td></tr><tr><th>3</th><td class="h">Price (£)</td><td class="h">VAT (£)</td></tr><tr><th>4</th><td class="n">£10.00</td><td class="sel n">£2.00</td></tr><tr><th>5</th><td class="n">£25.00</td><td class="n">£5.00</td></tr><tr><th>6</th><td class="n">£40.00</td><td class="n">£8.00</td></tr></table></div></figure>
+
+<figure data-name="t2-typed-total"><div><div class="fx"><span class="box">E8</span><span class="f">fx</span><span class="v">167.5</span></div><table class="sheet "><tr><th class="r"></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr><tr><th>1</th><td class="h">Order ID</td><td class="h">Region</td><td class="h">Product</td><td class="h">Quantity</td><td class="h">Total (£)</td></tr><tr><th>2</th><td class="n">1001</td><td>North</td><td>Compost</td><td class="n">4</td><td class="n">£48.00</td></tr><tr><th>3</th><td class="n">1002</td><td>South</td><td>Hose</td><td class="n">1</td><td class="n">£18.50</td></tr><tr class="gap"><th>⋮</th><td>⋮</td><td>⋮</td><td>⋮</td><td>⋮</td><td>⋮</td></tr><tr><th>7</th><td class="n">1006</td><td>North</td><td>Hose</td><td class="n">2</td><td class="n">£37.00</td></tr><tr><th>8</th><td></td><td></td><td></td><td class="h">All orders</td><td class="sel n">£167.50</td></tr></table></div></figure>
+
+<figure data-name="t3-locale"><div class="row"><table class="sheet "><tr><th class="r"></th><th>E</th></tr><tr><th>1</th><td class="h">Total</td></tr><tr><th>2</th><td class="n">$48.00</td></tr><tr><th>3</th><td class="n">$18.50</td></tr><tr><th>4</th><td class="n">$25.00</td></tr></table><div class="panel" style="width:430px">
+  <h4>Settings for this spreadsheet</h4>
+  <div class="tabsrow"><span class="on">General</span><span>Calculation</span></div>
+  <div class="k">Locale</div><div class="in">United States ▾</div>
+  <div class="k">Time zone</div><div class="in">(GMT+00:00) London ▾</div>
+  <div class="k">Display language</div><div class="in">English (UK)</div>
+  <div class="row" style="justify-content:flex-end;margin-top:14px"><span class="btn blue">Save settings</span></div>
+</div></div></figure>
+
+<figure data-name="t3-number-menu"><div style="display:inline-block"><div class="menubar"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span class="open">Format</span><span>Data</span><span>Tools</span><span>Extensions</span><span>Help</span></div><div class="menus" style="padding-left:170px"><div class="gmenu"><div class="mi"><span>Theme</span></div><div class="mi here"><span>Number</span><span class="k">▸</span></div><div class="mi"><span>Text</span><span class="k">▸</span></div><div class="mi"><span>Alignment</span><span class="k">▸</span></div><div class="mi"><span>Wrapping</span><span class="k">▸</span></div><hr><div class="mi"><span>Conditional formatting</span></div><div class="mi"><span>Alternating colours</span></div></div><div class="gmenu" style="margin-top:40px"><div class="mi"><span>Automatic</span></div><div class="mi"><span>Plain text</span></div><hr><div class="mi"><span>Number</span><span class="k">1,000.12</span></div><div class="mi"><span>Percent</span><span class="k">10.12%</span></div><div class="mi"><span>Scientific</span><span class="k">1.01E+03</span></div><hr><div class="mi"><span>Currency</span><span class="k">£1,000.12</span></div><div class="mi"><span>Currency rounded</span><span class="k">£1,000</span></div><hr><div class="mi"><span>Date</span><span class="k">26/09/2008</span></div></div></div></div></figure>
+
+<figure data-name="t3-numbers-left"><table class="sheet "><tr><th class="r"></th><th style="width:140px">E</th></tr><tr><th>1</th><td class="h">Total (£)</td></tr><tr><th>2</th><td class="l">£48.00</td></tr><tr><th>3</th><td class="l">£1,250.00</td></tr><tr><th>4</th><td class="l">£5.00</td></tr><tr><th>5</th><td class="l">£118.50</td></tr></table></figure>
+
+<figure data-name="t3-numbers-mixed"><table class="sheet "><tr><th class="r"></th><th style="width:140px">E</th></tr><tr><th>1</th><td class="h">Total (£)</td></tr><tr><th>2</th><td style="text-align:center">48</td></tr><tr><th>3</th><td style="text-align:center">1250</td></tr><tr><th>4</th><td style="text-align:center">5.0</td></tr><tr><th>5</th><td style="text-align:center">118.5</td></tr></table></figure>
+
+<figure data-name="t3-numbers-right"><table class="sheet "><tr><th class="r"></th><th style="width:140px">E</th></tr><tr><th>1</th><td class="h">Total (£)</td></tr><tr><th>2</th><td class="n">£48.00</td></tr><tr><th>3</th><td class="n">£1,250.00</td></tr><tr><th>4</th><td class="n">£5.00</td></tr><tr><th>5</th><td class="n">£118.50</td></tr></table></figure>
+
+<figure data-name="t3-style-messy"><table class="sheet messy">
+  <tr><td>order</td><td class="c1">REGION</td><td class="c2">Product</td><td>total</td></tr>
+  <tr><td>1001</td><td class="c1">North</td><td class="c2">Compost</td><td>$48</td></tr>
+  <tr><td>1002</td><td class="c1">South</td><td class="c2">Hose</td><td>$18.5</td></tr>
+  <tr><td>1003</td><td class="c1">North</td><td class="c2">Seeds</td><td>$25.00</td></tr>
+</table></figure>
+
+<figure data-name="t3-style-tidy"><table class="sheet tidy">
+  <tr><td class="h">Order ID</td><td class="h">Region</td><td class="h">Product</td><td class="h">Total (£)</td></tr>
+  <tr><td>1001</td><td>North</td><td>Compost</td><td class="n">£48.00</td></tr>
+  <tr><td>1002</td><td>South</td><td>Hose</td><td class="n">£18.50</td></tr>
+  <tr><td>1003</td><td>North</td><td>Seeds</td><td class="n">£25.00</td></tr>
+</table></figure>
+
+<figure data-name="t3-format-menu"><div style="display:inline-block"><div class="menubar"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span class="open">Format</span><span>Data</span><span>Tools</span><span>Extensions</span><span>Help</span></div><div class="menus" style="padding-left:170px"><div class="gmenu" style="min-width:320px"><div class="mi"><span>Theme</span></div><div class="mi"><span>Number</span><span class="k">▸</span></div><div class="mi"><span>Text</span><span class="k">▸</span></div><div class="mi"><span>Alignment</span><span class="k">▸</span></div><div class="mi"><span>Wrapping</span><span class="k">▸</span></div><div class="mi"><span>Rotation</span><span class="k">▸</span></div><div class="mi"><span>Font size</span><span class="k">▸</span></div><div class="mi"><span>Merge cells</span><span class="k">▸</span></div><hr><div class="mi"><span>Convert to table</span></div><div class="mi"><span>Conditional formatting</span></div><div class="mi"><span>Alternating colours</span></div><hr><div class="mi"><span>Clear formatting</span><span class="k">Ctrl+\</span></div></div></div></div></figure>
+
+<figure data-name="t3-toolbar"><div class="toolbar">
+  <span class="tb"><b style="font-size:22px;font-family:'Liberation Serif',serif">B</b><span class="num">1</span></span>
+  <span class="tb"><i style="font-size:22px;font-family:'Liberation Serif',serif">I</i><span class="num">2</span></span>
+  <span class="sep"></span>
+  <span class="tb"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1b1f24" stroke-width="2"><path d="M5 11 L12 4 L19 11 L12 18 Z"/><path d="M19 15 q2 3 0 4 q-2 -1 0 -4" fill="#1b1f24"/><rect x="3" y="20" width="18" height="2.5" fill="#d93025" stroke="none"/></svg><span class="num">3</span></span>
+  <span class="tb"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1b1f24" stroke-width="2"><rect x="3" y="3" width="18" height="18"/><path d="M12 3v18M3 12h18"/></svg><span class="num">4</span></span>
+  <span class="tb"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1b1f24" stroke-width="2"><rect x="3" y="5" width="18" height="14"/><path d="M6 12h4M8 10l2 2-2 2M18 12h-4M16 10l-2 2 2 2"/></svg><span class="num">5</span></span>
+</div></figure>
+
+<figure data-name="t3-wrap"><div class="row"><table class="sheet "><tr><th class="r"></th><th style="width:120px">H</th><th style="width:120px">I</th></tr><tr><th>1</th><td class="h sel" style="max-width:120px;overflow:hidden">Customer postc</td><td class="h">Order date</td></tr><tr><th>2</th><td class="l">PL4 6AB</td><td class="n">01/09/2026</td></tr></table><div class="gmenu" style="min-width:170px"><div class="mi"><span>Overflow</span></div><div class="mi"><span>Wrap</span></div><div class="mi"><span>Clip</span></div></div></div></figure>
+
+<figure data-name="t3-row-menu"><div class="row"><table class="sheet"><tr><th class="r"></th><th>A</th><th>B</th></tr><tr><th style="background:#c9d6e6">5</th><td>1004</td><td>East</td></tr></table><div class="gmenu" style="min-width:280px"><div class="mi"><span>Cut</span><span class="k">Ctrl+X</span></div><div class="mi"><span>Copy</span><span class="k">Ctrl+C</span></div><div class="mi"><span>Paste</span><span class="k">Ctrl+V</span></div><hr><div class="mi"><span>Insert 1 row above</span></div><div class="mi"><span>Insert 1 row below</span></div><div class="mi"><span>Delete row</span></div><div class="mi"><span>Clear row</span></div><div class="mi"><span>Hide row</span></div><div class="mi"><span>Resize row</span></div></div></div></figure>
+
+<figure data-name="t4-data-menu"><div style="display:inline-block"><div class="menubar"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span class="open">Data</span><span>Tools</span><span>Extensions</span><span>Help</span></div><div class="menus" style="padding-left:300px"><div class="gmenu" style="min-width:320px"><div class="mi"><span>Sort sheet</span><span class="k">▸</span></div><div class="mi"><span>Sort range</span><span class="k">▸</span></div><hr><div class="mi"><span>Create a filter</span></div><div class="mi"><span>Create filter view</span></div><hr><div class="mi"><span>Protect sheets and ranges</span></div><div class="mi"><span>Named ranges</span></div><div class="mi"><span>Randomise range</span></div><hr><div class="mi"><span>Data validation</span></div><div class="mi"><span>Data clean-up</span><span class="k">▸</span></div><div class="mi"><span>Split text to columns</span></div></div></div></div></figure>
+
+<figure data-name="t4-validation-panel"><div class="panel" style="width:680px">
+  <h4>Data validation rules</h4>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 26px">
+    <div>
+      <div class="k" style="margin-top:0"><span class="num">1</span>Apply to range</div>
+      <div class="in">Input!C7</div>
+      <div class="k"><span class="num">2</span>Criteria</div>
+      <div class="in">Dropdown</div>
+      <div><span class="chip">North</span><span class="chip">South</span><span class="chip">East</span></div>
+    </div>
+    <div>
+      <div class="k" style="margin-top:0"><span class="num">3</span>Advanced options</div>
+      <div class="box2">
+        <div class="radio" style="margin-top:0"><span class="tick on"></span>Show help text for a selected cell</div>
+        <div class="in" style="margin:4px 0 0">Choose a region from the list.</div>
+      </div>
+      <div class="k"><span class="num">4</span>If the data is invalid:</div>
+      <div class="radio"><i></i>Show a warning</div>
+      <div class="radio"><i></i>Reject the input</div>
+    </div>
+  </div>
+</div></figure>
+
+<figure data-name="t4-warning-cell"><div><table class="sheet "><tr><th class="r"></th><th style="width:160px">B</th><th style="width:160px">C</th></tr><tr><th>6</th><td class="h">Order date</td><td class="n">05/09/2026</td></tr><tr><th>7</th><td class="h">Region</td><td class="warn sel">Nort</td></tr><tr><th>8</th><td class="h">Quantity</td><td class="n">3</td></tr></table><div class="tabs"><span>Home</span><span class="on">Input</span><span>Data</span><span>Summary</span><span>Chart</span></div></div></figure>
+
+<figure data-name="t4-nort-total"><div class="row"><div><table class="sheet "><tr><th class="r"></th><th>A</th><th>C</th><th>E</th></tr><tr><th>1</th><td class="h">Order ID</td><td class="h">Region</td><td class="h">Total (£)</td></tr><tr><th>2</th><td class="n">1001</td><td>North</td><td class="n">£48.00</td></tr><tr><th>3</th><td class="n">1002</td><td>South</td><td class="n">£18.50</td></tr><tr><th>4</th><td class="n">1003</td><td class="hi">Nort</td><td class="n">£25.00</td></tr><tr><th>5</th><td class="n">1004</td><td>East</td><td class="n">£24.00</td></tr><tr><th>6</th><td class="n">1006</td><td>North</td><td class="n">£37.00</td></tr></table><div class="tabs"><span class="on">Data</span><span>Summary</span></div></div><div><div class="fx" style="font-size:14px"><span class="box">B2</span><span class="f">fx</span><span class="v">=SUMIF(Data!C2:C6,"North",Data!E2:E6)</span></div><table class="sheet "><tr><th class="r"></th><th style="width:120px">A</th><th style="width:140px">B</th></tr><tr><th>1</th><td class="h">Region</td><td class="h">Total (£)</td></tr><tr><th>2</th><td>North</td><td class="sel">?</td></tr></table><div class="tabs"><span>Data</span><span class="on">Summary</span></div></div></div></figure>
+
+<figure data-name="t4-criteria"><div class="row"><div class="panel" style="width:330px">
+  <h4>Data validation rules</h4>
+  <div class="k">Apply to range</div><div class="in">Input!C8</div>
+  <div class="k">Criteria</div><div class="in">Dropdown ▾</div>
+</div><div class="gmenu" style="min-width:280px"><div class="mi"><span>Dropdown</span></div><div class="mi"><span>Dropdown (from a range)</span></div><hr><div class="mi"><span>Is empty</span></div><div class="mi"><span>Text contains</span></div><div class="mi"><span>Is valid date</span></div><hr><div class="mi"><span>Greater than</span></div><div class="mi"><span>Less than</span></div><div class="mi"><span>Is between</span></div><hr><div class="mi"><span>Checkbox</span></div><div class="mi"><span>Custom formula is</span></div></div></div></figure>
+
+<figure data-name="t4-labels-poor"><table class="sheet "><tr><th class="r"></th><th style="width:200px">B</th><th style="width:130px">C</th></tr><tr><th>1</th><td class="h">Qty?</td><td class="in"></td></tr><tr><th>2</th><td class="h">Input 3</td><td class="in"></td></tr><tr><th>3</th><td class="h">D</td><td class="in"></td></tr></table></figure>
+
+<figure data-name="t4-labels-good"><table class="sheet "><tr><th class="r"></th><th style="width:240px">B</th><th style="width:130px">C</th></tr><tr><th>1</th><td class="h">Quantity (1 to 100)</td><td class="in"></td></tr><tr><th>2</th><td class="h">Region (pick from list)</td><td class="in"></td></tr><tr><th>3</th><td class="h">Date (DD/MM/YYYY)</td><td class="in"></td></tr></table></figure>
+
+<figure data-name="t4-insert-link"><div class="panel" style="width:420px">
+  <div class="in" style="color:#3c4753">Search or paste a link</div>
+  <div class="sec" style="margin-top:8px"><span>Sheets and named ranges</span><span>▸</span></div>
+  <div class="sec"><span>Select a range of cells to link</span><span></span></div>
+  <div class="sec" style="border:0"><span>www.greenleaf-garden.example</span><span></span></div>
+</div></figure>
+
+<figure data-name="t4-back-home"><div><table class="sheet "><tr><th class="r"></th><th style="width:180px">A</th><th style="width:150px">B</th></tr><tr><th>1</th><td class="link">← Back to Home</td><td></td></tr><tr><th>2</th><td></td><td></td></tr><tr><th>3</th><td class="h">Region</td><td class="h">Total (£)</td></tr><tr><th>4</th><td>North</td><td class="n">£3,000.00</td></tr><tr><th>5</th><td>South</td><td class="n">£1,550.00</td></tr><tr><th>6</th><td>East</td><td class="n">£1,050.00</td></tr></table><div class="tabs"><span>Home</span><span>Input</span><span>Data</span><span class="on">Summary</span><span>Chart</span></div></div></figure>
+
+<figure data-name="t4-home"><div><table class="sheet "><tr><th class="r"></th><th style="width:300px">A</th><th style="width:200px">B</th></tr><tr><th>1</th><td class="h">Greenleaf sales: how to use this spreadsheet</td><td></td></tr><tr><th>2</th><td>1. Add a new order on the Input tab.</td><td></td></tr><tr><th>3</th><td>2. See the totals on the Summary tab.</td><td></td></tr><tr><th>4</th><td class="link">Go to Input</td><td class="link">Go to Data</td></tr><tr><th>5</th><td class="link">Go to Summary</td><td class="link">Go to Chart</td></tr></table><div class="tabs"><span class="on">Home</span><span>Input</span><span>Data</span><span>Summary</span><span>Chart</span></div></div></figure>
+
+<figure data-name="t4-form"><div class="panel" style="width:340px">
+  <h4>Add an order</h4>
+  <div class="k">Date</div><div class="in" style="color:#3c4753">DD/MM/YYYY</div>
+  <div class="k">Region</div><div class="in">North ▾</div>
+  <div class="k">Quantity (1 to 100)</div><div class="in">&nbsp;</div>
+  <div style="margin-top:14px"><span class="btn blue">Add order</span></div>
+</div></figure>
+
+<figure data-name="t5-cf-conditions"><div class="row"><div class="panel" style="width:330px">
+  <h4>Conditional format rules</h4>
+  <div class="k">Apply to range</div><div class="in">E2:E51</div>
+  <div class="k">Format cells if…</div><div class="in">Is empty ▾</div>
+</div><div class="gmenu" style="min-width:260px"><div class="mi"><span>Is empty</span></div><div class="mi"><span>Is not empty</span></div><hr><div class="mi"><span>Text contains</span></div><div class="mi"><span>Text is exactly</span></div><hr><div class="mi"><span>Date is</span></div><hr><div class="mi"><span>Greater than</span></div><div class="mi"><span>Less than</span></div><div class="mi"><span>Is equal to</span></div><div class="mi"><span>Is between</span></div><hr><div class="mi"><span>Custom formula is</span></div></div></div></figure>
+
+<figure data-name="t5-cf-column-a"><div class="row"><table class="sheet "><tr><th class="r"></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr><tr><th>1</th><td class="h">Order ID</td><td class="h">Region</td><td class="h">Product</td><td class="h">Quantity</td><td class="h">Total (£)</td></tr><tr><th>2</th><td class="n hi">1001</td><td>North</td><td>Mower</td><td class="n">1</td><td class="n">£1,250.00</td></tr><tr><th>3</th><td class="n">1002</td><td>South</td><td>Hose</td><td class="n">2</td><td class="n">£37.00</td></tr><tr><th>4</th><td class="n hi">1003</td><td>East</td><td>Shed</td><td class="n">1</td><td class="n">£1,480.00</td></tr><tr><th>5</th><td class="n">1004</td><td>North</td><td>Seeds</td><td class="n">10</td><td class="n">£25.00</td></tr><tr><th>6</th><td class="n hi">1005</td><td>South</td><td>Mower</td><td class="n">1</td><td class="n">£1,250.00</td></tr></table><div class="panel" style="width:250px">
+    <h4>Conditional format rules</h4>
+    <div class="k">Apply to range</div><div class="in">A2:E6</div>
+    <div class="k">Format cells if…</div><div class="in">Custom formula is</div>
+    <div class="in" style="font-family:'Liberation Mono',monospace">=E2&gt;1000</div></div></div></figure>
+
+<figure data-name="t5-cf-fixed"><div class="row"><table class="sheet "><tr><th class="r"></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr><tr><th>1</th><td class="h">Order ID</td><td class="h">Region</td><td class="h">Product</td><td class="h">Quantity</td><td class="h">Total (£)</td></tr><tr><th>2</th><td class="n hi">1001</td><td class="hi">North</td><td class="hi">Mower</td><td class="n hi">1</td><td class="n hi">£1,250.00</td></tr><tr><th>3</th><td class="n">1002</td><td>South</td><td>Hose</td><td class="n">2</td><td class="n">£37.00</td></tr><tr><th>4</th><td class="n hi">1003</td><td class="hi">East</td><td class="hi">Shed</td><td class="n hi">1</td><td class="n hi">£1,480.00</td></tr><tr><th>5</th><td class="n">1004</td><td>North</td><td>Seeds</td><td class="n">10</td><td class="n">£25.00</td></tr><tr><th>6</th><td class="n hi">1005</td><td class="hi">South</td><td class="hi">Mower</td><td class="n hi">1</td><td class="n hi">£1,250.00</td></tr></table><div class="panel" style="width:250px">
+    <h4>Conditional format rules</h4>
+    <div class="k">Apply to range</div><div class="in">A2:E6</div>
+    <div class="k">Format cells if…</div><div class="in">Custom formula is</div>
+    <div class="in" style="font-family:'Liberation Mono',monospace">=$E2&gt;1000</div></div></div></figure>
+
+<figure data-name="t5-chart-raw"><svg class="chart" width="520" height="250" viewBox="0 0 520 250"><line class="grid" x1="50" x2="505" y1="85" y2="85"/><line class="grid" x1="50" x2="505" y1="150" y2="150"/><rect x="51.0" y="89.2" width="7.1" height="125.8" fill="#2f6e9e"/><text x="54.5" y="223" font-size="6" text-anchor="end" transform="rotate(-60 54.5 223)">1001</text><rect x="60.1" y="49.2" width="7.1" height="165.8" fill="#2f6e9e"/><text x="63.6" y="223" font-size="6" text-anchor="end" transform="rotate(-60 63.6 223)">1002</text><rect x="69.2" y="113.1" width="7.1" height="101.9" fill="#2f6e9e"/><text x="72.8" y="223" font-size="6" text-anchor="end" transform="rotate(-60 72.8 223)">1003</text><rect x="78.3" y="141.3" width="7.1" height="73.7" fill="#2f6e9e"/><text x="81.8" y="223" font-size="6" text-anchor="end" transform="rotate(-60 81.8 223)">1004</text><rect x="87.4" y="175.6" width="7.1" height="39.4" fill="#2f6e9e"/><text x="91.0" y="223" font-size="6" text-anchor="end" transform="rotate(-60 91.0 223)">1005</text><rect x="96.5" y="162.9" width="7.1" height="52.1" fill="#2f6e9e"/><text x="100.0" y="223" font-size="6" text-anchor="end" transform="rotate(-60 100.0 223)">1006</text><rect x="105.6" y="210.7" width="7.1" height="4.3" fill="#2f6e9e"/><text x="109.1" y="223" font-size="6" text-anchor="end" transform="rotate(-60 109.1 223)">1007</text><rect x="114.7" y="122.4" width="7.1" height="92.6" fill="#2f6e9e"/><text x="118.2" y="223" font-size="6" text-anchor="end" transform="rotate(-60 118.2 223)">1008</text><rect x="123.8" y="78.6" width="7.1" height="136.4" fill="#2f6e9e"/><text x="127.3" y="223" font-size="6" text-anchor="end" transform="rotate(-60 127.3 223)">1009</text><rect x="132.9" y="89.0" width="7.1" height="126.0" fill="#2f6e9e"/><text x="136.4" y="223" font-size="6" text-anchor="end" transform="rotate(-60 136.4 223)">1010</text><rect x="142.0" y="51.5" width="7.1" height="163.5" fill="#2f6e9e"/><text x="145.6" y="223" font-size="6" text-anchor="end" transform="rotate(-60 145.6 223)">1011</text><rect x="151.1" y="190.9" width="7.1" height="24.1" fill="#2f6e9e"/><text x="154.7" y="223" font-size="6" text-anchor="end" transform="rotate(-60 154.7 223)">1012</text><rect x="160.2" y="123.5" width="7.1" height="91.5" fill="#2f6e9e"/><text x="163.8" y="223" font-size="6" text-anchor="end" transform="rotate(-60 163.8 223)">1013</text><rect x="169.3" y="64.8" width="7.1" height="150.2" fill="#2f6e9e"/><text x="172.9" y="223" font-size="6" text-anchor="end" transform="rotate(-60 172.9 223)">1014</text><rect x="178.4" y="48.3" width="7.1" height="166.7" fill="#2f6e9e"/><text x="181.9" y="223" font-size="6" text-anchor="end" transform="rotate(-60 181.9 223)">1015</text><rect x="187.5" y="201.6" width="7.1" height="13.4" fill="#2f6e9e"/><text x="191.1" y="223" font-size="6" text-anchor="end" transform="rotate(-60 191.1 223)">1016</text><rect x="196.6" y="111.5" width="7.1" height="103.5" fill="#2f6e9e"/><text x="200.2" y="223" font-size="6" text-anchor="end" transform="rotate(-60 200.2 223)">1017</text><rect x="205.7" y="167.4" width="7.1" height="47.6" fill="#2f6e9e"/><text x="209.2" y="223" font-size="6" text-anchor="end" transform="rotate(-60 209.2 223)">1018</text><rect x="214.8" y="92.2" width="7.1" height="122.8" fill="#2f6e9e"/><text x="218.3" y="223" font-size="6" text-anchor="end" transform="rotate(-60 218.3 223)">1019</text><rect x="223.9" y="100.0" width="7.1" height="115.0" fill="#2f6e9e"/><text x="227.5" y="223" font-size="6" text-anchor="end" transform="rotate(-60 227.5 223)">1020</text><rect x="233.0" y="170.7" width="7.1" height="44.3" fill="#2f6e9e"/><text x="236.6" y="223" font-size="6" text-anchor="end" transform="rotate(-60 236.6 223)">1021</text><rect x="242.1" y="167.7" width="7.1" height="47.3" fill="#2f6e9e"/><text x="245.7" y="223" font-size="6" text-anchor="end" transform="rotate(-60 245.7 223)">1022</text><rect x="251.2" y="149.1" width="7.1" height="65.9" fill="#2f6e9e"/><text x="254.8" y="223" font-size="6" text-anchor="end" transform="rotate(-60 254.8 223)">1023</text><rect x="260.3" y="198.8" width="7.1" height="16.2" fill="#2f6e9e"/><text x="263.8" y="223" font-size="6" text-anchor="end" transform="rotate(-60 263.8 223)">1024</text><rect x="269.4" y="182.9" width="7.1" height="32.1" fill="#2f6e9e"/><text x="272.9" y="223" font-size="6" text-anchor="end" transform="rotate(-60 272.9 223)">1025</text><rect x="278.5" y="177.2" width="7.1" height="37.8" fill="#2f6e9e"/><text x="282.1" y="223" font-size="6" text-anchor="end" transform="rotate(-60 282.1 223)">1026</text><rect x="287.6" y="77.7" width="7.1" height="137.3" fill="#2f6e9e"/><text x="291.2" y="223" font-size="6" text-anchor="end" transform="rotate(-60 291.2 223)">1027</text><rect x="296.7" y="55.2" width="7.1" height="159.8" fill="#2f6e9e"/><text x="300.2" y="223" font-size="6" text-anchor="end" transform="rotate(-60 300.2 223)">1028</text><rect x="305.8" y="195.6" width="7.1" height="19.4" fill="#2f6e9e"/><text x="309.3" y="223" font-size="6" text-anchor="end" transform="rotate(-60 309.3 223)">1029</text><rect x="314.9" y="110.3" width="7.1" height="104.7" fill="#2f6e9e"/><text x="318.4" y="223" font-size="6" text-anchor="end" transform="rotate(-60 318.4 223)">1030</text><rect x="324.0" y="185.4" width="7.1" height="29.6" fill="#2f6e9e"/><text x="327.6" y="223" font-size="6" text-anchor="end" transform="rotate(-60 327.6 223)">1031</text><rect x="333.1" y="134.9" width="7.1" height="80.1" fill="#2f6e9e"/><text x="336.6" y="223" font-size="6" text-anchor="end" transform="rotate(-60 336.6 223)">1032</text><rect x="342.2" y="157.9" width="7.1" height="57.1" fill="#2f6e9e"/><text x="345.8" y="223" font-size="6" text-anchor="end" transform="rotate(-60 345.8 223)">1033</text><rect x="351.3" y="33.0" width="7.1" height="182.0" fill="#2f6e9e"/><text x="354.9" y="223" font-size="6" text-anchor="end" transform="rotate(-60 354.9 223)">1034</text><rect x="360.4" y="152.7" width="7.1" height="62.3" fill="#2f6e9e"/><text x="363.9" y="223" font-size="6" text-anchor="end" transform="rotate(-60 363.9 223)">1035</text><rect x="369.5" y="100.2" width="7.1" height="114.8" fill="#2f6e9e"/><text x="373.1" y="223" font-size="6" text-anchor="end" transform="rotate(-60 373.1 223)">1036</text><rect x="378.6" y="189.1" width="7.1" height="25.9" fill="#2f6e9e"/><text x="382.1" y="223" font-size="6" text-anchor="end" transform="rotate(-60 382.1 223)">1037</text><rect x="387.7" y="141.4" width="7.1" height="73.6" fill="#2f6e9e"/><text x="391.2" y="223" font-size="6" text-anchor="end" transform="rotate(-60 391.2 223)">1038</text><rect x="396.8" y="156.6" width="7.1" height="58.4" fill="#2f6e9e"/><text x="400.4" y="223" font-size="6" text-anchor="end" transform="rotate(-60 400.4 223)">1039</text><rect x="405.9" y="106.8" width="7.1" height="108.2" fill="#2f6e9e"/><text x="409.4" y="223" font-size="6" text-anchor="end" transform="rotate(-60 409.4 223)">1040</text><rect x="415.0" y="137.7" width="7.1" height="77.3" fill="#2f6e9e"/><text x="418.6" y="223" font-size="6" text-anchor="end" transform="rotate(-60 418.6 223)">1041</text><rect x="424.1" y="121.5" width="7.1" height="93.5" fill="#2f6e9e"/><text x="427.6" y="223" font-size="6" text-anchor="end" transform="rotate(-60 427.6 223)">1042</text><rect x="433.2" y="201.0" width="7.1" height="14.0" fill="#2f6e9e"/><text x="436.8" y="223" font-size="6" text-anchor="end" transform="rotate(-60 436.8 223)">1043</text><rect x="442.3" y="159.4" width="7.1" height="55.6" fill="#2f6e9e"/><text x="445.9" y="223" font-size="6" text-anchor="end" transform="rotate(-60 445.9 223)">1044</text><rect x="451.4" y="211.1" width="7.1" height="3.9" fill="#2f6e9e"/><text x="454.9" y="223" font-size="6" text-anchor="end" transform="rotate(-60 454.9 223)">1045</text><rect x="460.5" y="102.9" width="7.1" height="112.1" fill="#2f6e9e"/><text x="464.1" y="223" font-size="6" text-anchor="end" transform="rotate(-60 464.1 223)">1046</text><rect x="469.6" y="197.8" width="7.1" height="17.2" fill="#2f6e9e"/><text x="473.1" y="223" font-size="6" text-anchor="end" transform="rotate(-60 473.1 223)">1047</text><rect x="478.7" y="111.7" width="7.1" height="103.3" fill="#2f6e9e"/><text x="482.2" y="223" font-size="6" text-anchor="end" transform="rotate(-60 482.2 223)">1048</text><rect x="487.8" y="81.5" width="7.1" height="133.5" fill="#2f6e9e"/><text x="491.3" y="223" font-size="6" text-anchor="end" transform="rotate(-60 491.3 223)">1049</text><rect x="496.9" y="175.5" width="7.1" height="39.5" fill="#2f6e9e"/><text x="500.4" y="223" font-size="6" text-anchor="end" transform="rotate(-60 500.4 223)">1050</text><line class="axis" x1="50" x2="505" y1="215" y2="215"/><line class="axis" x1="50" x2="50" y1="20" y2="215"/></svg></figure>
+
+<figure data-name="t5-chart-summary"><svg class="chart" width="420" height="270" viewBox="0 0 420 270">
+  <text x="210" y="22" font-size="16" font-weight="700" text-anchor="middle">Sales by region, September 2026</text>
+  <line class="grid" x1="70" x2="400" y1="60" y2="60"/><line class="grid" x1="70" x2="400" y1="110" y2="110"/><line class="grid" x1="70" x2="400" y1="160" y2="160"/>
+  <text x="62" y="214" font-size="12" text-anchor="end">£0</text><text x="62" y="164" font-size="12" text-anchor="end">£1,000</text>
+  <text x="62" y="114" font-size="12" text-anchor="end">£2,000</text><text x="62" y="64" font-size="12" text-anchor="end">£3,000</text>
+  <rect x="100" y="60" width="70" height="150" fill="#2f6e9e"/><text x="135" y="53" font-size="14" font-weight="700" text-anchor="middle">£3,000</text>
+  <rect x="200" y="132.5" width="70" height="77.5" fill="#2f6e9e"/><text x="235" y="125.5" font-size="14" font-weight="700" text-anchor="middle">£1,550</text>
+  <rect x="300" y="157.5" width="70" height="52.5" fill="#2f6e9e"/><text x="335" y="150.5" font-size="14" font-weight="700" text-anchor="middle">£1,050</text>
+  <line class="axis" x1="70" x2="400" y1="210" y2="210"/><line class="axis" x1="70" x2="70" y1="45" y2="210"/>
+  <text x="135" y="229" font-size="14" text-anchor="middle">North</text><text x="235" y="229" font-size="14" text-anchor="middle">South</text><text x="335" y="229" font-size="14" text-anchor="middle">East</text>
+  <text x="235" y="256" font-size="14" text-anchor="middle">Region</text>
+  <text x="18" y="135" font-size="14" text-anchor="middle" transform="rotate(-90 18 135)">Total sales (£)</text>
+</svg></figure>
+
+<figure data-name="t5-chart-bare"><svg class="chart" width="420" height="240" viewBox="0 0 420 240">
+  <line class="grid" x1="40" x2="400" y1="40" y2="40"/><line class="grid" x1="40" x2="400" y1="100" y2="100"/><line class="grid" x1="40" x2="400" y1="160" y2="160"/>
+  <rect x="80" y="40" width="70" height="180" fill="#2f6e9e"/><rect x="190" y="127" width="70" height="93" fill="#2f6e9e"/><rect x="300" y="157" width="70" height="63" fill="#2f6e9e"/>
+  <line class="axis" x1="40" x2="400" y1="220" y2="220"/><line class="axis" x1="40" x2="40" y1="25" y2="220"/>
+</svg></figure>
+
+<figure data-name="t5-pie"><svg class="chart" width="300" height="220" viewBox="0 0 300 220">
+  <circle cx="110" cy="110" r="90" fill="#2f6e9e"/>
+  <path d="M110 110 L89.8 197.7 A90 90 0 0 1 26.9 75.6 Z" fill="#c26a1f" stroke="#fff" stroke-width="1.5"/>
+  <path d="M110 110 L26.9 75.6 A90 90 0 0 1 110 20 Z" fill="#6c8f3a" stroke="#fff" stroke-width="1.5"/>
+  <g font-size="14"><rect x="215" y="70" width="14" height="14" fill="#2f6e9e"/><text x="235" y="82">North</text>
+  <rect x="215" y="98" width="14" height="14" fill="#c26a1f"/><text x="235" y="110">South</text>
+  <rect x="215" y="126" width="14" height="14" fill="#6c8f3a"/><text x="235" y="138">East</text></g>
+</svg></figure>
+
+<figure data-name="t5-line-regions"><svg class="chart" width="300" height="220" viewBox="0 0 300 220">
+  <line class="axis" x1="40" x2="280" y1="180" y2="180"/><line class="axis" x1="40" x2="40" y1="20" y2="180"/>
+  <polyline points="80,40 160,118 240,140" fill="none" stroke="#2f6e9e" stroke-width="3"/>
+  <g fill="#2f6e9e"><circle cx="80" cy="40" r="4"/><circle cx="160" cy="118" r="4"/><circle cx="240" cy="140" r="4"/></g>
+  <g font-size="14" text-anchor="middle"><text x="80" y="200">North</text><text x="160" y="200">South</text><text x="240" y="200">East</text></g>
+</svg></figure>
+
+<figure data-name="t5-line-months"><svg class="chart" width="320" height="220" viewBox="0 0 320 220"><line class="axis" x1="40" x2="300" y1="180" y2="180"/><line class="axis" x1="40" x2="40" y1="15" y2="180"/><polyline points="60,124 104,89 148,57 192,71 236,100 280,31" fill="none" stroke="#2f6e9e" stroke-width="3"/><circle cx="60" cy="124" r="4" fill="#2f6e9e"/><text x="60" y="200" font-size="14" text-anchor="middle">Apr</text><circle cx="104" cy="89" r="4" fill="#2f6e9e"/><text x="104" y="200" font-size="14" text-anchor="middle">May</text><circle cx="148" cy="57" r="4" fill="#2f6e9e"/><text x="148" y="200" font-size="14" text-anchor="middle">Jun</text><circle cx="192" cy="71" r="4" fill="#2f6e9e"/><text x="192" y="200" font-size="14" text-anchor="middle">Jul</text><circle cx="236" cy="100" r="4" fill="#2f6e9e"/><text x="236" y="200" font-size="14" text-anchor="middle">Aug</text><circle cx="280" cy="31" r="4" fill="#2f6e9e"/><text x="280" y="200" font-size="14" text-anchor="middle">Sep</text></svg></figure>
+
+<figure data-name="t5-pie-months"><svg class="chart" width="320" height="220" viewBox="0 0 320 220"><path d="M110 110 L110.0 20.0 A90 90 0 0 1 159.2 34.7 Z" fill="#2f6e9e" stroke="#fff" stroke-width="1.5"/><path d="M110 110 L159.2 34.7 A90 90 0 0 1 199.9 105.0 Z" fill="#c26a1f" stroke="#fff" stroke-width="1.5"/><path d="M110 110 L199.9 105.0 A90 90 0 0 1 141.6 194.3 Z" fill="#6c8f3a" stroke="#fff" stroke-width="1.5"/><path d="M110 110 L141.6 194.3 A90 90 0 0 1 47.2 174.5 Z" fill="#7a4f9e" stroke="#fff" stroke-width="1.5"/><path d="M110 110 L47.2 174.5 A90 90 0 0 1 20.0 107.5 Z" fill="#b03a48" stroke="#fff" stroke-width="1.5"/><path d="M110 110 L20.0 107.5 A90 90 0 0 1 110.0 20.0 Z" fill="#3d8c8c" stroke="#fff" stroke-width="1.5"/><rect x="225" y="30" width="14" height="14" fill="#2f6e9e"/><text x="245" y="42" font-size="14">Apr</text><rect x="225" y="56" width="14" height="14" fill="#c26a1f"/><text x="245" y="68" font-size="14">May</text><rect x="225" y="82" width="14" height="14" fill="#6c8f3a"/><text x="245" y="94" font-size="14">Jun</text><rect x="225" y="108" width="14" height="14" fill="#7a4f9e"/><text x="245" y="120" font-size="14">Jul</text><rect x="225" y="134" width="14" height="14" fill="#b03a48"/><text x="245" y="146" font-size="14">Aug</text><rect x="225" y="160" width="14" height="14" fill="#3d8c8c"/><text x="245" y="172" font-size="14">Sep</text></svg></figure>
+
+<figure data-name="t5-customise"><div class="panel" style="width:360px">
+  <h4>Chart editor</h4>
+  <div class="tabsrow"><span>Setup</span><span class="on">Customise</span></div>
+  <div class="sec"><span>Chart style</span><span>▾</span></div>
+  <div class="sec"><span>Chart &amp; axis titles</span><span>▾</span></div>
+  <div class="sec"><span>Series</span><span>▾</span></div>
+  <div class="sec"><span>Legend</span><span>▾</span></div>
+  <div class="sec"><span>Horizontal axis</span><span>▾</span></div>
+  <div class="sec"><span>Vertical axis</span><span>▾</span></div>
+  <div class="sec" style="border:0"><span>Gridlines and ticks</span><span>▾</span></div>
+</div></figure>
+
+<figure data-name="t5-commentary"><div class="doc" style="width:620px">
+  <h3>Chart commentary (extract)</h3>
+  <p><span class="num">1</span><span>The chart shows total sales for each region in September 2026.</span></p>
+  <p style="margin:0"><span class="num">2</span><span>North sold the most, £3,000, almost twice South. Stock should go to North first.</span></p>
+</div></figure>
+
+<figure data-name="t5-chart-range"><div class="row"><div><table class="sheet "><tr><th class="r"></th><th style="width:110px">A</th><th style="width:130px">B</th></tr><tr><th>1</th><td class="h">Region</td><td class="h">Total (£)</td></tr><tr><th>2</th><td>North</td><td class="n">£3,000.00</td></tr><tr><th>3</th><td>South</td><td class="n">£1,550.00</td></tr><tr><th>4</th><td>East</td><td class="n">£1,050.00</td></tr></table><div class="tabs"><span>Data</span><span class="on">Summary</span><span>Chart</span></div></div><div class="panel" style="width:300px">
+  <h4>Chart editor</h4>
+  <div class="tabsrow"><span class="on">Setup</span><span>Customise</span></div>
+  <div class="k">Chart type</div><div class="in">Column chart ▾</div>
+  <div class="k">Data range</div><div class="in" style="color:#3c4753">?</div>
+</div></div></figure>
+
+<figure data-name="t6-script-clear"><div class="col"><pre class="code"><span class="ln">1</span><span class="k">function</span> <span class="f">clearInputs</span>() {
+<span class="ln">2</span>  <span class="k">const</span> sheet = SpreadsheetApp.getActive().getSheetByName(<span class="s">"Input"</span>);
+<span class="ln">3</span>  sheet.getRange(<span class="s">"C4:C6"</span>).clearContent();
+<span class="ln">4</span>}</pre><div><table class="sheet "><tr><th class="r"></th><th style="width:130px">B</th><th style="width:150px">C</th></tr><tr><th>4</th><td class="h">Date</td><td class="in n">05/09/2026</td></tr><tr><th>5</th><td class="h">Region</td><td class="in">North</td></tr><tr><th>6</th><td class="h">Quantity</td><td class="in n">3</td></tr></table><div class="tabs"><span>Home</span><span class="on">Input</span><span>Data</span><span>Summary</span><span>Chart</span></div></div></div></figure>
+
+<figure data-name="t6-extensions-menu"><div style="display:inline-block"><div class="menubar"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Data</span><span>Tools</span><span class="open">Extensions</span><span>Help</span></div><div class="menus" style="padding-left:470px"><div class="gmenu" style="min-width:230px"><div class="mi"><span>Add-ons</span><span class="k">▸</span></div><div class="mi"><span>Macros</span><span class="k">▸</span></div><div class="mi"><span>Apps Script</span></div><div class="mi"><span>AppSheet</span><span class="k">▸</span></div></div></div></div></figure>
+
+<figure data-name="t6-assign"><div class="row" style="align-items:flex-start;padding:10px"><span class="drawn">Clear form</span><div class="gmenu" style="min-width:200px"><div class="mi"><span>Edit</span></div><div class="mi"><span>Assign script</span></div><hr><div class="mi"><span>Delete</span></div></div></div></figure>
+
+<figure data-name="t6-script-sort"><div class="col"><pre class="code"><span class="ln">1</span><span class="k">function</span> <span class="f">sortByDate</span>() {
+<span class="ln">2</span>  <span class="k">const</span> sheet = SpreadsheetApp.getActive().getSheetByName(<span class="s">"Data"</span>);
+<span class="ln">3</span>  sheet.getRange(<span class="s">"A2:G51"</span>).sort({ column: 2, ascending: <span class="k">true</span> });
+<span class="ln">4</span>}</pre><div><table class="sheet "><tr><th class="r"></th><th>A</th><th>B</th><th>C</th></tr><tr><th>1</th><td class="h">Order ID</td><td class="h">Date</td><td class="h">Region</td></tr><tr><th>2</th><td class="n">1001</td><td class="n">01/09/2026</td><td>North</td></tr><tr><th>3</th><td class="n">1002</td><td class="n">01/09/2026</td><td>South</td></tr></table><div class="tabs"><span>Home</span><span>Input</span><span class="on">Data</span><span>Summary</span><span>Chart</span></div></div></div></figure>
+
+<figure data-name="t6-named-ranges"><div class="panel" style="width:380px">
+  <h4>Named ranges</h4>
+  <div class="box2" style="margin-bottom:10px"><b>Sales</b><div style="color:#3c4753">Data!G2:G51</div></div>
+  <div class="box2"><b>Regions</b><div style="color:#3c4753">Data!C2:C51</div></div>
+</div></figure>
+
+<figure data-name="t6-named-vs-plain"><div class="col"><div class="row" style="align-items:center"><span class="num">1</span><div style="width:520px"><div class="fx"><span class="box">B5</span><span class="f">fx</span><span class="v">=SUM(Data!G2:G51)</span></div></div></div><div class="row" style="align-items:center"><span class="num">2</span><div style="width:520px"><div class="fx"><span class="box">B5</span><span class="f">fx</span><span class="v">=SUM(Sales)</span></div></div></div></div></figure>
+
+<figure data-name="t6-pivot"><div class="row"><div><table class="sheet "><tr><th class="r"></th><th>C</th><th>G</th></tr><tr><th>1</th><td class="h">Region</td><td class="h">Total (£)</td></tr><tr><th>2</th><td>North</td><td class="n">£48.00</td></tr><tr><th>3</th><td>South</td><td class="n">£18.50</td></tr><tr><th>4</th><td>North</td><td class="n">£25.00</td></tr><tr class="gap"><th>⋮</th><td>⋮</td><td>⋮</td></tr></table><div class="tabs"><span class="on">Data</span></div></div><div class="panel" style="width:310px">
+  <h4>Pivot table editor</h4>
+  <div class="k">Range</div><div class="in">Data!A1:G51</div>
+  <div class="k">Rows</div><div class="box2"><b>Region</b></div>
+  <div class="k">Values</div><div class="box2"><b>Total (£)</b><div style="margin-top:5px;color:#3c4753">Summarise by: <span style="color:#1b1f24">SUM</span></div></div>
+</div></div></figure>
+
+<figure data-name="t6-protect"><div class="panel" style="width:400px">
+  <h4>Protected sheets and ranges</h4>
+  <div class="tabsrow"><span>Range</span><span class="on">Sheet</span></div>
+  <div class="in">Input ▾</div>
+  <div class="radio" style="margin-top:12px"><span class="tick on"></span>Except certain cells</div>
+  <div class="in" style="margin-left:24px">C4:C6</div>
+  <div class="row" style="justify-content:flex-end;margin-top:12px"><span class="btn blue">Set permissions</span></div>
+</div></figure>
+
+<figure data-name="t6-cross-tab"><div class="row"><div><div class="fx"><span class="box">B2</span><span class="f">fx</span><span class="v">=Data!G2</span></div><table class="sheet "><tr><th class="r"></th><th style="width:130px">A</th><th style="width:120px">B</th></tr><tr><th>1</th><td class="h">First order</td><td class="h">Total (£)</td></tr><tr><th>2</th><td class="n">1001</td><td class="sel">?</td></tr></table><div class="tabs"><span>Data</span><span class="on">Summary</span></div></div><div><table class="sheet "><tr><th class="r"></th><th>A</th><th>G</th></tr><tr><th>1</th><td class="h">Order ID</td><td class="h">Total (£)</td></tr><tr><th>2</th><td class="n">1001</td><td class="n">£48.00</td></tr><tr><th>3</th><td class="n">1002</td><td class="n">£18.50</td></tr></table><div class="tabs"><span class="on">Data</span><span>Summary</span></div></div></div></figure>
+
+<figure data-name="t7-number-line"><svg class="chart" width="560" height="120" viewBox="0 0 560 120">
+  <text x="280" y="20" font-size="16" text-anchor="middle">A cell that accepts whole numbers from 1 to 100</text>
+  <line class="axis" x1="30" x2="530" y1="70" y2="70" stroke-width="2"/>
+  <rect x="110" y="62" width="340" height="16" fill="#cfe3d4" stroke="#2e6b3d" stroke-width="1.5"/>
+  <g font-size="17" text-anchor="middle">
+    <line class="axis" x1="60" x2="60" y1="58" y2="82"/><text x="60" y="106">0</text>
+    <line class="axis" x1="110" x2="110" y1="54" y2="86"/><text x="110" y="106">1</text>
+    <line class="axis" x1="280" x2="280" y1="58" y2="82"/><text x="280" y="106">50</text>
+    <line class="axis" x1="450" x2="450" y1="54" y2="86"/><text x="450" y="106">100</text>
+    <line class="axis" x1="500" x2="500" y1="58" y2="82"/><text x="500" y="106">101</text>
+  </g>
+</svg></figure>
+
+<figure data-name="t7-plan-numbers"><table class="log" style="width:560px">
+  <caption>Test plan: the Quantity cell (whole numbers, 1 to 100)</caption>
+  <tr><th>No.</th><th>Test data</th><th>Expected</th></tr>
+  <tr><td>1</td><td>50</td><td>Accepted</td></tr>
+  <tr><td>2</td><td>1</td><td>Accepted</td></tr>
+  <tr><td>3</td><td>100</td><td>Accepted</td></tr>
+  <tr><td>4</td><td>0</td><td>Rejected, error message</td></tr>
+  <tr><td>5</td><td>101</td><td>Rejected, error message</td></tr>
+</table></figure>
+
+<figure data-name="t7-test-log"><table class="log" style="width:780px">
+  <caption>Test log</caption>
+  <tr><th>No.</th><th>What is tested</th><th>Test data</th><th>Expected</th><th>Actual</th><th>Pass / Fail</th><th>Fix and version</th></tr>
+  <tr><td>1</td><td>Quantity accepts a typical value</td><td>50</td><td>Accepted</td><td>Accepted</td><td>Pass</td><td></td></tr>
+  <tr><td>2</td><td>Quantity rejects a value that is too high</td><td>101</td><td>Rejected, error shown</td><td>Accepted</td><td>Fail</td><td>Rule changed to Reject the input, v3</td></tr>
+  <tr><td>3</td><td>Quantity rejects a word</td><td>ten</td><td></td><td>Rejected</td><td>Pass</td><td></td></tr>
+</table></figure>
+
+<figure data-name="t7-show-menu"><div style="display:inline-block"><div class="menubar"><span>File</span><span>Edit</span><span class="open">View</span><span>Insert</span><span>Format</span><span>Data</span><span>Tools</span><span>Extensions</span><span>Help</span></div><div class="menus" style="padding-left:90px"><div class="gmenu"><div class="mi here"><span>Show</span><span class="k">▸</span></div><div class="mi"><span>Freeze</span><span class="k">▸</span></div><div class="mi"><span>Group</span></div><hr><div class="mi"><span>Comments</span><span class="k">▸</span></div><div class="mi"><span>Hidden sheets</span><span class="k">▸</span></div><hr><div class="mi"><span>Zoom</span><span class="k">▸</span></div><div class="mi"><span>Full screen</span></div></div><div class="gmenu" style="margin-top:4px"><div class="mi"><span>Gridlines</span></div><div class="mi"><span>Formulas</span><span class="k">Ctrl+`</span></div><div class="mi"><span>Protected ranges</span></div></div></div></div></figure>
+
+<figure data-name="t7-view-results"><table class="sheet "><tr><th class="r"></th><th style="width:110px">D</th><th style="width:120px">E</th></tr><tr><th>1</th><td class="h">Region</td><td class="h">Total (£)</td></tr><tr><th>2</th><td>North</td><td class="n">£110.00</td></tr><tr><th>3</th><td>South</td><td class="n">£33.50</td></tr><tr><th>4</th><td>East</td><td class="n">£24.00</td></tr></table></figure>
+
+<figure data-name="t7-view-formulas"><table class="sheet "><tr><th class="r"></th><th>D</th><th>E</th></tr><tr><th>1</th><td class="h">Region</td><td class="h">Total (£)</td></tr><tr><th>2</th><td>North</td><td style="font-family:'Liberation Mono',monospace;font-size:15px">=SUMIF(B2:B7,"North",E2:E7)</td></tr><tr><th>3</th><td>South</td><td style="font-family:'Liberation Mono',monospace;font-size:15px">=SUMIF(B2:B7,"South",E2:E7)</td></tr><tr><th>4</th><td>East</td><td style="font-family:'Liberation Mono',monospace;font-size:15px">=SUMIF(B2:B7,"East",E2:E7)</td></tr></table></figure>
+
+<figure data-name="t7-versions"><div class="panel" style="width:360px">
+  <h4>Version history</h4>
+  <div class="sec"><span><b>v3 Validation fixed</b><br><span style="color:#3c4753;font-size:15px">14 October, 11:20</span></span></div>
+  <div class="sec"><span><b>v2 Validation added</b><br><span style="color:#3c4753;font-size:15px">12 October, 15:05</span></span></div>
+  <div class="sec" style="border:0"><span><b>v1 Basic build</b><br><span style="color:#3c4753;font-size:15px">7 October, 10:40</span></span></div>
+</div></figure>
+
+<figure data-name="t8-feedback-log"><table class="log" style="width:780px">
+  <caption>Feedback log</caption>
+  <tr><th>Who</th><th>What they tried</th><th>What they said</th><th>What I changed</th><th>Retested?</th></tr>
+  <tr><td>Jordan (classmate)</td><td>Entered a new order</td><td>"I didn't know which date format to use."</td><td>Help text on the date cell: DD/MM/YYYY</td><td>Yes: test 14, pass</td></tr>
+  <tr><td>Teacher</td><td>Found the North total</td><td>"It took a while to find."</td><td>Link from Home to the Summary tab</td><td></td></tr>
+</table></figure>
+
+<figure data-name="t8-download"><div style="display:inline-block"><div class="menubar"><span class="open">File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Data</span><span>Tools</span><span>Extensions</span><span>Help</span></div><div class="menus" style="padding-left:0px"><div class="gmenu"><div class="mi"><span>New</span><span class="k">▸</span></div><div class="mi"><span>Open</span><span class="k">Ctrl+O</span></div><div class="mi"><span>Make a copy</span></div><hr><div class="mi"><span>Share</span><span class="k">▸</span></div><div class="mi here"><span>Download</span><span class="k">▸</span></div><hr><div class="mi"><span>Rename</span></div><div class="mi"><span>Version history</span><span class="k">▸</span></div></div><div class="gmenu" style="margin-top:190px"><div class="mi"><span>Microsoft Excel (.xlsx)</span></div><div class="mi"><span>OpenDocument (.ods)</span></div><div class="mi"><span>PDF (.pdf)</span></div><div class="mi"><span>Comma-separated values (.csv)</span></div></div></div></div></figure>
+
+<!-- Added: new questions, and close-ups so a set does not show one picture twice. -->
+
+<figure data-name="t1-mixed-types"><table class="sheet"><tr><th class="r"></th><th>D</th><th style="width:150px">E</th></tr><tr><th>1</th><td class="h">Product</td><td class="h">Quantity</td></tr><tr><th>2</th><td>Compost</td><td class="n">4</td></tr><tr><th>3</th><td>Hose</td><td class="n">1</td></tr><tr><th>4</th><td>Seeds</td><td>ten</td></tr><tr><th>5</th><td>Compost</td><td class="n">2</td></tr><tr><th>6</th><td class="h">Total</td><td class="n sel">7</td></tr></table></figure>
+
+<figure data-name="t1-dates"><table class="sheet"><tr><th class="r"></th><th>A</th><th style="width:190px">B</th></tr><tr><th>1</th><td class="h">Order ID</td><td class="h">Date</td></tr><tr><th>2</th><td class="n">1001</td><td class="n">01/09/2026</td></tr><tr><th>3</th><td class="n">1002</td><td>2nd Sept</td></tr><tr><th>4</th><td class="n">1003</td><td class="n">03/09/2026</td></tr><tr><th>5</th><td class="n">1004</td><td>Thursday</td></tr></table></figure>
+
+<figure data-name="t1-combined"><table class="sheet"><tr><th class="r"></th><th>A</th><th style="width:240px">B</th><th>C</th></tr><tr><th>1</th><td class="h">Order ID</td><td class="h">Item</td><td class="h">Quantity</td></tr><tr><th>2</th><td class="n">1001</td><td>Compost – £12.00 each</td><td class="n">4</td></tr><tr><th>3</th><td class="n">1002</td><td>Hose – £18.50 each</td><td class="n">1</td></tr><tr><th>4</th><td class="n">1003</td><td>Seeds – £2.50 each</td><td class="n">10</td></tr></table></figure>
+
+<figure data-name="t2-stock-if"><div><div class="fx" style="font-size:15px"><span class="box">D2</span><span class="f">fx</span><span class="v">=IF(B2&lt;C2,"Reorder","OK")</span></div><table class="sheet"><tr><th class="r"></th><th style="width:120px">A</th><th style="width:110px">B</th><th style="width:150px">C</th><th style="width:150px">D</th></tr><tr><th>1</th><td class="h">Product</td><td class="h">In stock</td><td class="h">Reorder level</td><td class="h">Action</td></tr><tr><th>2</th><td>Compost</td><td class="n">3</td><td class="n">5</td><td class="sel">?</td></tr></table></div></figure>
+
+<figure data-name="t2-countif-greater"><div><div class="fx" style="font-size:15px"><span class="box">B9</span><span class="f">fx</span><span class="v">=COUNTIF(B2:B7,"&gt;5")</span></div><table class="sheet"><tr><th class="r"></th><th style="width:120px">A</th><th style="width:150px">B</th></tr><tr><th>1</th><td class="h">Week</td><td class="h">Hoses sold</td></tr><tr><th>2</th><td>1</td><td class="n">4</td></tr><tr><th>3</th><td>2</td><td class="n">7</td></tr><tr><th>4</th><td>3</td><td class="n">5</td></tr><tr><th>5</th><td>4</td><td class="n">9</td></tr><tr><th>6</th><td>5</td><td class="n">2</td></tr><tr><th>7</th><td>6</td><td class="n">6</td></tr><tr><th>9</th><td class="h">Weeks over 5</td><td class="sel">?</td></tr></table></div></figure>
+
+<figure data-name="t2-sum-text"><div><div class="fx" style="font-size:15px"><span class="box">B6</span><span class="f">fx</span><span class="v">=SUM(B2:B5)</span></div><table class="sheet"><tr><th class="r"></th><th style="width:120px">A</th><th style="width:150px">B</th></tr><tr><th>1</th><td class="h">Week</td><td class="h">Bags sold</td></tr><tr><th>2</th><td>1</td><td class="n">10</td></tr><tr><th>3</th><td>2</td><td class="n">12</td></tr><tr><th>4</th><td>3</td><td>ten</td></tr><tr><th>5</th><td>4</td><td class="n">8</td></tr><tr><th>6</th><td class="h">Total</td><td class="n sel">30</td></tr></table></div></figure>
+
+<figure data-name="t3-merge"><div class="row"><table class="sheet"><tr><th class="r"></th><th style="width:110px">A</th><th style="width:110px">B</th><th style="width:110px">C</th><th style="width:110px">D</th></tr><tr><th>1</th><td class="h" style="background:#dbe7f8;box-shadow:inset 0 2px 0 #1a62c9, inset 2px 0 0 #1a62c9, inset 0 -2px 0 #1a62c9">Greenleaf sales</td><td style="background:#dbe7f8;box-shadow:inset 0 2px 0 #1a62c9, inset 0 -2px 0 #1a62c9"></td><td style="background:#dbe7f8;box-shadow:inset 0 2px 0 #1a62c9, inset 0 -2px 0 #1a62c9"></td><td style="background:#dbe7f8;box-shadow:inset 0 2px 0 #1a62c9, inset -2px 0 0 #1a62c9, inset 0 -2px 0 #1a62c9"></td></tr><tr><th>2</th><td class="h">Order ID</td><td class="h">Region</td><td class="h">Product</td><td class="h">Total (£)</td></tr></table><div class="gmenu" style="min-width:220px"><div class="mi"><span>Merge all</span></div><div class="mi"><span>Merge vertically</span></div><div class="mi"><span>Merge horizontally</span></div><div class="mi"><span>Unmerge</span></div></div></div></figure>
+
+<figure data-name="t3-number-buttons"><div class="col"><table class="sheet"><tr><th class="r"></th><th style="width:130px">A</th><th style="width:110px">B</th></tr><tr><th>1</th><td class="h">VAT rate</td><td class="n sel">0.2</td></tr></table><div class="toolbar">
+  <span class="tb"><b>£</b><span class="num">1</span></span>
+  <span class="tb"><b>%</b><span class="num">2</span></span>
+  <span class="tb"><b>.0←</b><span class="num">3</span></span>
+  <span class="tb"><b>.00→</b><span class="num">4</span></span>
+</div></div></figure>
+
+<figure data-name="t3-decimals"><table class="sheet"><tr><th class="r"></th><th style="width:120px">A</th><th style="width:220px">B</th></tr><tr><th>1</th><td class="h">Region</td><td class="h">Average order (£)</td></tr><tr><th>2</th><td>North</td><td class="n">36.6666666667</td></tr><tr><th>3</th><td>South</td><td class="n">16.75</td></tr><tr><th>4</th><td>East</td><td class="n">24</td></tr></table></figure>
+
+<figure data-name="t3-hashes"><table class="sheet"><tr><th class="r"></th><th style="width:120px">D</th><th style="width:60px">E</th></tr><tr><th>1</th><td class="h">Product</td><td class="h">Total</td></tr><tr><th>2</th><td>Compost</td><td class="n">£48.00</td></tr><tr><th>3</th><td>Mower</td><td class="n sel">####</td></tr></table></figure>
+
+<figure data-name="t3-by-hand"><table class="sheet"><tr><th class="r"></th><th>A</th><th>B</th><th style="width:120px">E</th></tr><tr><th>1</th><td class="h">Order ID</td><td class="h">Region</td><td class="h">Total (£)</td></tr><tr><th>2</th><td class="n" style="background:#f4b6b0">1001</td><td style="background:#f4b6b0">North</td><td class="n" style="background:#f4b6b0">£1,250.00</td></tr><tr><th>3</th><td class="n">1002</td><td>South</td><td class="n">£18.50</td></tr><tr><th>4</th><td class="n" style="background:#f4b6b0">1003</td><td style="background:#f4b6b0">North</td><td class="n" style="background:#f4b6b0">£1,400.00</td></tr><tr><th>5</th><td class="n">1004</td><td>East</td><td class="n">£2,100.00</td></tr></table></figure>
+
+<figure data-name="t3-text-number"><div><div class="fx" style="font-size:15px"><span class="box">E3</span><span class="f">fx</span><span class="v">'18.50</span></div><table class="sheet"><tr><th class="r"></th><th style="width:100px">A</th><th style="width:150px">E</th></tr><tr><th>1</th><td class="h">Order ID</td><td class="h">Total (£)</td></tr><tr><th>2</th><td class="n">1001</td><td class="n">48.00</td></tr><tr><th>3</th><td class="n">1002</td><td class="sel">18.50</td></tr><tr><th>4</th><td class="n">1003</td><td class="n">25.00</td></tr></table></div></figure>
+
+<figure data-name="t4-help-close"><div class="panel" style="width:360px">
+  <div class="k" style="margin-top:0">Advanced options</div>
+  <div class="box2">
+    <div class="radio" style="margin-top:0"><span class="tick on"></span>Show help text for a selected cell</div>
+    <div class="in" style="margin:4px 0 0">Choose a region from the list.</div>
+  </div>
+</div></figure>
+
+<figure data-name="t4-invalid-close"><div class="panel" style="width:360px">
+  <div class="k" style="margin-top:0">If the data is invalid:</div>
+  <div class="radio"><i></i>Show a warning</div>
+  <div class="radio"><i></i>Reject the input</div>
+</div></figure>
+
+<figure data-name="t4-bad-date"><div><table class="sheet"><tr><th class="r"></th><th style="width:160px">B</th><th style="width:160px">C</th></tr><tr><th>6</th><td class="h">Order date</td><td class="sel">31/02/2026</td></tr><tr><th>7</th><td class="h">Region</td><td>North</td></tr></table><div class="tabs"><span>Home</span><span class="on">Input</span><span>Data</span></div></div></figure>
+
+<figure data-name="t4-list-tab"><div class="row"><div><table class="sheet"><tr><th class="r"></th><th style="width:150px">A</th></tr><tr><th>1</th><td class="h">Products</td></tr><tr><th>2</th><td>Compost</td></tr><tr><th>3</th><td>Hose</td></tr><tr><th>4</th><td>Seeds</td></tr><tr><th>5</th><td class="hi">Plant pots (new)</td></tr></table><div class="tabs"><span class="on">Lists</span><span>Input</span></div></div><div class="panel" style="width:300px"><h4>Data validation rules</h4><div class="k">Apply to range</div><div class="in">Input!C9</div><div class="k">Criteria</div><div class="in">?</div></div></div></figure>
+
+<figure data-name="t4-reject-popup"><div class="row" style="align-items:center"><table class="sheet"><tr><th class="r"></th><th style="width:160px">B</th><th style="width:120px">C</th></tr><tr><th>8</th><td class="h">Quantity</td><td class="sel">250</td></tr></table><div class="panel" style="width:360px"><h4><b>There was a problem</b></h4>Please enter a whole number from 1 to 100.<div class="row" style="justify-content:flex-end;margin-top:12px"><span class="btn blue">OK</span></div></div></div></figure>
+
+<figure data-name="t5-chart-bars"><svg class="chart" width="440" height="230" viewBox="0 0 440 230">
+  <text x="230" y="22" font-size="16" font-weight="700" text-anchor="middle">Sales by region, September 2026</text>
+  <g font-size="14"><text x="70" y="62" text-anchor="end">North</text><text x="70" y="112" text-anchor="end">South</text><text x="70" y="162" text-anchor="end">East</text></g>
+  <rect x="80" y="45" width="300" height="26" fill="#3d7d55"/><text x="386" y="63" font-size="14" font-weight="700">£3,000</text>
+  <rect x="80" y="95" width="155" height="26" fill="#3d7d55"/><text x="241" y="113" font-size="14" font-weight="700">£1,550</text>
+  <rect x="80" y="145" width="105" height="26" fill="#3d7d55"/><text x="191" y="163" font-size="14" font-weight="700">£1,050</text>
+  <line class="axis" x1="80" x2="80" y1="35" y2="185"/><line class="axis" x1="80" x2="400" y1="185" y2="185"/>
+  <text x="230" y="215" font-size="14" text-anchor="middle">Total sales (£)</text>
+</svg></figure>
+
+<figure data-name="t5-colour-scale"><table class="sheet"><tr><th class="r"></th><th style="width:120px">A</th><th style="width:150px">B</th></tr><tr><th>1</th><td class="h">Month</td><td class="h">Sales (£)</td></tr><tr><th>2</th><td>April</td><td class="n" style="background:#ffffff">£800</td></tr><tr><th>3</th><td>May</td><td class="n" style="background:#c9e6cf">£1,600</td></tr><tr><th>4</th><td>June</td><td class="n" style="background:#7cc38d">£2,700</td></tr><tr><th>5</th><td>July</td><td class="n" style="background:#a5d5b0">£2,100</td></tr><tr><th>6</th><td>August</td><td class="n" style="background:#e4f2e7">£1,200</td></tr><tr><th>7</th><td>September</td><td class="n" style="background:#57b16f">£3,100</td></tr></table></figure>
+
+<figure data-name="t5-two-series"><svg class="chart" width="420" height="250" viewBox="0 0 420 250">
+  <text x="210" y="22" font-size="16" font-weight="700" text-anchor="middle">Sales by region</text>
+  <line class="axis" x1="50" x2="400" y1="210" y2="210"/><line class="axis" x1="50" x2="50" y1="40" y2="210"/>
+  <rect x="80" y="70" width="40" height="140" fill="#2f6e9e"/><rect x="122" y="50" width="40" height="160" fill="#e08a2e"/>
+  <rect x="190" y="130" width="40" height="80" fill="#2f6e9e"/><rect x="232" y="122" width="40" height="88" fill="#e08a2e"/>
+  <rect x="300" y="150" width="40" height="60" fill="#2f6e9e"/><rect x="342" y="160" width="40" height="50" fill="#e08a2e"/>
+  <g font-size="14" text-anchor="middle"><text x="121" y="229">North</text><text x="231" y="229">South</text><text x="341" y="229">East</text></g>
+</svg></figure>
+
+<figure data-name="t5-axis-cut"><svg class="chart" width="420" height="270" viewBox="0 0 420 270">
+  <text x="210" y="22" font-size="16" font-weight="700" text-anchor="middle">Sales by region, September 2026</text>
+  <line class="grid" x1="70" x2="400" y1="60" y2="60"/><line class="grid" x1="70" x2="400" y1="135" y2="135"/>
+  <text x="62" y="214" font-size="12" text-anchor="end">£2,900</text><text x="62" y="139" font-size="12" text-anchor="end">£2,950</text><text x="62" y="64" font-size="12" text-anchor="end">£3,000</text>
+  <rect x="100" y="60" width="70" height="150" fill="#2f6e9e"/><text x="135" y="53" font-size="14" font-weight="700" text-anchor="middle">£3,000</text>
+  <rect x="200" y="165" width="70" height="45" fill="#2f6e9e"/><text x="235" y="158" font-size="14" font-weight="700" text-anchor="middle">£2,930</text>
+  <rect x="300" y="186" width="70" height="24" fill="#2f6e9e"/><text x="335" y="179" font-size="14" font-weight="700" text-anchor="middle">£2,915</text>
+  <line class="axis" x1="70" x2="400" y1="210" y2="210"/><line class="axis" x1="70" x2="70" y1="45" y2="210"/>
+  <text x="135" y="229" font-size="14" text-anchor="middle">North</text><text x="235" y="229" font-size="14" text-anchor="middle">South</text><text x="335" y="229" font-size="14" text-anchor="middle">East</text>
+  <text x="235" y="256" font-size="14" text-anchor="middle">Region</text>
+</svg></figure>
+
+<figure data-name="t6-macros"><div style="display:inline-block"><div class="menubar"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Data</span><span>Tools</span><span class="open">Extensions</span><span>Help</span></div><div class="menus" style="padding-left:420px"><div class="gmenu" style="min-width:200px"><div class="mi"><span>Add-ons</span><span class="k">▸</span></div><div class="mi here"><span>Macros</span><span class="k">▸</span></div><div class="mi"><span>Apps Script</span></div></div><div class="gmenu" style="min-width:220px;margin-top:40px"><div class="mi"><span>Record macro</span></div><div class="mi"><span>Import macro</span></div><div class="mi"><span>Manage macros</span></div></div></div></div></figure>
+
+<figure data-name="t6-script-error"><div class="col"><pre class="code"><span class="ln">1</span><span class="k">function</span> <span class="f">clearInputs</span>() {
+<span class="ln">2</span>  <span class="k">const</span> sheet = SpreadsheetApp.getActive().getSheetByName(<span class="s">"input"</span>);
+<span class="ln">3</span>  sheet.getRange(<span class="s">"C4:C6"</span>).clearContent();
+<span class="ln">4</span>}</pre><div style="background:#fde3e1;border:1.5px solid #c4211d;border-radius:6px;padding:9px 12px;font:16px 'Liberation Mono',monospace">TypeError: Cannot read properties of null (reading 'getRange'), line 3</div><div class="tabs" style="border-top:1px solid #8a96a3"><span>Home</span><span class="on">Input</span><span>Data</span><span>Summary</span></div></div></figure>
+
+<figure data-name="t6-pivot-count"><div class="panel" style="width:330px">
+  <h4>Pivot table editor</h4>
+  <div class="k">Range</div><div class="in">Data!A1:G51</div>
+  <div class="k">Rows</div><div class="box2"><b>Region</b></div>
+  <div class="k">Values</div><div class="box2"><b>Order ID</b><div style="margin-top:5px;color:#3c4753">Summarise by: <span style="color:#1b1f24">COUNTA</span></div></div>
+</div></figure>
+
+<figure data-name="t6-authorise"><div class="panel" style="width:420px">
+  <h4><b>Authorisation required</b></h4>
+  <p style="margin:0 0 12px">A script attached to this document needs your permission to run.</p>
+  <div class="row" style="justify-content:flex-end;gap:10px"><span class="btn">Cancel</span><span class="btn blue">Review permissions</span></div>
+</div></figure>
+
+<figure data-name="t7-boundary-line"><svg class="chart" width="560" height="120" viewBox="0 0 560 120">
+  <text x="280" y="20" font-size="16" text-anchor="middle">A Discount (%) cell that accepts whole numbers from 0 to 50</text>
+  <line class="axis" x1="30" x2="530" y1="70" y2="70" stroke-width="2"/>
+  <rect x="110" y="62" width="340" height="16" fill="#cfe3d4" stroke="#2e6b3d" stroke-width="1.5"/>
+  <g font-size="17" text-anchor="middle">
+    <line class="axis" x1="60" x2="60" y1="58" y2="82"/><text x="60" y="106">-1</text>
+    <line class="axis" x1="110" x2="110" y1="54" y2="86"/><text x="110" y="106">0</text>
+    <line class="axis" x1="280" x2="280" y1="58" y2="82"/><text x="280" y="106">25</text>
+    <line class="axis" x1="450" x2="450" y1="54" y2="86"/><text x="450" y="106">50</text>
+    <line class="axis" x1="500" x2="500" y1="58" y2="82"/><text x="500" y="106">51</text>
+  </g>
+</svg></figure>
+
+<figure data-name="t7-erroneous-line"><svg class="chart" width="560" height="120" viewBox="0 0 560 120">
+  <text x="280" y="20" font-size="16" text-anchor="middle">A Price (£) cell that accepts whole pounds from 1 to 500</text>
+  <line class="axis" x1="30" x2="530" y1="70" y2="70" stroke-width="2"/>
+  <rect x="110" y="62" width="340" height="16" fill="#cfe3d4" stroke="#2e6b3d" stroke-width="1.5"/>
+  <g font-size="17" text-anchor="middle">
+    <line class="axis" x1="60" x2="60" y1="58" y2="82"/><text x="60" y="106">0</text>
+    <line class="axis" x1="110" x2="110" y1="54" y2="86"/><text x="110" y="106">1</text>
+    <line class="axis" x1="280" x2="280" y1="58" y2="82"/><text x="280" y="106">250</text>
+    <line class="axis" x1="450" x2="450" y1="54" y2="86"/><text x="450" y="106">500</text>
+    <line class="axis" x1="500" x2="500" y1="58" y2="82"/><text x="500" y="106">501</text>
+  </g>
+</svg></figure>
+
+<figure data-name="t7-test-log-fix"><table class="log" style="width:780px">
+  <caption>Test log</caption>
+  <tr><th>No.</th><th>What is tested</th><th>Test data</th><th>Expected</th><th>Actual</th><th>Pass / Fail</th><th>Fix and version</th></tr>
+  <tr><td>4</td><td>Region rejects a typo</td><td>Nort</td><td>Rejected, error shown</td><td>Accepted, red corner</td><td>Fail</td><td>Rule changed to Reject the input, v3</td></tr>
+  <tr><td>5</td><td>Quantity accepts the highest value</td><td>100</td><td>Accepted</td><td>Accepted</td><td>Pass</td><td></td></tr>
+</table></figure>
+
+<figure data-name="t7-expected-actual"><table class="log" style="width:700px">
+  <caption>Test log</caption>
+  <tr><th>No.</th><th>What is tested</th><th>Test data</th><th>Expected</th><th>Actual</th><th>Pass / Fail</th></tr>
+  <tr><td>6</td><td>Date rejects a day that does not exist</td><td>31/02/2026</td><td>Rejected, error shown</td><td>Accepted</td><td style="background:#fbe38e">?</td></tr>
+</table></figure>
+
+<figure data-name="t7-blank"><div class="row"><table class="sheet"><tr><th class="r"></th><th style="width:160px">B</th><th style="width:120px">C</th></tr><tr><th>4</th><td class="h">Date</td><td class="n">06/09/2026</td></tr><tr><th>5</th><td class="h">Region</td><td>South</td></tr><tr><th>6</th><td class="h">Quantity</td><td class="sel"></td></tr></table><div class="col"><span class="drawn" style="outline:0">Add order</span><div style="font-size:16px;max-width:260px">After clicking: a new order, South, quantity 0, is added to the Data tab.</div></div></div></figure>
+
+<figure data-name="t8-teacher-row"><table class="log" style="width:780px">
+  <caption>Feedback log, row 2</caption>
+  <tr><th>Who</th><th>What they tried</th><th>What they said</th><th>What I changed</th><th>Retested?</th></tr>
+  <tr><td>Teacher</td><td>Found the North total</td><td>"It took a while to find."</td><td>Link from Home to the Summary tab</td><td></td></tr>
+</table></figure>
+
+<figure data-name="t8-button-feedback"><table class="log" style="width:700px">
+  <caption>Feedback log</caption>
+  <tr><th>Who</th><th>What they tried</th><th>What they said</th><th>What I changed</th></tr>
+  <tr><td>Priya (classmate)</td><td>Added an order</td><td>"I couldn't find the Add order button. It's below row 40."</td><td style="background:#fbe38e">?</td></tr>
+</table></figure>

@@ -20,8 +20,14 @@ export type Question = {
   answer: number;
   /** Shown to the room after the answer is revealed: the reason, not just the fact. */
   explanation: string;
-  /** Time allowed, in seconds. Defaults to DEFAULT_QUESTION_SECONDS. */
+  /** Time allowed, in seconds, before any extra for pictures. Defaults to the set's time. */
   seconds?: number;
+  /**
+   * Ask it a second time later in the game, with the choices reshuffled. For
+   * questions that take working out (comparing pictures, applying a rule,
+   * reading a formula), not for ones that are only remembered.
+   */
+  askTwice?: true;
 };
 
 export type QuestionSet = {
@@ -32,8 +38,48 @@ export type QuestionSet = {
   title: string;
   /** Specification reference the set checks, e.g. "A1". */
   spec: string;
+  /** Time allowed for questions that do not set their own. Defaults to DEFAULT_QUESTION_SECONDS. */
+  seconds?: number;
   questions: Question[];
 };
 
+/** Sets that are taught together, e.g. one learning aim or one assignment task, in teaching order. */
+export type CourseSection = {
+  title: string;
+  sets: QuestionSet[];
+};
+
+/**
+ * One course unit on the teacher's screen. Its sets are loaded only when the
+ * teacher opens it, so the teacher's page stays the same size as courses are added.
+ */
+export type Course = {
+  /** Every set id in the course starts with this and a hyphen. */
+  id: string;
+  level: 1 | 2 | 3;
+  /** e.g. "BTEC Level 1 Introductory Diploma in IT" */
+  qualification: string;
+  /** e.g. "Unit A4 · Researching a topic" */
+  unit: string;
+  /** What the sets cover, in a line, e.g. "Task 2: presenting research findings". */
+  scope: string;
+  load: () => Promise<CourseSection[]>;
+};
+
 export const DEFAULT_QUESTION_SECONDS = 20;
+/** Extra time for a question with a picture, beside it or as its choices: the room has to look before it can answer. */
+export const PICTURE_EXTRA_SECONDS = 15;
+
+/** The time a question is given in the game. */
+export function questionSeconds(question: Question, set: QuestionSet): number {
+  const base = question.seconds ?? set.seconds ?? DEFAULT_QUESTION_SECONDS;
+  const pictures = !!question.image || question.choices.some((choice) => choice.image);
+  return base + (pictures ? PICTURE_EXTRA_SECONDS : 0);
+}
+
 export const CHOICE_LABELS = ["A", "B", "C", "D"] as const;
+
+/** How many rounds a set makes: every question once, and the ones asked twice again. */
+export function roundCount(set: QuestionSet): number {
+  return set.questions.reduce((n, q) => n + (q.askTwice ? 2 : 1), 0);
+}

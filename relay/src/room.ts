@@ -89,7 +89,7 @@ export class Room extends DurableObject<Env> {
       if (others.size >= MAX_PLAYERS) return this.refuse(client, server, CloseCode.full, "Room is full");
       for (const old of this.socketsOf(pid)) old.close(CloseCode.replaced, "Opened elsewhere");
 
-      this.ctx.acceptWebSocket(server, [`p:${pid}`]);
+      this.ctx.acceptWebSocket(server, ["player", `p:${pid}`]);
       server.serializeAttachment({ role: "player", pid } satisfies Attachment);
       const host = this.sockets("host");
       if (host.length === 0) this.deliver([server], { t: "relay.host", up: false });
@@ -227,8 +227,9 @@ export class Room extends DurableObject<Env> {
     return (ws.deserializeAttachment() as Attachment | null) ?? null;
   }
 
+  /** Looked up by tag, not by reading every socket's attachment: this runs for every message. */
   private sockets(role: "host" | "player"): WebSocket[] {
-    return this.ctx.getWebSockets().filter((ws) => this.attachment(ws)?.role === role && ws.readyState === WebSocket.OPEN);
+    return this.ctx.getWebSockets(role).filter((ws) => ws.readyState === WebSocket.OPEN);
   }
 
   private socketsOf(pid: string): WebSocket[] {

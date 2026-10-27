@@ -5,6 +5,16 @@
 
 export type ChoiceSummary = { label: string; text?: string };
 
+/** What a right answer earned, part by part (see `Award` in game.ts). */
+export type AwardSummary = {
+  base: number;
+  catchUp: number;
+  streak: number;
+  learned: number;
+  multiplier: number;
+  total: number;
+};
+
 /** What one student's phone shows. Sent by the teacher's screen whenever it changes. */
 export type PlayerView =
   | { phase: "lobby"; name: string; rerollsLeft: number; setTitle: string }
@@ -19,6 +29,12 @@ export type PlayerView =
       pictures: boolean;
       secondsLeft: number;
       answered: number | null;
+      /** The final stretch: right answers count double. */
+      double: boolean;
+      /** This student holds a star: a right answer counts double. */
+      star: boolean;
+      /** Right answers in a row so far. */
+      streak: number;
     }
   | {
       phase: "reveal";
@@ -26,11 +42,25 @@ export type PlayerView =
       index: number;
       total: number;
       outcome: "correct" | "wrong" | "none";
-      gained: number;
+      /** What the answer earned; null unless it was right. */
+      award: AwardSummary | null;
       score: number;
       correctLabel: string;
+      streak: number;
+      /** Place in the top places the room sees, or null if outside them. */
+      place: number | null;
+      /** Places climbed at this reveal; negative if dropped. */
+      climbed: number;
+      /** About how many points to the top places; null when in them, 0 when any right answer gets in. */
+      behind: number | null;
+      /** A star was handed to this student at this reveal. */
+      newStar: boolean;
+      /** Holds a star for the next round. */
+      star: boolean;
+      /** The next round is in the final stretch. */
+      nextDouble: boolean;
     }
-  | { phase: "final"; name: string; score: number; place: 1 | 2 | 3 | null };
+  | { phase: "final"; name: string; score: number; place: number | null; bestStreak: number };
 
 export type HostToPlayer =
   | { t: "view"; view: PlayerView }
@@ -39,6 +69,7 @@ export type HostToPlayer =
 
 export type PlayerToHost =
   | { t: "reroll" }
+  | { t: "seen"; index: number }
   | { t: "answer"; index: number; choice: number };
 
 /** Relay-level message the relay itself sends to phones. */
@@ -48,6 +79,7 @@ export function parsePlayerMessage(value: unknown): PlayerToHost | null {
   if (typeof value !== "object" || value === null) return null;
   const message = value as Record<string, unknown>;
   if (message.t === "reroll") return { t: "reroll" };
+  if (message.t === "seen" && Number.isInteger(message.index)) return { t: "seen", index: message.index as number };
   if (
     message.t === "answer" &&
     Number.isInteger(message.index) &&

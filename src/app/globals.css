@@ -780,3 +780,135 @@ button,
         stroke-dashoffset: 0;
     }
 }
+
+/*
+ * Classroom quiz. The quiz screens have their own look, softer than the rest
+ * of the site: rounded cards on a dotted paper background, bold answer
+ * colours, and the students' animal avatars. It is meant for a projector
+ * across a room and for phones in hand.
+ */
+.quiz-root {
+    --quiz-paper: #F3EEE4;
+    --quiz-card: #FFFDF8;
+    --quiz-line: #E4DCCC;
+    --quiz-ink: #1E1B16;
+    --quiz-muted: #5F574C;
+    --quiz-green: #2F6B4A;
+    --quiz-green-soft: #DCEBDD;
+    --quiz-star: #F4B740;
+    --quiz-star-soft: #FCEFCB;
+    --quiz-hot: #C8553D;
+    --quiz-hot-soft: #F7DDD3;
+    background-color: var(--quiz-paper);
+    background-image: radial-gradient(color-mix(in srgb, var(--quiz-ink) 9%, transparent) 1px, transparent 1.2px);
+    background-size: 22px 22px;
+    color: var(--quiz-ink);
+}
+
+.quiz-card {
+    background: var(--quiz-card);
+    border: 1px solid var(--quiz-line);
+    border-radius: 22px;
+    box-shadow: 0 1px 0 rgb(30 27 22 / 0.04), 0 18px 40px -28px rgb(30 27 22 / 0.45);
+}
+
+.quiz-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    border-radius: 999px;
+    padding: 0.3em 0.85em;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.quiz-button {
+    display: inline-flex;
+    min-height: 3.25rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    background: var(--quiz-ink);
+    padding: 0 1.75rem;
+    font-weight: 600;
+    color: #FFFDF8;
+    box-shadow: 0 6px 0 -2px rgb(30 27 22 / 0.25);
+    transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+.quiz-button:hover:not(:disabled) { background: #3A342C; }
+.quiz-button:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 3px 0 -2px rgb(30 27 22 / 0.25); }
+.quiz-button:disabled { cursor: not-allowed; opacity: 0.45; }
+
+.quiz-button-quiet {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--quiz-line);
+    background: var(--quiz-card);
+    padding: 0 1.1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--quiz-ink);
+    transition: background-color 120ms ease, border-color 120ms ease;
+}
+.quiz-button-quiet:hover { background: #F6F1E7; border-color: #CFC5B2; }
+
+.quiz-input {
+    min-height: 3.25rem;
+    border-radius: 16px;
+    border: 2px solid var(--quiz-line);
+    background: #FFFFFF;
+    padding: 0 1rem;
+}
+.quiz-input:focus { border-color: var(--quiz-ink); outline: none; }
+
+.quiz-root :focus-visible { outline: 3px solid #2F6B4A; outline-offset: 2px; }
+
+@keyframes quiz-pop {
+    0% { opacity: 0; transform: scale(0.6); }
+    60% { opacity: 1; transform: scale(1.08); }
+    100% { opacity: 1; transform: scale(1); }
+}
+@keyframes quiz-rise {
+    0% { opacity: 0; transform: translateY(14px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes quiz-bob {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-6px) rotate(2deg); }
+}
+@keyframes quiz-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+@keyframes quiz-shine {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(12deg) scale(1.15); }
+    100% { transform: rotate(0deg) scale(1); }
+}
+@keyframes quiz-fall {
+    0% { opacity: 0; transform: translateY(-30px) rotate(0deg); }
+    10% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(70vh) rotate(540deg); }
+}
+@keyframes quiz-dots {
+    0%, 80%, 100% { opacity: 0.25; }
+    40% { opacity: 1; }
+}
+
+.quiz-pop { animation: quiz-pop 420ms cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+.quiz-rise { animation: quiz-rise 420ms var(--ease-decelerate) both; }
+.quiz-bob { animation: quiz-bob 2.6s ease-in-out infinite; }
+.quiz-pulse { animation: quiz-pulse 1s ease-in-out infinite; }
+.quiz-shine { animation: quiz-shine 1.4s ease-in-out 2; }
+.quiz-confetti { animation: quiz-fall 3.2s ease-in both; }
+.quiz-dot { animation: quiz-dots 1.4s ease-in-out infinite; }
+.quiz-dot:nth-child(2) { animation-delay: 0.2s; }
+.quiz-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Classroom quiz: the reload link appears only if the page has not started after a while. */
+.quiz-slow { animation: pop-in 0.3s 8s both; }

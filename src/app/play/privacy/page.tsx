@@ -19,7 +19,7 @@ const sections = [
     title: "What happens to your answers",
     body: [
       "Your phone sends your answers to your teacher's screen through a relay: a small server on Cloudflare that is set to keep its rooms in the EU. The relay passes messages along. It does not save answers, nicknames or scores.",
-      "Your teacher's screen works out the scores. Only the top three nicknames are ever shown to the room. Your own score is shown only on your phone.",
+      "Your teacher's screen works out the scores. Only the top five nicknames are ever shown to the room, with how many places they moved. A nickname outside the top five can be shown with how many places it climbed in a round, never with its place or score. Your own score is shown only on your phone.",
     ],
   },
   {
