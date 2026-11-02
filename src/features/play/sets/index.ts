@@ -11,7 +11,7 @@ export const courses: readonly Course[] = [
     level: 1,
     qualification: "BTEC Level 1 Introductory Diploma in IT",
     unit: "Unit A4 · Researching a topic",
-    scope: "Task 2: presenting research findings in Google Slides",
+    scope: "Task 2 in Google Slides, and a final check of both tasks before hand-in",
     load: () => import("./l1-a4").then((m) => m.sections),
   },
   {

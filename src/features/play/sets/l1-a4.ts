@@ -7,7 +7,9 @@ import { figuresFrom } from "./figures";
  * summary of research findings for new students and their families (B.P3
  * outline summary, B.M3 clear summary with some sources, B.D3 focused summary
  * with clear referencing). Students build it in Google Slides and download it
- * as the PowerPoint file the brief asks for.
+ * as the PowerPoint file the brief asks for. The final check covers both
+ * tasks, from the Staying Safe Online project handbook (Task 1, the research
+ * log: A.P1 to A.D2), as a last check before hand-in and as revision.
  *
  * Written for Level 1, and for students who may not have met an idea or a
  * tool yet: every question shows what it asks about (the brief, a log, a
@@ -789,10 +791,351 @@ export const usingGoogleSlides: QuestionSet = {
   ],
 };
 
-/** In teaching order. Only Task 2 is covered: Task 1, the research log, is not quizzed. */
+/*
+ * Final check: the Staying Safe Online project handbook's to-do list and
+ * "Final check before you hand in", one set per task. Each question shows a
+ * piece of Sam's work with one thing to spot, and each explanation gives the
+ * rule and what to check in your own work, so the set works as a last check
+ * before hand-in and as revision for anyone behind. The research log has the
+ * handbook's four columns (Date, URL, Source details, Comments/notes), and a
+ * full reference its five parts, in the handbook's order.
+ */
+
+export const researchLogCheck: QuestionSet = {
+  id: "l1-a4-check-s1-research-log",
+  course: COURSE,
+  title: "Final check · Your research log (Task 1)",
+  spec: "A.P1, A.P2, A.M1, A.M2, A.D1, A.D2",
+  seconds: SECONDS,
+  questions: [
+    {
+      id: "missing-column",
+      askTwice: true,
+      prompt: "Sam's log has four columns. Which one has Sam left empty?",
+      image: figure("c1-missing-column", "One row of Sam's research log, topic fake delivery texts, with four columns. Date: 3 Oct 2026. URL: empty. Source details: Author: Get Safe Online, Title: Smishing, Published: no date. Comments/notes: Found by: Google search 'scam text help' (own source, O). Scam texts can pretend to be from your bank."),
+      choices: [{ text: "Date" }, { text: "URL" }, { text: "Source details" }, { text: "Comments/notes" }],
+      answer: 1,
+      explanation: "The URL is empty, so nobody could find the page again. Check yours: every row needs all four columns filled in.",
+    },
+    {
+      id: "date-column",
+      prompt: "Sam reads this page today, 2 October 2026. What goes in the Date column?",
+      image: figure("c1-date", "A web page at www.actionfraud.police.uk/scam-texts by Action Fraud, titled 'Scam texts', last updated 5 March 2025. It says criminals send texts that pretend to be from banks and delivery firms, and never to click a link in a text you did not expect."),
+      choices: [{ text: "2 October 2026" }, { text: "5 March 2025" }],
+      answer: 0,
+      explanation: "The Date column is the day you looked at the page. The date it was published or updated goes in Source details.",
+    },
+    {
+      id: "url",
+      prompt: "What should Sam write in the URL column for this page?",
+      image: figure("c1-address", "A web page by the National Cyber Security Centre titled 'Phishing: spot and report scam emails, texts, websites and calls'. The address bar says https://www.ncsc.gov.uk/collection/phishing-scams."),
+      choices: [{ text: "https://www.ncsc.gov.uk/collection/phishing-scams" }, { text: "ncsc" }, { text: "Google" }],
+      answer: 0,
+      explanation: "Write the full web address. Copy it from the address bar, so it is exactly right and anyone can open the same page.",
+    },
+    {
+      id: "source-details",
+      askTwice: true,
+      prompt: "Which source details are complete for this page?",
+      image: figure("c1-page-details", "A web page at www.getsafeonline.org/smishing. At the top: Get Safe Online. Title: Smishing. Published: 14 May 2025. It says smishing is phishing by text message, and the text tries to get you to tap a link or call a number."),
+      choices: [
+        { text: "Author: Get Safe Online · Title: Smishing · Published: 14 May 2025" },
+        { text: "Author: Get Safe Online" },
+        { text: "A page about scam texts" },
+      ],
+      answer: 0,
+      explanation: "Source details need three things: who made it, the title of the page, and when it was published. Look at the top and bottom of the page.",
+    },
+    {
+      id: "no-date",
+      prompt: "This page has no author's name and no date. What goes in Source details?",
+      image: figure("c1-no-date", "A web page at www.which.co.uk by Which?, titled 'How to spot a scam text'. It says to look out for links you were not expecting, spelling mistakes and messages that rush you. At the bottom: © Which?, About us, Contact us. There is no author's name and no date."),
+      choices: [
+        { text: "Which?, the title, and \"no date\"" },
+        { text: "Nothing: leave this source out" },
+        { text: "Make up a date" },
+      ],
+      answer: 0,
+      explanation: "No author? Write the organisation's name. No date? Write \"no date\". That is fine, as long as you have looked.",
+    },
+    {
+      id: "how-found",
+      prompt: "Sam's notes are missing something the handbook asks for. What?",
+      image: figure("c1-how-found", "One row of Sam's research log. Date: 2 Oct 2026. URL: https://www.ncsc.gov.uk/collection/phishing-scams. Source details: National Cyber Security Centre, 'Phishing: spot and report scam emails, texts, websites and calls', published no date. Comments/notes: Scam texts often say you missed a parcel. Real companies don't ask for card details by text. Forward scam texts to 7726."),
+      choices: [
+        { text: "How Sam found it, and G or O" },
+        { text: "Sam's favourite website" },
+        { text: "A picture of the page" },
+      ],
+      answer: 0,
+      explanation: "Your notes say how you found each source (what you searched for, or that your tutor gave it) and mark it G or O. Check every row of yours.",
+    },
+    {
+      id: "given-source",
+      prompt: "Sam's tutor gave out two sources. Which of these is one of them?",
+      image: figure("c1-given", "Three sources. OWASP, owasp.org: OWASP Top Ten, the most common security risks for web applications. Get Safe Online, getsafeonline.org: Smishing, what it is and how to protect yourself. National Cyber Security Centre, ncsc.gov.uk: Phishing: spot and report scam emails, texts, websites and calls."),
+      choices: [{ text: "OWASP" }, { text: "Get Safe Online" }, { text: "National Cyber Security Centre" }],
+      answer: 0,
+      explanation: "The given sources are NIST and OWASP. Anything else you found, like Get Safe Online or the NCSC, is your own source.",
+    },
+    {
+      id: "g-or-o",
+      askTwice: true,
+      prompt: "Which letter should Sam write where the ( ? ) is?",
+      image: figure("c1-g-or-o", "Sam's comments/notes for one source: 'Found by: I searched \"how to report a scam text\" on Google. ( ? ) You can forward a scam text to 7726 for free. Then delete it.'"),
+      choices: [{ text: "G" }, { text: "O" }],
+      answer: 1,
+      explanation: "Sam searched and found it, so it is an own source: O. G is only for the sources your tutor gave you. The letter lets the assessor see it.",
+    },
+    {
+      id: "merit",
+      prompt: "Every source in Sam's log is a G. What does Sam need to reach Merit?",
+      image: figure("c1-only-given", "Sam's research log, four rows, with a G or O column. 1: NIST, Digital Identity Guidelines, G. 2: OWASP, Top Ten, G. 3: NIST, Phishing, G. 4: OWASP, Authentication Cheat Sheet, G."),
+      choices: [
+        { text: "Some sources Sam found (O)" },
+        { text: "More rows from NIST" },
+        { text: "Longer notes" },
+      ],
+      answer: 0,
+      explanation: "Merit needs your tutor's sources and some you found yourself. Check yours: is there at least one O?",
+    },
+    {
+      id: "off-topic",
+      askTwice: true,
+      prompt: "Sam's topic is fake delivery texts. Which row should Sam cross out?",
+      image: figure("c1-off-topic", "Sam's research log, topic fake delivery texts. Row 1: Action Fraud, Scam texts: fake delivery texts ask you to pay a small fee through a link. Row 2: Tech Today, Best gaming laptops: a good gaming laptop needs a fast graphics card. Row 3: NCSC, Phishing: forward scam texts to 7726, then delete them."),
+      choices: [{ text: "Row 1" }, { text: "Row 2" }, { text: "Row 3" }],
+      answer: 1,
+      explanation: "Gaming laptops are not about fake delivery texts. Cross out off-topic rows: Distinction needs everything to link to your topic.",
+    },
+    {
+      id: "own-words",
+      prompt: "Which notes are written the way the handbook asks?",
+      choices: [
+        { image: figure("c1-notes-copied", "Notes that copy a whole paragraph from a web page: 'Criminals are sending texts that look like they come from delivery companies. The message says a parcel could not be delivered, and asks the person to click a link to rearrange delivery. The link goes to a fake website that asks for a small fee. The website then steals the card details that are typed in, and criminals use them to take money from the account.'") },
+        { image: figure("c1-notes-own", "Short notes: 'Fake delivery texts ask you to pay a small fee through a link. The link is a fake website that steals your card details.'") },
+      ],
+      answer: 1,
+      explanation: "Good notes pick out the useful facts, in your own words. Copying the whole page is not picking anything out.",
+    },
+    {
+      id: "simple-words",
+      askTwice: true,
+      prompt: "OWASP is written for IT experts. Which note says this in simple words?",
+      image: figure("c1-owasp", "From OWASP Top Ten, a given source: 'Where possible, implement multi-factor authentication to prevent automated credential stuffing, brute force, and stolen credential reuse attacks.'"),
+      choices: [
+        { text: "Turn on two-step login, so a stolen password is not enough to get in" },
+        { text: "Implement multi-factor authentication against credential stuffing" },
+        { text: "Skip it: it is too hard to read" },
+      ],
+      answer: 0,
+      explanation: "Pick out one key idea and write it so a new student's family would understand. Copying the expert words does not explain them.",
+    },
+    {
+      id: "who-made",
+      prompt: "Which page can Sam trust more?",
+      choices: [
+        { image: figure("c1-who-clear", "A page at www.actionfraud.police.uk by Action Fraud, the UK's national reporting centre for fraud, titled 'Report a scam text': forward scam texts to 7726 and report fraud to Action Fraud.") },
+        { image: figure("c1-who-unclear", "A page at best-tips-4u.blogspot.example with no name on it, titled 'top 10 scam tips!!!': 'scams r everywhere, just never answer ur phone and u will be fine'.") },
+      ],
+      answer: 0,
+      explanation: "You can tell who made the first page, and it is the UK's fraud reporting centre. Government, charity, bank or big company sites are usually trustworthy.",
+    },
+    {
+      id: "distinction",
+      prompt: "All four columns filled, G and O sources, every row on topic. Which grade is Sam's log aiming for?",
+      image: figure("c1-full-log", "Two rows of Sam's research log, topic fake delivery texts. Row 1: 1 Oct 2026, https://owasp.org/Top10, OWASP, OWASP Top Ten, no date; notes: given by my tutor (G), turning on two-step login stops criminals using stolen passwords. Row 2: 2 Oct 2026, https://www.ncsc.gov.uk/collection/phishing-scams, National Cyber Security Centre, Phishing: spot and report scam emails, texts, websites and calls, no date; notes: found by Google search 'fake parcel text UK' (O), real companies don't ask for card details by text, forward scam texts to 7726."),
+      choices: [{ text: "Pass" }, { text: "Merit" }, { text: "Distinction" }],
+      answer: 2,
+      explanation: "Given and own sources, a focused search, and nothing off-topic is Distinction. Check yours against the same three things.",
+    },
+  ],
+};
+
+export const presentationCheck: QuestionSet = {
+  id: "l1-a4-check-s2-presentation",
+  course: COURSE,
+  title: "Final check · Your PowerPoint and handing in (Task 2)",
+  spec: "B.P3, B.M3, B.D3",
+  seconds: SECONDS,
+  questions: [
+    {
+      id: "slide-count",
+      askTwice: true,
+      prompt: "Which plan is a good length for Sam's PowerPoint?",
+      choices: [
+        { image: figure("c2-plan-short", "A plan of 3 slides, numbered 1 to 3.") },
+        { image: figure("c2-plan-right", "A plan of 7 slides, numbered 1 to 7.") },
+        { image: figure("c2-plan-long", "A plan of 15 slides, numbered 1 to 15.") },
+      ],
+      answer: 1,
+      explanation: "Aim for 6 to 8 slides: enough to cover your topic without losing your audience. Plan them on paper first.",
+    },
+    {
+      id: "agreed-title",
+      prompt: "Sam agreed the title 'Spotting fake delivery texts'. Which title slide is right?",
+      choices: [
+        { image: figure("c2-title-wrong", "A title slide: 'Fake texts', Sam Jones, and a picture of a phone with a scam text.") },
+        { image: figure("c2-title-right", "A title slide: 'Spotting fake delivery texts', Sam Jones, and a picture of a phone with a scam text.") },
+      ],
+      answer: 1,
+      explanation: "Use the exact title you agreed with your tutor, with your name and a picture. Every other slide links back to it.",
+    },
+    {
+      id: "missing-slide",
+      askTwice: true,
+      prompt: "This is the handbook's plan. Which slide goes at number 7?",
+      image: figure("c2-missing-slide", "Eight slides in order. 1: Spotting fake delivery texts. 2: What is it? 3: Why it matters. 4: How it happens. 5: Warning signs. 6: How to stay safe. 7: a blank slide with a question mark. 8: Sources."),
+      choices: [{ text: "What to do if it happens" }, { text: "About me" }, { text: "A second title slide" }],
+      answer: 0,
+      explanation: "After the tips comes what to do if it happens: who to tell and real places to report it, like forwarding scam texts to 7726.",
+    },
+    {
+      id: "doing-word",
+      askTwice: true,
+      prompt: "Which tip is written the way the handbook asks?",
+      image: figure("c2-doing-word", "A slide headed 'How to stay safe' with three numbered bullets. 1: Passwords are really important. 2: Check who sent a text before you tap a link. 3: Hackers are everywhere."),
+      choices: [{ text: "Part 1" }, { text: "Part 2" }, { text: "Part 3" }],
+      answer: 1,
+      explanation: "Start each tip with a doing word, like Check, Use or Turn on, so people know what to do today. The others tell them nothing to do.",
+    },
+    {
+      id: "too-many",
+      prompt: "How many bullet points should this slide have?",
+      image: figure("c2-too-many", "A slide headed 'Scam texts' crammed with nine small bullet points: they pretend to be a delivery company, or your bank, or the tax office, they say you missed a parcel, they ask for a small fee, the link looks strange, they rush you, they have spelling mistakes, forward them to 7726."),
+      choices: [{ text: "About 3 to 5" }, { text: "About 9 to 12" }, { text: "As many as fit" }],
+      answer: 0,
+      explanation: "A good slide can be read in about 10 seconds. Keep 3 to 5 short bullets and move the rest to another slide.",
+    },
+    {
+      id: "text-size",
+      prompt: "Sam's bullet points are size 12. What size should they be?",
+      image: figure("c2-font-size", "The Google Slides toolbar with the font size box showing 12. Below, a slide headed 'Warning signs' with two small bullet points selected: a link you did not expect, it rushes you to pay."),
+      choices: [{ text: "24 or bigger" }, { text: "12 is fine" }, { text: "10, to fit more in" }],
+      answer: 0,
+      explanation: "Use size 24 or bigger for bullets and 36 or bigger for titles, so the back of the room can read them.",
+    },
+    {
+      id: "red-green",
+      prompt: "What is wrong with these colours?",
+      image: figure("c2-red-green", "A slide headed 'Warning signs' in red text on a green background, with three bullets: a link you did not expect, it rushes you to pay, spelling mistakes."),
+      choices: [
+        { text: "Red on green is hard to read for lots of people" },
+        { text: "Nothing" },
+        { text: "It needs more colours" },
+      ],
+      answer: 0,
+      explanation: "Red and green look alike to many colour-blind people. Use dark text on a light background, and stick to one or two colours.",
+    },
+    {
+      id: "jargon",
+      prompt: "A student's grandad reads this slide. What should Sam add?",
+      image: figure("c2-jargon", "A slide headed 'Watch out for phishing' with three bullets: phishing is very common; smishing is phishing on your phone; never fall for phishing."),
+      choices: [
+        { text: "What 'phishing' means, in simple words" },
+        { text: "Some animations" },
+        { text: "A longer heading" },
+      ],
+      answer: 0,
+      explanation: "If you must use a word like phishing, explain it: fake messages that try to trick you into giving away passwords or bank details.",
+    },
+    {
+      id: "source-on-slide",
+      prompt: "What does this slide need to reach Distinction?",
+      image: figure("c2-no-source", "A slide headed 'What to do with a scam text' with three bullets: do not tap the link; forward the text to 7726, for free; then delete it. There is nothing at the bottom of the slide."),
+      choices: [
+        { text: "A source under the facts" },
+        { text: "A brighter background" },
+        { text: "More bullet points" },
+      ],
+      answer: 0,
+      explanation: "Every fact needs a source on the slide, in small text at the bottom, like: Source: National Cyber Security Centre.",
+    },
+    {
+      id: "not-google",
+      prompt: "What is wrong with Sam's Sources slide?",
+      image: figure("c2-google-sources", "A slide headed 'Sources' with three bullets: Google; Google; YouTube."),
+      choices: [
+        { text: "Google is how Sam found them, not where they came from" },
+        { text: "It needs more colours" },
+        { text: "Nothing: it is fine" },
+      ],
+      answer: 0,
+      explanation: "Name the page the facts came from, copied from your research log. Nobody can check \"Google\".",
+    },
+    {
+      id: "reference-missing",
+      askTwice: true,
+      prompt: "A full reference has five things. Which is missing from Sam's?",
+      image: figure("c2-ref-missing", "Sam's Sources slide: 'National Cyber Security Centre (no date) https://www.ncsc.gov.uk/collection/phishing-scams (Accessed: 2 October 2026).'"),
+      choices: [{ text: "The title of the page" }, { text: "Who made it" }, { text: "The date Sam looked at it" }],
+      answer: 0,
+      explanation: "The five, in order: author, date published (or no date), title, URL, and the date you looked. All five are in your research log.",
+    },
+    {
+      id: "picture-source",
+      prompt: "Sam copied this scam text picture from the Which? website. What must Sam do?",
+      image: figure("c2-screenshot", "A slide headed 'What a scam text looks like' with two bullets, it says you missed a parcel and it asks for a fee, beside a picture of a phone showing a scam text asking for £1.99. Nothing on the slide says where the picture came from."),
+      choices: [
+        { text: "Reference the picture too" },
+        { text: "Nothing: pictures do not need a source" },
+        { text: "Stretch it to fill the slide" },
+      ],
+      answer: 0,
+      explanation: "If you used a picture from a website, reference it, the same as a fact. Put the source under it and on your Sources slide.",
+    },
+    {
+      id: "fact-not-in-log",
+      askTwice: true,
+      prompt: "Which fact on the slide is not in Sam's research log?",
+      image: figure("c2-fact-not-in-log", "On the left, Sam's research log notes: real companies don't ask for card details by text; forward scam texts to 7726. On the right, a slide headed 'What to do' with three numbered bullets. 1: Forward scam texts to 7726. 2: Real companies don't ask for card details by text. 3: Turn your phone off at night to stop scams."),
+      choices: [{ text: "Part 1" }, { text: "Part 2" }, { text: "Part 3" }],
+      answer: 2,
+      explanation: "Every fact on your slides comes from a row in your log. If it is not in your log, research it or leave it out.",
+    },
+    {
+      id: "file-name",
+      prompt: "Sam's file is called 'Untitled presentation'. Which name does the handbook ask for?",
+      image: figure("c2-file-name", "A Downloads list with one PowerPoint file: Untitled presentation.pptx."),
+      choices: [
+        { text: "Sam_Jones_StayingSafeOnline.pptx" },
+        { text: "Untitled presentation.pptx" },
+        { text: "my work.pptx" },
+      ],
+      answer: 0,
+      explanation: "Put your name in the file name, like Alex_Smith_StayingSafeOnline.pptx, so your tutor knows whose work it is.",
+    },
+    {
+      id: "hand-in",
+      prompt: "Sam is about to click Hand in. What is missing?",
+      image: figure("c2-hand-in", "A hand-in page for 'Unit A4: Staying safe online', which says: hand in your research log and your PowerPoint. Under 'Your work' is one file, Sam_Jones_StayingSafeOnline.pptx, then the buttons Add and Hand in."),
+      choices: [{ text: "The research log" }, { text: "Nothing: it is ready" }, { text: "A copy of the brief" }],
+      answer: 0,
+      explanation: "Hand in both: your research log for Task 1 and your PowerPoint for Task 2. Check both are attached before you click.",
+    },
+    {
+      id: "grade-up",
+      prompt: "What would move Sam up a grade?",
+      image: figure("c2-grade-up", "A tutor's comment: 'Pass. Your slides give a basic outline of what you found. All your sources are the two I gave you, and there are no sources on your slides.'"),
+      choices: [
+        { text: "Find own sources, stay on topic, reference everything" },
+        { text: "Add animations and more fonts" },
+        { text: "Write longer paragraphs" },
+      ],
+      answer: 0,
+      explanation: "The handbook's short version: to move up a grade, find some sources yourself, stay on topic, and reference everything.",
+    },
+  ],
+};
+
+/** In teaching order: Task 2 week by week, then the final check of both tasks before hand-in. */
 export const sections: CourseSection[] = [
   {
     title: "Task 2 · Presenting your research findings",
     sets: [planningPresentation, summarisingFindings, referencingSources, designingSlides, usingGoogleSlides],
+  },
+  {
+    title: "Final check · Before you hand in",
+    sets: [researchLogCheck, presentationCheck],
   },
 ];

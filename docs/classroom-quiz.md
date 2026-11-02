@@ -216,7 +216,7 @@ to `courses`. `sets.test.ts` picks it up from there.
 
 | Level | Course | Sets | Source |
 | --- | --- | --- | --- |
-| 1 | BTEC Level 1 Introductory Diploma in IT, Unit A4 Researching a topic | 5 sets of 14, Task 2 only | The "Digital Life: Staying safe online" assignment brief |
+| 1 | BTEC Level 1 Introductory Diploma in IT, Unit A4 Researching a topic | 5 sets of 14 for Task 2, and a final check of 14 and 16 | The "Digital Life: Staying safe online" assignment brief and the Staying Safe Online project handbook |
 | 2 | Level 2 IT, Unit 9 Spreadsheet development | 8 sets of 15, Tasks 1–5 | The Assignment 2 guide |
 | 2 | Year 11 taster day, Data analytics | 2 sets: 24 to open, 16 to close | Written for the taster day |
 | 3 | BTEC AAQ IT, Unit 3 Website development | 20 sets of 16 | The unit's lecture notes and decks |
@@ -229,6 +229,18 @@ PowerPoint (.pptx) because the brief asks for a PowerPoint file. Its examples
 are from the brief's own topics (scam texts, passwords, phone security), so the
 quiz also revisits staying safe online. The questions are written for Level 1:
 short sentences, everyday words, and two or three choices for most questions.
+
+Its final check, "Before you hand in", follows the Staying Safe Online project
+handbook's to-do list and final checklist, one set per task. "Your research
+log (Task 1)" checks the log's four columns (Date, URL, Source details,
+Comments/notes), how each source was found, given (G: NIST, OWASP) and own (O)
+sources, staying on topic and notes in simple, own words (A.P1 to A.D2). "Your
+PowerPoint and handing in (Task 2)" checks the 6 to 8 slide plan, the agreed
+title, readable slides, a source under every fact, the five-part reference,
+the file name and handing in both files (B.P3 to B.D3). Each question shows a
+piece of Sam's work with one thing to spot, and each explanation ends with
+what to check in your own work, so it is a last check before hand-in and
+revision for anyone behind.
 
 **Unit 9 (Level 2)** follows the guide's five tasks: the data model,
 formulas and formatting (2C.P4); validation, navigation, conditional formatting

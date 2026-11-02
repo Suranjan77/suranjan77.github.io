@@ -1051,6 +1051,146 @@
     648,
     115
   ],
+  "l1-a4/c1-missing-column": [
+    848,
+    179
+  ],
+  "l1-a4/c1-date": [
+    628,
+    262
+  ],
+  "l1-a4/c1-address": [
+    748,
+    215
+  ],
+  "l1-a4/c1-page-details": [
+    628,
+    262
+  ],
+  "l1-a4/c1-no-date": [
+    628,
+    275
+  ],
+  "l1-a4/c1-how-found": [
+    848,
+    244
+  ],
+  "l1-a4/c1-given": [
+    810,
+    209
+  ],
+  "l1-a4/c1-g-or-o": [
+    588,
+    127
+  ],
+  "l1-a4/c1-only-given": [
+    628,
+    252
+  ],
+  "l1-a4/c1-off-topic": [
+    788,
+    259
+  ],
+  "l1-a4/c1-notes-copied": [
+    468,
+    275
+  ],
+  "l1-a4/c1-notes-own": [
+    468,
+    177
+  ],
+  "l1-a4/c1-owasp": [
+    668,
+    180
+  ],
+  "l1-a4/c1-who-clear": [
+    448,
+    255
+  ],
+  "l1-a4/c1-who-unclear": [
+    448,
+    201
+  ],
+  "l1-a4/c1-full-log": [
+    848,
+    326
+  ],
+  "l1-a4/c2-plan-short": [
+    236,
+    68
+  ],
+  "l1-a4/c2-plan-right": [
+    308,
+    116
+  ],
+  "l1-a4/c2-plan-long": [
+    380,
+    164
+  ],
+  "l1-a4/c2-title-wrong": [
+    428,
+    253
+  ],
+  "l1-a4/c2-title-right": [
+    428,
+    253
+  ],
+  "l1-a4/c2-missing-slide": [
+    756,
+    288
+  ],
+  "l1-a4/c2-doing-word": [
+    508,
+    298
+  ],
+  "l1-a4/c2-too-many": [
+    508,
+    298
+  ],
+  "l1-a4/c2-font-size": [
+    648,
+    314
+  ],
+  "l1-a4/c2-red-green": [
+    508,
+    298
+  ],
+  "l1-a4/c2-jargon": [
+    508,
+    298
+  ],
+  "l1-a4/c2-no-source": [
+    508,
+    298
+  ],
+  "l1-a4/c2-google-sources": [
+    508,
+    298
+  ],
+  "l1-a4/c2-ref-missing": [
+    708,
+    180
+  ],
+  "l1-a4/c2-screenshot": [
+    508,
+    298
+  ],
+  "l1-a4/c2-fact-not-in-log": [
+    834,
+    268
+  ],
+  "l1-a4/c2-file-name": [
+    548,
+    129
+  ],
+  "l1-a4/c2-hand-in": [
+    668,
+    273
+  ],
+  "l1-a4/c2-grade-up": [
+    628,
+    164
+  ],
   "l2-u9/t1-mixed-types": [
     308,
     260

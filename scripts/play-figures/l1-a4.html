@@ -1,6 +1,6 @@
 <!doctype html>
 <meta charset="utf-8">
-<title>Classroom quiz figures: BTEC Level 1 Unit A4, Task 2</title>
+<title>Classroom quiz figures: BTEC Level 1 Unit A4</title>
 <!--
   Every <figure data-name> on this page is rendered to public/play/l1-a4/<name>.png
   by scripts/render-play-figures.mjs. Each shows what its question asks about: the
@@ -152,6 +152,30 @@
 
   .wavy { text-decoration: underline wavy #c4211d; text-decoration-thickness: 2px; text-underline-offset: 4px; }
   .ok { color: #1e6b33; font-weight: 700; } .bad { color: #a3221c; font-weight: 700; }
+
+  /* Final check: the handbook's four-column research log, a downloads list and a hand-in page. */
+  .log4 { width: 820px; table-layout: fixed; }
+  .log4 th:nth-child(1) { width: 13%; } .log4 th:nth-child(2) { width: 22%; } .log4 th:nth-child(3) { width: 27%; }
+  .log4 td { overflow-wrap: anywhere; }
+  .notes { width: 560px; border: 1.5px solid #7b8794; padding: 12px 14px; font-size: 17px; line-height: 1.45; background: #fff; }
+  .notes .h { font: 700 15px/1.2 Arial, "Liberation Sans", sans-serif; color: #3c4753; margin-bottom: 6px; }
+  .plan { display: grid; gap: 8px; }
+  .plan .box { width: 64px; height: 40px; border: 1.5px solid #7b8794; border-top: 6px solid #24476b; border-radius: 3px; background: #fff;
+               display: flex; align-items: center; justify-content: center; font: 700 16px/1 Arial, "Liberation Sans", sans-serif; color: #14202b; }
+  .files { width: 520px; border: 2px solid #7b8794; border-radius: 8px; background: #fff; font: 17px/1.3 Arial, "Liberation Sans", sans-serif; }
+  .files .head { padding: 10px 14px; font-weight: 700; border-bottom: 1.5px solid #c4cbd2; }
+  .files .f { display: flex; gap: 12px; align-items: center; padding: 10px 14px; }
+  .ico { width: 28px; height: 34px; border-radius: 3px; background: #c4511f; color: #fff; font: 700 12px/34px Arial, sans-serif; text-align: center; flex: none; }
+  .ico.doc { background: #2a5699; }
+  .handin { width: 640px; border: 2px solid #7b8794; border-radius: 8px; background: #fff; font: 17px/1.35 Arial, "Liberation Sans", sans-serif; overflow: hidden; }
+  .handin .top { padding: 14px 18px; border-bottom: 1.5px solid #c4cbd2; }
+  .handin .top b { font-size: 20px; }
+  .handin .body { padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+  .handin .att { display: flex; gap: 12px; align-items: center; border: 1.5px solid #8a96a3; border-radius: 6px; padding: 8px 12px; }
+  .handin .btns { display: flex; gap: 10px; }
+  .handin .btn { border: 1.5px solid #5d6975; border-radius: 6px; padding: 7px 16px; }
+  .handin .btn.go { background: #1f4f80; border-color: #1f4f80; color: #fff; font-weight: 700; }
+  .feedback { width: 600px; border: 2px solid #7b8794; border-left: 8px solid #24476b; border-radius: 6px; padding: 14px 18px; font-size: 18px; line-height: 1.45; background: #fff; }
 </style>
 
 <figure data-name="s1-brief"><div class="doc">
@@ -612,3 +636,74 @@
   <div class="gtop" style="padding:12px"><span class="glogo"></span><span class="gtitle">Spotting fake delivery texts</span><span style="font-size:14px;color:#3c4753">☁ Saved to Drive</span><div class="gright"><span class="gpill">Slideshow ▾</span><span class="gpill gshare">Share</span></div></div>
   <div class="gmenus"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Slide</span><span>Arrange</span><span>Tools</span></div>
 </div></figure>
+
+<!-- Final check: the Staying Safe Online project handbook's to-do list and final check, for Task 1 and Task 2. -->
+<figure data-name="c1-missing-column"><table class="log log4"><caption>Sam's research log · Topic: fake delivery texts</caption><tr><th>Date</th><th>URL</th><th>Source details</th><th>Comments/notes</th></tr><tr><td>3 Oct 2026</td><td></td><td>Author: Get Safe Online<br>Title: Smishing<br>Published: no date</td><td>Found by: Google search "scam text help" (own source, O). Scam texts can pretend to be from your bank.</td></tr></table></figure>
+
+<figure data-name="c1-date"><div class="browser" style="width:600px"><div class="bar"><i></i><i></i><span class="url">https://www.actionfraud.police.uk/scam-texts</span></div><div class="page"><div class="site">Action Fraud</div><h3>Scam texts</h3><div class="meta">Last updated: 5 March 2025</div><p style="margin:0">Criminals send texts that pretend to be from banks and delivery firms. Never click a link in a text you did not expect.</p></div></div></figure>
+
+<figure data-name="c1-address"><div class="browser" style="width:720px"><div class="bar"><i></i><i></i><span class="url">https://www.ncsc.gov.uk/collection/phishing-scams</span></div><div class="page"><div class="site">National Cyber Security Centre</div><h3>Phishing: spot and report scam emails, texts, websites and calls</h3></div></div></figure>
+
+<figure data-name="c1-page-details"><div class="browser" style="width:600px"><div class="bar"><i></i><i></i><span class="url">https://www.getsafeonline.org/smishing</span></div><div class="page"><div class="site">Get Safe Online</div><h3>Smishing</h3><div class="meta">Published: 14 May 2025</div><p style="margin:0">Smishing is phishing by text message. The text tries to get you to tap a link or call a number.</p></div></div></figure>
+
+<figure data-name="c1-no-date"><div class="browser" style="width:600px"><div class="bar"><i></i><i></i><span class="url">https://www.which.co.uk/consumer-rights/scams/scam-texts</span></div><div class="page"><div class="site">Which?</div><h3>How to spot a scam text</h3><p style="margin:0 0 12px">Look out for links you were not expecting, spelling mistakes and messages that rush you.</p><div style="border-top:1.5px solid #c4cbd2;padding-top:8px;font-size:15px;color:#3c4753">© Which? · About us · Contact us</div></div></div></figure>
+
+<figure data-name="c1-how-found"><table class="log log4"><caption>Sam's research log · Topic: fake delivery texts</caption><tr><th>Date</th><th>URL</th><th>Source details</th><th>Comments/notes</th></tr><tr><td>2 Oct 2026</td><td>https://www.ncsc.gov.uk/collection/phishing-scams</td><td>Author: National Cyber Security Centre<br>Title: Phishing: spot and report scam emails, texts, websites and calls<br>Published: no date</td><td>Scam texts often say you missed a parcel. Real companies don't ask for card details by text. Forward scam texts to 7726.</td></tr></table></figure>
+
+<figure data-name="c1-given"><div class="row"><div class="card" style="width:250px"><div class="who"><i></i>OWASP</div><div class="url">owasp.org</div>OWASP Top Ten: the most common security risks for web applications</div><div class="card" style="width:250px"><div class="who"><i></i>Get Safe Online</div><div class="url">getsafeonline.org</div>Smishing: what it is and how to protect yourself</div><div class="card" style="width:250px"><div class="who"><i></i>National Cyber Security Centre</div><div class="url">ncsc.gov.uk</div>Phishing: spot and report scam emails, texts, websites and calls</div></div></figure>
+
+<figure data-name="c1-g-or-o"><div class="notes"><div class="h">Comments/notes</div>Found by: I searched "how to report a scam text" on Google. ( ? )<br>You can forward a scam text to 7726 for free. Then delete it.</div></figure>
+
+<figure data-name="c1-only-given"><table class="log" style="width:600px"><caption>Sam's research log · Source details</caption><tr><th style="width:12%">Row</th><th>Source details</th><th style="width:16%">G or O</th></tr><tr><td>1</td><td>NIST: Digital Identity Guidelines</td><td>G</td></tr><tr><td>2</td><td>OWASP: Top Ten</td><td>G</td></tr><tr><td>3</td><td>NIST: Phishing</td><td>G</td></tr><tr><td>4</td><td>OWASP: Authentication Cheat Sheet</td><td>G</td></tr></table></figure>
+
+<figure data-name="c1-off-topic"><table class="log" style="width:760px"><caption>Sam's research log · Topic: fake delivery texts</caption><tr><th style="width:9%">Row</th><th style="width:30%">Source details</th><th>Comments/notes</th></tr><tr><td><span class="num">1</span></td><td>Action Fraud: Scam texts</td><td>Fake delivery texts ask you to pay a small fee through a link.</td></tr><tr><td><span class="num">2</span></td><td>Tech Today: Best gaming laptops</td><td>A good gaming laptop needs a fast graphics card.</td></tr><tr><td><span class="num">3</span></td><td>NCSC: Phishing</td><td>Forward scam texts to 7726, then delete them.</td></tr></table></figure>
+
+<figure data-name="c1-notes-copied"><div class="notes" style="width:440px"><div class="h">Comments/notes</div>Criminals are sending texts that look like they come from delivery companies. The message says a parcel could not be delivered, and asks the person to click a link to rearrange delivery. The link goes to a fake website that asks for a small fee. The website then steals the card details that are typed in, and criminals use them to take money from the account.</div></figure>
+
+<figure data-name="c1-notes-own"><div class="notes" style="width:440px"><div class="h">Comments/notes</div>Fake delivery texts ask you to pay a small fee through a link.<br>The link is a fake website that steals your card details.</div></figure>
+
+<figure data-name="c1-owasp"><div class="doc" style="width:640px"><h3>From OWASP Top Ten (a given source)</h3><p style="margin:0">"Where possible, implement multi-factor authentication to prevent automated credential stuffing, brute force, and stolen credential reuse attacks."</p></div></figure>
+
+<figure data-name="c1-who-clear"><div class="browser" style="width:420px"><div class="bar"><i></i><i></i><span class="url">https://www.actionfraud.police.uk</span></div><div class="page"><div class="site">Action Fraud · the UK's national reporting centre for fraud</div><h3>Report a scam text</h3><p style="margin:0">Forward scam texts to 7726. Report fraud to Action Fraud.</p></div></div></figure>
+
+<figure data-name="c1-who-unclear"><div class="browser" style="width:420px"><div class="bar"><i></i><i></i><span class="url">https://best-tips-4u.blogspot.example</span></div><div class="page"><h3>top 10 scam tips!!!</h3><p style="margin:0">scams r everywhere, just never answer ur phone and u will be fine</p></div></div></figure>
+
+<figure data-name="c1-full-log"><table class="log log4"><caption>Sam's research log · Topic: fake delivery texts</caption><tr><th>Date</th><th>URL</th><th>Source details</th><th>Comments/notes</th></tr><tr><td>1 Oct 2026</td><td>https://owasp.org/Top10</td><td>Author: OWASP<br>Title: OWASP Top Ten<br>Published: no date</td><td>Given by my tutor (G). Turning on two-step login stops criminals using stolen passwords.</td></tr><tr><td>2 Oct 2026</td><td>https://www.ncsc.gov.uk/collection/phishing-scams</td><td>Author: National Cyber Security Centre<br>Title: Phishing: spot and report scam emails, texts, websites and calls<br>Published: no date</td><td>Found by: Google search "fake parcel text UK" (O). Real companies don't ask for card details by text. Forward scam texts to 7726.</td></tr></table></figure>
+
+<figure data-name="c2-plan-short"><div class="plan" style="grid-template-columns:repeat(3,64px)"><div class="box">1</div><div class="box">2</div><div class="box">3</div></div></figure>
+
+<figure data-name="c2-plan-right"><div class="plan" style="grid-template-columns:repeat(4,64px)"><div class="box">1</div><div class="box">2</div><div class="box">3</div><div class="box">4</div><div class="box">5</div><div class="box">6</div><div class="box">7</div></div></figure>
+
+<figure data-name="c2-plan-long"><div class="plan" style="grid-template-columns:repeat(5,64px)"><div class="box">1</div><div class="box">2</div><div class="box">3</div><div class="box">4</div><div class="box">5</div><div class="box">6</div><div class="box">7</div><div class="box">8</div><div class="box">9</div><div class="box">10</div><div class="box">11</div><div class="box">12</div><div class="box">13</div><div class="box">14</div><div class="box">15</div></div></figure>
+
+<figure data-name="c2-title-wrong"><div class="slide title-slide"><div class="band"></div><div class="inner"><div class="row" style="gap:18px;align-items:center"><div style="text-align:left"><h2 style="font-size:28px">Fake texts</h2><p>Sam Jones</p></div><div class="phone" style="width:70px;height:112px;padding:6px 4px"><div class="msg" style="font-size:8px">Your parcel could not be delivered…</div></div></div></div></div></figure>
+
+<figure data-name="c2-title-right"><div class="slide title-slide"><div class="band"></div><div class="inner"><div class="row" style="gap:18px;align-items:center"><div style="text-align:left"><h2 style="font-size:28px">Spotting fake delivery texts</h2><p>Sam Jones</p></div><div class="phone" style="width:70px;height:112px;padding:6px 4px"><div class="msg" style="font-size:8px">Your parcel could not be delivered…</div></div></div></div></div></figure>
+
+<figure data-name="c2-missing-slide"><div style="display:grid;grid-template-columns:repeat(4,170px);gap:14px 16px"><div class="slot"><div class="mini" style="width:170px;height:96px"><div class='band'></div><b>Spotting fake delivery texts</b><div class='l'></div><div class='l s'></div></div><div class="n">1</div></div><div class="slot"><div class="mini" style="width:170px;height:96px"><div class='band'></div><b>What is it?</b><div class='l'></div><div class='l s'></div></div><div class="n">2</div></div><div class="slot"><div class="mini" style="width:170px;height:96px"><div class='band'></div><b>Why it matters</b><div class='l'></div><div class='l s'></div></div><div class="n">3</div></div><div class="slot"><div class="mini" style="width:170px;height:96px"><div class='band'></div><b>How it happens</b><div class='l'></div><div class='l s'></div></div><div class="n">4</div></div><div class="slot"><div class="mini" style="width:170px;height:96px"><div class='band'></div><b>Warning signs</b><div class='l'></div><div class='l s'></div></div><div class="n">5</div></div><div class="slot"><div class="mini" style="width:170px;height:96px"><div class='band'></div><b>How to stay safe</b><div class='l'></div><div class='l s'></div></div><div class="n">6</div></div><div class="slot"><div class="mini q" style="width:170px;height:96px">?</div><div class="n">7</div></div><div class="slot"><div class="mini" style="width:170px;height:96px"><div class='band'></div><b>Sources</b><div class='l'></div><div class='l s'></div></div><div class="n">8</div></div></div></figure>
+
+<figure data-name="c2-doing-word"><div class="slide big numbered" style=""><div class="band"></div><div class="inner"><h3>How to stay safe</h3><ul><li><span class="num">1</span>Passwords are really important</li><li><span class="num">2</span>Check who sent a text before you tap a link</li><li><span class="num">3</span>Hackers are everywhere</li></ul></div></div></figure>
+
+<figure data-name="c2-too-many"><div class="slide big"><div class="band"></div><div class="inner"><h3>Scam texts</h3><ul style="font-size:14px;line-height:1.25"><li>They pretend to be a delivery company</li><li>Or your bank</li><li>Or the tax office</li><li>They say you missed a parcel</li><li>They ask for a small fee</li><li>The link looks strange</li><li>They rush you</li><li>They have spelling mistakes</li><li>Forward them to 7726</li></ul></div></div></figure>
+
+<figure data-name="c2-font-size"><div class="gapp" style="width:620px;padding-top:10px"><div class="gtool" style="gap:16px"><span class="plus">+</span><span class="sep"></span><span>Arial ▾</span><span class="sep"></span><span>−</span><span style="border:1.5px solid #5d6975;border-radius:4px;padding:1px 10px;background:#fff;font-weight:700">12</span><span>+</span><span class="sep"></span><b>B</b><i>I</i><u>U</u></div><div class="gstage" style="background:#e3e8ee;padding:14px"><div class="slide" style="width:400px;height:200px"><div class="band"></div><div class="inner"><h3>Warning signs</h3><ul style="font-size:12px;background:#c2e7ff;padding-top:2px;padding-bottom:2px"><li>A link you did not expect</li><li>It rushes you to pay</li></ul></div></div></div></div></figure>
+
+<figure data-name="c2-red-green"><div class="slide big" style="background:#2e8b3a"><div class="inner" style="justify-content:center"><h3 style="color:#e0262b;font-size:28px">Warning signs</h3><ul style="color:#e0262b;font-size:21px"><li>A link you did not expect</li><li>It rushes you to pay</li><li>Spelling mistakes</li></ul></div></div></figure>
+
+<figure data-name="c2-jargon"><div class="slide big" style=""><div class="band"></div><div class="inner"><h3>Watch out for phishing</h3><ul><li>Phishing is very common</li><li>Smishing is phishing on your phone</li><li>Never fall for phishing</li></ul></div></div></figure>
+
+<figure data-name="c2-no-source"><div class="slide big" style=""><div class="band"></div><div class="inner"><h3>What to do with a scam text</h3><ul><li>Do not tap the link</li><li>Forward the text to 7726, for free</li><li>Then delete it</li></ul></div></div></figure>
+
+<figure data-name="c2-google-sources"><div class="slide big" style=""><div class="band"></div><div class="inner"><h3>Sources</h3><ul><li>Google</li><li>Google</li><li>YouTube</li></ul></div></div></figure>
+
+<figure data-name="c2-ref-missing"><div class="doc" style="width:680px"><h3>Sources</h3><p style="margin:0">National Cyber Security Centre (no date) https://www.ncsc.gov.uk/collection/phishing-scams (Accessed: 2 October 2026).</p></div></figure>
+
+<figure data-name="c2-screenshot"><div class="slide big"><div class="band"></div><div class="inner"><h3>What a scam text looks like</h3><div style="display:flex;gap:18px;align-items:flex-start"><ul style="flex:1"><li>It says you missed a parcel</li><li>It asks for a fee</li></ul><div class="phone"><div class="msg">PARCEL: your parcel is waiting. Pay £1.99 now: <u>parcel-fee-uk.co</u></div></div></div></div></div></figure>
+
+<figure data-name="c2-fact-not-in-log"><div class="row" style="align-items:flex-start"><table class="log" style="width:360px"><caption>Sam's research log · notes</caption><tr><th>Comments/notes</th></tr><tr><td>Real companies don't ask for card details by text.</td></tr><tr><td>Forward scam texts to 7726.</td></tr></table><div class="slide  numbered" style="width:430px;height:240px"><div class="band"></div><div class="inner"><h3>What to do</h3><ul><li><span class="num">1</span>Forward scam texts to 7726</li><li><span class="num">2</span>Real companies don't ask for card details by text</li><li><span class="num">3</span>Turn your phone off at night to stop scams</li></ul></div></div></div></figure>
+
+<figure data-name="c2-file-name"><div class="files"><div class="head">Downloads</div><div class="f"><span class="ico">P</span><span>Untitled presentation.pptx</span></div></div></figure>
+
+<figure data-name="c2-hand-in"><div class="handin"><div class="top"><b>Unit A4: Staying safe online</b><br><span style="color:#3c4753">Hand in your research log and your PowerPoint</span></div><div class="body"><b>Your work</b><div class="att"><span class="ico">P</span><span>Sam_Jones_StayingSafeOnline.pptx</span></div><div class="btns"><span class="btn">+ Add</span><span class="btn go">Hand in</span></div></div></div></figure>
+
+<figure data-name="c2-grade-up"><div class="feedback"><b>Tutor's comment</b><br>Pass. Your slides give a basic outline of what you found. All your sources are the two I gave you, and there are no sources on your slides.</div></figure>
