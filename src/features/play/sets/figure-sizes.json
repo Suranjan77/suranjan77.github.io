@@ -1398,5 +1398,105 @@
   "y11-da/e-sleep": [
     588,
     428
+  ],
+  "btec-l1-it6/t01-forum": [
+    460,
+    328
+  ],
+  "btec-l1-it6/t01-chat": [
+    270,
+    381
+  ],
+  "btec-l1-it6/t01-blog": [
+    460,
+    290
+  ],
+  "btec-l1-it6/t01-call": [
+    520,
+    342
+  ],
+  "btec-l1-it6/t02-attachment": [
+    500,
+    313
+  ],
+  "btec-l1-it6/t02-mailing-list": [
+    500,
+    265
+  ],
+  "btec-l1-it6/t03-compose": [
+    500,
+    368
+  ],
+  "btec-l1-it6/t03-tone-casual": [
+    300,
+    240
+  ],
+  "btec-l1-it6/t03-tone-polite": [
+    300,
+    240
+  ],
+  "btec-l1-it6/t03-tone-shouty": [
+    300,
+    240
+  ],
+  "btec-l1-it6/t03-no-attachment": [
+    500,
+    308
+  ],
+  "btec-l1-it6/t04-missing-detail": [
+    400,
+    335
+  ],
+  "btec-l1-it6/t04-post-typos": [
+    300,
+    179
+  ],
+  "btec-l1-it6/t04-post-complete": [
+    300,
+    309
+  ],
+  "btec-l1-it6/t04-post-emoji": [
+    300,
+    287
+  ],
+  "btec-l1-it6/t04-post-parts": [
+    400,
+    360
+  ],
+  "btec-l1-it6/t05-call-controls": [
+    520,
+    243
+  ],
+  "btec-l1-it6/t05-camera-good": [
+    300,
+    212
+  ],
+  "btec-l1-it6/t05-camera-backlit": [
+    300,
+    212
+  ],
+  "btec-l1-it6/t05-camera-close": [
+    300,
+    212
+  ],
+  "btec-l1-it6/t06-phishing": [
+    480,
+    289
+  ],
+  "btec-l1-it6/t06-popup": [
+    440,
+    292
+  ],
+  "btec-l1-it6/t07-profile": [
+    420,
+    290
+  ],
+  "btec-l1-it6/t07-desk-good": [
+    300,
+    242
+  ],
+  "btec-l1-it6/t07-desk-bad": [
+    300,
+    242
   ]
 }

@@ -15,6 +15,14 @@ export const courses: readonly Course[] = [
     load: () => import("./l1-a4").then((m) => m.sections),
   },
   {
+    id: "btec-l1-it6",
+    level: 1,
+    qualification: "BTEC Level 1 Introductory Diploma in IT",
+    unit: "Unit IT6 · Using digital communication technologies",
+    scope: "Seven topics: digital tools, emails, social media, online meetings and staying safe",
+    load: () => import("./btec-l1-it6").then((m) => m.sections),
+  },
+  {
     id: "l2-u9",
     level: 2,
     qualification: "Level 2 IT",

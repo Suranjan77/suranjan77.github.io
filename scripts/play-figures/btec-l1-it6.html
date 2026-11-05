@@ -1,0 +1,407 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Classroom quiz figures: BTEC Level 1 IT, Unit IT6</title>
+<!--
+  Every <figure data-name> on this page is rendered to public/play/btec-l1-it6/<name>.png
+  by scripts/render-play-figures.mjs. Each is a drawn screen from an everyday
+  communication tool, with nothing on it that gives an answer away: no captions,
+  no pass/fail labels. Northgate College, its Students' Union, Hillside Animal
+  Rescue, StreamBox and every person named are invented.
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; background: #e9ecef; color: #1b1f24;
+         font: 16px/1.45 "Segoe UI", Inter, system-ui, sans-serif;
+         display: flex; flex-direction: column; align-items: flex-start; gap: 24px; }
+  figure { margin: 0; background: #fff; padding: 14px; }
+  .frame { border: 2px solid #7b8794; border-radius: 8px; overflow: hidden; background: #fff; }
+  .num { display: inline-block; background: #a35200; color: #fff; font: 700 12px/20px "Segoe UI", Inter, system-ui, sans-serif;
+         min-width: 20px; text-align: center; border-radius: 4px; padding: 0 4px; flex: none; }
+  .bar { background: #eceff2; padding: 7px 12px; font-size: 12px; color: #3c4753; border-bottom: 1px solid #9aa5b1;
+         display: flex; align-items: center; gap: 8px; }
+  .bar b { color: #1b1f24; }
+  .btn { display: inline-block; background: #1f5d8c; color: #fff; font-weight: 600; border-radius: 5px; font-size: 12.5px; padding: 8px 14px; }
+  .muted { color: #46525e; }
+  .link { color: #1d4f91; text-decoration: underline; }
+
+  /* Topic 1: a forum thread. */
+  .forum { width: 460px; }
+  .forum header { background: #2d5677; color: #fff; padding: 9px 12px; font-weight: 600; font-size: 14px; }
+  .forum .trail { padding: 7px 12px; font-size: 11.5px; color: #1d4f91; border-bottom: 1px solid #9aa5b1; }
+  .forum .trail span { color: #46525e; padding: 0 4px; }
+  .forum h3 { margin: 10px 12px 2px; font-size: 16px; color: #14202b; }
+  .forum .meta { margin: 0 12px 8px; font-size: 11.5px; color: #46525e; }
+  .forum .fpost { display: grid; grid-template-columns: 90px 1fr; border-top: 1px solid #9aa5b1; font-size: 12.5px; }
+  .forum .who { background: #f4f6f8; padding: 9px 10px; font-size: 11.5px; color: #46525e; border-right: 1px solid #9aa5b1; }
+  .forum .who b { display: block; color: #1b1f24; font-size: 12.5px; }
+  .forum .said { padding: 9px 12px; color: #2c3640; }
+
+  /* Topic 1: an instant-message chat on a phone. */
+  .phone { width: 270px; border: 8px solid #2a3139; border-radius: 24px; overflow: hidden; background: #fff; }
+  .chat .top { background: #2d5677; color: #fff; padding: 9px 12px; font-size: 13px; font-weight: 600; display: flex; gap: 9px; align-items: center; }
+  .chat .top i { width: 26px; height: 26px; border-radius: 50%; background: #a9c4dc; flex: none; }
+  .chat .top small { display: block; font-weight: 400; font-size: 11px; color: #e3ecf4; }
+  .chat .msgs { padding: 12px 10px; display: flex; flex-direction: column; gap: 7px; background: #f4f6f8; min-height: 250px; }
+  .chat .m { max-width: 78%; padding: 7px 10px; border-radius: 12px; font-size: 12.5px; line-height: 1.35; }
+  .chat .in { background: #fff; border: 1px solid #9aa5b1; align-self: flex-start; color: #1b1f24; }
+  .chat .out { background: #d6e6f5; border: 1px solid #7f9fbd; align-self: flex-end; color: #14202b; }
+  .chat .t { font-size: 10.5px; color: #46525e; align-self: flex-end; margin-top: -4px; }
+  .chat .typing { align-self: flex-start; font-size: 11px; color: #46525e; font-style: italic; }
+  .chat .type { border-top: 1px solid #9aa5b1; padding: 8px 10px; font-size: 12px; color: #5d6975; }
+
+  /* Topic 1: a blog post. */
+  .blog { width: 460px; }
+  .blog .mast { padding: 12px 16px 8px; border-bottom: 1px solid #9aa5b1; font: 600 18px/1.2 Georgia, "Times New Roman", serif; color: #14202b; }
+  .blog .mast small { display: block; font: 12px "Segoe UI", Inter, system-ui, sans-serif; color: #46525e; margin-top: 2px; }
+  .blog article { padding: 12px 16px; font: 13px/1.6 Georgia, "Times New Roman", serif; color: #2c3640; }
+  .blog article h3 { font: 600 16px/1.25 "Segoe UI", Inter, system-ui, sans-serif; color: #14202b; margin: 0 0 3px; }
+  .blog article .date { font: 11.5px "Segoe UI", Inter, system-ui, sans-serif; color: #46525e; margin-bottom: 8px; }
+  .blog article p { margin: 0 0 8px; }
+  .blog .comments { border-top: 1px solid #9aa5b1; padding: 9px 16px 12px; font-size: 12px; color: #3c4753; }
+  .blog .comments b { color: #1b1f24; }
+  .blog .comments div + div { margin-top: 5px; }
+
+  /* Topic 1 and 5: a video call. */
+  .call { width: 520px; }
+  .call .grid { background: #1e2530; padding: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .call .tile { background: #3a4652; border-radius: 6px; height: 112px; position: relative; overflow: hidden; }
+  .call .tile svg { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); }
+  .call .name { position: absolute; left: 6px; bottom: 6px; background: #1e2530; color: #fff; font-size: 11px; padding: 2px 7px; border-radius: 4px; }
+  .call .tools { background: #1e2530; padding: 8px 10px 12px; display: flex; justify-content: center; gap: 14px; }
+  .call .tool { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .call .tool span:first-child { width: 42px; height: 42px; border-radius: 50%; background: #4a5663; display: grid; place-items: center; }
+  .call .tool.end span:first-child { background: #c22d2d; }
+  .call .tool .num { font-size: 11px; line-height: 17px; min-width: 17px; }
+
+  /* Topic 2 and 3: an email being read or written. */
+  .mail { width: 500px; }
+  .mail .row { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-bottom: 1px solid #9aa5b1; font-size: 12.5px; color: #3c4753; }
+  .mail .row .k { width: 58px; color: #46525e; flex: none; }
+  .mail .row .v { color: #1b1f24; flex: 1; }
+  .mail .chip { display: inline-flex; align-items: center; gap: 5px; background: #e3ecf4; border: 1px solid #7f9fbd; border-radius: 12px; padding: 2px 10px; font-size: 12px; color: #14202b; }
+  .mail .body { padding: 12px; font-size: 13px; line-height: 1.55; color: #2c3640; }
+  .mail .body p { margin: 0 0 8px; }
+  .mail .file { display: inline-flex; align-items: center; gap: 9px; border: 1.5px solid #5d6975; border-radius: 6px; padding: 7px 12px; font-size: 12.5px; color: #1b1f24; margin: 4px 12px 12px; }
+  .mail .file small { display: block; color: #46525e; font-size: 11px; }
+  .mail .foot { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-top: 1px solid #9aa5b1; }
+  .mail .foot .btn { padding: 6px 16px; }
+
+  /* Topic 3: three replies with different tones. */
+  .tone { width: 300px; }
+  .tone .body { padding: 12px; font-size: 13px; line-height: 1.5; color: #2c3640; min-height: 176px; }
+  .tone .body p { margin: 0 0 7px; }
+  .tone .bar { font-size: 11.5px; }
+
+  /* Topic 4: social media posts. */
+  .post { width: 400px; }
+  .post.small { width: 300px; }
+  .post .head { display: flex; gap: 9px; align-items: center; padding: 10px 12px 6px; }
+  .post .head i { width: 34px; height: 34px; border-radius: 50%; background: #2d5677; color: #fff; display: grid; place-items: center;
+                  font: 700 13px/1 "Segoe UI", Inter, system-ui, sans-serif; font-style: normal; flex: none; }
+  .post .head b { display: block; font-size: 13px; color: #1b1f24; }
+  .post .head small { display: block; font-size: 11px; color: #46525e; }
+  .post .text { padding: 2px 12px 9px; font-size: 13px; line-height: 1.5; color: #1b1f24; }
+  .post.small .text { font-size: 12.5px; min-height: 64px; }
+  .post .tag { color: #1d4f91; }
+  .post .pic { background: #f3e3c8; height: 150px; display: grid; place-items: center; }
+  .post.small .pic { height: 108px; }
+  .post .acts { display: flex; justify-content: space-around; padding: 7px 12px; border-top: 1px solid #9aa5b1; font-size: 12px; color: #3c4753; }
+  .post .mark { display: inline-flex; align-items: center; gap: 5px; }
+
+  /* Topic 6: a phishing email and a fake warning. */
+  .phish { width: 480px; }
+  .phish .body { padding: 14px; font-size: 13px; line-height: 1.55; color: #2c3640; }
+  .phish .body p { margin: 0 0 9px; }
+  .phish .warn { color: #b02a2a; font-weight: 700; }
+  .popup { width: 440px; }
+  .popup .page { background: #f4f6f8; padding: 22px; }
+  .popup .box { background: #fff; border: 3px solid #b02a2a; border-radius: 6px; padding: 14px 16px; text-align: center; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+  .popup .box h3 { margin: 0 0 6px; color: #b02a2a; font-size: 18px; }
+  .popup .box p { margin: 0 0 10px; font-size: 13px; color: #2c3640; }
+  .popup .box .btn { background: #b02a2a; font-size: 13px; padding: 9px 18px; }
+  .popup .box small { display: block; margin-top: 8px; font-size: 11.5px; color: #46525e; }
+
+  /* Topic 7: a public profile. */
+  .profile { width: 420px; }
+  .profile .cover { height: 62px; background: #a9c4dc; }
+  .profile .who { display: flex; gap: 12px; align-items: flex-end; padding: 0 14px; margin-top: -26px; }
+  .profile .who i { width: 64px; height: 64px; border-radius: 50%; background: #2d5677; border: 3px solid #fff; display: grid; place-items: center; }
+  .profile .who b { font-size: 16px; color: #14202b; padding-bottom: 4px; }
+  .profile ul { list-style: none; margin: 10px 0 0; padding: 0; }
+  .profile li { display: flex; gap: 10px; align-items: center; padding: 8px 14px; border-top: 1px solid #9aa5b1; font-size: 13px; color: #1b1f24; }
+  .profile li .k { width: 92px; color: #46525e; font-size: 12px; flex: none; }
+
+  /* Topic 7: two workstations, side on. */
+  .desk { width: 300px; }
+  .desk svg { display: block; }
+</style>
+
+<!-- ── Topic 1 · Types of digital communication ─────────────────────────── -->
+<figure data-name="t01-forum" class="forum"><div class="frame">
+  <header>Fix-It Friends</header>
+  <div class="trail">All topics<span>›</span>Laptops<span>›</span>Help</div>
+  <h3>My laptop fan is really loud. Is that normal?</h3>
+  <div class="meta">Started by DanTheMan · 14 replies · Last reply 2 hours ago</div>
+  <div class="fpost"><div class="who"><b>DanTheMan</b>Member</div>
+    <div class="said">Since last week the fan never stops, even when I'm only typing. Any ideas?</div></div>
+  <div class="fpost"><div class="who"><b>Techy_Ros</b>Helper</div>
+    <div class="said">Check the vents for dust first. Mine was full of fluff and it was quiet again after a clean.</div></div>
+  <div class="fpost"><div class="who"><b>Kwame88</b>Member</div>
+    <div class="said">Also look at what is running in Task Manager. Something might be using all the power.</div></div>
+</div></figure>
+
+<figure data-name="t01-chat" class="phone"><div class="chat">
+  <div class="top"><i></i><div>Leah<small>online</small></div></div>
+  <div class="msgs">
+    <div class="m in">Are you at the bus stop yet?</div>
+    <div class="t">10:41</div>
+    <div class="m out">2 mins away! Wait for me 🙏</div>
+    <div class="t">10:41 · Seen</div>
+    <div class="m in">OK, I'll tell the driver</div>
+    <div class="t">10:42</div>
+    <div class="typing">Leah is typing…</div>
+  </div>
+  <div class="type">Message</div>
+</div></figure>
+
+<figure data-name="t01-blog" class="blog"><div class="frame">
+  <div class="mast">Sam's Apprentice Diary<small>Life as a first-year IT apprentice</small></div>
+  <article>
+    <h3>Month one: what nobody told me</h3>
+    <div class="date">Posted by Sam · 3 March</div>
+    <p>Four weeks in, and I have reset more passwords than I thought possible. Here are the three things I wish I had known on my first day…</p>
+    <span class="link">Read more</span>
+  </article>
+  <div class="comments">
+    <div><b>Aisha:</b> Same here! The password resets never stop 😂</div>
+    <div><b>Tom R:</b> Great post, looking forward to month two.</div>
+  </div>
+</div></figure>
+
+<figure data-name="t01-call" class="call"><div class="frame">
+  <div class="grid">
+    <div class="tile"><svg width="90" height="96" viewBox="0 0 90 96"><circle cx="45" cy="34" r="22" fill="#a9c4dc"/><path d="M5 96c4-26 20-36 40-36s36 10 40 36z" fill="#a9c4dc"/></svg><span class="name">Jo</span></div>
+    <div class="tile"><svg width="90" height="96" viewBox="0 0 90 96"><circle cx="45" cy="34" r="22" fill="#e0c39a"/><path d="M5 96c4-26 20-36 40-36s36 10 40 36z" fill="#e0c39a"/></svg><span class="name">Marcus</span></div>
+    <div class="tile"><svg width="90" height="96" viewBox="0 0 90 96"><circle cx="45" cy="34" r="22" fill="#b9d8b0"/><path d="M5 96c4-26 20-36 40-36s36 10 40 36z" fill="#b9d8b0"/></svg><span class="name">Priya</span></div>
+    <div class="tile"><svg width="90" height="96" viewBox="0 0 90 96"><circle cx="45" cy="34" r="22" fill="#d9b8d4"/><path d="M5 96c4-26 20-36 40-36s36 10 40 36z" fill="#d9b8d4"/></svg><span class="name">You</span></div>
+  </div>
+  <div class="tools">
+    <div class="tool"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span></div>
+    <div class="tool"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg></span></div>
+    <div class="tool"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 14V8M9 10.5 12 7.5l3 3M8 21h8"/></svg></span></div>
+    <div class="tool"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg></span></div>
+    <div class="tool end"><span><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M3 14c5-5 13-5 18 0l-2.6 2.6-3.4-1.5V12a10 10 0 0 0-6 0v3.1L5.6 16.6z"/></svg></span></div>
+  </div>
+</div></figure>
+
+<!-- ── Topic 2 · Features and choosing a technology ─────────────────────── -->
+<figure data-name="t02-attachment" class="mail"><div class="frame">
+  <div class="row"><span class="k">From</span><span class="v">Ms Okafor &lt;j.okafor@northgate.ac.uk&gt;</span></div>
+  <div class="row"><span class="k">Subject</span><span class="v"><b>Bake sale poster</b></span></div>
+  <div class="body">
+    <p>Hi all,</p>
+    <p>Here is the poster for Friday's bake sale. Please print one and put it up in your department.</p>
+    <p>Thanks,<br>Ms Okafor</p>
+  </div>
+  <div class="file"><svg width="26" height="30" viewBox="0 0 26 30"><path d="M2 2h15l7 7v19H2z" fill="#fff" stroke="#b02a2a" stroke-width="2"/><path d="M17 2v7h7" fill="none" stroke="#b02a2a" stroke-width="2"/><text x="13" y="23" text-anchor="middle" font-size="7.5" font-weight="700" fill="#b02a2a" font-family="Segoe UI, Inter, sans-serif">PDF</text></svg>
+    <div>Bake-sale-poster.pdf<small>240 KB</small></div></div>
+</div></figure>
+
+<figure data-name="t02-mailing-list" class="mail"><div class="frame">
+  <div class="bar"><b>New message</b></div>
+  <div class="row"><span class="k">To</span><span class="v"><span class="chip"><svg width="15" height="12" viewBox="0 0 15 12" fill="#2d5677"><circle cx="5" cy="3" r="2.6"/><circle cx="11" cy="3.5" r="2.2"/><path d="M0 12c0-4 2.2-5.5 5-5.5S10 8 10 12zM9 12c.3-3 1.5-4.4 3.5-4.4S15 9 15 12z"/></svg>Bake sale helpers (24)</span></span></div>
+  <div class="row"><span class="k">Subject</span><span class="v">Rota for Friday</span></div>
+  <div class="body"><p>Hi everyone,</p><p>The rota for Friday is below. Please check your time slot.</p></div>
+  <div class="foot"><span class="btn">Send</span></div>
+</div></figure>
+
+<!-- ── Topic 3 · Writing emails ─────────────────────────────────────────── -->
+<figure data-name="t03-compose" class="mail"><div class="frame">
+  <div class="bar"><b>New message</b></div>
+  <div class="row"><span class="num">1</span><span class="k">To</span><span class="v">r.patel@northgate.ac.uk</span></div>
+  <div class="row"><span class="num">2</span><span class="k">Cc</span><span class="v">j.okafor@northgate.ac.uk</span></div>
+  <div class="row"><span class="num">3</span><span class="v"><b>Invitation: charity bake sale, Friday 14 March</b></span></div>
+  <div class="row" style="align-items:flex-start;border-bottom:0"><span class="num">4</span><div class="v" style="line-height:1.55">
+    Dear Mr Patel,<br><br>I would like to invite you to our charity bake sale on Friday 14 March, 12 to 2 pm, in the Main Hall. All money raised goes to Hillside Animal Rescue.<br><br>Kind regards,<br>Kim Taylor</div></div>
+  <div class="foot"><span class="btn">Send</span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3c4753" stroke-width="2" stroke-linecap="round"><path d="M20 11.5l-8 8a5 5 0 0 1-7-7l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4L15 7"/></svg></div>
+</div></figure>
+
+<figure data-name="t03-tone-casual" class="tone"><div class="frame">
+  <div class="bar">To: Principal · Bake sale</div>
+  <div class="body"><p>hey m8 😎</p><p>r u coming 2 the bake sale fri? its gonna b sick lol</p><p>kim</p></div>
+</div></figure>
+
+<figure data-name="t03-tone-polite" class="tone"><div class="frame">
+  <div class="bar">To: Principal · Bake sale</div>
+  <div class="body"><p>Dear Dr Hughes,</p><p>Would you like to open our charity bake sale on Friday at 12 pm in the Main Hall? It would mean a lot to the team.</p><p>Kind regards,<br>Kim Taylor</p></div>
+</div></figure>
+
+<figure data-name="t03-tone-shouty" class="tone"><div class="frame">
+  <div class="bar">To: Principal · Bake sale</div>
+  <div class="body"><p>DR HUGHES</p><p>YOU NEED TO COME TO THE BAKE SALE ON FRIDAY!!! DON'T FORGET!!!</p><p>KIM</p></div>
+</div></figure>
+
+<figure data-name="t03-no-attachment" class="mail"><div class="frame">
+  <div class="bar"><b>New message</b></div>
+  <div class="row"><span class="k">To</span><span class="v">r.patel@northgate.ac.uk</span></div>
+  <div class="row"><span class="k">Subject</span><span class="v">Bake sale poster</span></div>
+  <div class="body"><p>Dear Mr Patel,</p><p>Please find the bake sale poster attached. Could you put it up in the library?</p><p>Kind regards,<br>Kim Taylor</p></div>
+  <div class="foot"><span class="btn">Send</span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3c4753" stroke-width="2" stroke-linecap="round"><path d="M20 11.5l-8 8a5 5 0 0 1-7-7l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4L15 7"/></svg></div>
+</div></figure>
+
+<!-- ── Topic 4 · Social media posts that promote ────────────────────────── -->
+<!-- The cupcake used in the post pictures. -->
+<svg width="0" height="0" style="position:absolute"><defs>
+  <g id="cake"><path d="M14 40h44l-6 30H20z" fill="#c9762b"/><path d="M20 44v24M28 44v24M36 44v26M44 44v24M52 44v24" stroke="#8e4f16" stroke-width="2"/>
+    <path d="M10 42c-4-12 6-20 14-18 0-10 10-16 18-12 8-6 22 0 20 12 8 2 10 12 4 18z" fill="#f2b8c6" stroke="#b5657b" stroke-width="2"/><circle cx="38" cy="10" r="5" fill="#c22d2d"/></g>
+</defs></svg>
+
+<figure data-name="t04-missing-detail" class="post"><div class="frame">
+  <div class="head"><i>SU</i><div><b>Northgate Students' Union</b><small>Public · 1 h</small></div></div>
+  <div class="text">🧁 Charity bake sale! Cakes, cookies and brownies, and every penny goes to Hillside Animal Rescue. Come along to the Main Hall and bring a friend! <span class="tag">#NorthgateBakeSale</span></div>
+  <div class="pic"><svg width="200" height="80" viewBox="0 0 200 80"><use href="#cake" x="0"/><use href="#cake" x="64"/><use href="#cake" x="128"/></svg></div>
+  <div class="acts"><span>👍 Like</span><span>💬 Comment</span><span>↗ Share</span></div>
+</div></figure>
+
+<figure data-name="t04-post-typos" class="post small"><div class="frame">
+  <div class="head"><i>SU</i><div><b>Northgate Students' Union</b><small>Public · 1 h</small></div></div>
+  <div class="text">bake sail tommorow in the hall, there will be cakes and stuff i think. come if u want</div>
+  <div class="acts"><span>👍 Like</span><span>💬 Comment</span><span>↗ Share</span></div>
+</div></figure>
+
+<figure data-name="t04-post-complete" class="post small"><div class="frame">
+  <div class="head"><i>SU</i><div><b>Northgate Students' Union</b><small>Public · 1 h</small></div></div>
+  <div class="text">🧁 Charity bake sale, Fri 14 March, 12–2 pm, Main Hall. All money to Hillside Animal Rescue. <span class="link">northgate.ac.uk/bakesale</span> <span class="tag">#NorthgateBakeSale</span></div>
+  <div class="pic"><svg width="200" height="80" viewBox="0 0 200 80"><use href="#cake" x="0"/><use href="#cake" x="64"/><use href="#cake" x="128"/></svg></div>
+  <div class="acts"><span>👍 Like</span><span>💬 Comment</span><span>↗ Share</span></div>
+</div></figure>
+
+<figure data-name="t04-post-emoji" class="post small"><div class="frame">
+  <div class="head"><i>SU</i><div><b>Northgate Students' Union</b><small>Public · 1 h</small></div></div>
+  <div class="text">😋😋😋🧁🧁🧁</div>
+  <div class="pic"><svg width="200" height="80" viewBox="0 0 200 80"><use href="#cake" x="0"/><use href="#cake" x="64"/><use href="#cake" x="128"/></svg></div>
+  <div class="acts"><span>👍 Like</span><span>💬 Comment</span><span>↗ Share</span></div>
+</div></figure>
+
+<figure data-name="t04-post-parts" class="post"><div class="frame">
+  <div class="head"><i>SU</i><div><b>Northgate Students' Union</b><small>Public · 1 h</small></div></div>
+  <div class="text">🧁 Charity bake sale, Friday 14 March, 12–2 pm, Main Hall.<br>
+    <span class="mark"><span class="num">1</span><span class="link">northgate.ac.uk/bakesale</span></span>&nbsp;
+    <span class="mark"><span class="num">2</span><span class="tag">#NorthgateBakeSale</span></span><br>
+    <span class="mark" style="margin-top:5px"><span class="num">3</span>Thanks to <span class="tag">@HillsideRescue</span> for joining us</span></div>
+  <div class="pic" style="position:relative"><span class="num" style="position:absolute;left:10px;top:10px">4</span><svg width="200" height="80" viewBox="0 0 200 80"><use href="#cake" x="0"/><use href="#cake" x="64"/><use href="#cake" x="128"/></svg></div>
+  <div class="acts"><span>👍 Like</span><span>💬 Comment</span><span>↗ Share</span></div>
+</div></figure>
+
+<!-- ── Topic 5 · Online meetings ────────────────────────────────────────── -->
+<figure data-name="t05-call-controls" class="call"><div class="frame">
+  <div class="grid">
+    <div class="tile"><svg width="90" height="96" viewBox="0 0 90 96"><circle cx="45" cy="34" r="22" fill="#a9c4dc"/><path d="M5 96c4-26 20-36 40-36s36 10 40 36z" fill="#a9c4dc"/></svg><span class="name">Ms Okafor</span></div>
+    <div class="tile"><svg width="90" height="96" viewBox="0 0 90 96"><circle cx="45" cy="34" r="22" fill="#d9b8d4"/><path d="M5 96c4-26 20-36 40-36s36 10 40 36z" fill="#d9b8d4"/></svg><span class="name">You</span></div>
+  </div>
+  <div class="tools">
+    <div class="tool"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><span class="num">1</span></div>
+    <div class="tool"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg></span><span class="num">2</span></div>
+    <div class="tool"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 14V8M9 10.5 12 7.5l3 3M8 21h8"/></svg></span><span class="num">3</span></div>
+    <div class="tool"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg></span><span class="num">4</span></div>
+    <div class="tool end"><span><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M3 14c5-5 13-5 18 0l-2.6 2.6-3.4-1.5V12a10 10 0 0 0-6 0v3.1L5.6 16.6z"/></svg></span><span class="num">5</span></div>
+  </div>
+</div></figure>
+
+<!-- Three webcam views of the same person. -->
+<figure data-name="t05-camera-good" style="width:300px"><div class="frame"><svg width="268" height="180" viewBox="0 0 268 180" style="display:block">
+  <rect width="268" height="180" fill="#dfe7ee"/><rect x="18" y="20" width="60" height="80" fill="#c3d0dc"/><rect x="190" y="30" width="58" height="44" fill="#c9b79a"/>
+  <circle cx="134" cy="76" r="34" fill="#e0b48a"/><circle cx="122" cy="72" r="3.5" fill="#1b1f24"/><circle cx="146" cy="72" r="3.5" fill="#1b1f24"/>
+  <path d="M122 89q12 9 24 0" stroke="#1b1f24" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M100 66q4-34 34-34t34 34q-6-20-34-20t-34 20z" fill="#4a3426"/>
+  <path d="M64 180c6-40 36-54 70-54s64 14 70 54z" fill="#2d5677"/>
+</svg></div></figure>
+
+<figure data-name="t05-camera-backlit" style="width:300px"><div class="frame"><svg width="268" height="180" viewBox="0 0 268 180" style="display:block">
+  <rect width="268" height="180" fill="#7d8790"/><rect x="54" y="10" width="160" height="130" fill="#fbfdff"/><path d="M134 10v130M54 75h160" stroke="#c3cbd3" stroke-width="4"/>
+  <circle cx="134" cy="76" r="34" fill="#3f3530"/>
+  <path d="M100 66q4-34 34-34t34 34q-6-20-34-20t-34 20z" fill="#241b16"/>
+  <path d="M64 180c6-40 36-54 70-54s64 14 70 54z" fill="#1f2a35"/>
+</svg></div></figure>
+
+<figure data-name="t05-camera-close" style="width:300px"><div class="frame"><svg width="268" height="180" viewBox="0 0 268 180" style="display:block">
+  <rect width="268" height="180" fill="#dfe7ee"/>
+  <circle cx="134" cy="186" r="136" fill="#4a3426"/>
+  <circle cx="134" cy="212" r="124" fill="#e0b48a"/>
+  <circle cx="96" cy="160" r="9" fill="#1b1f24"/><circle cx="172" cy="160" r="9" fill="#1b1f24"/>
+</svg></div></figure>
+
+<!-- ── Topic 6 · Security threats and protection ────────────────────────── -->
+<figure data-name="t06-phishing" class="mail phish"><div class="frame">
+  <div class="row"><span class="k">From</span><span class="v">StreamBox Support &lt;billing@streambox-account-verify.co&gt;</span></div>
+  <div class="row"><span class="k">Subject</span><span class="v"><b>⚠ URGENT: Your account will be closed</b></span></div>
+  <div class="body">
+    <p>Dear Customer,</p>
+    <p class="warn">We could not take your last payment. Your account will be closed in 24 hours.</p>
+    <p>To keep watching, confirm your name, card number and security code now.</p>
+    <span class="btn">Update my card details</span>
+  </div>
+</div></figure>
+
+<figure data-name="t06-popup" class="popup"><div class="frame">
+  <div class="bar"><span style="flex:1;background:#fff;border:1px solid #8a96a3;border-radius:12px;padding:3px 10px">www.free-films-hd-online.biz</span></div>
+  <div class="page"><div class="box">
+    <h3>⚠ WARNING! 5 VIRUSES FOUND!</h3>
+    <p>Your computer is infected and your files will be deleted. Download PC Cleaner Pro now to remove the viruses.</p>
+    <span class="btn">Download now</span>
+    <small>Or call our helpline: 0800 000 0000</small>
+  </div></div>
+</div></figure>
+
+<!-- ── Topic 7 · Personal information and health and safety ─────────────── -->
+<figure data-name="t07-profile" class="profile"><div class="frame">
+  <div class="cover"></div>
+  <div class="who"><i><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="15" r="8" fill="#a9c4dc"/><path d="M4 40c1-11 8-15 16-15s15 4 16 15z" fill="#a9c4dc"/></svg></i><b>Jade</b></div>
+  <ul>
+    <li><span class="num">1</span><span class="k">Likes</span>Football, drawing, cooking</li>
+    <li><span class="num">2</span><span class="k">Favourite film</span>Paddington 2</li>
+    <li><span class="num">3</span><span class="k">Home</span>14 Elm Road, Northgate, NG4 7QT</li>
+    <li><span class="num">4</span><span class="k">About me</span>Learning to bake 🧁</li>
+  </ul>
+</div></figure>
+
+<!-- Side views: the same person at a desk, set up two ways. -->
+<figure data-name="t07-desk-good" class="desk"><div class="frame"><svg width="268" height="210" viewBox="0 0 268 210">
+  <rect width="268" height="210" fill="#f4f6f8"/><path d="M0 196h268" stroke="#5d6975" stroke-width="3"/>
+  <!-- desk -->
+  <path d="M150 116h108M246 116v80" stroke="#7a5a3a" stroke-width="7" stroke-linecap="round"/>
+  <!-- monitor on a stand, top at eye height -->
+  <rect x="226" y="36" width="10" height="52" rx="2" fill="#2a3139"/><path d="M234 88v24M220 113h28" stroke="#2a3139" stroke-width="5"/>
+  <!-- keyboard -->
+  <path d="M168 112h30" stroke="#2a3139" stroke-width="5" stroke-linecap="round"/>
+  <!-- chair with back support -->
+  <path d="M66 136h56M74 72v64M94 136v56M76 192h36" stroke="#3a4652" stroke-width="6" stroke-linecap="round"/>
+  <!-- person: upright back, forearms level, feet flat -->
+  <circle cx="98" cy="46" r="15" fill="#e0b48a"/>
+  <path d="M94 62 90 128" stroke="#2d5677" stroke-width="15" stroke-linecap="round"/>
+  <path d="M92 74 106 108 168 110" stroke="#2d5677" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M92 128h60v62h18" stroke="#3a4652" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- line of sight -->
+  <path d="M112 44h112" stroke="#a35200" stroke-width="2" stroke-dasharray="5 4"/>
+</svg></div></figure>
+
+<figure data-name="t07-desk-bad" class="desk"><div class="frame"><svg width="268" height="210" viewBox="0 0 268 210">
+  <rect width="268" height="210" fill="#f4f6f8"/><path d="M0 196h268" stroke="#5d6975" stroke-width="3"/>
+  <!-- desk -->
+  <path d="M150 116h108M246 116v80" stroke="#7a5a3a" stroke-width="7" stroke-linecap="round"/>
+  <!-- laptop flat on the desk, screen low -->
+  <path d="M190 112h44M234 112 222 80" stroke="#2a3139" stroke-width="5" stroke-linecap="round"/>
+  <!-- stool, no back -->
+  <path d="M66 140h56M94 140v52M76 192h36" stroke="#3a4652" stroke-width="6" stroke-linecap="round"/>
+  <!-- person: hunched forward, neck bent, feet tucked under -->
+  <circle cx="146" cy="78" r="15" fill="#e0b48a"/>
+  <path d="M132 86Q104 90 90 132" stroke="#2d5677" stroke-width="15" stroke-linecap="round" fill="none"/>
+  <path d="M126 92 150 116 196 110" stroke="#2d5677" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M92 132h56l-36 50h-12" stroke="#3a4652" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- line of sight -->
+  <path d="M156 86 220 104" stroke="#a35200" stroke-width="2" stroke-dasharray="5 4"/>
+</svg></div></figure>
+
+</body>

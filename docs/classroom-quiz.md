@@ -217,6 +217,7 @@ to `courses`. `sets.test.ts` picks it up from there.
 | Level | Course | Sets | Source |
 | --- | --- | --- | --- |
 | 1 | BTEC Level 1 Introductory Diploma in IT, Unit A4 Researching a topic | 5 sets of 14 for Task 2, and a final check of 14 and 16 | The "Digital Life: Staying safe online" assignment brief and the Staying Safe Online project handbook |
+| 1 | BTEC Level 1 Introductory Diploma in IT, Unit IT6 Using digital communication technologies | 7 sets of 12 | The unit specification (Issue 4, March 2021) |
 | 2 | Level 2 IT, Unit 9 Spreadsheet development | 8 sets of 15, Tasks 1–5 | The Assignment 2 guide |
 | 2 | Year 11 taster day, Data analytics | 2 sets: 24 to open, 16 to close | Written for the taster day |
 | 3 | BTEC AAQ IT, Unit 3 Website development | 20 sets of 16 | The unit's lecture notes and decks |
@@ -241,6 +242,16 @@ the file name and handing in both files (B.P3 to B.D3). Each question shows a
 piece of Sam's work with one thing to spot, and each explanation ends with
 what to check in your own work, so it is a last check before hand-in and
 revision for anyone behind.
+
+**Unit IT6 (Level 1)** has a set for each of seven topics, written from the
+unit specification (Issue 4, March 2021): types of digital communication;
+features and choosing a tool; writing emails; social media posts that promote;
+online meetings; security threats and protection; personal information, health
+and safety. Each has 12 questions (16 rounds), in short, plain sentences for
+Level 1 learners, with pictures of everyday screens: an inbox, a chat, posts, a
+video call, a phishing email. The specification's own examples (Skype, Google+,
+Hangouts, Windows Live) no longer exist, so the questions name current free
+tools.
 
 **Unit 9 (Level 2)** follows the guide's five tasks: the data model,
 formulas and formatting (2C.P4); validation, navigation, conditional formatting
