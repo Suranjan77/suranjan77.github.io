@@ -1,4 +1,4 @@
-import type { Course, CourseSection, QuestionSet } from "../types";
+import { styleForLevel, type Course, type CourseSection, type QuestionSet, type QuizStyle } from "../types";
 
 /**
  * Every course on the teacher's screen, lowest level first. A course's sets
@@ -46,6 +46,14 @@ export const courses: readonly Course[] = [
     scope: "All 20 weekly topics",
     load: () => import("./aaq-u3").then((m) => m.sections),
   },
+  {
+    id: "city2161",
+    level: 5,
+    qualification: "University of Plymouth, at City College Plymouth",
+    unit: "CITY2161 · Data modelling and machine learning for cyber security",
+    scope: "A knowledge check of the machine learning topics, 4 to 10",
+    load: () => import("./city2161").then((m) => m.sections),
+  },
 ];
 
 const loaded = new Map<string, CourseSection[]>();
@@ -58,6 +66,11 @@ export function findCourse(id: string): Course | undefined {
 /** The course a set belongs to, from the start of its id. */
 export function courseOfSet(setId: string): Course | undefined {
   return courses.find((course) => setId.startsWith(`${course.id}-`));
+}
+
+/** How a set is played, from its course's level. */
+export function styleOfSet(setId: string): QuizStyle {
+  return styleForLevel(courseOfSet(setId)?.level ?? 1);
 }
 
 /** A course's sections, already loaded, or undefined. */

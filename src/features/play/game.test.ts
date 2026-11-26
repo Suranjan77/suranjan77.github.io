@@ -20,6 +20,7 @@ import {
   everyoneAnswered,
   finish,
   hardestQuestions,
+  isFinalStretch,
   isStarRound,
   joinPlayer,
   leavePlayer,
@@ -587,5 +588,77 @@ describe("what a phone is shown", () => {
   it("forgets a removed student", () => {
     const state = removePlayer(lobbyWith("p1"), "p1");
     expect(viewFor(state, set, "p1", 0)).toBeNull();
+  });
+});
+
+describe("the plain style (Levels 4 to 6)", () => {
+  const big: QuestionSet = {
+    ...set,
+    questions: Array.from({ length: 12 }, (_, i) => ({
+      id: `p${i}`,
+      prompt: `Question ${i}?`,
+      choices: [{ text: "right" }, { text: "wrong" }, { text: "also wrong" }],
+      answer: 0,
+      explanation: "Because.",
+      seconds: 10,
+      ...(i % 3 === 0 ? { askTwice: true as const } : {}),
+    })),
+  };
+
+  function playAll(style: "plain" | "classroom", seed = 3) {
+    const random = seeded(seed);
+    let state = ["a", "b", "c", "d", "e", "f", "g", "h"].reduce((s, pid) => joinPlayer(s, pid, random), newGame(big, random, style));
+    let at = 0;
+    while (state.phase !== "final") {
+      state = advance(state, big, at);
+      if (state.phase !== "question") break;
+      const shown = shownQuestion(state, big)!;
+      for (const [i, pid] of ["a", "b", "c", "d", "e", "f", "g", "h"].entries()) {
+        // a always right; the rest right on alternate rounds, so streaks and gaps open up.
+        const right = i === 0 || (state.index + i) % 2 === 0;
+        state = submitAnswer(state, big, pid, state.index, right ? shown.answer : (shown.answer + 1) % 3, at + 1000 * i);
+      }
+      state = closeRound(state, big, random);
+      at += 20_000;
+    }
+    return state;
+  }
+
+  it("asks every question once, even the ones marked to ask twice", () => {
+    const plan = newGame(big, seeded(), "plain").plan;
+    expect(plan).toHaveLength(big.questions.length);
+    expect(new Set(plan.map((r) => r.question)).size).toBe(big.questions.length);
+    expect(plan.some((r) => r.repeat)).toBe(false);
+    expect(newGame(big, seeded(), "classroom").plan).toHaveLength(16);
+  });
+
+  it("scores a right answer on speed alone: no catch-up, streak, stars or final stretch", () => {
+    const state = playAll("plain");
+    expect(state.stars).toEqual([]);
+    for (const player of Object.values(state.players)) expect(player.star).toBe(false);
+    expect(state.plan.some((_, round) => isFinalStretch(state, round))).toBe(false);
+    // a answered every round right, first, at 0ms: 1000 a round, nothing more.
+    expect(state.players.a.score).toBe(1000 * big.questions.length);
+    expect(awardFor({ score: 0, streak: 5, star: true, missed: [0] }, { elapsedMs: 0, limitMs: 10_000, leader: 9000, question: 0, repeat: true, double: true, plain: true }))
+      .toEqual({ base: 1000, catchUp: 0, streak: 0, learned: 0, multiplier: 1, total: 1000 });
+  });
+
+  it("shows the leaderboard, without risers, streaks or bonuses on the phones", () => {
+    const random = seeded();
+    let state = ["a", "b"].reduce((s, pid) => joinPlayer(s, pid, random), newGame(big, random, "plain"));
+    state = advance(state, big, 0);
+    expect(viewFor(state, big, "a", 0)).toMatchObject({ phase: "question", plain: true, double: false, star: false, streak: 0 });
+    state = closeRound(submitAnswer(state, big, "a", 0, shownQuestion(state, big)!.answer, 0), big, random);
+    expect(topPlaces(state).map((s) => s.pid)).toEqual(["a"]);
+    expect(risers(state)).toEqual([]);
+    expect(viewFor(state, big, "a", 0)).toMatchObject({ phase: "reveal", plain: true, streak: 0, nextDouble: false, award: { total: 1000, multiplier: 1 } });
+    expect(viewFor(finish(state), big, "a", 0)).toMatchObject({ phase: "final", plain: true, place: 1, bestStreak: 0 });
+  });
+
+  it("leaves a classroom game, and one kept by an older screen, as it was", () => {
+    expect(newGame(big, seeded()).style).toBe("classroom");
+    const old = { ...newGame(big, seeded()), style: undefined };
+    expect(isStarRound(old, 2)).toBe(true);
+    expect(playAll("classroom").stars.length).toBeGreaterThan(0);
   });
 });

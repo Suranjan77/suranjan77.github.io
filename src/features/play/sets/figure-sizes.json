@@ -1498,5 +1498,17 @@
   "btec-l1-it6/t07-desk-bad": [
     300,
     242
+  ],
+  "city2161/confusion-matrix": [
+    618,
+    257
+  ],
+  "city2161/loss-curves": [
+    796,
+    476
+  ],
+  "city2161/phishing-tree": [
+    856,
+    513
   ]
 }

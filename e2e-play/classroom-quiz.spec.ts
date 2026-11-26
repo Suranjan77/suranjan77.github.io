@@ -2,7 +2,8 @@ import { expect, test, type Browser, type Page } from "@playwright/test";
 import { userExperience } from "../src/features/play/sets/aaq-u3";
 import { referencingSources } from "../src/features/play/sets/l1-a4";
 import { formulasFunctions } from "../src/features/play/sets/l2-u9";
-import { roundCount } from "../src/features/play/types";
+import { mlCheck } from "../src/features/play/sets/city2161";
+import { roundCount, type QuestionSet } from "../src/features/play/types";
 
 const ROUNDS = roundCount(userExperience);
 
@@ -21,10 +22,10 @@ async function joinAsStudent(browser: Browser, code: string): Promise<Page> {
 }
 
 /** Reads the projector to find which letter the correct answer is under this round, and one that is wrong. */
-async function answerKey(teacher: Page) {
+async function answerKey(teacher: Page, set: QuestionSet = userExperience) {
   const prompt = ((await teacher.getByRole("heading", { level: 1 }).textContent()) ?? "").trim();
-  const question = userExperience.questions.find((q) => q.prompt === prompt);
-  if (!question) throw new Error(`Not a Topic 4 question: ${prompt}`);
+  const question = set.questions.find((q) => q.prompt === prompt);
+  if (!question) throw new Error(`Not a question of ${set.title}: ${prompt}`);
   const answer = question.choices[question.answer];
   const tiles = teacher.locator("ol > li");
   const tile = answer.image
@@ -359,4 +360,54 @@ test("the teacher can read a set's questions before choosing it, with the answer
   await expect(preview.getByText("✓ Answer")).toHaveCount(0);
   await preview.getByRole("button", { name: "Close" }).click();
   await expect(preview).toHaveCount(0);
+});
+
+test("a Level 5 set plays plain: every question once, speed points and the leaderboard, nothing else", async ({ browser }) => {
+  const teacher = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
+  await teacher.goto("/play/host");
+  await teacher.getByRole("button", { name: "Level 5", exact: true }).click();
+  await teacher.getByRole("button", { name: /CITY2161/ }).click();
+  await expect(teacher.getByText(`${mlCheck.questions.length} questions, each asked once`)).toBeVisible();
+  await teacher.getByRole("radio", { name: /Machine learning · knowledge check/ }).check();
+  await teacher.getByLabel("Teacher passcode").fill(TEACHER_PASSCODE);
+  await teacher.getByRole("button", { name: "Start session" }).click();
+  const code = ((await teacher.getByTestId("room-code").textContent()) ?? "").replace(/\D/g, "");
+  const ana = await joinAsStudent(browser, code);
+  const ben = await joinAsStudent(browser, code);
+  await expect(teacher.getByRole("heading", { name: "2 students joined" })).toBeVisible();
+
+  const total = mlCheck.questions.length;
+  const asked = new Set<string>();
+  await teacher.getByRole("button", { name: "Start the quiz" }).click();
+  for (let round = 1; round <= total; round += 1) {
+    if (round > 1) await teacher.getByRole("button", { name: "Next question" }).click();
+    await expect(teacher.getByText(`Question ${round} of ${total}`)).toBeVisible();
+    await expect(teacher.getByText(/Seen before|Final stretch/)).toHaveCount(0);
+    await expect(ana.getByText(/double|in a row/)).toHaveCount(0);
+    const key = await answerKey(teacher, mlCheck);
+    expect(asked.has(key.question.id), key.question.id).toBe(false);
+    asked.add(key.question.id);
+
+    await ana.waitForTimeout(150);
+    await choose(ana, key.right);
+    await teacher.getByRole("button", { name: "Show the answer" }).click();
+    await expect(ana.getByRole("heading", { name: "Correct" })).toBeVisible();
+    await expect(teacher.getByRole("heading", { name: "Leaderboard" })).toBeVisible();
+    await expect(teacher.getByText(/On the rise|stars? for students|Stars go out|Final stretch/)).toHaveCount(0);
+    // The phone shows the points, not a breakdown of bonuses.
+    await expect(ana.getByText(/^(Speed|Catch-up|Streak|Learned it) /)).toHaveCount(0);
+    await expect(ana.getByText(/star|in a row|Final stretch/i)).toHaveCount(0);
+    await expect(ben.getByRole("heading", { name: "No answer" })).toBeVisible();
+  }
+  expect(asked.size).toBe(total);
+
+  await teacher.getByRole("button", { name: "See the results" }).click();
+  await expect(teacher.getByRole("heading", { name: "Leaderboard" })).toBeVisible();
+  await expect(teacher.getByText(/^\d+% correct$/).first()).toBeVisible();
+  await expect(teacher.locator(".quiz-confetti")).toHaveCount(0);
+  await expect(ana.getByRole("heading", { name: "You came first" })).toBeVisible();
+  await expect(ana.getByText("Best streak")).toHaveCount(0);
+
+  await teacher.getByRole("button", { name: "End session and delete everything" }).click();
+  await expect(ana.getByText("Session ended")).toBeVisible();
 });

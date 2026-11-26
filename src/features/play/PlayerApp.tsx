@@ -350,7 +350,7 @@ function PhoneView({ view, pending, secondsLeft, onAnswer, onReroll }: {
             {view.award && (
               <p className="mt-2 font-mono text-4xl font-medium tabular-nums">+<CountUp value={view.award.total} from={0} /></p>
             )}
-            {view.award && <Breakdown award={view.award} />}
+            {view.award && !view.plain && <Breakdown award={view.award} />}
             <p className={`mt-4 text-lg ${right ? "text-white/90" : ""}`}>The answer was {view.correctLabel}.</p>
           </div>
           <p className="quiz-card flex items-center justify-between px-5 py-4 text-lg">
@@ -365,6 +365,8 @@ function PhoneView({ view, pending, secondsLeft, onAnswer, onReroll }: {
                 <Note tone="plain">Any right answer puts you in the top 5.</Note>
               ) : view.behind !== null && view.behind <= 2500 ? (
                 <Note tone="plain">About {formatPoints(view.behind)} points from the top 5.</Note>
+              ) : view.plain ? (
+                <Note tone="plain">Faster right answers earn more points.</Note>
               ) : (
                 <Note tone="plain">Right answers are worth more the further behind you are. Keep going.</Note>
               )}

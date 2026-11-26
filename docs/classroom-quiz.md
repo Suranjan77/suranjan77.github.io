@@ -1,9 +1,10 @@
 # Classroom quiz
 
 Status: v1 built
-Updated: 2026-10-26
+Updated: 2026-11-26
 
-A live quiz for Level 3 and below. A teacher starts a session on the projector,
+A live quiz for Level 1 to Level 6: classroom courses (Level 3 and below)
+and higher education (Levels 4 to 6, see "The plain style"). A teacher starts a session on the projector,
 students join on their phones with a code or QR code, and the room answers
 together. The answer screen is where teaching starts: it shows how the room
 split, the correct answer and its reason. The results screen shows the top five on a podium and lists the questions the
@@ -125,6 +126,29 @@ the passcode; v1 does not.
   points they are from it.
 - Ending the session deletes everything (see Privacy).
 
+## The plain style (Levels 4 to 6)
+
+A course at Level 4, 5 or 6 plays in the plain style (`QuizStyle` and
+`styleForLevel` in `types.ts`; a game keeps its `style`). It is a straight
+live quiz, in the manner of Mentimeter's quiz: the same joining, nicknames,
+questions, timer and answer screen, but nothing else on top.
+
+- Every question is asked once. `askTwice` is ignored, and `sets.test.ts`
+  checks that no Level 4–6 set marks any.
+- A right answer earns 500–1000 points, more for a faster one, and nothing
+  else: no catch-up, streaks, "Learned it", stars or final stretch
+  (`awardFor` with `plain`).
+- The projector shows the leaderboard (the top five, with how many places
+  each moved) at each reveal, and as a list at the end: no "On the rise",
+  streak flames, podium or confetti. The results still list the questions
+  the room found hardest.
+- Phones show the answer, the points and the student's own score and place,
+  without a breakdown, streaks or stars.
+
+Everything else (privacy, the passcode, staying connected) is the same.
+Levels 4 to 6 appear in the teacher's level filter once a course at that
+level is added to `courses`.
+
 Not in v1: solo practice, more game modes, drag-and-drop or tap-the-spot
 questions, saved results or exports, accounts.
 
@@ -221,6 +245,7 @@ to `courses`. `sets.test.ts` picks it up from there.
 | 2 | Level 2 IT, Unit 9 Spreadsheet development | 8 sets of 15, Tasks 1–5 | The Assignment 2 guide |
 | 2 | Year 11 taster day, Data analytics | 2 sets: 24 to open, 16 to close | Written for the taster day |
 | 3 | BTEC AAQ IT, Unit 3 Website development | 20 sets of 16 | The unit's lecture notes and decks |
+| 5 | CITY2161 Data modelling and machine learning for cyber security | 1 knowledge check of 30 | The module's Lecture Companions, Topics 4–10 |
 
 **Unit A4 (Level 1)** covers Task 2, the presentation that summarises
 research findings (B.P3, B.M3, B.D3): planning for the audience of new
@@ -276,6 +301,20 @@ apart from the retold cholera map. It is listed under Level 2, Year 11's level.
 that unit's lecture notes and decks in academic-materials
 (`modules/l3-aaq-u3-website-development`).
 
+**CITY2161 (Level 5)** has one set, "Machine learning · knowledge check": 30
+questions across the module's machine learning topics, written from the
+Lecture Companions in academic-materials
+(`modules/data-modelling-and-machine-learning`) and in their terms and
+examples: paradigms and decision trees on phishing websites (Topic 4),
+logistic regression, scaling, boosting and thresholds on spambase (5),
+precision, recall, average precision, cross-validation and calibration on
+card fraud (6), one-hot encoding and anomaly detection on KDD Cup 1999 (7),
+neurons, ReLU and early stopping on phishing hosts (8), never-seen attack
+families and the alert budget (9), and shortcut learning, baselines and
+evasion (10). Three questions are worked from a picture (a decision tree, a
+confusion matrix, loss curves). It plays in the plain style, about 26
+minutes; questions take 30 seconds, 40 for the four with arithmetic.
+
 ### Writing questions and pictures
 
 Show it, then ask. Level 1 and Level 2 questions assume the student may not
@@ -318,7 +357,8 @@ qualification requires them.
 
 `sets/sets.test.ts` checks every course and set: each course loads, its
 sections have sets, every set id names its course, 12 to 16 questions with 3
-to 6 asked twice and no more than 22 rounds, no picture in two questions of a
+to 6 asked twice and no more than 22 rounds (at Levels 4 to 6, 12 to 30
+questions and none asked twice), no picture in two questions of a
 set, two to four choices of one kind, a valid answer, an explanation, alt text on every
 picture, and that each picture file exists. It also measures the contrast
 questions' colours from the figure source, so a question cannot drift from

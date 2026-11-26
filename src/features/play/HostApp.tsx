@@ -36,8 +36,8 @@ import { RelayClose, parsePlayerMessage } from "./protocol";
 import { RelaySocket, relayBaseUrl, type SocketStatus } from "./relaySocket";
 import { SetPicker, courseName, setDetails, useCourseSections } from "./SetPicker";
 import { SetPreview } from "./SetPreview";
-import { courseOfSet, findCourse, findSet, loadSet } from "./sets";
-import { CHOICE_LABELS, type QuestionSet, type QuizImage } from "./types";
+import { courseOfSet, findCourse, findSet, loadSet, styleOfSet } from "./sets";
+import { CHOICE_LABELS, asksTwice, type QuestionSet, type QuizImage } from "./types";
 import { FittedPoster } from "./MountDeluluPoster";
 import { CHOICE_STYLES, ChoiceMark, CountUp, FlameMark, Loading, QrCode, StarMark, TimerRing, WaitingDots, formatCode, formatPoints } from "./ui";
 
@@ -188,7 +188,7 @@ export default function HostApp() {
       live.current.room = { code: m.code, token: m.token };
       setRoom(live.current.room);
       const pending = findSet(live.current.pendingSetId);
-      const start = current ?? (pending ? newGame(pending) : null);
+      const start = current ?? (pending ? newGame(pending, Math.random, styleOfSet(pending.id)) : null);
       if (!start) return;
       commit(syncConnected(start, Array.isArray(m.players) ? m.players : []), "all");
       return;
@@ -898,7 +898,7 @@ function RevealScreen({ set, game, onNext, onFinish }: { set: QuestionSet; game:
           <p className="text-lg leading-relaxed"><span className="font-semibold">Answer {CHOICE_LABELS[question.answer]}. </span>{question.explanation}</p>
         </div>
         <section className="quiz-card px-4 pb-4 pt-3" aria-labelledby="top-heading">
-          <h2 id="top-heading" className="mb-2 font-headline text-2xl font-medium">Top {TOP_PLACES}</h2>
+          <h2 id="top-heading" className="mb-2 font-headline text-2xl font-medium">{game.style === "plain" ? "Leaderboard" : `Top ${TOP_PLACES}`}</h2>
           <Leaderboard key={game.index} game={game} />
           {rising.length > 0 && (
             <div className="mt-2 border-t border-[color:var(--quiz-line)] pt-2">
@@ -993,13 +993,16 @@ function Podium({ standings }: { standings: Standing[] }) {
 function FinalScreen({ set, game, onEnd }: { set: QuestionSet; game: GameState; onEnd: () => void }) {
   const hardest = hardestQuestions(game);
   const top = topPlaces(game);
+  const plain = game.style === "plain";
   return (
     <div className="relative grid flex-1 items-start gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-      <Confetti />
+      {!plain && <Confetti />}
       <section className="quiz-card relative p-6 sm:p-8">
-        <h1 className="text-center font-headline text-4xl font-medium">Top {TOP_PLACES}</h1>
+        <h1 className={`font-headline text-4xl font-medium ${plain ? "" : "text-center"}`}>{plain ? "Leaderboard" : `Top ${TOP_PLACES}`}</h1>
         {top.length === 0 ? (
           <p className="mt-6 text-center text-[color:var(--quiz-muted)]">No points scored yet.</p>
+        ) : plain ? (
+          <div className="mt-6"><TopList standings={top} /></div>
         ) : (
           <>
             <div className="mt-8"><Podium standings={top} /></div>
@@ -1017,7 +1020,7 @@ function FinalScreen({ set, game, onEnd }: { set: QuestionSet; game: GameState; 
             return (
               <li key={summary.question} className="quiz-card p-5">
                 <p className="font-mono text-xs uppercase tracking-label text-[color:var(--quiz-muted)]">
-                  {question.askTwice ? `First time ${percent(summary.first)} · second time ${percent(summary.second)}` : percent(summary.first)}
+                  {asksTwice(question, game.style) ? `First time ${percent(summary.first)} · second time ${percent(summary.second)}` : percent(summary.first)}
                 </p>
                 <p className="mt-1 text-lg font-medium">{question.prompt}</p>
                 {answer.image && <Picture image={answer.image} className="mt-3 h-auto max-h-28 w-auto rounded-[10px] ring-1 ring-[color:var(--quiz-line)]" sizes="200px" />}

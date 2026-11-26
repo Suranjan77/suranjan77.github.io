@@ -3,8 +3,8 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { courseName, setDetails } from "./SetPicker";
-import { courseOfSet } from "./sets";
-import { questionSeconds, type Question, type QuestionSet, type QuizImage } from "./types";
+import { courseOfSet, styleOfSet } from "./sets";
+import { asksTwice, questionSeconds, type Question, type QuestionSet, type QuizImage } from "./types";
 import { CHOICE_STYLES, ChoiceMark } from "./ui";
 
 /**
@@ -21,6 +21,7 @@ export function SetPreview({ set, chosen, onChoose, onClose }: {
   const dialog = useRef<HTMLDialogElement>(null);
   const [answers, setAnswers] = useState(false);
   const course = courseOfSet(set.id);
+  const plain = styleOfSet(set.id) === "plain";
 
   useEffect(() => {
     const element = dialog.current;
@@ -66,12 +67,12 @@ export function SetPreview({ set, chosen, onChoose, onClose }: {
 
         <div className="flex-1 overflow-y-auto px-5 py-5">
           <p className="mb-5 text-sm text-[color:var(--quiz-muted)]">
-            In the game, the choices are shuffled, so the letters here are not the ones the room will see. Questions marked “asked twice” come back later in the game, reshuffled.
+            In the game, the choices are shuffled, so the letters here are not the ones the room will see.{plain ? " Every question is asked once." : " Questions marked “asked twice” come back later in the game, reshuffled."}
             {!answers && " Answers are hidden in case this screen is on the projector."}
           </p>
           <ol className="space-y-4">
             {set.questions.map((question, i) => (
-              <QuestionCard key={question.id} number={i + 1} question={question} seconds={questionSeconds(question, set)} answers={answers} />
+              <QuestionCard key={question.id} number={i + 1} question={question} seconds={questionSeconds(question, set)} answers={answers} twice={asksTwice(question, styleOfSet(set.id))} />
             ))}
           </ol>
         </div>
@@ -84,11 +85,11 @@ function Picture({ image, className }: { image: QuizImage; className: string }) 
   return <Image src={image.src} alt={image.alt} width={image.width} height={image.height} className={className} sizes="(min-width: 1024px) 40vw, 90vw" unoptimized />;
 }
 
-function QuestionCard({ number, question, seconds, answers }: { number: number; question: Question; seconds: number; answers: boolean }) {
+function QuestionCard({ number, question, seconds, answers, twice }: { number: number; question: Question; seconds: number; answers: boolean; twice: boolean }) {
   const pictures = question.choices.some((choice) => choice.image);
   return (
     <li className="quiz-card p-5" data-testid="preview-question">
-      <p className="font-mono text-[11px] uppercase tracking-label text-[color:var(--quiz-muted)]">Question {number} · {seconds} seconds{question.askTwice ? " · asked twice" : ""}</p>
+      <p className="font-mono text-[11px] uppercase tracking-label text-[color:var(--quiz-muted)]">Question {number} · {seconds} seconds{twice ? " · asked twice" : ""}</p>
       <h3 className="mt-1 text-lg font-medium leading-snug">{question.prompt}</h3>
       {question.image && (
         <div className="mt-3 inline-block rounded-[14px] bg-white p-2 ring-1 ring-[color:var(--quiz-line)]">

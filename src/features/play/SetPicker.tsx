@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { courseOfSet, courses, findCourse, loadCourse, loadedSections } from "./sets";
-import { questionSeconds, type Course, type CourseSection, type QuestionSet } from "./types";
+import { courseOfSet, courses, findCourse, loadCourse, loadedSections, styleOfSet } from "./sets";
+import { asksTwice, questionSeconds, type Course, type CourseSection, type QuestionSet } from "./types";
 import { Loading } from "./ui";
 
 /**
@@ -14,13 +14,16 @@ const LEVELS = [...new Set(courses.map((course) => course.level))].sort();
 
 /** About how long a game takes: every round, with time for the reveal and the explanation. */
 export function aboutMinutes(set: QuestionSet): number {
-  const seconds = set.questions.reduce((sum, q) => sum + (questionSeconds(q, set) + 20) * (q.askTwice ? 2 : 1), 0);
+  const style = styleOfSet(set.id);
+  const seconds = set.questions.reduce((sum, q) => sum + (questionSeconds(q, set) + 20) * (asksTwice(q, style) ? 2 : 1), 0);
   return Math.round(seconds / 60);
 }
 
 export function setDetails(set: QuestionSet): string {
-  const twice = set.questions.filter((q) => q.askTwice).length;
-  return `Spec ${set.spec} · ${set.questions.length} questions, ${twice} asked twice · about ${aboutMinutes(set)} min`;
+  const style = styleOfSet(set.id);
+  const twice = set.questions.filter((q) => asksTwice(q, style)).length;
+  const repeats = style === "plain" ? "each asked once" : `${twice} asked twice`;
+  return `Spec ${set.spec} · ${set.questions.length} questions, ${repeats} · about ${aboutMinutes(set)} min`;
 }
 
 export function courseName(course: Course): string {

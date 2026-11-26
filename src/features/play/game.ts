@@ -1,6 +1,6 @@
 import { pickNickname } from "./nicknames";
 import type { PlayerView } from "./protocol";
-import { CHOICE_LABELS, questionSeconds, type Choice, type Question, type QuestionSet, type QuizImage } from "./types";
+import { CHOICE_LABELS, asksTwice, questionSeconds, type Choice, type Question, type QuestionSet, type QuizImage, type QuizStyle } from "./types";
 
 /**
  * The game, as run by the teacher's screen. Every function is pure and takes
@@ -15,6 +15,10 @@ import { CHOICE_LABELS, questionSeconds, type Choice, type Question, type Questi
  * again only makes the game repetitive. A repeat comes at least
  * MIN_REPEAT_GAP rounds after the first, at a random point, and its choices
  * are reshuffled so the answer is under a different letter.
+ *
+ * A game in the plain style (Levels 4 to 6, see `QuizStyle`) asks every
+ * question once, scores a right answer on speed alone and shows the
+ * leaderboard: no catch-up, streaks, stars, final stretch or repeats.
  */
 
 export const MAX_REROLLS = 3;
@@ -124,6 +128,8 @@ export type StarDrop = { round: number; pids: string[] };
 
 export type GameState = {
   setId: string;
+  /** Missing in a game kept by an older teacher's screen: "classroom". */
+  style?: QuizStyle;
   plan: Round[];
   phase: GamePhase;
   /** Index into `plan`; -1 in the lobby. */
@@ -148,6 +154,8 @@ function shuffled<T>(items: readonly T[], random: () => number): T[] {
   }
   return copy;
 }
+
+const isPlain = (state: Pick<GameState, "style">) => state.style === "plain";
 
 const range = (n: number) => Array.from({ length: n }, (_, i) => i);
 
@@ -177,10 +185,10 @@ function choiceOrders(question: Question, random: () => number): [number[], numb
   return [first, second];
 }
 
-export function buildPlan(set: QuestionSet, random: () => number = Math.random): Round[] {
+export function buildPlan(set: QuestionSet, random: () => number = Math.random, style: QuizStyle = "classroom"): Round[] {
   const orders = set.questions.map((q) => choiceOrders(q, random));
   const seen = new Set<number>();
-  const twice = set.questions.flatMap((q, i) => (q.askTwice ? [i] : []));
+  const twice = set.questions.flatMap((q, i) => (asksTwice(q, style) ? [i] : []));
   return questionOrder(set.questions.length, twice, random).map((question) => {
     const repeat = seen.has(question);
     seen.add(question);
@@ -188,10 +196,11 @@ export function buildPlan(set: QuestionSet, random: () => number = Math.random):
   });
 }
 
-export function newGame(set: QuestionSet, random: () => number = Math.random): GameState {
+export function newGame(set: QuestionSet, random: () => number = Math.random, style: QuizStyle = "classroom"): GameState {
   return {
     setId: set.id,
-    plan: buildPlan(set, random),
+    style,
+    plan: buildPlan(set, random, style),
     phase: "lobby",
     index: -1,
     startedAt: 0,
@@ -384,6 +393,7 @@ export function pointsFor(elapsedMs: number, limitMs: number): number {
 }
 
 export function isFinalStretch(state: GameState, round = state.index): boolean {
+  if (isPlain(state)) return false;
   const rounds = Math.min(FINAL_STRETCH_ROUNDS, Math.floor(state.plan.length / 4));
   return round >= state.plan.length - rounds && round < state.plan.length;
 }
@@ -396,16 +406,19 @@ const tens = (n: number) => Math.round(n / 10) * 10;
  */
 export function awardFor(
   player: Pick<Player, "score" | "streak" | "star" | "missed">,
-  { elapsedMs, limitMs, leader, question, repeat, double }: {
+  { elapsedMs, limitMs, leader, question, repeat, double, plain = false }: {
     elapsedMs: number;
     limitMs: number;
     leader: number;
     question: number;
     repeat: boolean;
     double: boolean;
+    /** The plain style: speed points only. */
+    plain?: boolean;
   },
 ): Award {
   const base = pointsFor(elapsedMs, limitMs);
+  if (plain) return { base, catchUp: 0, streak: 0, learned: 0, multiplier: 1, total: base };
   const behind = leader > 0 ? Math.max(0, leader - player.score) / leader : 0;
   const catchUp = tens(base * CATCH_UP_MAX * behind);
   const streak = Math.min(STREAK_MAX, player.streak * STREAK_STEP);
@@ -436,7 +449,7 @@ export function revealAnswer(state: GameState, set: QuestionSet): GameState {
       return { ...player, lastGained: 0, lastOutcome: answer ? "wrong" : "none", lastAward: null, streak: 0, missed };
     }
     correct += 1;
-    const award = awardFor(player, { elapsedMs: answer.at - state.startedAt, limitMs, leader, question: shown.question, repeat: shown.repeat, double: shown.double });
+    const award = awardFor(player, { elapsedMs: answer.at - state.startedAt, limitMs, leader, question: shown.question, repeat: shown.repeat, double: shown.double, plain: isPlain(state) });
     const streak = player.streak + 1;
     return {
       ...player,
@@ -471,6 +484,7 @@ export function revealAnswer(state: GameState, set: QuestionSet): GameState {
 
 /** True after the reveals where stars are handed out. */
 export function isStarRound(state: GameState, round = state.index): boolean {
+  if (isPlain(state)) return false;
   return round >= STAR_FIRST_ROUND && (round - STAR_FIRST_ROUND) % STAR_EVERY === 0 && round + 1 < state.plan.length;
 }
 
@@ -544,7 +558,7 @@ export function topPlaces(state: GameState, limit = TOP_PLACES): Standing[] {
       score: p.score,
       place: i + 1,
       moved: p.previousRank && p.rank ? p.previousRank - p.rank : 0,
-      streak: p.streak,
+      streak: isPlain(state) ? 0 : p.streak,
     }));
 }
 
@@ -554,6 +568,7 @@ export function topPlaces(state: GameState, limit = TOP_PLACES): Standing[] {
  * they are.
  */
 export function risers(state: GameState, limit = 3): { pid: string; name: string; climbed: number }[] {
+  if (isPlain(state)) return [];
   const top = new Set(topPlaces(state).map((s) => s.pid));
   return Object.values(state.players)
     .filter((p) => !top.has(p.pid) && p.lastOutcome === "correct" && p.previousRank - p.rank >= 2)
@@ -602,6 +617,9 @@ export function viewFor(state: GameState, set: QuestionSet, pid: string, now: nu
   const name = player.name;
   const total = state.plan.length;
   const shown = shownQuestion(state, set);
+  const plain = isPlain(state);
+  const style = plain ? { plain: true as const } : {};
+  const streak = plain ? 0 : player.streak;
 
   switch (state.phase) {
     case "lobby":
@@ -623,7 +641,8 @@ export function viewFor(state: GameState, set: QuestionSet, pid: string, now: nu
         answered: state.answers[pid]?.choice ?? null,
         double: shown.double,
         star: player.star,
-        streak: player.streak,
+        streak,
+        ...style,
       };
     case "reveal": {
       if (!shown) return null;
@@ -637,18 +656,19 @@ export function viewFor(state: GameState, set: QuestionSet, pid: string, now: nu
         award: player.lastAward,
         score: player.score,
         correctLabel: CHOICE_LABELS[shown.answer],
-        streak: player.streak,
+        streak,
         place,
         climbed: player.previousRank && player.rank ? player.previousRank - player.rank : 0,
         behind: behindTop(state, pid),
         newStar: currentStars(state).includes(pid),
         star: player.star,
         nextDouble: isFinalStretch(state, state.index + 1),
+        ...style,
       };
     }
     case "final": {
       const place = topPlaces(state).find((s) => s.pid === pid)?.place ?? null;
-      return { phase: "final", name, score: player.score, place, bestStreak: player.bestStreak };
+      return { phase: "final", name, score: player.score, place, bestStreak: plain ? 0 : player.bestStreak, ...style };
     }
   }
 }

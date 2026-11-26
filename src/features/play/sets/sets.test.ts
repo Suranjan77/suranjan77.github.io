@@ -6,7 +6,7 @@ import { parsePlayerMessage } from "../protocol";
 import { roundCount, type QuizImage } from "../types";
 import { userExperience } from "./aaq-u3";
 import { designingSlides } from "./l1-a4";
-import { courseOfSet, courses, findSet, loadCourse, loadSet } from "./index";
+import { courseOfSet, courses, findSet, loadCourse, loadSet, styleOfSet } from "./index";
 
 const publicDir = join(process.cwd(), "public");
 
@@ -27,6 +27,12 @@ const WEEKLY_SET = { questions: [12, 16], twice: [3, 6], rounds: 22 };
 const SET_SHAPES: Record<string, typeof WEEKLY_SET> = {
   "y11-da-start": { questions: [20, 24], twice: [0, 0], rounds: 24 },
 };
+/**
+ * Levels 4 to 6 play in the plain style, which asks every question once: no
+ * set there marks any to ask twice. With no repeats, a set can hold up to 30
+ * questions, e.g. a knowledge check of a whole module.
+ */
+const PLAIN_SET = { questions: [12, 30], twice: [0, 0], rounds: 30 };
 const loadedCourses =await Promise.all(courses.map(async (course) => ({ course, sections: await loadCourse(course) })));
 const questionSets = loadedCourses.flatMap(({ sections }) => sections.flatMap((section) => section.sets));
 
@@ -73,7 +79,7 @@ describe("question sets", () => {
 
   for (const set of questionSets) {
     describe(set.title, () => {
-      const shape = SET_SHAPES[set.id] ?? WEEKLY_SET;
+      const shape = SET_SHAPES[set.id] ?? (styleOfSet(set.id) === "plain" ? PLAIN_SET : WEEKLY_SET);
       it(`has ${shape.questions.join(" to ")} questions with unique ids, and asks ${shape.twice.join(" to ")} of them twice`, () => {
         expect(set.questions.length).toBeGreaterThanOrEqual(shape.questions[0]);
         expect(set.questions.length).toBeLessThanOrEqual(shape.questions[1]);

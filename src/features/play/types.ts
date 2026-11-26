@@ -56,7 +56,8 @@ export type CourseSection = {
 export type Course = {
   /** Every set id in the course starts with this and a hyphen. */
   id: string;
-  level: 1 | 2 | 3;
+  /** Levels 4 to 6 (higher education) play in the plain style: see `styleForLevel`. */
+  level: 1 | 2 | 3 | 4 | 5 | 6;
   /** e.g. "BTEC Level 1 Introductory Diploma in IT" */
   qualification: string;
   /** e.g. "Unit A4 · Researching a topic" */
@@ -79,7 +80,24 @@ export function questionSeconds(question: Question, set: QuestionSet): number {
 
 export const CHOICE_LABELS = ["A", "B", "C", "D"] as const;
 
-/** How many rounds a set makes: every question once, and the ones asked twice again. */
-export function roundCount(set: QuestionSet): number {
-  return set.questions.reduce((n, q) => n + (q.askTwice ? 2 : 1), 0);
+/**
+ * How a game is played. "classroom" (Level 3 and below) has the comeback
+ * scoring, stars, streaks, the final stretch and repeated questions.
+ * "plain" (Levels 4 to 6) is a straight quiz: every question once, points for
+ * a right answer (more for a faster one) and the leaderboard, nothing else.
+ */
+export type QuizStyle = "classroom" | "plain";
+
+export function styleForLevel(level: number): QuizStyle {
+  return level >= 4 ? "plain" : "classroom";
+}
+
+/** True when the question comes back later in a game of this style. */
+export function asksTwice(question: Question, style: QuizStyle = "classroom"): boolean {
+  return style === "classroom" && !!question.askTwice;
+}
+
+/** How many rounds a set makes: every question once, and, in the classroom style, the ones asked twice again. */
+export function roundCount(set: QuestionSet, style: QuizStyle = "classroom"): number {
+  return set.questions.reduce((n, q) => n + (asksTwice(q, style) ? 2 : 1), 0);
 }

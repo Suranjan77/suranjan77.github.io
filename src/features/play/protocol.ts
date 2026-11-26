@@ -35,6 +35,8 @@ export type PlayerView =
       star: boolean;
       /** Right answers in a row so far. */
       streak: number;
+      /** The plain style (Levels 4 to 6): no bonuses, stars or streaks to show. */
+      plain?: true;
     }
   | {
       phase: "reveal";
@@ -59,8 +61,9 @@ export type PlayerView =
       star: boolean;
       /** The next round is in the final stretch. */
       nextDouble: boolean;
+      plain?: true;
     }
-  | { phase: "final"; name: string; score: number; place: number | null; bestStreak: number };
+  | { phase: "final"; name: string; score: number; place: number | null; bestStreak: number; plain?: true };
 
 export type HostToPlayer =
   | { t: "view"; view: PlayerView }
