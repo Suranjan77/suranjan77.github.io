@@ -47,6 +47,14 @@ export const courses: readonly Course[] = [
     load: () => import("./aaq-u3").then((m) => m.sections),
   },
   {
+    id: "l3-dsd",
+    level: 3,
+    qualification: "T Level Digital Production, Design and Development",
+    unit: "Core · Data models",
+    scope: "Entity–relationship diagrams: entities, keys, relationships and link entities",
+    load: () => import("./l3-dsd").then((m) => m.sections),
+  },
+  {
     id: "city2161",
     level: 5,
     qualification: "University of Plymouth, at City College Plymouth",

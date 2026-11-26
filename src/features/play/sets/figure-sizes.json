@@ -1510,5 +1510,57 @@
   "city2161/phishing-tree": [
     856,
     513
+  ],
+  "l3-dsd/one-table": [
+    565,
+    319
+  ],
+  "l3-dsd/school-a": [
+    596,
+    120
+  ],
+  "l3-dsd/school-b": [
+    596,
+    120
+  ],
+  "l3-dsd/school-c": [
+    596,
+    120
+  ],
+  "l3-dsd/school-d": [
+    596,
+    120
+  ],
+  "l3-dsd/parts": [
+    836,
+    336
+  ],
+  "l3-dsd/customer-order": [
+    786,
+    208
+  ],
+  "l3-dsd/espresso": [
+    910,
+    387
+  ],
+  "l3-dsd/cold-heart": [
+    675,
+    387
+  ],
+  "l3-dsd/delete": [
+    649,
+    319
+  ],
+  "l3-dsd/one-to-one": [
+    746,
+    240
+  ],
+  "l3-dsd/many-to-many": [
+    756,
+    166
+  ],
+  "l3-dsd/entry-rows": [
+    422,
+    270
   ]
 }

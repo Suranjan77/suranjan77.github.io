@@ -1,0 +1,284 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Classroom quiz figures: T Level DSD core, entity–relationship diagrams</title>
+<!--
+  Every <figure data-name> on this page is rendered to public/play/l3-dsd/<name>.png
+  by scripts/render-play-figures.mjs. The figures follow the deck
+  (academic-materials, decks/l3-dsd-core/er-diagrams): its music app, its rows and its
+  crow's-foot notation, maximum only (a bar is "one", a crow's foot is "many").
+  Colour language, as in the deck: blue = ARTIST and artist_id, teal = TRACK and
+  track_id, violet = PLAYLIST and playlist_id, gold = a link entity. A foreign key
+  wears the colour of the entity whose key it copies.
+
+  The diagrams are drawn by the script at the bottom of the page, from the
+  `diagrams` table, so every entity box and line end is drawn the same way.
+  Nothing on a figure gives an answer away.
+-->
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; background: #e9ecef; color: #1b1f24;
+         font: 17px/1.4 Arial, "Liberation Sans", sans-serif;
+         display: flex; flex-direction: column; align-items: flex-start; gap: 24px; }
+  figure { margin: 0; background: #fff; padding: 18px; }
+  svg { display: block; font-family: Arial, "Liberation Sans", sans-serif; }
+
+  /* Tables of rows. */
+  .rows { display: flex; gap: 36px; align-items: flex-start; }
+  .tbl-name { font-weight: 700; font-size: 19px; margin: 0 0 6px; }
+  table.t { border-collapse: collapse; font-size: 19px; }
+  table.t th, table.t td { border: 1.5px solid #6b7682; padding: 7px 14px; text-align: left; }
+  table.t th { color: #fff; font-weight: 700; }
+  table.t td.n { font-family: "Liberation Mono", monospace; font-weight: 700; text-align: center; }
+  table.grey th { background: #3c4753; }
+  table.blue th { background: #1f5fae; }
+  table.teal th { background: #0f6e6a; }
+  table.gold th { background: #8a6100; }
+  .c-blue { color: #123f75; }
+  .c-teal { color: #0b4f4c; }
+  .c-violet { color: #4a2a75; }
+  .new-row { margin-top: 18px; border: 2px solid #3c4753; background: #eef1f4; padding: 10px 16px;
+             font: 700 20px/1.3 "Liberation Mono", monospace; display: inline-block; }
+  .new-row span.l { font: 700 17px/1.3 Arial, "Liberation Sans", sans-serif; margin-right: 10px; }
+  .marked td { background: #eef1f4; }
+  .tag { font: 700 15px/1 Arial, "Liberation Sans", sans-serif; border: 2px solid #3c4753;
+         padding: 3px 6px; margin-left: 10px; white-space: nowrap; }
+  .keynote { font-size: 17px; color: #3c4753; margin: 10px 0 0; }
+</style>
+
+<!-- Do Now: the one-table design, with a fact typed in several places. -->
+<figure data-name="one-table">
+  <p class="tbl-name">A music app's tracks, in one table</p>
+  <table class="t grey">
+    <tr><th>title</th><th>year</th><th>artist</th><th>country</th></tr>
+    <tr><td>Levitating</td><td>2020</td><td>Dua Lipa</td><td>United Kingdom</td></tr>
+    <tr><td>Houdini</td><td>2023</td><td>Dua Lipa</td><td>United Kingdom</td></tr>
+    <tr><td>Anti-Hero</td><td>2022</td><td>Taylor Swift</td><td>United States</td></tr>
+    <tr><td>Training Season</td><td>2024</td><td>Dua Lipa</td><td>UK</td></tr>
+    <tr><td>Last Last</td><td>2022</td><td>Burna Boy</td><td>Nigeria</td></tr>
+  </table>
+</figure>
+
+<!-- Choices: four ways to draw SCHOOL employs TEACHER. -->
+<figure data-name="school-a"><svg data-diagram="school-a"></svg></figure>
+<figure data-name="school-b"><svg data-diagram="school-b"></svg></figure>
+<figure data-name="school-c"><svg data-diagram="school-c"></svg></figure>
+<figure data-name="school-d"><svg data-diagram="school-d"></svg></figure>
+
+<!-- The parts of the music diagram, numbered. -->
+<figure data-name="parts"><svg data-diagram="parts"></svg></figure>
+
+<!-- Reading a line from the many end. -->
+<figure data-name="customer-order"><svg data-diagram="customer-order"></svg></figure>
+
+<!-- Predict, row A: an FK that matches no PK. -->
+<figure data-name="espresso">
+  <div class="rows">
+    <div>
+      <p class="tbl-name">TRACK</p>
+      <table class="t teal">
+        <tr><th>track_id</th><th>title</th><th>year</th><th>artist_id</th></tr>
+        <tr><td class="n c-teal">1</td><td>Levitating</td><td>2020</td><td class="n c-blue">1</td></tr>
+        <tr><td class="n c-teal">2</td><td>Houdini</td><td>2023</td><td class="n c-blue">1</td></tr>
+        <tr><td class="n c-teal">3</td><td>Anti-Hero</td><td>2022</td><td class="n c-blue">2</td></tr>
+        <tr><td class="n c-teal">4</td><td>Training Season</td><td>2024</td><td class="n c-blue">1</td></tr>
+        <tr><td class="n c-teal">5</td><td>Last Last</td><td>2022</td><td class="n c-blue">3</td></tr>
+      </table>
+    </div>
+    <div>
+      <p class="tbl-name">ARTIST</p>
+      <table class="t blue">
+        <tr><th>artist_id</th><th>name</th><th>country</th></tr>
+        <tr><td class="n c-blue">1</td><td>Dua Lipa</td><td>United Kingdom</td></tr>
+        <tr><td class="n c-blue">2</td><td>Taylor Swift</td><td>United States</td></tr>
+        <tr><td class="n c-blue">3</td><td>Burna Boy</td><td>Nigeria</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="new-row"><span class="l">New row:</span>TRACK (6, Espresso, 2024, 9)</div>
+</figure>
+
+<!-- Predict, row C: a PK that is already used. -->
+<figure data-name="cold-heart">
+  <div class="rows">
+    <div>
+      <p class="tbl-name">TRACK</p>
+      <table class="t teal">
+        <tr><th>track_id</th><th>title</th><th>artist_id</th></tr>
+        <tr><td class="n c-teal">1</td><td>Levitating</td><td class="n c-blue">1</td></tr>
+        <tr><td class="n c-teal">2</td><td>Houdini</td><td class="n c-blue">1</td></tr>
+        <tr><td class="n c-teal">3</td><td>Anti-Hero</td><td class="n c-blue">2</td></tr>
+        <tr><td class="n c-teal">4</td><td>Training Season</td><td class="n c-blue">1</td></tr>
+        <tr><td class="n c-teal">5</td><td>Last Last</td><td class="n c-blue">3</td></tr>
+      </table>
+    </div>
+    <div>
+      <p class="tbl-name">ARTIST</p>
+      <table class="t blue">
+        <tr><th>artist_id</th><th>name</th></tr>
+        <tr><td class="n c-blue">1</td><td>Dua Lipa</td></tr>
+        <tr><td class="n c-blue">2</td><td>Taylor Swift</td></tr>
+        <tr><td class="n c-blue">3</td><td>Burna Boy</td></tr>
+        <tr><td class="n c-blue">4</td><td>Elton John</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="new-row"><span class="l">New row:</span>TRACK (2, Cold Heart, 2021, 4)</div>
+</figure>
+
+<!-- Investigate, step 3: deleting a row another row points at. -->
+<figure data-name="delete">
+  <div class="rows">
+    <div>
+      <p class="tbl-name">ARTIST</p>
+      <table class="t blue">
+        <tr><th>artist_id</th><th>name</th></tr>
+        <tr><td class="n c-blue">1</td><td>Dua Lipa</td></tr>
+        <tr class="marked"><td class="n c-blue">2</td><td>Taylor Swift <span class="tag">Delete</span></td></tr>
+        <tr><td class="n c-blue">3</td><td>Burna Boy</td></tr>
+      </table>
+    </div>
+    <div>
+      <p class="tbl-name">TRACK</p>
+      <table class="t teal">
+        <tr><th>title</th><th>artist_id</th></tr>
+        <tr><td>Levitating</td><td class="n c-blue">1</td></tr>
+        <tr><td>Houdini</td><td class="n c-blue">1</td></tr>
+        <tr><td>Anti-Hero</td><td class="n c-blue">2</td></tr>
+        <tr><td>Training Season</td><td class="n c-blue">1</td></tr>
+        <tr><td>Last Last</td><td class="n c-blue">3</td></tr>
+      </table>
+    </div>
+  </div>
+</figure>
+
+<!-- Investigate, step 2: both ends bars. -->
+<figure data-name="one-to-one"><svg data-diagram="one-to-one"></svg></figure>
+
+<!-- Many-to-many, as first drawn. -->
+<figure data-name="many-to-many"><svg data-diagram="many-to-many"></svg></figure>
+
+<!-- The link entity's rows. -->
+<figure data-name="entry-rows">
+  <p class="tbl-name">ENTRY</p>
+  <table class="t gold">
+    <tr><th>playlist_id (PK, FK)</th><th>track_id (PK, FK)</th></tr>
+    <tr><td class="n c-violet">1</td><td class="n c-teal">1</td></tr>
+    <tr><td class="n c-violet">1</td><td class="n c-teal">3</td></tr>
+    <tr><td class="n c-violet">2</td><td class="n c-teal">1</td></tr>
+  </table>
+  <p class="keynote">The primary key is playlist_id and track_id together.</p>
+</figure>
+
+<script>
+  // Colours: a line and header in `stroke`, a light header fill, dark text.
+  const C = {
+    blue:   { stroke: "#1f5fae", fill: "#dbe7f6", text: "#123f75" },
+    teal:   { stroke: "#0f6e6a", fill: "#d4eeec", text: "#0b4f4c" },
+    violet: { stroke: "#6a3fa0", fill: "#e9e0f5", text: "#4a2a75" },
+    gold:   { stroke: "#8a6100", fill: "#f6ead0", text: "#6b4a00" },
+    grey:   { stroke: "#3c4753", fill: "#eef1f4", text: "#1b1f24" },
+  };
+  const INK = "#1b1f24", LINE = "#3c4753";
+  const HEAD = 44, ROW = 32;
+
+  /**
+   * An entity box: its name, then one row per attribute. An attribute is
+   * [name, key, colour]: key is "PK", "FK", "PK, FK" or "" (shown in front of the
+   * name), colour names the entity whose key it is. `tags: false` hides the keys.
+   */
+  function entity({ x, y, w, name, c, attrs = [], tags = true }) {
+    const col = C[c];
+    const h = HEAD + (attrs.length ? attrs.length * ROW + 12 : 0);
+    let s = `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff" stroke="${col.stroke}" stroke-width="2.5" rx="6"/>`;
+    s += `<path d="M${x} ${y + 6} a6 6 0 0 1 6 -6 h${w - 12} a6 6 0 0 1 6 6 v${HEAD - 6} h${-w} z" fill="${col.fill}" stroke="${col.stroke}" stroke-width="2.5"/>`;
+    s += `<text x="${x + w / 2}" y="${y + 29}" font-size="20" font-weight="700" text-anchor="middle" fill="${col.text}">${name}</text>`;
+    attrs.forEach(([attr, key, kc], i) => {
+      const ty = y + HEAD + 6 + i * ROW + 22;
+      const fill = kc ? C[kc].text : INK;
+      const label = tags && key ? `<tspan font-weight="700">${key}</tspan>  ` : "";
+      s += `<text x="${x + 14}" y="${ty}" font-size="18" fill="${fill}" xml:space="preserve">${label}${attr}</text>`;
+    });
+    return { s, box: { x, y, w, h }, row: (i) => y + HEAD + 6 + i * ROW + 16 };
+  }
+
+  /** A line end at (x, y) on a box edge; `d` is +1 when the box is to the right. */
+  function end(kind, x, y, d) {
+    if (kind === "one") return `<line x1="${x - d * 14}" x2="${x - d * 14}" y1="${y - 12}" y2="${y + 12}" stroke="${LINE}" stroke-width="2.5"/>`;
+    const px = x - d * 22;
+    return [-13, 0, 13].map((dy) => `<line x1="${px}" y1="${y}" x2="${x}" y2="${y + dy}" stroke="${LINE}" stroke-width="2.5"/>`).join("");
+  }
+
+  /** A named horizontal line from box a's right edge to box b's left edge. */
+  function line(a, b, y, endA, endB, label) {
+    const x1 = a.x + a.w, x2 = b.x;
+    return `<line x1="${x1}" x2="${x2}" y1="${y}" y2="${y}" stroke="${LINE}" stroke-width="2.5"/>`
+      + end(endA, x1, y, -1) + end(endB, x2, y, 1)
+      + `<text x="${(x1 + x2) / 2}" y="${y - 12}" font-size="19" font-style="italic" text-anchor="middle" fill="${INK}">${label}</text>`;
+  }
+
+  /** A numbered marker at (x, y), with a leader to (tx, ty). */
+  function part(n, x, y, tx, ty) {
+    return `<line x1="${x}" y1="${y}" x2="${tx}" y2="${ty}" stroke="${INK}" stroke-width="2"/>`
+      + `<circle cx="${tx}" cy="${ty}" r="4" fill="${INK}"/>`
+      + `<circle cx="${x}" cy="${y}" r="16" fill="${INK}"/>`
+      + `<text x="${x}" y="${y + 6}" font-size="18" font-weight="700" text-anchor="middle" fill="#fff">${n}</text>`;
+  }
+
+  const ARTIST = [["artist_id", "PK", "blue"], ["name"], ["country"]];
+  const TRACK = [["track_id", "PK", "teal"], ["title"], ["year"], ["artist_id", "FK", "blue"]];
+
+  function school(endA, endB) {
+    return () => {
+      const a = entity({ x: 10, y: 20, w: 150, name: "SCHOOL", c: "grey" });
+      const b = entity({ x: 400, y: 20, w: 150, name: "TEACHER", c: "grey" });
+      return { w: 560, h: 84, s: a.s + b.s + line(a.box, b.box, 42, endA, endB, "employs") };
+    };
+  }
+
+  const diagrams = {
+    "school-a": school("one", "many"),
+    "school-b": school("many", "one"),
+    "school-c": school("many", "many"),
+    "school-d": school("one", "one"),
+
+    parts() {
+      const a = entity({ x: 70, y: 70, w: 220, name: "ARTIST", c: "blue", attrs: [["artist_id", "", "blue"], ["name"], ["country"]], tags: false });
+      const t = entity({ x: 500, y: 70, w: 220, name: "TRACK", c: "teal", attrs: [["track_id", "", "teal"], ["title"], ["year"], ["artist_id", "", "blue"]], tags: false });
+      const y = 70 + HEAD / 2;
+      return {
+        w: 800, h: 300,
+        s: a.s + t.s + line(a.box, t.box, y, "one", "many", "makes")
+          + part(1, 30, 30, 110, 82)
+          + part(2, 30, 160, 76, a.row(0))
+          + part(3, 395, 160, 395, y + 4)
+          + part(4, 770, 280, 714, t.row(3)),
+      };
+    },
+
+    "customer-order"() {
+      const a = entity({ x: 10, y: 10, w: 240, name: "CUSTOMER", c: "blue", attrs: [["customer_id", "PK", "blue"], ["name"]] });
+      const b = entity({ x: 500, y: 10, w: 240, name: "ORDER", c: "teal", attrs: [["order_id", "PK", "teal"], ["date"], ["customer_id", "FK", "blue"]] });
+      return { w: 750, h: 172, s: a.s + b.s + line(a.box, b.box, 10 + HEAD / 2, "one", "many", "places") };
+    },
+
+    "one-to-one"() {
+      const a = entity({ x: 10, y: 10, w: 220, name: "ARTIST", c: "blue", attrs: ARTIST });
+      const t = entity({ x: 480, y: 10, w: 220, name: "TRACK", c: "teal", attrs: TRACK });
+      return { w: 710, h: 204, s: a.s + t.s + line(a.box, t.box, 10 + HEAD / 2, "one", "one", "makes") };
+    },
+
+    "many-to-many"() {
+      const p = entity({ x: 10, y: 10, w: 230, name: "PLAYLIST", c: "violet", attrs: [["playlist_id", "PK", "violet"], ["name"]] });
+      const t = entity({ x: 480, y: 10, w: 230, name: "TRACK", c: "teal", attrs: [["track_id", "PK", "teal"], ["title"]] });
+      return { w: 720, h: 130, s: p.s + t.s + line(p.box, t.box, 10 + HEAD / 2, "many", "many", "holds") };
+    },
+  };
+
+  for (const svg of document.querySelectorAll("svg[data-diagram]")) {
+    const { w, h, s } = diagrams[svg.dataset.diagram]();
+    svg.setAttribute("width", w);
+    svg.setAttribute("height", h);
+    svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    svg.innerHTML = s;
+  }
+</script>

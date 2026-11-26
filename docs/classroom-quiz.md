@@ -245,6 +245,7 @@ to `courses`. `sets.test.ts` picks it up from there.
 | 2 | Level 2 IT, Unit 9 Spreadsheet development | 8 sets of 15, Tasks 1–5 | The Assignment 2 guide |
 | 2 | Year 11 taster day, Data analytics | 2 sets: 24 to open, 16 to close | Written for the taster day |
 | 3 | BTEC AAQ IT, Unit 3 Website development | 20 sets of 16 | The unit's lecture notes and decks |
+| 3 | T Level Digital Production, Design and Development, core: data models (6.10) | 1 set of 16 | The entity–relationship diagrams deck |
 | 5 | CITY2161 Data modelling and machine learning for cyber security | 1 knowledge check of 30 | The module's Lecture Companions, Topics 4–10 |
 
 **Unit A4 (Level 1)** covers Task 2, the presentation that summarises
@@ -300,6 +301,19 @@ apart from the retold cholera map. It is listed under Level 2, Year 11's level.
 **Unit 3 (Level 3)** has a set for each of its 20 weekly topics, written from
 that unit's lecture notes and decks in academic-materials
 (`modules/l3-aaq-u3-website-development`).
+
+**T Level DSD core (Level 3)** has one set, "Entity–relationship diagrams",
+for core content area 6.10 (data models), written from the deck in
+academic-materials (`decks/l3-dsd-core/er-diagrams`) and in its terms:
+crow's-foot notation with maximum only (a bar is one, a crow's foot is many),
+the music app's ARTIST and TRACK, and the PLAYLIST–ENTRY–TRACK link entity. It
+checks one fact in one place, drawing and reading a line's two ends, primary
+and foreign keys, which rows the database refuses (the deck's Predict rows,
+with the answers its recorded runs gave), where the foreign key goes, deleting
+a row that others point at, and resolving a many-to-many line with a link
+entity. Its diagrams use the deck's colours: blue for ARTIST, teal for TRACK,
+violet for PLAYLIST and gold for a link entity, with a foreign key in the
+colour of the key it copies.
 
 **CITY2161 (Level 5)** has one set, "Machine learning · knowledge check": 30
 questions across the module's machine learning topics, written from the
